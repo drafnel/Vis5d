@@ -6418,6 +6418,24 @@ int vis5d_var_graphics_options(int index, int type, int number, int what, int mo
 	 }
 	 return *val;
 	 break;
+  case VIS5D_LINE_WIDTH:
+	 switch(type){
+	 case VIS5D_HSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->HSliceRequest)
+		  val = &ctx->Variable[number]->HSliceRequest->linewidth;
+		break;
+	 case VIS5D_VSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->VSliceRequest)
+		  val = &ctx->Variable[number]->VSliceRequest->linewidth;
+		break;
+	 }
+	 /* here mode is the GL stipple pattern or get if none of */
+    /* we really dont need this restriction to only 5 patterns*/
+	 if(mode >=1 && mode <=5){
+		*val = mode;
+	 }
+	 return *val;
+	 break;
   case VIS5D_LINE_STIPPLE:
 	 switch(type){
 	 case VIS5D_HSLICE:

@@ -285,6 +285,7 @@ typedef struct {
   float Hgt;
   int fillstyle;
   int textureflag;  /* use texture objects for color ? */
+  int linewidth;
   int stipple;
 #ifdef USE_GLLISTS
   GLuint textureobject;
@@ -309,6 +310,7 @@ typedef struct {
   float Lon2;
   int textureflag; /* use texture objects for color ? */
   int fillstyle;
+  int linewidth;
   int stipple;
 #ifdef USE_GLLISTS
   GLuint textureobject;

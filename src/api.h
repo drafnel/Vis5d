@@ -144,6 +144,7 @@ extern "C" {
 #define VIS5D_TEXTURE_COLORS   550
 #define VIS5D_FILL_STYLE       560
 #define VIS5D_LINE_STIPPLE     570
+#define VIS5D_LINE_WIDTH       580
 
 
 /* These are the defines used in the function

@@ -1041,6 +1041,8 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
 				  glEnable(GL_LINE_STIPPLE);
 				  glLineStipple(1, (GLushort) ctx->Variable[var]->HSliceRequest->stipple);
 				}
+				if(ctx->Variable[var]->HSliceRequest->linewidth>1)
+				  glLineWidth(ctx->Variable[var]->HSliceRequest->linewidth);
 #ifdef USE_GLLISTS
 			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE]) );
 				glCallList(ctx->Variable[var]->HSliceTable[time]->glList[0]);
@@ -1103,6 +1105,7 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
             }
 
             /* draw the bounding box */
+				glLineWidth(1);
 				glDisable(GL_LINE_STIPPLE);
             /* MJK 12.01.98 */
             if (!ctx->DisplaySfcHSlice[var]){
@@ -1169,6 +1172,13 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
          }
          if (lock) {
             recent( ctx, VSLICE, var );
+
+				if(ctx->Variable[var]->VSliceRequest->stipple!=VIS5D_SOLID_LINE){
+				  glEnable(GL_LINE_STIPPLE);
+				  glLineStipple(1, (GLushort) ctx->Variable[var]->VSliceRequest->stipple);
+				}
+				if(ctx->Variable[var]->VSliceRequest->linewidth>1)
+				  glLineWidth(ctx->Variable[var]->VSliceRequest->linewidth);
 #ifdef USE_GLLISTS
 			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE]) );
 				glCallList(ctx->Variable[var]->VSliceTable[time]->glList[0]);
@@ -2812,11 +2822,12 @@ void render_everything( Display_Context dtx, int animflag )
    if (dtx->DisplayBox){
       int i, listflag=0;
 #ifdef USE_GLLISTS
-		if(! glIsList(dtx->DisplayBox)){
+		if(dtx->NumBoxVerts > 0 && ! glIsList(dtx->DisplayBox)){
 		  dtx->DisplayBox = v5d_glGenLists(1);
 		  glNewList(dtx->DisplayBox,GL_COMPILE_AND_EXECUTE);
 		  listflag=1;
 #endif
+		  
 		  for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
 			 start_aa_pass(i);
 			 draw_box(dtx, dtx->CurTime); 

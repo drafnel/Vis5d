@@ -1,6 +1,10 @@
 /* read_grads.c */
 
 /*
+ * Functions for reading GRADS files
+ */
+
+/*
  * Vis5D system for visualizing five dimensional gridded data sets.
  * Copyright (C) 1990 - 2000 Bill Hibbard, Johan Kellum, Brian Paul,
  * Dave Santek, and Andre Battaiola.
@@ -29,11 +33,6 @@
  */
 
 #include "../config.h"
-
-
-/*
- * Functions for reading GRADS files
- */
 
 
 #include <ctype.h>
@@ -264,6 +263,8 @@ static void flip_layer( float *data, int rows, int cols, float missing_value )
    for (i=0;i<rows;i++) {
       for (j=0;j<cols;j++) {
 
+         /* NOTE: floating-point errors on next line probably indicate
+            improperly byteswapped data file! How to catch in program??? */
          if (DATA(i,j)==missing_value) {
             TEMP(i,j) = MISSING;
          }
@@ -280,6 +281,127 @@ static void flip_layer( float *data, int rows, int cols, float missing_value )
 }
 
 
+
+/* This is a modified version of the gafndt() routine in the GrADS code.
+   Given a GrADS data file template and the current date/time, fills in
+   fnout with the specific file name obtained by filling in the template
+   with the current date/time information.
+*/
+void grads_file_template( char *fn, int yr, int mo, int dy, int hr, int mn,
+                          char fnout[1000] )
+{
+  static char *mons[12] = {"jan","feb","mar","apr","may","jun","jul","aug",
+                           "sep","oct","nov","dec"};
+  char *in = fn;      /* always points to the next character to read. */
+  char *out = fnout;  /* always points to the next character to write. */
+
+  while (*in) {
+    if (*in=='%') {
+      /* We got a formatting control command. */
+
+      /* Just skip and ignore an 'i' character. */
+      if ( *in == 'i' ) in++;
+      if (*(in+1)=='y' && *(in+2)=='2') {
+        int iv = yr/100;
+        iv = yr - iv*100;
+        sprintf (out,"%02i",iv);
+        out+=2;  in+=3;
+      } else if (*(in+1)=='y' && *(in+2)=='4') {
+        sprintf (out,"%04i",yr);
+        out+=4;  in+=3;
+      } else if (*(in+1)=='m' && *(in+2)=='1') {
+        sprintf (out,"%i",mo);
+        while (*out) out++;
+        in+=3;
+      } else if (*(in+1)=='m' && *(in+2)=='2') {
+        sprintf (out,"%02i",mo);
+        out+=2;  in+=3;
+      } else if (*(in+1)=='m' && *(in+2)=='h') {
+        if (dy < 16) *out='a';
+        else *out = 'b';
+        out+=1;  in+=3;
+      } else if (*(in+1)=='m' && *(in+2)=='H') {
+        if (dy < 16) *out='A';
+        else *out = 'B';
+        out+=1;  in+=3;
+      } else if (*(in+1)=='m' && *(in+2)=='c') {
+        *out = *(mons[mo-1]);
+        *(out+1) = *(mons[mo-1]+1);
+        *(out+2) = *(mons[mo-1]+2);
+        out+=3;  in+=3;
+      } else if (*(in+1)=='d' && *(in+2)=='1') {
+        sprintf (out,"%i",dy);
+        while (*out) out++;
+        in+=3;
+      } else if (*(in+1)=='d' && *(in+2)=='2') {
+        sprintf (out,"%02i",dy);
+        out+=2;  in+=3;
+      } else if (*(in+1)=='h' && *(in+2)=='1') {
+        sprintf (out,"%i",hr);
+        while (*out) out++;
+        in+=3;
+      } else if (*(in+1)=='h' && *(in+2)=='2') {
+        sprintf (out,"%02i",hr);
+        out+=2;  in+=3;
+      } else if (*(in+1)=='h' && *(in+2)=='3') {
+        sprintf (out,"%03i",hr);
+        out+=3;  in+=3;
+      } else if (*(in+1)=='n' && *(in+2)=='2') {
+        sprintf (out,"%02i",mn);
+        out+=2;  in+=3;
+      } else {
+        printf("WARNING: %c%c%c formatting command not supported.\n",
+               in[0], in[1], in[2] );
+        /* Just copy next character. */
+        *out = *in;
+        in++; out++;
+      }
+    } else {
+      /* Just copy next character. */
+      *out = *in;
+      in++; out++;
+    }
+  }
+  *out = '\0';
+}
+
+
+void julian2mmdd( int inYYYY, int inDDD,
+	          int* outMM, int* outDD )
+{
+  static int days_per_month[]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+  /* A year is a leap year if it is divisible by 4 but not by 100,
+     except that years divisible by 400 ARE leap years. */
+  if ( ((inYYYY % 4)==0) && (((inYYYY % 100)!=0)||(inYYYY % 400)==0)) {
+    days_per_month[1] = 29;     /* leap year */
+  } else {
+    days_per_month[1] = 28;
+  }
+
+  /* Iteratively increase *outMM while decreasing *outDD until it's
+     less than or equal to days_per_month[*outMM - 1]. */
+  *outMM = 1;
+  *outDD = inDDD;
+  while( *outMM <= 12 && *outDD > days_per_month[*outMM - 1] ) {
+    /* Subtract off number of days in this month and move on to the next. */
+    *outDD -= days_per_month[*outMM - 1];
+    (*outMM)++;
+  }
+}
+
+/* Convert a 2-digit year to a 4-digit year.
+   This should be placed in a general utility file so it can be used
+   in more places, so the hack will be in only one place. */
+int yy2yyyy( int inYearYY )
+{
+  /* Eventually check the current century to make a better decision. */
+  if ( inYearYY > 50 ) {
+    return inYearYY+1900;
+  } else {
+    return inYearYY+2000;
+  }
+}
 
 
 /*
@@ -298,6 +420,7 @@ int get_grads_info( char *name, struct grid_db *db )
    int grids = 0;
    struct grid_info *info;
    int pos = 0;
+   int fileheader_size = 0;
    float args[1000];
    struct projection *proj;
    struct vcs *vcs[MAXVARS];
@@ -314,7 +437,12 @@ int get_grads_info( char *name, struct grid_db *db )
    char varname[MAXVARS][100];
    int timestamp[MAXTIMES], datestamp[MAXTIMES];
    int numtimes, numvars;
+   int projection_type = PROJ_LINEAR;
+   int use_file_template = 0;
+   char specific_file_name[1000];
 
+   /* Initialize args */
+   args[0] = args[1] = args[2] = args[3] = args[4] = 0.0f;
 
    f = fopen( name, "r" );
    if (!f) {
@@ -333,7 +461,7 @@ int get_grads_info( char *name, struct grid_db *db )
 
       if (ntokens==0) continue;
 
-      if (strcmp(token[0],"DSET")==0 || strcmp(token[0],"dset")==0) {
+      if (strcasecmp(token[0],"DSET")==0) {
          if (ntokens<2) {
             printf("Error: missing filename argument on DSET line\n");
          }
@@ -347,19 +475,18 @@ int get_grads_info( char *name, struct grid_db *db )
             }
          }
       }
-      else if (strcmp(token[0],"TITLE")==0 || strcmp(token[0],"title")==0) {
+      else if (strcasecmp(token[0],"TITLE")==0) {
          /* ignore the title line */
       }
-      else if (strcmp(token[0],"UNDEF")==0 || strcmp(token[0],"undef")==0) {
+      else if (strcasecmp(token[0],"UNDEF")==0) {
          missing_value = atof(token[1]);
       }
-      else if (strcmp(token[0],"BYTESWAPPED")==0
-               || strcmp(token[0],"byteswapped")==0) {
+      else if (strcasecmp(token[0],"BYTESWAPPED")==0) {
+         /* Is this valid??? Shouldn't it be "OPTIONS BYTESWAPPED" ? */
          byteswapped = 1;
       }
-      else if (strcmp(token[0],"FORMAT")==0) {
-         if (strcmp(token[1],"SEQUENTIAL")==0 ||
-             strcmp(token[1],"sequential")==0) {
+      else if (strcasecmp(token[0],"FORMAT")==0) {
+         if (strcasecmp(token[1],"SEQUENTIAL")==0) {
                /* this is the only format currently supported; */
                /* also note: FORMAT keyword has been replaced by OPTIONS */
          }
@@ -368,47 +495,54 @@ int get_grads_info( char *name, struct grid_db *db )
             printf("         only SEQUENTIAL format is allowed.\n");
          }
       }
-      else if (strcmp(token[0],"OPTIONS")==0) {
-         if (strcmp(token[1],"SEQUENTIAL")==0 ||
-             strcmp(token[1],"sequential")==0) {
-               /* this is the only option currently supported */
+      else if (strcasecmp(token[0],"OPTIONS")==0) {
+         if (strcasecmp(token[1],"SEQUENTIAL")==0) {
+            /* Don't need to do anything, supported by default??? */
+         }
+         else if (strcasecmp(token[1],"BYTESWAPPED")==0) {
+            byteswapped=1;
+         }
+         else if (strcasecmp(token[1],"TEMPLATE")==0) {
+            use_file_template=1;
          }
          else {
-            printf("Warning: OPTIONS not fully supported\n");
-            printf("         only SEQUENTIAL option is allowed.\n");
+            printf("Warning: OPTIONS %s not supported\n", token[1]);
          }
       }
-      else if (strcmp(token[0],"FILEHEADER")==0 || strcmp(token[0],"fileheader")==0) {
+      else if (strcasecmp(token[0],"FILEHEADER")==0) {
          if (ntokens<2) {
             printf("Error: missing position argument on FILEHEADER line\n");
          }
-         pos = atoi( token[1] );
+         fileheader_size = atoi( token[1] );
+         pos = fileheader_size;
       }
-      else if (strcmp(token[0],"XDEF")==0 || strcmp(token[0],"xdef")==0) {
+      else if (strcasecmp(token[0],"XDEF")==0) {
          if (ntokens<4) {
             printf("Error: missing arguments to XDEF line\n");
          }
          else {
             nc = atoi( token[1] );
-            if (strcmp(token[2],"LINEAR")==0 || strcmp(token[2],"LINEAR")==0) {
+            if (strcasecmp(token[2],"LINEAR")==0) {
                westbound = -atof( token[3] );
                colinc = atof( token[4] );
             }
-            else if (strcmp(token[2],"LEVELS")==0
-                     || strcmp(token[2],"LEVELS")==0) {
+            else if (strcasecmp(token[2],"LEVELS")==0) {
                printf("Warning: XDEF LEVELS not fully supported\n");
                westbound = -atof( token[3] );
                colinc = fabs( atof(token[3]) - atof(token[4]) );
             }
+            else {
+               printf("Warning: XDEF %s not fully supported\n", token[2]);
+            }
          }
       }
-      else if (strcmp(token[0],"YDEF")==0 || strcmp(token[0],"ydef")==0) {
+      else if (strcasecmp(token[0],"YDEF")==0) {
          if (ntokens<4) {
             printf("Error: missing arguments to YDEF line\n");
          }
          else {
             nr = atoi( token[1] );
-            if (strcmp(token[2],"LINEAR")==0 || strcmp(token[2],"LINEAR")==0) {
+            if (strcasecmp(token[2],"LINEAR")==0) {
                float southbound = atof( token[3] );
                rowinc = atof( token[4] );
                northbound = southbound + rowinc * (nr-1);
@@ -417,9 +551,70 @@ int get_grads_info( char *name, struct grid_db *db )
                      || strncmp(token[2],"gausr",5)==0) {
                printf("Warning: YDEF GAUSRnn not supported\n");
             }
+            else {
+               printf("Warning: YDEF %s not fully supported\n", token[2]);
+            }
          }
       }
-      else if (strcmp(token[0],"ZDEF")==0 || strcmp(token[0],"zdef")==0) {
+      else if (strcasecmp(token[0],"PDEF")==0) {
+         if (ntokens<4) {
+            printf("Error: missing arguments to PDEF line\n");
+         }
+         else {
+            nc = atoi( token[1] );
+            nr = atoi( token[2] );
+            if (strcasecmp(token[3],"PSE")==0) {
+               if (ntokens<11) {
+                  printf("Error: missing arguments to PDEF line\n");
+                  printf("'PDEF ... pse ...' must have 10 arguments\n");
+               }
+               else {
+                  double pseLat       = atof( token[4] );    /* degrees */
+                  double pseLon       = atof( token[5] );    /* degrees */
+                  double pseCenterCol = atof( token[6] );    /* grid units */
+                  double pseCenterRow = atof( token[7] );    /* grid units */
+                  double pseDeltaX    = atof( token[8] );    /* in km */
+                  double pseDeltaY    = atof( token[9] );    /* ignored */
+                  int    pseNorthOrSouth = atoi( token[10] );/* +1 or -1 */
+
+                  /* grads documentation describes this format as 
+                     "high accuracy polar stereo (eccentric)" while vis5d
+                     calls it "azimuthal stereographic". The conversions
+                     performed here are somewhat cryptic, and were obtained
+                     with some combination of reading the documentation and
+                     trial and error. */
+                  /* center latitude. NOT TESTED FOR SOUTH POLAR PROJECTION! */
+                  args[0] = pseNorthOrSouth * 90.0;
+
+                  /* center longitude. Why minus 270? Seems to work though. */
+                  args[1] = pseLon - 270.0;
+                  /* put longitude in the range -180 to +180 */
+                  args[1] = fmod( args[1], 360.0 );
+                  if ( args[1] > 180.0 ) args[1] -= 360.0;
+                  if ( args[1] <-180.0 ) args[1] += 360.0;
+
+                  /* center grid row. Why the minus sign and nr-1? */
+                  args[2] = nr - ( pseCenterRow + 1 );
+
+                  /* center grid column */
+                  args[3] = pseCenterCol;
+
+                  /* column inc. in km, GrADS gives column increment at this
+                     lattitude, we need column increment at the pole. */
+                  args[4] = pseDeltaX * ( 1.0 + sin( 90/57.29578 ) ) /
+                                        ( 1.0 + sin( pseLat/57.29578 ) );
+
+                  /* what to do with token[9] - row inc. in km??? */
+                  /* what to do with token[10] - 1 is N pole, -1 is S pole???*/
+                  projection_type = PROJ_STEREO;
+               }
+            }
+            else {
+               printf("Warning: \"PDEF ... %s ...\" not supported\n", token[3] );
+            }
+         }
+      }
+      else if (strcasecmp(token[0],"ZDEF")==0) {
          if (ntokens<3) {
             printf("Error: missing arguments to ZDEF line\n");
          }
@@ -427,7 +622,7 @@ int get_grads_info( char *name, struct grid_db *db )
             float pressure[MAXLEVELS];
             int i;
             maxnl = atoi( token[1] );
-            if (strcmp(token[2],"LINEAR")==0 || strcmp(token[2],"linear")==0) {
+            if (strcasecmp(token[2],"LINEAR")==0) {
                vertical = VERT_EQUAL_KM;
                bottombound = atof( token[3] );
                levinc = atof( token[4] );
@@ -435,8 +630,7 @@ int get_grads_info( char *name, struct grid_db *db )
                   pressure[i] = bottombound + i * levinc;
                }
             }
-            else if (strcmp(token[2],"LEVELS")==0
-                     || strcmp(token[2],"levels")==0) {
+            else if (strcasecmp(token[2],"LEVELS")==0) {
                vertical = VERT_UNEQUAL_KM;
                for (i=0;i<maxnl && i+3<ntokens;i++) {
                   pressure[i] = atof( token[3+i] );
@@ -446,7 +640,7 @@ int get_grads_info( char *name, struct grid_db *db )
                   i++;
                }
             }
- 
+
             /* convert pressures to heights */
             {
                float p_bot, p_top, zinc;
@@ -468,7 +662,7 @@ int get_grads_info( char *name, struct grid_db *db )
             }
          }
       }
-      else if (strcmp(token[0],"TDEF")==0 || strcmp(token[0],"tdef")==0) {
+      else if (strcasecmp(token[0],"TDEF")==0) {
          if (ntokens!=5) {
             printf("Error: missing arguments to TDEF line\n");
          }
@@ -489,7 +683,7 @@ int get_grads_info( char *name, struct grid_db *db )
 
             id = v5dYYDDDtoDays(date0);
             it = v5dHHMMSStoSeconds(time0);
-            for (i=0;i<numtimes;i++) {
+            for (i=0;i<numtimes&&i<MAXTIMES;i++) {
                timestamp[i] = v5dSecondsToHHMMSS(it);
                datestamp[i] = v5dDaysToYYDDD(id);
                it = it + seconds;
@@ -499,7 +693,7 @@ int get_grads_info( char *name, struct grid_db *db )
             }
          }
       }
-      else if (strcmp(token[0],"VARS")==0 || strcmp(token[0],"vars")==0) {
+      else if (strcasecmp(token[0],"VARS")==0) {
          /* TODO: variables */
          if (ntokens!=2) {
             printf("Error: wrong number of arguments to VARS line\n");
@@ -522,7 +716,7 @@ int get_grads_info( char *name, struct grid_db *db )
             }
          }
       }
-      else if (strcmp(token[0],"ENDVARS")==0 || strcmp(token[0],"ENDVARS")==0){
+      else if (strcasecmp(token[0],"ENDVARS")==0){
          /* ignore */
       }
       else {
@@ -536,12 +730,18 @@ int get_grads_info( char *name, struct grid_db *db )
     * Generate grid_info structs
     */
 
-   /* same projection for all grids */
-   args[0] = northbound;
-   args[1] = westbound;
-   args[2] = rowinc;
-   args[3] = colinc;
-   proj = new_projection( db, PROJ_LINEAR, nr, nc, args );
+   if ( projection_type == PROJ_LINEAR ) {
+
+      args[0] = northbound;
+      args[1] = westbound;
+      args[2] = rowinc;
+      args[3] = colinc;
+      proj = new_projection( db, PROJ_LINEAR, nr, nc, args );
+   }
+   else if ( projection_type == PROJ_STEREO ) {
+      /* args have already been set properly. */
+      proj = new_projection( db, PROJ_STEREO, nr, nc, args );
+   }
 
    /* Potentially different vcs for each grid because number of levels */
    /* can vary per variable. */
@@ -559,12 +759,43 @@ int get_grads_info( char *name, struct grid_db *db )
       vcs[var] = new_vcs( db, vertical, nl[var], 0, args );
    }
 
-   for (time=0;time<numtimes;time++) {
+   if ( numtimes > MAXTIMES ) {
+      printf("Warning: %d is too many time steps, %d is limit.\n",
+             numtimes, MAXTIMES );
+   }
+   for (time=0;time<numtimes&&time<MAXTIMES;time++) {
+      if ( use_file_template ) {
+         int yr, mo, dy, hr, mn, jday;
+         char prev_file_name[1000];
+
+         /* Save the old file name so we can see if it has changed. */
+         strcpy( prev_file_name, specific_file_name );
+
+         /* Replace FileName, which may be a format string, with result
+            of expanding the file format string. */
+         yr = yy2yyyy( datestamp[time] / 1000 );
+         jday = datestamp[time] - 1000*(datestamp[time] / 1000);
+         julian2mmdd( yr, jday, &mo, &dy );
+         hr = timestamp[time] / 10000;
+         mn = timestamp[time] / 100 - hr*100;
+         grads_file_template( dset_name, yr,mo,dy,hr,mn, specific_file_name );
+
+         if ( strcmp( prev_file_name, specific_file_name ) != 0 ) {
+            /* Changing files - reset pos to the beginning of the file */
+            pos = fileheader_size;
+         }
+         printf("In get_grads_info, date:%05d, time:%06d, file:%s\n",
+                 datestamp[time], timestamp[time], specific_file_name );
+      } else {
+         strcpy( specific_file_name, dset_name );
+      }
 
       for (var=0;var<numvars;var++) {
 
          info = alloc_grid_info();
-         info->FileName = str_dup( dset_name );
+
+
+         info->FileName = str_dup( specific_file_name );
          info->Format = FILE_GRADS;
          info->TimeStep = time;
          info->VarNum = var;
@@ -594,7 +825,6 @@ int get_grads_info( char *name, struct grid_db *db )
 
    return grids;
 }
-
 
 
 
@@ -636,7 +866,20 @@ float *get_grads_data( struct grid_info *g )
    }
    else {
       int i;
-      if (g->byteswapped) {
+      int should_swap_bytes_here;
+
+      /* This can be confusing. read_float4_array() automatically performs
+         byte-swapping on non-BIGENDIAN machines. So if we're on a
+         non-BIGENDIAN machine and we asked for byte-swapping, do nothing;
+         but if we didn't ask for byte swapping, then swap them back!
+         On BIGENDIAN machines, behave normally. */
+#ifdef WORDS_BIGENDIAN
+      should_swap_bytes_here = g->byteswapped;
+#else
+      should_swap_bytes_here = !g->byteswapped;
+#endif
+
+      if (should_swap_bytes_here) {
         flip4((const unsigned int *) data, (unsigned int*) data, nread);
       }
       /* flip data */

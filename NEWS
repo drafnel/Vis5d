@@ -1,5 +1,11 @@
 Summary of changes for new releases of Vis5d+:
 
+Vis5d+ 1.0.2
+
+  * Fixed bug where the -wdpy option (to put the controls on a separate
+    display) caused Vis5d to crash.  Thanks to David Nunes for the bug
+    report.  (Fix submitted to mainline tree also.)
+
 Vis5d+ 1.0.1
 
   * Fixed stack-overflow bug in contour plotting, which was causing

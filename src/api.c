@@ -9839,7 +9839,7 @@ int set_cursor_type (Display *dpy, Window win, int shape)
 {
    Cursor cursor;
   
-   cursor = XCreateFontCursor (GfxDpy, shape);
+   cursor = XCreateFontCursor (dpy, shape);
    XDefineCursor (dpy, win, cursor);
    XFreeCursor (dpy, cursor);
    return 1;

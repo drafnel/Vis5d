@@ -1,5 +1,5 @@
 AC_INIT(src/v5d.c)
-AM_INIT_AUTOMAKE(vis5d+, 1.0.1)
+AM_INIT_AUTOMAKE(vis5d+, 1.0.2)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
 

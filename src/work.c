@@ -6533,7 +6533,7 @@ int do_one_task( int threadnum )
    var = i2;
 	if(Debug)  printf("do_one_task task type=%d time=%d var=%d\n", type , time, var);
 
-	if(time>=ctx->NumTimes){
+	if((ctx && time>=ctx->NumTimes)){
 	  /* JPE: time is supposed to be ctx time but if two datasets of overlapping time
 		  are associated with the same display, requests are made for graphics
         beyond the final time of the dataset which ends before display NumTimes 

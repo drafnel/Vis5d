@@ -1,3 +1,29 @@
+2001-01-28  stevengj  <stevengj@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/NEWS: updated
+
+	* /cvsroot/vis5d/vis5d/util/Makefile.am: build more tools by
+	default, but don't install them since the original Vis5d doesn't
+	even build them normally
+
+2001-01-04  stevengj  <stevengj@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/acx_pthread.m4: updated
+
+2000-12-10  stevengj  <stevengj@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/read_grads_i.c: Removed non-free
+	template-expansion function from GrADS code, and replaced it with
+	"clean-room" implementation based on a spec. provided by Conrad
+	Poelman.
+
+	* /cvsroot/vis5d/vis5d/acx_pthread.m4,
+	/cvsroot/vis5d/vis5d/ChangeLog: updated
+
+2000-11-28  jedwards  <jedwards@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in: removed import directory
+
 2000-11-28  jedwards  <jedwards@users.sourceforge.net>
 
 	* /cvsroot/vis5d/vis5d/configure.in: removed import directory

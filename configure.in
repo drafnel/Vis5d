@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.44 $)
+AC_REVISION($Revision: 1.45 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([src/v5d.c])
 # should be on a cvs branch labeled vis5d-x-x 
 # (for example vis5d-1-2) 
 #
-AM_INIT_AUTOMAKE(vis5d+, 1.3.0-beta)
+AM_INIT_AUTOMAKE(vis5d+, 1.3.1)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
 
@@ -54,7 +54,6 @@ ALL_LINGUAS="pt_BR es"
 #
 AC_CHECK_HEADERS(libintl.h,[], enable_nls="no")
 AM_GNU_GETTEXT(use-libtool, need-ngettext)
-
 GTK_DIRS=
 if test "$usegtk" = "yes"; then
 	AM_PATH_GTK(1.2.9, GTK_DIRS="gtk ",
@@ -236,7 +235,7 @@ AC_SUBST(GLLIBS)
 # Check for any particular functions in the GL libs:
 save_LIBS="$LIBS"
 LIBS="$GLLIBS $XLIBS $LIBS"
-AC_CHECK_HEADER([GL/xmesa.h], [AC_CHECK_FUNCS(XMesaGetBackBuffer)])
+AC_CHECK_FUNCS(XMesaGetBackBuffer)
 LIBS="$save_LIBS"
 
 ##########################################################################
@@ -481,5 +480,5 @@ fi
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
-AC_CONFIG_FILES([vis5d+.pc gtk/vis5dgtk.pc gtk/gradients/Makefile gtk/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile m4/Makefile  po/Makefile.in ])
+AC_CONFIG_FILES([vis5d+.pc gtk/vis5dgtk.pc gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile])
 AC_OUTPUT

@@ -13,4 +13,5 @@ Dave Kamins and Jeff Vroom of Stellar Computer, Inc.
 Simon Baas and Hans de Jong of the Netherlands for the HP/VOGL port
 Pratish Shah of Kubota Computer for the Kubota port
 Mike Stroyan of HP for the PEX support
-Steven G. Johnson of MIT for autoconf/automake support.
+Steven G. Johnson <stevenj@alum.mit.edu> of MIT for autoconf/automake support.
+Axel Reimann of Humboldt Univ. for converting the manual to DocBook.

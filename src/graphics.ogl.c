@@ -91,7 +91,7 @@ struct Biggfx biggfx;
 
 
 
-static void check_error( char *where )
+void check_gl_error( char *where )
 {
    GLenum error;
 
@@ -100,7 +100,7 @@ static void check_error( char *where )
       if (error==GL_NO_ERROR) {
          break;
       }
-      printf("OpenGL error near %s: %s\n", where, gluErrorString( error ) );
+      printf("OpenGL error near Vis5d routine %s: %s\n", where, gluErrorString( error ) );
    }
 }
 
@@ -190,6 +190,8 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
    unsigned long mask;
    Screen *screen = DefaultScreenOfDisplay( GfxDpy );
 
+   check_gl_error("somewhere before calling make_big_window");
+
    root = DefaultRootWindow(GfxDpy);
    /*********************/
    /* Choose the visual */
@@ -216,6 +218,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
         printf("Warning: using indirect GL/X context, may be slow\n");
       }
    }
+   check_gl_error("make_big_window (glXChooseVisual & glxCreateContext)");
 
 
 
@@ -264,10 +267,13 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
          exit(0);
       }
    }
+   check_gl_error("make_big_window (XCreateWindow)");
+
    if (width==ScrWidth && height==ScrHeight) {
       /* This is a hack for borderless windows! */
       no_border( GfxDpy, BigWindow );
    }
+   check_gl_error("make_big_window (no_border)");
 
    /* Bind the GLX context to the window (make this window the current one) */
    if (BigWindow){
@@ -277,9 +283,12 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       }
    }
 /* MJK 11.19.98 */
+   check_gl_error("make_big_window (glXMakeCurrent)");
+
    if (!off_screen_rendering){
       XMapWindow( GfxDpy, BigWindow);
    }
+   check_gl_error("make_big_window (XMapWindow)");
 
    if (visualinfo->depth<8) {
       /* This case occurs on 8-bit SGI Indys, etc because in double buffer
@@ -331,6 +340,8 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       glFogi( GL_FOG_MODE, GL_LINEAR );
       glFogfv( GL_FOG_COLOR, fog_color );
    }
+   check_gl_error("make_big_window (glLight,glEnable,glFov)");
+
    return 1;
 }
 
@@ -533,7 +544,8 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
          exit(0);
       }
    }
-      
+
+   check_gl_error("make_3d_window");
 
    return 1;
 }
@@ -589,6 +601,8 @@ int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
    dtx->FontHeight = dtx->gfx.font->ascent + dtx->gfx.font->descent;
    dtx->FontDescent = dtx->gfx.font->descent;
 
+   check_gl_error("use_opengl_window");
+
    return 1;
 }
 
@@ -625,6 +639,8 @@ void set_current_window( Display_Context dtx )
        }
       current_dtx = dtx;
    }
+
+   check_gl_error("set_current_window");
 }
 
 void finish_rendering( void )
@@ -659,6 +675,7 @@ int set_3d_font(  Display_Context dtx, char *name, int size )
    dtx->FontHeight = dtx->gfx.font->ascent + dtx->gfx.font->descent;
    dtx->FontDescent = dtx->gfx.font->descent;
 
+   check_gl_error("set_3d_font");
    return 0;
 }
 
@@ -682,6 +699,7 @@ void clear_color( unsigned int bgcolor )
    b = UNPACK_BLUE( bgcolor ) / 255.0;
    a = UNPACK_ALPHA( bgcolor ) / 255.0;
    glClearColor( r, g, b, a );
+   check_gl_error("clear_color");
 }
 
 
@@ -692,6 +710,7 @@ void clear_color( unsigned int bgcolor )
 void clear_3d_window( void )
 {
    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+   check_gl_error("clear_3d_window");
 }
 
 
@@ -704,6 +723,7 @@ void resize_3d_window( int width, int height )
    current_dtx->WinWidth = width;
    current_dtx->WinHeight = height;
    glViewport( 0, 0, width, height );
+   check_gl_error("resize_3d_window");
 }
 
 void resize_BIG_window( int width, int height )
@@ -711,12 +731,12 @@ void resize_BIG_window( int width, int height )
    glXMakeCurrent( GfxDpy, BigWindow, biggfx.gl_ctx);
    glViewport( 0, 0, width, height );
    glXMakeCurrent( GfxDpy, current_dtx->GfxWindow, current_dtx->gfx.gl_ctx );
+   check_gl_error("resize_BIG_window");
 }
    
 
 void swap_3d_window( void )
 {
-   check_error("swap");
    /* MJK 11.19.98 */
    if (!off_screen_rendering){
       glXSwapBuffers( GfxDpy, current_dtx->GfxWindow );
@@ -724,6 +744,7 @@ void swap_3d_window( void )
    else{
       glXSwapBuffers( GfxDpy, current_dtx->GfxPixmap );
    }
+   check_gl_error("swap_3d_window");
 }
 
 
@@ -737,6 +758,7 @@ void set_2d( void )
    glMatrixMode( GL_MODELVIEW );
    glLoadIdentity();
    glDisable( GL_DEPTH_TEST );
+   check_gl_error("set_2d");
 }
 
 
@@ -767,6 +789,7 @@ void clipping_on( void )
       glEnable(GL_CLIP_PLANE5);  
       glFinish(); 
    }
+   check_gl_error("clipping_on");
 }
 
 void clipping_off( void )
@@ -779,6 +802,7 @@ void clipping_off( void )
       glDisable(GL_CLIP_PLANE4);
       glDisable(GL_CLIP_PLANE5); 
    }
+   check_gl_error("clipping_off");
 }
 
 
@@ -820,7 +844,7 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
    eqnback[3] = -1 * current_dtx->HClipTable[1].eqn[3] + 0.01;
 
 
-   check_error("set_3d");
+   check_gl_error("set_3d");
    if (frontclip<0.0F) {
       frontclip = 0.0F;
    }
@@ -901,7 +925,7 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
    glGetDoublev( GL_MODELVIEW_MATRIX, current_dtx->ModelMat );
    glGetDoublev( GL_PROJECTION_MATRIX, current_dtx->ProjMat );
    current_dtx->Perspective = perspective;
-   check_error("end set_3d");
+   check_gl_error("end set_3d");
    glViewport(0, 0,width,height);
 }
 
@@ -922,6 +946,7 @@ void project( float p[3], float *x, float *y )
               current_dtx->ModelMat, current_dtx->ProjMat, viewport,
               &winx, &winy, &winz );
 
+   check_gl_error("project");
    *x = winx;
    *y = current_dtx->WinHeight - winy;
 }
@@ -967,6 +992,8 @@ void unproject( float x, float y, float p[3], float d[3] )
    d[0] /= len;
    d[1] /= len;
    d[2] /= len;
+
+   check_gl_error("unproject");
 }
 
 
@@ -993,6 +1020,7 @@ void set_color( unsigned int c )
    material_color[3] = UNPACK_ALPHA( c ) / 255.0;
    glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, material_color );
    glColor4ubv( (GLubyte *) &c );
+   check_gl_error("set_color");
 }
 
 
@@ -1005,6 +1033,7 @@ void set_depthcue( int onoff )
    else {
       glDisable( GL_FOG );
    }
+   check_gl_error("set_depthcue");
 }
 
 
@@ -1012,6 +1041,7 @@ void set_depthcue( int onoff )
 void set_line_width( double w )
 {
    glLineWidth( (GLfloat) w );
+   check_gl_error("set_linewidth");
 }
 
 
@@ -1028,6 +1058,7 @@ void set_pointer( int p )
       XDefineCursor( GfxDpy, current_dtx->GfxWindow,
                    XCreateFontCursor(GfxDpy,XC_top_left_arrow) );
    }
+   check_gl_error("set_pointer");
 }
 
 
@@ -1073,6 +1104,7 @@ static void accFrustum( GLdouble left, GLdouble right,
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
    glTranslatef(-eyedx, -eyedy, 0.0);
+   check_gl_error("accFrustum");
 }
 
 
@@ -1143,6 +1175,7 @@ void end_aa_pass( int n )
         glAccum( GL_RETURN, 1.0 );
       }
    }
+   check_gl_error("end_aa_pass");
 }
 
 
@@ -1507,6 +1540,7 @@ static void set_transparency( int alpha )
          }
       }
    }
+   check_gl_error("set_transparency");
 }
 
 
@@ -1553,6 +1587,8 @@ void draw_isosurface( int n,
 
    set_transparency(255);
    glDisable( GL_LIGHTING );
+
+   check_gl_error("draw_isosurface");
 }
 
 
@@ -1603,6 +1639,7 @@ void draw_colored_isosurface( int n,
    glDisable( GL_BLEND );
    glDisable( GL_POLYGON_STIPPLE );
    glDisable( GL_ALPHA_TEST );
+   check_gl_error("draw_colored_isosurface");
 }
 
 
@@ -1637,6 +1674,9 @@ void draw_triangle_strip( int n, int_2 verts[][3], int_1 norms[][3],
    glPopMatrix();
 
    glDisable( GL_LIGHTING );
+
+   check_gl_error("draw_triangle_strip");
+
    set_transparency(255);
 }
 
@@ -1659,6 +1699,9 @@ void draw_colored_triangle_strip( int n,
    glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
    glEnable( GL_COLOR_MATERIAL );
    /* MJK 12.04.98 end */
+
+
+   check_gl_error("draw_colored_triangle_strip1");
 
  
    if (alpha==-1) {
@@ -1695,6 +1738,8 @@ void draw_colored_triangle_strip( int n,
    glDisable( GL_LIGHTING );
    glDisable(GL_COLOR_MATERIAL); 
    /* MJK 12.04.98 end */
+   check_gl_error("draw_colored_triangle_strip2");
+
 }
 
 
@@ -1800,6 +1845,8 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
    glDisable( GL_POLYGON_STIPPLE );
    glDisable( GL_ALPHA_TEST );
 #endif
+
+   check_gl_error("draw_color_quadmesh");
 }
 
 
@@ -1871,6 +1918,7 @@ void draw_lit_color_quadmesh( int rows, int columns,
    glDisable( GL_POLYGON_STIPPLE );
    glDisable( GL_ALPHA_TEST );
 */
+   check_gl_error("draw_lit_color_quadmesh");
 }
 
 
@@ -1903,6 +1951,7 @@ void draw_wind_lines( int nvectors, int_2 verts[][3], unsigned int color )
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
    glPopMatrix();
+   check_gl_error("draw_wind_lines");
 }
 
 
@@ -1924,6 +1973,7 @@ void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
    glPopMatrix();
+   check_gl_error("draw_disjoint_lines");
 }
 
 
@@ -1943,6 +1993,7 @@ void draw_colored_disjoint_lines( int n, int_2 verts[][3],
    }
    glEnd();
    glPopMatrix();
+   check_gl_error("draw_colored_disjoint_lines");
 }
 
 
@@ -1965,6 +2016,7 @@ void draw_polylines( int n, int_2 verts[][3], unsigned int color )
    glPopMatrix();
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
+   check_gl_error("draw_polylines");
 }
 
 
@@ -1984,6 +2036,7 @@ void draw_colored_polylines( int n, int_2 verts[][3],
    }
    glEnd();
    glPopMatrix();
+   check_gl_error("draw_colored_polylines");
 }
 
 
@@ -2007,6 +2060,7 @@ void draw_multi_lines( int n, float verts[][3], unsigned int color )
       }
    }
    glEnd();
+   check_gl_error("draw_multi_lines");
 }
 
  
@@ -2109,6 +2163,9 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
       glCallList( line_cursor );
    }
    glPopMatrix();
+
+   check_gl_error("draw_cursor");
+
 }
 
 
@@ -2127,6 +2184,8 @@ void polyline( float vert[][3], int n )
       glVertex3fv( vert[i] );
    }
    glEnd();
+
+   check_gl_error("polyline");
 }
 
 
@@ -2146,6 +2205,8 @@ void disjointpolyline( float vert[][3], int n )
    glEnd();
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
+
+   check_gl_error("disjointpolyline");
 }
 
 
@@ -2197,6 +2258,8 @@ void polyline2d( short vert[][2], int n )
    glEnd();
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
+
+   check_gl_error("polyline2d");
 }
 
 
@@ -2207,6 +2270,8 @@ void draw_text( int xpos, int ypos, char *str )
    glRasterPos2i( xpos, current_dtx->WinHeight-ypos );
    glListBase( current_dtx->gfx.fontbase );
    glCallLists( len, GL_UNSIGNED_BYTE, str );
+
+   check_gl_error("draw_text");
 }
 
 
@@ -2234,6 +2299,7 @@ int begin_object( void )
    if (obj>0) {
       glNewList( obj, GL_COMPILE_AND_EXECUTE );
    }
+   check_gl_error("begin_object");
    return (int) obj;
 }
 
@@ -2244,6 +2310,7 @@ int begin_object( void )
 void end_object( void )
 {
    glEndList();
+   check_gl_error("end_object");
 }
 
 
@@ -2253,6 +2320,7 @@ void end_object( void )
 void call_object( int obj )
 {
    glCallList( (GLuint) obj );
+   check_gl_error("call_object");
 }
 
 
@@ -2262,6 +2330,7 @@ void call_object( int obj )
 void delete_object( int objnum )
 {
    glDeleteLists( (GLuint) objnum, 1 );
+   check_gl_error("delete_object");
 }
 
 

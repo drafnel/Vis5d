@@ -1086,6 +1086,7 @@ static int render_volume( Context ctx,
 #ifdef HAVE_OPENGL
    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
    glEnable( GL_BLEND );
+   check_gl_error( "render_volume (glBlendFunc)" );
 #endif
 
    /* put rows, cols, slices values into registers */
@@ -1142,6 +1143,7 @@ static int render_volume( Context ctx,
             vp1 += 3;
          }
          glEnd();
+         check_gl_error( "render_volume (GL_QUAD_STRIP)" );
 #endif
       }
 
@@ -1157,6 +1159,7 @@ static int render_volume( Context ctx,
 #endif
 #ifdef HAVE_OPENGL
    glDisable( GL_BLEND );
+   check_gl_error( "render_volume (glDisable)" );
 #endif
    return 1;
 }
@@ -1289,6 +1292,7 @@ void draw_volume( Context ctx, int it, int ip, unsigned int *ctable )
 #if defined(HAVE_OPENGL)
    glGetFloatv( GL_PROJECTION_MATRIX, (GLfloat *) proj );
    glGetFloatv( GL_MODELVIEW_MATRIX, (GLfloat *) ctm );
+   check_gl_error( "draw_volume" );
 #endif
 
    /* compute third column values in the product of ctm*proj */

@@ -380,6 +380,7 @@ int read_texture_image( Display_Context dtx, char *filename )
          height = height2;
          image = image2;
       }
+      check_gl_error( "read_texture_image" );
    }
 #endif  /*ifdef HAVE_OPENGL*/
 
@@ -447,6 +448,7 @@ int read_texture_sequence( Display_Context dtx, char *name )
           height = height2;
           data = data2;
        }
+       check_gl_error( "read_texture_sequence" );
     }
 #endif
 
@@ -502,6 +504,7 @@ int read_texture_areas( Display_Context dtx, int first )
             height = height2;
             image = image2;
          }
+         check_gl_error( "read_texture_areas" );
       }
 #endif
       define_texture( dtx, i, width, height, 1, image );
@@ -534,6 +537,7 @@ int use_texture( Display_Context dtx, int time )
       glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
       glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
       glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+      check_gl_error( "use_texture (glTexParameter)" );
 #endif
       dtx->init_flag = 0;
    } 
@@ -562,6 +566,7 @@ int use_texture( Display_Context dtx, int time )
                           dtx->TexWidth[time], dtx->TexHeight[time],
                           0, GL_RGBA, GL_UNSIGNED_BYTE, dtx->TexImage[time] );
          }
+         check_gl_error( "use_texture (glTexImage2D)" );
 #endif
       dtx->TexImageNew[time] = 0;
       }
@@ -595,6 +600,7 @@ static void enable_texture( int enable )
       glEnable( GL_TEXTURE_2D );
       glEnable( GL_LIGHTING );
       glColor4f( 1.0, 1.0, 1.0, 1.0 );
+      check_gl_error( "enable_texture (glEnable)" );
 #endif
    }
    else {
@@ -610,6 +616,7 @@ static void enable_texture( int enable )
 #ifdef HAVE_OPENGL
       glDisable( GL_TEXTURE_2D );
       glDisable( GL_LIGHTING );
+      check_gl_error( "enable_texture (glDisable)" );
 #endif
    }
 }
@@ -691,6 +698,7 @@ int texture_quadmeshnorm( int rows, int cols, float vert[][3],
          glEnd();
       }
       glFinish();
+      check_gl_error( "texture_quadmeshnorm" );
 #endif
    }
 

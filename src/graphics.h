@@ -248,6 +248,7 @@ extern int use_glx_window( Context ctx, Display *dpy,
 #ifdef HAVE_OPENGL
 extern int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
                               GLXContext glctx, XFontStruct *xfont );
+extern void check_gl_error( char* where );
 #endif
 
 

@@ -255,6 +255,7 @@ int add_display_to_ppm_file(Display_Context dtx, int position)
 
    set_current_window( dtx );
    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+   check_gl_error( "add_display_to_ppm_file (glPixelStore)" );
    
    /******************************************************/
    /*alloc the memory to retrieve data from frame buffer */
@@ -285,6 +286,7 @@ int add_display_to_ppm_file(Display_Context dtx, int position)
    glReadPixels( 0, 0, dtx->WinWidth, dtx->WinHeight, GL_RED, GL_UNSIGNED_BYTE, tempdataR);
    glReadPixels( 0, 0, dtx->WinWidth, dtx->WinHeight, GL_GREEN, GL_UNSIGNED_BYTE, tempdataG);
    glReadPixels( 0, 0, dtx->WinWidth, dtx->WinHeight, GL_BLUE, GL_UNSIGNED_BYTE, tempdataB);
+   check_gl_error( "add_display_to_ppm_file (glReadPixels)" );
 
    /*************************************************/
    /* put data from frame buffer data into big data */

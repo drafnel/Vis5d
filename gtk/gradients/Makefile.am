@@ -13,5 +13,3 @@ libgradients_la_SOURCES = \
 	gradient_select.c gradient_select.h \
 	datafiles.c     datafiles.h
 
-interface.c interface.h : gradients.glade
-	glade -w $<

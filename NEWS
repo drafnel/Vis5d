@@ -15,8 +15,9 @@ Summary of changes for new releases of Vis5d+:
   * v5dimport is now built using the same sources as the "import" command
     in Vis5d, in the src/ directory (the import/ directory is removed).
 
-  * Build maketopo and some other utilities in the utils/ directory by
-    default, although they are still not installed.  Thanks to Markus
+  * Build maketopo and some other example utilities in the utils/ directory
+    by default, although they are still not installed since you need to
+    edit the source code for them to be useful.  Thanks to Markus
     Neteler for the suggestion.
 
 Vis5d+ 1.0.2

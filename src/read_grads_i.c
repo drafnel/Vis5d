@@ -569,6 +569,15 @@ int get_grads_info( char *name, struct grid_db *db )
          else if (strcasecmp(token[1],"TEMPLATE")==0) {
             use_file_template=1;
          }
+#ifdef WORDS_BIGENDIAN
+	      else if (strcasecmp(token[1],"LITTLE_ENDIAN")==0 ) {
+           byteswapped=1;
+         }
+#else
+	      else if (strcasecmp(token[1],"BIG_ENDIAN")==0  ) {
+           byteswapped=1;
+         }
+#endif
          else {
             printf("Warning: OPTIONS %s not supported\n", token[1]);
          }

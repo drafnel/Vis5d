@@ -1,3 +1,30 @@
+2000-10-27  jedwards  <jedwards@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/grid.c, /cvsroot/vis5d/vis5d/src/gui.c,
+	/cvsroot/vis5d/vis5d/src/main.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/topo.c, /cvsroot/vis5d/vis5d/src/v5d.c:
+	This is a continued clean up of the source code which removes a
+	lot of unused code and moves lui5 code out of the api interface.
+	Also a new variable and api function has been added, the function
+	is vis5d_set_verbose_level and this can be used to set the level
+	of stdout verbosity of vis5d.  A number of values have been
+	defined in api.h as follows:
+
+	  /*** Verbose Levels ***/ #define VERBOSE_DATA 1 #define
+	VERBOSE_DISPLAY 2 #define VERBOSE_IRREGULAR 4 #define
+	VERBOSE_REDRAW 8 #define VERBOSE_OPENGL 16 #define VERBOSE_RENDER
+	32 #define VERBOSE_ALL 2147483648
+
+	these values can be bitwise ored together.  Note that using the
+	VERBOSE_REDRAW value can be very noisy as redraw is called several
+	times per second as vis5d passes through it's event loop.
+	Currently there is no command line interface to set the verbose
+	level in the vis5d program, but there is no reason you couldn't
+	put it there :-)
+
 2000-10-23  stevengj  <stevengj@users.sourceforge.net>
 
 	* /cvsroot/vis5d/vis5d/src/vis5d.h: Fixed typo that prevented

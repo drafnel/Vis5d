@@ -980,6 +980,7 @@ on_window_3d1_activate                 (GtkMenuItem     *menuitem,
 
 }
 
+#ifdef HAVE_LIBNETCDF
 void
 on_irreg_variable_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -1005,9 +1006,9 @@ on_irreg_variable_activate                   (GtkMenuItem     *menuitem,
 	 gtk_object_remove_data(GTK_OBJECT(window3D),"itx_context");
 
   }
-
-
 }
+#endif
+
 void
 on_variable_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)

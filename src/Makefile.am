@@ -1,11 +1,19 @@
 # eventually, build shared libraries too, once I figure out what files
 # would go into it.
 
+if VIS5DPLUS
+bin_PROGRAMS = v5dimport
+noinst_LIBRARIES = 
+IMPORT_SRC_ADD = main_i.c ui_i.c
+else
 bin_PROGRAMS = vis5d v5dimport
+noinst_LIBRARIES = libvis5dgui.a
+IMPORT_SRC_ADD =
+endif
+
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
 lib_LTLIBRARIES = libvis5d.la libv5d.la
-noinst_LIBRARIES = libvis5dgui.a
 
 CPPFLAGS = @CPPFLAGS@ # -I flags
 
@@ -20,11 +28,8 @@ IMPORT_SRC = analyze_i.c file_i.c grid_i.c \
          misc_i.c output_i.c proj_i.c projlist_i.c read_epa_i.c \
         read_gr3d_i.c read_grid_i.c read_grads_i.c read_uwvis_i.c read_v5d_i.c\
         resample_i.c select_i.c tokenize_i.c \
-         iapi.c file.c irregular_v5d.c
+         iapi.c file.c irregular_v5d.c $(IMPORT_SRC_ADD)
 
-GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
-          soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c  igui.c pipe.c \
-          main_i.c ui_i.c imain.c
 
 # when are these not used?
 AUX_SRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
@@ -38,16 +43,26 @@ libvis5d_la_SOURCES = $(API_SRC) $(IMPORT_SRC) $(AUX_SRC) api.h
 
 libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
+if VIS5DPLUS
+LIBGUI =
+LIBLUI5 = 
+else
+GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
+          soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c  igui.c pipe.c \
+          imain.c main_i.c ui_i.c
 libvis5dgui_a_SOURCES = $(GUI_SRC) 
+LIBGUI = libvis5dgui.a
+LIBLUI5 = ../lui5/liblui.a
+endif
 
 vis5d_SOURCES = main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files
-vis5d_LDADD = libvis5dgui.a ../lui5/liblui.a libvis5d.la libv5d.la \
+vis5d_LDADD = $(LIBGUI) $(LIBLUI5) libvis5d.la libv5d.la \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@
 
 v5dimport_SOURCES = v5dimport.c
-v5dimport_LDADD = libvis5dgui.a libvis5d.la ../lui5/liblui.a libv5d.la \
+v5dimport_LDADD = $(LIBGUI) $(LIBLUI5) libvis5d.la libv5d.la \
                   @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
                   @GLLIBS@ @XLIBS@ @THREADLIBS@
 

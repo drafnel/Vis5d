@@ -426,4 +426,12 @@ fi
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
+dnl
+dnl These lines cause the Makefile.am in the src.vis5d
+dnl directory to realize that it is part of the old lui5 distribution
+dnl rather than the new gtk distribution 
+dnl
+
+VIS5DPLUS=
+AM_CONDITIONAL(VIS5DPLUS, test -n "$VIS5DPLUS" )
 AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile doc/Makefile)

@@ -1,5 +1,20 @@
 Summary of changes for new releases of Vis5d+:
 
+  * Fixed non-working --with-memory configure option, thanks to Andrew Woolf.
+
+  * Fixed (hopefully) some problems compiling the Fortran utilities
+    under Tru64 Unix, reported by Frederic Chagnon.
+
+  * The API (i.e. the libvis5d library) is now properly independent of the GUI.
+
+  * Fixed crashing bug in vertical levels interpolation code.
+
+  * Better GrADS support in v5dimport (case-insensitive keywords, support
+    for the PDEF statement, and template and byteswapped options).
+
+  * v5dimport is now built using the same sources as the "import" command
+    in Vis5d, in the src/ directory (the import/ directory is removed).
+
 Vis5d+ 1.0.2
 
   * Converted the manual to DocBook format, thanks to a contribution by

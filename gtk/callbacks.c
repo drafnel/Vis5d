@@ -1073,9 +1073,13 @@ on_VariableCTree_tree_select_row       (GtkCTree        *ctree,
 
 	 vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,vinfo->varid,level,&pressure);
 
+#ifdef HAVE_SNPRINTF	 
 	 snprintf(labelstring,80,_("Contours of %s from %4.4g to %4.4g by %4.4g at %4.4g MB"),
 				 varname,low,high,interval,pressure);
-
+#else
+	 sprintf(labelstring,_("Contours of %s from %4.4g to %4.4g by %4.4g at %4.4g MB"),
+				 varname,low,high,interval,pressure);
+#endif
 
 	 clist = GTK_CLIST(lookup_widget(vinfo->info->GtkGlArea,"Graphs_CList"));
 

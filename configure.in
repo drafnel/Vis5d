@@ -37,20 +37,26 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
-
+dnl
+dnl Because of autogen.sh pickiness, lines inside the if cannot be indented
+dnl
 if test "$usegtk" = "yes"; then
-  AM_PATH_GTK(1.2.9, ,
+AM_PATH_GTK(1.2.9, ,
             AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
 
   dnl Add the languages which your application supports here.
-  ALL_LINGUAS=""
-  AM_GNU_GETTEXT
-
-  GTK_DIRS="po intl gtk"
+ALL_LINGUAS=""
+AM_GNU_GETTEXT
+INTLDIR=intl
+GTK_DIRS="po gtk"
 else
-  GTK_DIRS=
+INTLDIR=
+GTK_DIRS=
 fi
 AC_SUBST(GTK_DIRS)
+AC_SUBST(INTLDIR)
+
+
 dnl Set VIS5D_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then
   AC_DEFINE_UNQUOTED(VIS5D_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale",[directory containing message catalogs])
@@ -133,7 +139,7 @@ AC_C_BIGENDIAN
 # Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
 
-AC_CHECK_FUNCS(strcasecmp strncasecmp strdup)
+AC_CHECK_FUNCS(strcasecmp strncasecmp strdup snprintf)
 
 # Find X11 libs and flags:
 AC_PATH_X
@@ -456,13 +462,5 @@ fi
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
-dnl
-dnl These lines cause the Makefile.am in the src.vis5d
-dnl directory to realize the new gtk distribution 
-dnl rather than the old lui5 one
-dnl
-if test "$usegtk" = "yes"; then
-AC_CONFIG_FILES([gtk/Makefile po/Makefile intl/Makefile])
-fi
-AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile ])
+AC_CONFIG_FILES([gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile ])
 AC_OUTPUT

@@ -13,9 +13,9 @@ put your data into McIDAS files, you may skip to
 <para>
 <warning>
 <para>
-     WE RECOMMEND AGAINST THIS WAY OF GETTING YOUR DATA INTO VIS5D -
-INSTEAD USE THE TECHNIQUES DESCRIBED IN 
-<link linkend="ch03">CHAPTER 3</link> OF THIS DOCUMENT.
+We recommend against this way of getting your data into Vis5d.
+Instead, use the techniques described in <link linkend="ch03">chapter
+3</link>of this manual.
 </para>
 </warning>
 </para>
@@ -153,7 +153,7 @@ vector, the temperature T and the pressure P.   The date is February
 in YYDDD format and times are in HHMMSS format as described earlier.
 </para>
 <sect1 id="ch04sec1">
-<title>Putting Your Data Into a McIDAS 3D Grid File</title>
+<title>Putting Your Data into a McIDAS 3D Grid File</title>
 <para>
      The following sample program creates a 3D grid file and fills its
 3D grids with data for a five-dimensional data set.  This program can
@@ -466,11 +466,9 @@ position in the command line.  They all have similar function parameters:
 <tgroup cols=2>
 <tbody>
 <row>
-		<entry> 1 </entry>
 		<entry> INTEGER*4 - sequence number of command parameter</entry>
 </row>
 <row>
-		<entry> 2 </entry>
 		<entry> (IPP) INTEGER*4 - default value of command parameter</entry>
 </row>
 <row>
@@ -478,7 +476,6 @@ position in the command line.  They all have similar function parameters:
 		<entry> or </entry>
 </row>
 <row>
-		<entry> 2 </entry>
 		<entry> (CPP) CHARACTER*12 - default value of command parameter</entry>
 </row>
 <row>
@@ -486,7 +483,6 @@ position in the command line.  They all have similar function parameters:
 		<entry> or </entry>
 </row>
 <row>
-		<entry> 2 </entry>
 		<entry> (DPP) REAL*8 - default value of command parameter.</entry>
 </row>
 </tbody>
@@ -507,15 +503,12 @@ and DKWP returns a REAL*8.  They all have similar function parameters:
 <tgroup cols=2>
 <tbody>
 <row>
-		<entry> 1 </entry>
 		<entry> CHARACTER*12 - keyword string in command line</entry>
 </row>
 <row>
-		<entry> 2 </entry>
 	<entry> INTEGER*4 - sequence number of command parameter after keyword</entry>
 </row>
 <row>
-		<entry> 3 </entry>
 		<entry> (IKWP) INTEGER*4 - default value of command parameter</entry>
 </row>
 <row>
@@ -523,7 +516,6 @@ and DKWP returns a REAL*8.  They all have similar function parameters:
 		<entry> or </entry>
 </row>
 <row>
-		<entry> 3 </entry>
 		<entry>(CKWP) CHARACTER*12 - default value of command parameter</entry>
 </row>
 <row>
@@ -531,7 +523,6 @@ and DKWP returns a REAL*8.  They all have similar function parameters:
 		<entry> or </entry>
 </row>
 <row>
-		<entry> 3 </entry>
 		<entry>(DKWP) REAL*8 - default value of command parameter.</entry>
 </row>
 </tbody>
@@ -549,7 +540,6 @@ a keyword.  Its function parameter is:
 <tgroup cols=2>
 <tbody>
 <row>
-		<entry> 1 </entry>
 		<entry> CHARACTER*12 - keyword string in command line.</entry>
 </row>
 </tbody>
@@ -575,18 +565,18 @@ C structures and routines in stdio.
 about the grids using the command:
 </para>
 <para>
-<command>
+<programlisting>
      igg3d list I J -gr3df N
-</command>
+</programlisting>
 </para>
 <para>
 where N is the 3D grid file number, and I and J give the range of grid numbers
 to list.  You can get a quick idea of the data values using the command:
 </para>
 <para>
-<command>
+<programlisting>
      igg3d info I J -gr3df N
-</command>
+</programlisting>
 </para>
 <para>
 which will list the minimum and maximum values, the mean, the standard deviation
@@ -635,14 +625,14 @@ resamples a 3D grid to new array dimensions and new extents in latitude,
 longitude and height, using the command:
 </para>
 <para>
-<command>
+<programlisting>
      gg3d samp N I M J
-</command>
+</programlisting>
 </para>
 <para>
-<command>
+<programlisting>
      gg3d ave  N I M J
-</command>
+</programlisting>
 </para>
 <para>     
 where N and I are the numbers of the source 3D grid file and grid, and M and J
@@ -690,9 +680,9 @@ for interpolating between 3D grids in time.  Sequences of 3D grids are copied
 using the command:
 </para>
 <para>
-<command>
+<programlisting>
      igg3d get N I J M K
-</command>
+</programlisting>
 </para>
 <para>
 where N is the source 3D grid file number, I and J are the range of source grid
@@ -701,9 +691,9 @@ destination grid number.  A single grid may be copied within a 3D grid file
 using the command:
 </para>
 <para>
-<command>
+<programlisting>
      igg3d copy I J -gr3df N
-</command>
+</programlisting>
 </para>
 <para>
 where N is the 3D grid file number, I is the number of the source grid and J is
@@ -711,7 +701,7 @@ the number of the destination grid.  A range of grids may be deleted with the
 command:
 </para>
 <para>
-  <command> igg3d del I J -gr3df N</command>
+  <programlisting> igg3d del I J -gr3df N</programlisting>
 </para>
 <para>
 where N is the 3D grid file number and grid numbers between I and J are to be
@@ -722,7 +712,7 @@ The igg3d command provides two different options for time interpolation.  The
 first is:
 </para>
 <para>
-<command> igg3d ave K I J D T -gr3df N</command>
+<programlisting> igg3d ave K I J D T -gr3df N</programlisting>
 </para>
 <para>
 where grid number K is produced by interpolating between grid numbers I and J,
@@ -734,7 +724,7 @@ message.  The igg3d command also provides a more complex time interpolation
 option:
 </para>
 <para>
-    <command>igg3d int I D T -setdel S M -lag U V -gr3df N</command>
+    <programlisting>igg3d int I D T -setdel S M -lag U V -gr3df N</programlisting>
 </para>
 <para>
      This will put a grid in the next empty slot of 3D grid file number N,
@@ -770,17 +760,13 @@ to move it to another grid.
 You can use the command:
 </para>
 <para>
-<command>igu3d make N M</command>
+<programlisting>igu3d make N M</programlisting>
 </para>
 <para>
 to create 3D grid file number N, which allows 3D grids of up to M points each.
 The names of 3D grid files have the form:
-</para>
-<para>
-     GR3Dnnnn
-</para>
-<para>
-where nnnn is the four digit decimal grid file number, padded with leading zeros
+<filename>GR3Dnnnn</filename>,
+where <filename>nnnn</filename> is the four digit decimal grid file number, padded with leading zeros
 if needed to make four digits.
 </para>
 </sect1>

@@ -1,18 +1,18 @@
 <chapter id="ch07"><title>The v5dimport Utility</title>
 <para>
-The v5dimport utility is a program for converting grid files to v5d 
+The <command>v5dimport</command> utility is a program for converting grid files to v5d 
 format, combining multiple source files, resampling to new coordinate 
 systems and culling variables and timesteps.  It has both a graphical 
 and command line user interface.
 </para>
 <para>
-For example, you may use v5dimport to read 2 McIDAS GR3D files and a 2-D
+For example, you may use <command>v5dimport</command> to read 2 McIDAS GR3D files and a 2-D
 McIDAS GRID file, resample all the data to a Lambert Conformal 
 projection, omit the CWAT and VORT variables and then write the data to 
 a Vis5D file called <filename>lambert1.v5d</filename>.
 </para>
 <para>
-The basic order of events when using v5dimport is:
+The basic order of events when using <command>v5dimport</command> is:
 <orderedlist>
 <listitem><para>
        Read the input file(s).
@@ -34,7 +34,7 @@ Optionally, start Vis5D on the output file.
 </orderedlist>
 </para>
 <para>
-Currently, v5dimport can read the following file formats:
+Currently, <command>v5dimport</command> can read the following file formats:
 <informaltable frame=none>
 <tgroup cols=1>
 <tbody>
@@ -58,14 +58,14 @@ Currently, v5dimport can read the following file formats:
 </informaltable>
 </para>
 <sect1 id="ch07sec1">
-<title>Using v5dimport's graphical interface</title>
+<title>Using <command>v5dimport</command>'s graphical interface</title>
 <para>
-Start v5dimport from your shell with
+Start <command>v5dimport</command> from your shell with
 </para>
 <para>
-<command>
-     v5dimport [-path pathname] [files]
-</command>
+<programlisting>
+v5dimport [-path pathname] [files]
+</programlisting>
 </para>
 <para>
  where [files] is an optional list of input files and 
@@ -75,7 +75,7 @@ Start v5dimport from your shell with
  and for making output files.
 </para>
 <para>
- When v5dimport has started you'll see its main window appear.  
+ When <command>v5dimport</command> has started you'll see its main window appear.  
  It consists of:
 <orderedlist>
 <listitem><para>
@@ -93,7 +93,7 @@ Start v5dimport from your shell with
 <sect2 id="ch07sec1.1">
 <title>Reading input grids</title>
 <para>
- You may read additional grid files into v5dimport at any time by clicking
+ You may read additional grid files into <command>v5dimport</command> at any time by clicking
  on the "Read file..." button.  Use the file selector to locate your 
  file and click on OK or CANCEL.  It's best to read all input files 
  right at the beginning because whenever a new file is read all grids 
@@ -102,7 +102,7 @@ Start v5dimport from your shell with
 </para>
 <para>
  The button labeled "Discard all grids" does exactly what it says.  It's
- equivalent to exiting v5dimport and restarting it.
+ equivalent to exiting <command>v5dimport</command> and restarting it.
 </para>
 <para>
  After reading each input file, the list of grids shown in the top half of
@@ -261,44 +261,44 @@ respresents a tradeoff in file size and precision.
 <sect1 id="ch07sec2">
 <title>The v5dimport User Interface Embedded in Vis5D</title>
 <para>
-     In Vis5d version 5.2 v5dimport has been incorporated into the main control
-panel and is invoked by pressing the 'IMPORT' button.  This version of v5dimport
+As of Vis5d version 5.2, <command>v5dimport</command> has been incorporated into the main control
+panel and is invoked by pressing the "IMPORT" button.  This version of <command>v5dimport</command>
 is the same as the one mentioned above except that you can load the newly
-created v5d file without exiting from the program.  When the 'Make' button is
-pressed it will create the file and name it using the field 'File name:'.  If
-there is a name in the field 'Context name:' the file will be loaded into Vis5d
-and attached to the first display.  A number must also be entered into the 'MBS'
+created v5d file without exiting from the program.  When the "Make" button is
+pressed it will create the file and name it using the field "File name:".  If
+there is a name in the field "Context name:" the file will be loaded into Vis5d
+and attached to the first display.  A number must also be entered into the "MBS"
 field to specify the amout of memory to allocate for the data set.  A filename
 must always be entered to use for disk backup for caching grids.
 </para>
 </sect1>
 <sect1 id="ch07sec3">
-<title>Using v5dimport's text interface</title>
+<title>Using <command>v5dimport</command>'s text interface</title>
 <para>
-     The text/type-in interface to v5dimport is useful when X is not availableor
-when you want to run v5dimport with a script.  To start v5dimport in text mode
+     The text/type-in interface to <command>v5dimport</command> is useful when X is not availableor
+when you want to run <command>v5dimport</command> with a script.  To start <command>v5dimport</command> in text mode
 enter:
 </para>
 <para>
-<command>
-     v5dimport -t [-path pathname] [files]
-</command>
+<programlisting>
+v5dimport -t [-path pathname] [files]
+</programlisting>
 </para>
 <para>
 where [<parameter>files</parameter>] is an optional list of input files and 
 [<parameter>-path pathname</parameter>] specifies
 that the directory named "pathname" is to be used as the default, in place of
 the current directory, for the input file browser and for making output files.
-Through the text interface it's possible to run v5dimport with a script by using
+Through the text interface it's possible to run <command>v5dimport</command> with a script by using
 your shell's import redirection feature:
 </para>
 <para>
-<command>
-     v5dimport -t < script
-</command>
+<programlisting>
+v5dimport -t &lt; script
+</programlisting>
 </para>
 <para>
-After you've invoked v5dimport with the -t option you'll see a >> prompt at
+After you've invoked <command>v5dimport</command> with the -t option you'll see a <prompt>&gt;&gt;</prompt> prompt at
 which you can issue any of these commands:
 <informaltable frame=none>
 <tgroup cols=2>
@@ -351,7 +351,7 @@ which you can issue any of these commands:
 </informaltable>
 </para>
 <para>
-Using the text interface to v5dimport is similar in strategy to the graphical
+Using the text interface to <command>v5dimport</command> is similar in strategy to the graphical
 interface:
 <orderedlist>
 <listitem><para>
@@ -374,7 +374,7 @@ interface:
 Use the <command>help</command> command to learn the exact syntax for each command.
 </para>
 <para>
-A v5dimport script is simply an ASCII file of v5dimport commands and their
+A <command>v5dimport</command> script is simply an ASCII file of <command>v5dimport</command> commands and their
 arguments.  In the simplest case it may contain only a few commands such as:
 </para>
 <para>
@@ -388,15 +388,15 @@ arguments.  In the simplest case it may contain only a few commands such as:
 </programlisting>
 </para>
 <para>     
-As v5dimport executes a script it prints each command and its result.  Lines
+As <command>v5dimport</command> executes a script it prints each command and its result.  Lines
 which start with a # are considered comments and ignored.
 </para>
 </sect1>
 <sect1 id="ch07sec4">
 <title>Adding support for new file format</title>
 <para>
-     v5dimport was written so that adding code to read new file formats should
-be easy.  The source code for v5dimport is in the import/ subdirectory.  Look
+     <command>v5dimport</command> was written so that adding code to read new file formats should
+be easy.  The source code for <command>v5dimport</command> is in the import/ subdirectory.  Look
 for the comment 
 </para>
 <para>

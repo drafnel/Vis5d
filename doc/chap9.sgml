@@ -1,9 +1,9 @@
 <chapter id="ch09"><title>Version History</title>
 <para>
-Latest news regarding Vis5D / Vis5D+ can be found 
-<ulink url="http://vis5d.sourceforge.net/NEWS.html">
-online
-</ulink>.
+Descriptions of the latest revisions to Vis5d+ can be found in the
+<ulink url="http://vis5d.sourceforge.net/NEWS.html">online release
+notes</ulink> or in the included <filename>NEWS</filename> file.
+Below, we describe the revision history of the original Vis5d.
 </para>
 <para>
 <variablelist>

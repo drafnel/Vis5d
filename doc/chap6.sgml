@@ -9,34 +9,37 @@ There is no way to harm your data from within the program.
 <title>Starting vis5d</title>
 <para>
 <important>
-<title>IMPORTANT NOTE FOR OSF USERS</title>
+<title>Important note for OSF users</title>
 <para>
-          you need to run 'limit stacksize 32m' before you run vis5d
+          you need to run <computeroutput>limit stacksize 32m</computeroutput> before you run vis5d.
 </para>
 </important>
 <important>
-<title>IMPORTANT NOTE FOR SunOS 5 USERS</title>
+<title>Important note for SunOS 5 users</title>
 <para>
           The X shared memory extension may not work
           correctly.  If Vis5D prints an error message to the effect 
           of "Shared memory error" then you'll have to append the 
           following three lines to the end of your 
           <filename>/etc/system</filename> file then reboot:
-         <simplelist type=vert columns=1>
-	 <member>set shmsys:shminfo_shmmax = 0x2000000</member>
-	 <member>set shmsys:shminfo_shmmni = 0x1000</member>
-	 <member>set shmsys:shminfo_shmseg = 0x100</member>
-         </simplelist>
 </para>
+<para>
+<programlisting>
+set shmsys:shminfo_shmmax = 0x2000000
+set shmsys:shminfo_shmmni = 0x1000
+set shmsys:shminfo_shmseg = 0x100
+</programlisting>
+</para>
+
 </important>
 </para>
 <para>
 After you have made a v5d file, you can interactively visualize one or more file with the command:
 </para>
 <para>
-<command>
-     vis5d file1.v5d [options] file2.v5d [options]...
-</command>
+<programlisting>
+vis5d file1.v5d [options] file2.v5d [options]...
+</programlisting>
 </para>
 <para>
 [options] may be any combination of the following (though none are usually
@@ -114,7 +117,7 @@ needed):
           be resotred by specifying a size of 0.
           <informalexample>          
           <para>
-          Example: <command>vis5d LAMPS.v5d -font helvb24 20</command>
+          Example: <programlisting>vis5d LAMPS.v5d -font helvb24 20</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -131,9 +134,7 @@ needed):
           <informalexample>
           <para>
           Example:
-          <command>
-          vis5d LAMPS.v5d -funcpath /usr/local/vis5d/userfuncs
-          </command></para>
+          <programlisting>vis5d LAMPS.v5d -funcpath /usr/local/vis5d/userfuncs</programlisting></para>
           </informalexample>
 </para></listitem>
 </varlistentry>
@@ -144,8 +145,7 @@ needed):
           <informalexample>
           <para>
           Example: 
-          <command>vis5d LAMPS.v5d -geometry 640x480-10+10
-          </command></para>
+          <programlisting>vis5d LAMPS.v5d -geometry 640x480-10+10</programlisting></para>
           </informalexample>
 </para></listitem>
 </varlistentry>
@@ -189,7 +189,7 @@ needed):
           setup a different default.
           <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -map OUTLUSAL</command>
+          Example: <programlisting>vis5d LAMPS.v5d -map OUTLUSAL</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -247,7 +247,7 @@ needed):
           instead of the current.
           <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -path /usr3/data</command>
+          Example: <programlisting>vis5d LAMPS.v5d -path /usr3/data</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -270,7 +270,7 @@ needed):
           promted for additional parameters.
   <informalexample>
   <para>
-  Example: <command>vis5d LAMPS.v5d -projection spherical</command>
+  Example: <programlisting>vis5d LAMPS.v5d -projection spherical</programlisting>
   </para>
   </informalexample>
 </para></listitem>
@@ -355,7 +355,7 @@ needed):
           lev_value is omitted, 0.0 will be used
           <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -topobase -3.0</command>
+          Example: <programlisting>vis5d LAMPS.v5d -topobase -3.0</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -366,7 +366,7 @@ needed):
           Defaults are U, V, and W.
           <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -trajvars U2 V2 W2</command>
+          Example: <programlisting>vis5d LAMPS.v5d -trajvars U2 V2 W2</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -387,7 +387,7 @@ needed):
           </simplelist>
           <informalexample>
           <para>
-          Example: <command>vis5d dataset -userdata g</command>
+          Example: <programlisting>vis5d dataset -userdata g</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -412,7 +412,7 @@ needed):
           prompted for additional parameters.
           <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -vertical nonequal</command>
+          Example: <programlisting>vis5d LAMPS.v5d -vertical nonequal</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -423,7 +423,7 @@ needed):
           <option>-full</option> for making slides and videos. 
           <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -full -wdpy pluto:0</command>
+          Example: <programlisting>vis5d LAMPS.v5d -full -wdpy pluto:0</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -434,7 +434,7 @@ needed):
           Again, useful for making videos.
           <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -wide 3.0</command>
+          Example: <programlisting>vis5d LAMPS.v5d -wide 3.0</programlisting>
           </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -447,7 +447,7 @@ needed):
    components that you want to visualize simultaneously.
    <informalexample>
    <para>
-   Example: <command>vis5d MYDATA -wind2 U2 V2 W2</command>
+   Example: <programlisting>vis5d MYDATA -wind2 U2 V2 W2</programlisting>
    </para></informalexample>
 </para></listitem>
 </varlistentry>
@@ -1543,14 +1543,18 @@ variables as a function of existing variables.  For example, to compute wind
 speed from U, V, and W you would enter the formula:
 </para>
 <para>
+<programlisting>
      SPD3D = SQRT( U*U + V*V + W*W )
+</programlisting>
 </para>
 <para>
 To compute the ration of the dew point (TD) to the temperature you would enter
 the formula:
 </para>
 <para>
+<programlisting>
      RATIO = TD / T
+</programlisting>
 </para>
 <para>
      Formulas may use the names of existing variables, numbers, the arithmetic
@@ -1586,7 +1590,9 @@ time step.  For example in order to create a time derivative of U of the type:
 you would enter the formula:
 </para>
 <para>
+<programlisting>
      dUdt = ( time(U,1) - time(U,-1) ) / ( time(time,1) - time(time,-1) )
+</programlisting>
 </para>
 <para>
      Click on the OK button to compute the new variable or CANCEL to discard the
@@ -1599,13 +1605,17 @@ context index number must be appended to the end of each variable in the
 formula.  For example the above formula might instead look like:
 </para>
 <para>
+<programlisting>
      SPD3D.2 = SQRT(U.0*U.0 + V.2*V.2 + W.2*W.2)
+</programlisting>
 </para>
 <para>
 To compute the difference of two seperate variables you would enter the formula:
 </para>
 <para>
+<programlisting>
      DIFFT.0 = T.0 - T.1
+</programlisting>
 </para>
 <para>
 If there are multiple data sets but no index number appended then it will be
@@ -1830,7 +1840,9 @@ this has no bearing whatsoever on the construction of your external function.
 function.  To get the position of the probe use:
 </para>
 <para>
+<programlisting>
      CALL PROBEPOS( ROW, COL, LEV, LAT, LON, HGT )
+</programlisting>
 </para>
 <para>
 The position in grid coordinates will be returned in ROW, COLumn, and LEVel.
@@ -1842,7 +1854,9 @@ To get the value of any physical variable at the current probe position and
 current time step use:
 </para>
 <para>
+<programlisting>
      VALUE = PROBEVAL( VAR )
+</programlisting>
 </para>
 <para>
 where VAR specifies which physical variable you want.
@@ -2030,7 +2044,7 @@ widget window described in <link linkend="ch06sec20">Section 6.20</link> .
      Vis5D 5.2 features a scripting facility.  That is, you can 
 control Vis5D
 with a text file of commands using the Tcl language.  
-Scripting is an advanced subject and documented separately 
+Scripting is an advanced subject and is documented separately 
 in the 
 <ulink url="http://www.ssec.wisc.edu/~billh/script52.html">
 Vis5D scripting document
@@ -2337,11 +2351,13 @@ this is clicked on the text characers will be mapped to their color value.
 <sect1 id="ch06sec23">
 <title>Final Notes</title>
 <para>
-     The SGI version of vis5d uses multiple CPUs if available to compute
-graphics in the background thereby increasing vis5d's speed.  On other systems,
-vis5d tries to interleave the computation of graphics with user interaction.
-This results in the user interface being a bit sluggish until all pending
-graphics computations are completed.
+If <parameter>--enable-threads</parameter> was used when configuring
+Vis5d, then the program uses multiple threads and CPUs (if available)
+to compute graphics in the background; thereby increasing vis5d's
+speed.  Otherwise, vis5d tries to interleave the computation of
+graphics with user interaction.  This results in the user interface
+being a bit sluggish until all pending graphics computations are
+completed.
 </para>
 <para>
      The vis5d user interface may be complex to describe in words, but we have

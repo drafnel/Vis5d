@@ -1,7 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
 SGML_SRC = chap1.sgml  chap3.sgml  chap5.sgml  chap7.sgml  chap9.sgml   \
-           chap2.sgml  chap4.sgml  chap6.sgml  chap8.sgml  vis5d.sgml
+           chap2.sgml  chap4.sgml  chap6.sgml  chap8.sgml  chap10.sgml \
+           vis5d.sgml
 
 EXTRA_DIST = vis5d.pdf html $(SGML_SRC)
 

@@ -8,9 +8,9 @@ To demonstrate or experiment with Vis5D we provide two sample datasets.
 To visualize the Schlensinger thunderstorm file enter the command
 </para>
 <para>
-<command>
-     vis5d SCHL.v5d
-</command>
+<programlisting>
+vis5d SCHL.v5d
+</programlisting>
 </para>
 <para>
 To view an isosurface of QL (moisture content):
@@ -66,9 +66,9 @@ To visualize a LAMPS (Limited Area Meso-Scale Prediction System) model
 simulation of an extratropical cyclone, enter the command:
 </para>
 <para>
-<command>
-     vis5d LAMPS.v5d
-</command>
+<programlisting>
+vis5d LAMPS.v5d
+</programlisting>
 </para>
 <para>
 To view an isosurface of wind speed over a topography with map lines:
@@ -135,55 +135,47 @@ To make some interactive wind trajectories:
 <title>Example McIDAS files and utilities</title>
 <para>
      The Schlesinger and LAMPS data sets are also available as the 3D McIDAS
-grid files named GR3D0001 and GR3D0002.  They are available on the 
+grid files named <filename>GR3D0001</filename> and <filename>GR3D0002</filename>.  They are available on the 
 <ulink url="ftp://www.ssec.wisc.edu/pub/vis5d-5.2/">
 Vis5D ftp site
 </ulink>.
 See <link linkend="ch02">chapter 2</link> for more information.
 </para>
 <para>
-To list the grids in GR3D0001 and to see statistics about them, enter the
+To list the grids in <filename>GR3D0001</filename> and to see statistics about them, enter the
 commands:
 </para>
 <para>
-<command>
-     igg3d list 1 190 -gr3df 1
-</command>
+<programlisting>
+igg3d list 1 190 -gr3df 1
+igg3d info 1 190 -gr3df 1
+</programlisting>
 </para>
 <para>
-<command>
-     igg3d info 1 190 -gr3df 1
-</command>
+The <filename>SCHL.v5d</filename> file was made from the <filename>GR3D0001</filename> file with the command:
 </para>
 <para>
-The SCHL.v5d file was made from the GR3D0001 file with the command:
+<programlisting>
+gr3d_to_v5d 1 1 SCHL.v5d
+</programlisting>
 </para>
 <para>
-<command>
-     gr3d_to_v5d 1 1 SCHL.v5d
-</command>
-</para>
-<para>
-To list the grids in GR3D0002 and to see statistics about them, enter the
+To list the grids in <filename>GR3D0002</filename> and to see statistics about them, enter the
 commands:
 </para>
 <para>
-<command>
-     igg3d list 1 189 -gr3df 2
-</command>
+<programlisting>
+igg3d list 1 189 -gr3df 2
+igg3d info 1 189 -gr3df 2
+</programlisting>
 </para>
 <para>
-<command>
-     igg3d info 1 189 -gr3df 2
-</command>
+The <filename>LAMPS.v5d</filename> file was made from the <filename>GR3D0002</filename> file with the command:
 </para>
 <para>
-The LAMPS.v5d file was made from the GR3D0002 file with the command:
-</para>
-<para>
-<command>
-     gr3d_to_v5d 2 1 LAMPS.v5d
-</command>
+<programlisting>
+gr3d_to_v5d 2 1 LAMPS.v5d
+</programlisting>
 </para>
 <para>
 A variety of other sample datasets are available on the 

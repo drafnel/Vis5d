@@ -86,6 +86,7 @@
 #  include <synch.h>
 #endif
 #ifdef HAVE_PTHREADS 
+#  include <pthread.h>
 #  include <semaphore.h>
 #endif
 
@@ -155,6 +156,15 @@ extern void term_sync( void );
 #  define LOCK_OFF( L )      rw_unlock( &L )
 #  define COND_LOCK( L )     rw_trywrlock( &L )
 #endif
+
+#ifdef HAVE_PTHREADS
+#  define LOCK               pthread_mutex_t
+#  define ALLOC_LOCK( L )    pthread_mutex_init( &L, 0 )
+#  define FREE_LOCK( L )     pthread_mutex_destroy( &L )
+#  define LOCK_ON( L )       pthread_mutex_lock( &L )
+#  define LOCK_OFF( L )      pthread_mutex_unlock( &L )
+#endif
+
 
 /* otherwise: */
 #ifndef LOCK

@@ -48,7 +48,9 @@
 #include "sync.h"
 #include "vis5d.h"
 
-
+#ifdef USE_GLLISTS
+#  include <GL/gl.h>
+#endif
 
 /*
  * Print an error message and abort.
@@ -425,6 +427,9 @@ void del_traj_group( Display_Context dtx, int g )
  */
 int free_isosurface( Context ctx, int time, int var )
 {
+#ifdef USE_GLLISTS
+  printf("incomplete code in free_isosurface\n");
+#else
    Display_Context dtx;
    int ctime, ftime, t, total;
    
@@ -476,7 +481,10 @@ int free_isosurface( Context ctx, int time, int var )
    }
    
    else{
-      if (ctx->Variable[var]->SurfTable[time]->valid) {
+
+      if (ctx->Variable[var] && 
+			 ctx->Variable[var]->SurfTable[time] && 
+			 ctx->Variable[var]->SurfTable[time]->valid) {
          int b1, b2, b3, b4;
          /* vertices */
          b1 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(int_2) * 3;
@@ -509,10 +517,13 @@ int free_isosurface( Context ctx, int time, int var )
          ctx->Variable[var]->SurfTable[time]->valid = 0;
          return b1 + b2 + b3 + b4;
       }
-      else {
+      else 
+		  {
          return 0;
       }
    }
+#endif
+	return 0;
 }
 
 
@@ -543,7 +554,20 @@ int free_textplot( Irregular_Context itx, int time)
 
 int free_hslice( Context ctx, int time, int var )
 {
-#ifndef USE_GLLISTS
+  int i;
+  if(! (ctx->Variable[var] && ctx->Variable[var]->HSliceTable[time]))
+	 return 0;
+#ifdef USE_GLLISTS
+  for(i=0;i<4;i++)
+	 {
+		if(glIsList(ctx->Variable[var]->HSliceTable[time]->glList[i])){
+		  printf("freeing gllists in free_hslice\n");
+		  glDeleteLists(ctx->Variable[var]->HSliceTable[time]->glList[i],1);
+		}
+		ctx->Variable[var]->HSliceTable[time]->glList[i]=0;
+	 }
+
+#else
    if (ctx->Variable[var]->HSliceTable[time] && ctx->Variable[var]->HSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
@@ -580,6 +604,21 @@ int free_hslice( Context ctx, int time, int var )
 
 int free_vslice( Context ctx, int time, int var )
 {
+  int i;
+  if(! (ctx->Variable[var] && ctx->Variable[var]->VSliceTable[time]))
+	 return 0;
+
+
+#ifdef USE_GLLISTS
+  for(i=0;i<4;i++)
+	 {
+		if(glIsList(ctx->Variable[var]->VSliceTable[time]->glList[i])){
+		  printf("freeing gllists in free_vslice\n");
+		  glDeleteLists(ctx->Variable[var]->VSliceTable[time]->glList[i],1);
+		}
+		ctx->Variable[var]->VSliceTable[time]->glList[i]=0;
+	 }
+#else  
    if (ctx->Variable[var]->VSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
@@ -605,15 +644,20 @@ int free_vslice( Context ctx, int time, int var )
       ctx->Variable[var]->VSliceTable[time]->valid = 0;
       return b1 + b2 + b3 + b4;
    }
-   else {
-      return 0;
-   }
+   else 
+#endif
+	  {
+		 return 0;
+	  }
 }
 
 
 
 int free_chslice( Context ctx, int time, int var )
 {
+  if(! (ctx->Variable[var] && ctx->Variable[var]->CHSliceTable[time]))
+	 return 0;
+
    if (ctx->Variable[var]->CHSliceTable[time]->valid) {
       int nrnc, b1, b2;
       nrnc = ctx->Variable[var]->CHSliceTable[time]->rows
@@ -635,6 +679,8 @@ int free_chslice( Context ctx, int time, int var )
 
 int free_cvslice( Context ctx, int time, int var )
 {
+  if(! (ctx->Variable[var] && ctx->Variable[var]->CVSliceTable[time]))
+	 return 0;
 
    if (ctx->Variable[var]->CVSliceTable[time]->valid) {
       int nrnc, b1, b2;

@@ -710,8 +710,12 @@ extern int text_width( XFontStruct *font, char *str );
 void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list);
 void generate_disjoint_lines(int n, int_2 verts[][3], GLuint *list );
 void generate_polyline( int n, float vert[][3], GLuint *list );
-
-
+#ifdef BIG_GFX
+void generate_isosurfaces(int n, uint_4 *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
+#else
+void generate_isosurfaces(int n, uint_2 *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
+#endif
+void set_transparency( int alpha );
 
 #endif
 

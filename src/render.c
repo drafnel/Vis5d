@@ -869,6 +869,8 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
             }
             if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
                if (ctx->Variable[var]->SurfTable[time]->colors) {
+#ifdef USE_GLLISTS
+#else					  
                   draw_colored_isosurface(
                                    ctx->Variable[var]->SurfTable[time]->numindex,
                                    ctx->Variable[var]->SurfTable[time]->index,
@@ -877,15 +879,29 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
                                    (void *) ctx->Variable[var]->SurfTable[time]->colors,
                                    dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[cvowner*MAXVARS+colorvar],
                                    alpha );
+#endif
                }
                else {
+#ifdef USE_GLLISTS
+					  {
+						 unsigned int color=dtx->Color[ctx->context_index*MAXVARS+var][0] ;
+						 float mat_color[4];
+						 mat_color[0] = UNPACK_RED( color )   / 255.0;
+						 mat_color[1] = UNPACK_GREEN( color ) / 255.0;
+						 mat_color[2] = UNPACK_BLUE( color )  / 255.0;
+						 mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
+						 glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
+						 set_transparency( UNPACK_ALPHA(color) );
+						 glCallList(ctx->Variable[var]->SurfTable[time]->glList);
+					  }
+#else
                   draw_isosurface( ctx->Variable[var]->SurfTable[time]->numindex,
                                    ctx->Variable[var]->SurfTable[time]->index,
                                    (void *) ctx->Variable[var]->SurfTable[time]->verts,
                                    (void *) ctx->Variable[var]->SurfTable[time]->norms,
                                    dtx->Color[ctx->context_index*MAXVARS+var][0] );
 
-
+#endif
 
                
                }
@@ -1083,11 +1099,8 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
             }
 #ifdef USE_GLLISTS			
 			glShadeModel( GL_SMOOTH );
-				     check_gl_error("before 1");
 			glEnable( GL_DITHER );
-				     check_gl_error("before 2");
 			glPopMatrix();
-				     check_gl_error("after 3");
 #endif
 
             /* draw the bounding box */
@@ -1136,15 +1149,16 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
    for (var=0;var<ctx->NumVars;var++) {
       if (ctx->DisplayVSlice[var] && ctx->Variable[var]->VSliceTable[time]->valid) {
 
-         /* MJK 12.01.98 */
+#ifndef USE_SYSTEM_FONTS
          if (labels)
          {
             if (check_view_side (ctx, VSLICE, var) < 0)
             {
-               flip_vslice_end_for_end (ctx, time, var);
+				  printf("flip the slice ?\n");
+				  flip_vslice_end_for_end (ctx, time, var);
             }
          }
-
+#endif
 
          if (animflag) {
             lock = cond_read_lock(&ctx->Variable[var]->VSliceTable[time]->lock);
@@ -1155,15 +1169,30 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
          }
          if (lock) {
             recent( ctx, VSLICE, var );
-
+#ifdef USE_GLLISTS
+			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE]) );
+				glPushMatrix();
+				glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+				glShadeModel( GL_FLAT );
+				glDisable( GL_DITHER );
+				glCallList(ctx->Variable[var]->VSliceTable[time]->glList[0]);
+#else				
             /* draw main contour lines */
             draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num1,
                                  (void*) ctx->Variable[var]->VSliceTable[time]->verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                  var][VSLICE] );
 
+#endif
             if (labels) {
 #ifdef USE_SYSTEM_FONTS
+#  ifdef USE_GLLISTS
+				  glCallList(ctx->Variable[var]->VSliceTable[time]->glList[1]);
+
+				  glListBase(ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase);
+				  glCallList(ctx->Variable[var]->VSliceTable[time]->glList[2]);
+
+#  else 
                /* draw hidden contour lines */
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
@@ -1174,26 +1203,41 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
 									  (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
 									  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE],
 									  ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
+#  endif
 #else
+#  ifdef USE_GLLISTS
+					glCallList(ctx->Variable[var]->VSliceTable[time]->glList[2]);
+#  else
                /* draw contour labels */
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num3,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] );
+#  endif
 #endif
             }
             else {
                /* draw hidden contour lines */
+#ifdef USE_GLLISTS
+				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[1]);
+#else
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] );
+#endif
             }
-
+#ifdef USE_GLLISTS			
+			glShadeModel( GL_SMOOTH );
+			glEnable( GL_DITHER );
+			glPopMatrix();
+			glCallList(ctx->Variable[var]->VSliceTable[time]->glList[3]);
+#else
             /* draw the bounding box */
             polyline( (void *) ctx->Variable[var]->VSliceTable[time]->boxverts,
                            ctx->Variable[var]->VSliceTable[time]->numboxverts );
 
+#endif
             done_read_lock( &ctx->Variable[var]->VSliceTable[time]->lock );
          }
 
@@ -1807,7 +1851,7 @@ static void draw_clock( Display_Context dtx, unsigned int c )
    float clk_size, clk_margin, clk_radius, clk_center_x, clk_center_y;
    char str[15];
    int i, time_str_width;
-   int stime, stimeold, dtime, dtimeold;
+   int stime=0, stimeold, dtime=0, dtimeold;
 
    clk_size     = 4*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE);
    clk_margin   = clk_size / 16.0;
@@ -1858,9 +1902,11 @@ static void draw_clock( Display_Context dtx, unsigned int c )
 
    dtimeold = -1;
    stimeold = -1;
-   vis5d_get_dtx_time_stamp( dtx->dpy_context_index,
-                             dtx->CurTime,
-                            &dtime, &stime);
+   if(dtx->NumTimes)
+	  vis5d_get_dtx_time_stamp( dtx->dpy_context_index,
+										 dtx->CurTime,
+										 &dtime, &stime);
+	
    dtimeold = dtime;
    stimeold = stime;
    i = stimeold;

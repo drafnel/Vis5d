@@ -1543,7 +1543,7 @@ int print_snd_window( Display_Context dtx )
 }
 
 
-static void set_transparency( int alpha )
+void set_transparency( int alpha )
 {
    if (alpha==255) {
       /* disable */
@@ -1571,6 +1571,50 @@ static void set_transparency( int alpha )
 /**********************************************************************/
 /***                       Drawing Functions                        ***/
 /**********************************************************************/
+
+
+void generate_isosurface( int n,
+#ifdef BIG_GFX
+                      uint_4 *index,
+#else
+                      uint_2 *index,
+#endif
+                      int_2 verts[][3],
+                      int_1 norms[][3],
+                      GLuint *list )
+{
+  int i;
+
+  if(*list<=0){
+	 *list = glGenLists(1);
+	 if(*list==0)
+		check_gl_error("generate_isosurface");
+  }
+  glNewList(*list,GL_COMPILE);
+
+
+  glEnable( GL_LIGHTING );
+
+  glPushMatrix();
+  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+
+  /* Render the triangle strip */
+  GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
+  for (i=0;i<n;i++) {
+	 int j = index[i];
+	 glNormal3bv( (GLbyte *) norms[j] );
+	 glVertex3sv( verts[j] );
+  }
+  glEnd();
+  
+  glPopMatrix();
+
+  set_transparency(255);
+  glDisable( GL_LIGHTING );
+  glEndList();
+  check_gl_error("draw_isosurface");
+}
+
 
 
 void draw_isosurface( int n,
@@ -1872,6 +1916,8 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
 
    check_gl_error("draw_color_quadmesh");
 }
+
+
 
 
 

@@ -10384,16 +10384,7 @@ int     vis5d_set_vert_exaggeration (int index, float scalez)
    return 0;
 }
 
-/* from volume.c */
-struct volume {
-   int     dir;         /* Direction of slices */
-   int     valid;       /* Valid flag */
-   int     slices;      /* Number of slices */
-   int     rows, cols;  /* Size of each slice */
-   float   *vertex;     /* slice vertices stored as: */
-                        /*    vertex[slices][rows][cols][3] */
-   uint_1  *index;      /* color table index in [0,255] */
-};
+
 
 
 

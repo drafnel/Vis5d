@@ -211,6 +211,8 @@ static int end_block( FILE *f )
 
 static int save_isosurfaces( Context ctx, FILE *f )
 {
+#ifdef USE_GLLISTS
+#else
    int iv, it;
    int neg_one = -1;
 
@@ -250,6 +252,7 @@ static int save_isosurfaces( Context ctx, FILE *f )
          }
       }
    }
+#endif
    return 0;
 }
 
@@ -293,12 +296,12 @@ static int save_iso_level( Context ctx, FILE *f )
 
 static int save_hslices( Context ctx, FILE *f )
 {
-   int iv, it;
-   int num1, num2, num3, num4;
-
 #ifdef USE_GLLISTS
 	fprintf(stderr,"sorry... save_hslices not currently supported with USE_GLLISTS\n");
 #else
+   int iv, it;
+   int num1, num2, num3, num4;
+
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
          if (ctx->Variable[iv]->HSliceTable[it] && ctx->Variable[iv]->HSliceTable[it]->valid) {
@@ -365,9 +368,11 @@ static int save_hslice_pos( Context ctx, FILE *f )
 
 static int save_vslices( Context ctx, FILE *f )
 {
+#ifdef USE_GLLISTS
+	fprintf(stderr,"function save_vslices not currently supported with USE_GLLISTS\n");
+#else
    int iv, it;
    int num1, num2, num3, num4;
-     
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
          if (ctx->Variable[iv]->VSliceTable[it]->valid) {
@@ -398,6 +403,7 @@ static int save_vslices( Context ctx, FILE *f )
          }
       }
    }
+#endif
    return 0;
 }
 
@@ -1032,6 +1038,8 @@ static void *alloc_and_read( Context ctx, FILE *f, int bytes )
 static void restore_isosurf( Context ctx, FILE *f, int maxparm,
                              int blocklength )
 {
+#ifdef USE_GLLISTS
+#else
    int iv, it, numverts, numindex;
    float level;
 
@@ -1077,6 +1085,7 @@ static void restore_isosurf( Context ctx, FILE *f, int maxparm,
    ctx->IsoLevel[iv] = level;
      
    done_read_lock( &ctx->Variable[iv]->SurfTable[it]->lock );
+#endif
    return;
 }
 
@@ -1086,6 +1095,8 @@ static void restore_isosurf( Context ctx, FILE *f, int maxparm,
 static void restore_colored_isosurf( Context ctx, FILE *f, int maxparm,
                                      int blocklength )
 {
+#ifdef USE_GLLISTS
+#else
    int iv, it, numverts, numindex;
    float level;
 
@@ -1137,6 +1148,7 @@ static void restore_colored_isosurf( Context ctx, FILE *f, int maxparm,
    ctx->IsoLevel[iv] = level;
      
    done_read_lock( &ctx->Variable[iv]->SurfTable[it]->lock );
+#endif
    return;
 }
 
@@ -1216,9 +1228,11 @@ static void restore_hslice( Context ctx, FILE *f, int maxparm,
 static void restore_vslice( Context ctx, FILE *f, int maxparm,
                             int blocklength )
 {
+#ifdef USE_GLLISTS
+	fprintf(stderr,"restore_vslice not currently supported with USE_GLLISTS\n");
+#else
    int iv, it, num1, num2, num3, num4;
    float interval, low, high, r1,c1, r2,c2;
-
    fread( &iv, INT_SIZE, 1, f );
    if (iv>=maxparm) {
       skip( f, blocklength-INT_SIZE );
@@ -1277,6 +1291,7 @@ static void restore_vslice( Context ctx, FILE *f, int maxparm,
                    &ctx->Variable[iv]->VSliceRequest->Lat2, &ctx->Variable[iv]->VSliceRequest->Lon2 );
 
    done_read_lock( &ctx->Variable[iv]->VSliceTable[it]->lock );
+#endif
    return;
 }
 

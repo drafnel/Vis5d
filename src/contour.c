@@ -765,7 +765,7 @@ int contour( Context ctx, float g[], int nr, int nc,
    lrr = 1+(nr-2)/8;
    lcc = 1+(nc-2)/8;
 
-   sprintf (lbl_str, "%f", interval);
+   sprintf (lbl_str, "%4g", interval);
 
    lbl_len = strlen (lbl_str);
    while (lbl_str[--lbl_len] == '0') if (lbl_len == 0) break;

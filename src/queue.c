@@ -283,8 +283,6 @@ void request_quit( Context ctx )
 void request_isosurface( Context ctx, int time, int var, int urgent )
 {
 
-  printf("request IsoSurface\n");
-
   if(!ctx->Variable[var]->SurfTable[time]){
 	 ctx->Variable[var]->SurfTable[time] = (struct isosurface *) allocate(ctx,sizeof(struct isosurface));
 	 memset(ctx->Variable[var]->SurfTable[time], 0, sizeof(struct isosurface));

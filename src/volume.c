@@ -70,18 +70,6 @@
 
 
 
-struct volume {
-   int     dir;         /* Direction of slices */
-   int     valid;       /* Valid flag */
-   int     slices;      /* Number of slices */
-   int     rows, cols;  /* Size of each slice */
-   float   *vertex;     /* slice vertices stored as: */
-                        /*    vertex[slices][rows][cols][3] */
-   uint_1  *index;      /* color table index in [0,255] */
-   int oldnr, oldnc, oldnl; /* this is to know how much to dealloc */
-};
-
-
 
 /*
  * Allocate a new volume structure and return a pointer to it.  If we
@@ -1075,8 +1063,10 @@ static int render_volume( Context ctx,
    register uint_1 *cp0, *cp1;
    register float *vp0, *vp1;
 
+	printf("render volume 1\n");
    if (!v || !v->slices)
       return 0;
+
 
 #if defined (HAVE_SGI_GL) || defined (DENALI)
    lmcolor( LMC_COLOR );             /* no shading */
@@ -1159,7 +1149,9 @@ static int render_volume( Context ctx,
 #ifdef HAVE_OPENGL
    glDisable( GL_BLEND );
    check_gl_error( "render_volume (glDisable)" );
+
 #endif
+	printf("render volume 2\n");
    return 1;
 }
 
@@ -1268,6 +1260,7 @@ void draw_volume( Context ctx, int it, int ip, unsigned int *ctable )
    MATRIX ctm, proj;
    Display_Context dtx;
 
+	printf("Draw volume 1\n");
    dtx = ctx->dpy_ctx;
    if (do_once){
       int yo;
@@ -1330,6 +1323,7 @@ void draw_volume( Context ctx, int it, int ip, unsigned int *ctable )
    if (ctx->Volume->dir!=dir || ctx->Volume->valid==0) {
       data = get_grid( ctx, it, ip );
       if (data) {
+			  printf("compute volume 1\n");
          if (ctx->GridSameAsGridPRIME){
             compute_volume( ctx, data, it, ip, ctx->Nr, ctx->Nc, ctx->Nl[ip],
                             ctx->Variable[ip]->LowLev, ctx->Variable[ip]->MinVal, ctx->Variable[ip]->MaxVal,
@@ -1340,9 +1334,11 @@ void draw_volume( Context ctx, int it, int ip, unsigned int *ctable )
                             dtx->LowLev, ctx->Variable[ip]->MinVal, ctx->Variable[ip]->MaxVal,
                             dir, ctx->Volume );
          }
+			  printf("compute volume 2\n");
          release_grid( ctx, it, ip, data );
       }
    }
+	printf("Draw volume 2\n");
 
    render_volume( ctx, ctx->Volume, ctable );
 }

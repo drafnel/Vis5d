@@ -106,7 +106,7 @@
  *         cvowner - the vis5d_ctx index the colorvar belongs to
  *         colorvar - the coloring variable
  */
-static void color_isosurface( Context ctx, int time, int isovar, int cvowner, int colorvar )
+static void color_isosurface( Context ctx,int_2 *verts ,int time, int isovar, int cvowner, int colorvar )
 {
    uint_1 *color_indexes;
    int i, n;
@@ -115,6 +115,7 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
    Context cvctx;
    Display_Context dtx;
    int cvctxtime;
+
 
    dtx = ctx->dpy_ctx;
    cvctx = ctx->dpy_ctx->ctxpointerarray[return_ctx_index_pos(ctx->dpy_ctx, cvowner)];
@@ -162,9 +163,9 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
             float val;
 
 
-            x = ctx->Variable[isovar]->SurfTable[time]->verts[i*3+0] * vscale;
-            y = ctx->Variable[isovar]->SurfTable[time]->verts[i*3+1] * vscale;
-            z = ctx->Variable[isovar]->SurfTable[time]->verts[i*3+2] * vscale;
+            x = verts[i*3+0] * vscale;
+            y = verts[i*3+1] * vscale;
+            z = verts[i*3+2] * vscale;
 
             xyzPRIME_to_grid( cvctx, time, colorvar, x, y, z, &row, &col, &lev );
                
@@ -196,6 +197,7 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
    ctx->Variable[isovar]->SurfTable[time]->colorvar = colorvar;
    ctx->Variable[isovar]->SurfTable[time]->cvowner = cvowner;
    done_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
+
 }
 
 
@@ -358,7 +360,12 @@ static void calc_isosurface( Context ctx, int time, int var,
       /******************** Store the new surface ************************/
 
       wait_write_lock( &ctx->Variable[var]->SurfTable[time]->lock );
-
+#ifdef USE_GLLISTS
+		if(numverts>0)
+		  generate_isosurface(numverts,index,cverts,cnorms,&ctx->Variable[var]->SurfTable[time]->glList );
+		ctx->Variable[var]->SurfTable[time]->isolevel = iso_level;
+		ctx->Variable[var]->SurfTable[time]->valid = 1;																			
+#else
       /* deallocate existing surface, if any */
       free_isosurface( ctx, time, var );
 
@@ -370,7 +377,7 @@ static void calc_isosurface( Context ctx, int time, int var,
       ctx->Variable[var]->SurfTable[time]->numindex = numindexes;
       ctx->Variable[var]->SurfTable[time]->index = index;
       ctx->Variable[var]->SurfTable[time]->valid = 1;
-
+#endif
       done_write_lock( &ctx->Variable[var]->SurfTable[time]->lock );
       /* BUG FIX MJK 8.6.98
          These free statments were previously outside of this
@@ -392,14 +399,17 @@ static void calc_isosurface( Context ctx, int time, int var,
    if (colorvar!=-1 || (ctx->Variable[var]->SurfTable[time]->cvowner != cvowner) ||
                        (ctx->Variable[var]->SurfTable[time]->colorvar!=colorvar &&
                         ctx->Variable[var]->SurfTable[time]->cvowner ==cvowner)) {
-      color_isosurface( ctx, time, var, cvowner, colorvar );
+      color_isosurface( ctx, cverts, time, var, cvowner, colorvar );
    }
-
-/******* YO this dosn't make sense
-   if (colorvar!=-1 || ctx->Variable[var]->SurfTable[time]->colorvar!=colorvar) {
-      color_isosurface( ctx, time, var, cvowner, colorvar );
-   }
-*******/
+#ifdef USE_GLLISTS
+		deallocate(ctx,cverts,3*sizeof(int_2)*numverts);
+		deallocate(ctx,cnorms,3*sizeof(int_1)*numverts);
+#ifdef BIG_GFX
+		deallocate(ctx,index,numindexes*sizeof(uint_4));
+#else
+		deallocate(ctx,index,numindexes*sizeof(uint_2));
+#endif
+#endif
 
    if((ctx->SameIsoColorVarOwner[var] && time==ctx->CurTime) ||
       (!ctx->SameIsoColorVarOwner[var] && time==ctx->dpy_ctx->CurTime)){
@@ -2267,21 +2277,22 @@ static void calc_vslice( Context ctx, int time, int var,
                          float r1, float c1, float r2, float c2,
                          int threadnum )
 {
-   float *vr1, *vc1, *vl1, *vr2, *vc2, *vl2, *vr3, *vc3, *vl3;
-   float *grid;
-   float *slice;
-   int cols, rows;
-
-   int i;
-   int num1, num2, num3, bytes;
-   float dr, dc, r, base;
-   int_2 *cverts1, *cverts2, *cverts3;
-   float *boxverts;
-   int numboxverts;
-   Display_Context dtx;
-   int contour_ok;
-   int max_cont_verts;
-
+  struct vslice *vslice = ctx->Variable[var]->VSliceTable[time];
+  float *vr1, *vc1, *vl1, *vr2, *vc2, *vl2, *vr3, *vc3, *vl3;
+  float *grid;
+  float *slice;
+  int cols, rows;
+  char *labels = NULL;
+  int i;
+  int num1, num2, num3, bytes;
+  float dr, dc, r, base;
+  int_2 *cverts1, *cverts2, *cverts3;
+  float *boxverts;
+  int numboxverts;
+  Display_Context dtx;
+  int contour_ok;
+  int max_cont_verts;
+  
    /* WLH 15 Oct 98 */
    float ctxlow;
 
@@ -2375,9 +2386,12 @@ static void calc_vslice( Context ctx, int time, int var,
      base = low;
    /* call contouring routine */
 #ifdef USE_SYSTEM_FONTS
-	if(ctx->Variable[var]->VSliceTable[time]->labels)
-	  free(ctx->Variable[var]->VSliceTable[time]->labels);
-	ctx->Variable[var]->VSliceTable[time]->labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+#  ifndef USE_GLLISTS
+	labels = vslice->labels ;
+#  endif
+	if(labels)
+	  free(labels);
+	labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
 #endif
 
    contour_ok =	contour( ctx, slice, rows, cols, interval, low, high, base,
@@ -2385,9 +2399,9 @@ static void calc_vslice( Context ctx, int time, int var,
 		 vr2, vc2, max_cont_verts/2, &num2,
 		 vr3, vc3, max_cont_verts/2, &num3
 #ifdef USE_SYSTEM_FONTS
-									,ctx->Variable[var]->VSliceTable[time]->labels							
+		 ,labels							
 #endif
-									);
+				);
 
    deallocate( ctx, slice, -1 );
    release_grid( ctx, time, var, grid );
@@ -2417,10 +2431,6 @@ static void calc_vslice( Context ctx, int time, int var,
    for (i=0;i<num1;i++) {
       r = vc1[i] / (float) (cols-1);   /* r in [0,1] */
 
-/* WLH 15 Oct 98
-      vl1[i] = (float) (dtx->Nl-1+dtx->LowLev) - vr1[i];
-*/
-      /* WLH 15 Oct 98 */
       vl1[i] = (rows - 1 + ctxlow) - vr1[i];
 
       vr1[i] = r1 + r * dr;
@@ -2429,10 +2439,6 @@ static void calc_vslice( Context ctx, int time, int var,
    for (i=0;i<num2;i++) {
       r = vc2[i] / (float) (cols-1);   /* r in [0,1] */
 
-/* WLH 15 Oct 98
-      vl2[i] = (float) (dtx->Nl-1+dtx->LowLev) - vr2[i];
-*/
-      /* WLH 15 Oct 98 */
       vl2[i] = (rows - 1 + ctxlow) - vr2[i];
 
       vr2[i] = r1 + r * dr;
@@ -2441,10 +2447,6 @@ static void calc_vslice( Context ctx, int time, int var,
    for (i=0;i<num3;i++) {
       r = vc3[i] / (float) (cols-1);   /* r in [0,1] */
 
-/* WLH 15 Oct 98
-      vl3[i] = (float) (dtx->Nl-1+dtx->LowLev) - vr3[i];
-*/
-      /* WLH 15 Oct 98 */
       vl3[i] = (rows - 1 + ctxlow) - vr3[i];
 
       vr3[i] = r1 + r * dr;
@@ -2507,30 +2509,62 @@ static void calc_vslice( Context ctx, int time, int var,
 
    /************************ Store the new slice ************************/
 
-   wait_write_lock( &ctx->Variable[var]->VSliceTable[time]->lock );
+   wait_write_lock( &vslice->lock );
 
+#ifdef USE_GLLISTS
+	generate_disjoint_lines(num1,cverts1, vslice->glList);
+	if(num2>0){
+	  generate_disjoint_lines(num2,cverts2,vslice->glList+1);
+	}
+
+	if(numboxverts>0)
+	  generate_polyline(numboxverts, (float **) boxverts, vslice->glList+3);
+
+#  ifdef USE_SYSTEM_FONTS
+	if(num3>0){
+	  generate_labels(num3, labels, cverts3, vslice->glList+2);
+	  free(labels);
+	}	  
+#  else
+	if(num3>0)
+	  generate_disjoint_lines(num3,cverts3,vslice->glList+2);
+#  endif
+	deallocate(ctx,cverts1,num1*sizeof(int_2) * 3);
+	deallocate(ctx,cverts2,num2*sizeof(int_2) * 3);
+	deallocate(ctx,cverts3,num3*sizeof(int_2) * 3);
+	deallocate(ctx,boxverts,numboxverts*3*sizeof(float));
+   /* store new slice */
+   vslice->interval = interval;
+   vslice->lowlimit = low;
+   vslice->highlimit = high;
+   vslice->r1 = r1;
+   vslice->c1 = c1;
+   vslice->r2 = r2;
+   vslice->c2 = c2;
+#else
    /* deallocate existing slice, if any */
    free_vslice( ctx, time, var );
 
    /* store new slice */
-   ctx->Variable[var]->VSliceTable[time]->interval = interval;
-   ctx->Variable[var]->VSliceTable[time]->lowlimit = low;
-   ctx->Variable[var]->VSliceTable[time]->highlimit = high;
-   ctx->Variable[var]->VSliceTable[time]->r1 = r1;
-   ctx->Variable[var]->VSliceTable[time]->c1 = c1;
-   ctx->Variable[var]->VSliceTable[time]->r2 = r2;
-   ctx->Variable[var]->VSliceTable[time]->c2 = c2;
-   ctx->Variable[var]->VSliceTable[time]->num1 = num1;
-   ctx->Variable[var]->VSliceTable[time]->verts1 = cverts1;
-   ctx->Variable[var]->VSliceTable[time]->num2 = num2;
-   ctx->Variable[var]->VSliceTable[time]->verts2 = cverts2;
-   ctx->Variable[var]->VSliceTable[time]->num3 = num3;
-   ctx->Variable[var]->VSliceTable[time]->verts3 = cverts3;
-   ctx->Variable[var]->VSliceTable[time]->boxverts = boxverts;
-   ctx->Variable[var]->VSliceTable[time]->numboxverts = numboxverts;
-   ctx->Variable[var]->VSliceTable[time]->valid = 1;
+   vslice->interval = interval;
+   vslice->lowlimit = low;
+   vslice->highlimit = high;
+   vslice->r1 = r1;
+   vslice->c1 = c1;
+   vslice->r2 = r2;
+   vslice->c2 = c2;
+   vslice->num1 = num1;
+   vslice->verts1 = cverts1;
+   vslice->num2 = num2;
+   vslice->verts2 = cverts2;
+   vslice->num3 = num3;
+   vslice->verts3 = cverts3;
+   vslice->boxverts = boxverts;
+   vslice->numboxverts = numboxverts;
+#endif
+   vslice->valid = 1;
 
-   done_write_lock( &ctx->Variable[var]->VSliceTable[time]->lock );
+   done_write_lock( &vslice->lock );
 
    if (time==ctx->dpy_ctx->CurTime) {
       ctx->dpy_ctx->Redraw = 1;

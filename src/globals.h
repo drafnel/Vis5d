@@ -105,13 +105,11 @@ struct isosurface {
    int     lock;        /* mutual exclusion lock */
    int     valid;       /* valid/initialized surface flag */
    float   isolevel;    /* the isolevel of the surface */
-   int     numverts;    /* number of vertices */
+#ifdef USE_GLLISTS
+  GLuint glList;
+#else
    int_2   *verts;      /* array [numverts][3] of vertices */
    int_1   *norms;      /* array [numverts][3] of normals */
-   uint_1  *colors;     /* array [numverts] of color table indexes */
-   int     colorvar;    /* variable which is coloring the surface, or -1 */
-   int     cvowner;     /* vis5d_ctx index the var belongs too */
-   int     cvtime;      /* time step for the color var ctx */
    int     numindex;    /* number of indexes */
 #ifdef BIG_GFX
    uint_4  *index;      /* array of indices into verts, norms arrays */
@@ -121,6 +119,12 @@ struct isosurface {
                         /* 2-byte indices means the largest possible */
                         /* isosurface has 65000 vertices. */
 #endif
+#endif
+   int     numverts;    /* number of vertices */
+   uint_1  *colors;     /* array [numverts] of color table indexes */
+   int     colorvar;    /* variable which is coloring the surface, or -1 */
+   int     cvowner;     /* vis5d_ctx index the var belongs too */
+   int     cvtime;      /* time step for the color var ctx */
 };
 
 
@@ -230,6 +234,22 @@ struct textplot {
    uint_1 *colors;
 };
 
+
+
+struct volume {
+  int     dir;         /* Direction of slices */
+  int     valid;       /* Valid flag */
+  int     slices;      /* Number of slices */
+  int     rows, cols;  /* Size of each slice */
+  float   *vertex;     /* slice vertices stored as: */
+                        /*    vertex[slices][rows][cols][3] */
+  uint_1  *index;      /* color table index in [0,255] */
+  int oldnr, oldnc, oldnl; /* this is to know how much to dealloc */
+};
+
+
+
+
 /* Info about horizontal contour slices */
 struct hslice {
   int    lock;
@@ -293,6 +313,9 @@ struct vslice {
    float  highlimit;         /* highest level to contour */
    float  r1, c1;            /* 1st corner position in [0,Nr-1],[0,Nc-1] */
    float  r2, c2;            /* 2nd corner position in [0,Nr-1],[0,Nc-1] */
+#ifdef USE_GLLISTS
+  GLuint glList[4]; /* 0=contour lines 1=hidden contour lines 2=labels 4=box */
+#else
    int    num1;              /* number of line segment vertices */
    int_2  *verts1;           /* array [num1][3] of int_2 vertices */
    int    num2;              /* number of 'hidden' line segment vertices */
@@ -303,6 +326,7 @@ struct vslice {
    int    numboxverts;       /* number of vertices in boxverts array */
 #ifdef USE_SYSTEM_FONTS
   char *labels;
+#endif
 #endif
 };
 

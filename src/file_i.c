@@ -165,7 +165,7 @@ static int determine_file_format( char *name )
    /*
     * A GrADS control file starts with "DSET"
     */
-   if (memcmp(head,"DSET",4)==0) {
+   if (strncasecmp(head,"DSET",4)==0) {
       return FILE_GRADS;
    }
 

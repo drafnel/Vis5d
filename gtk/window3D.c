@@ -677,17 +677,17 @@ gboolean glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event,
 
   if (state & GDK_BUTTON1_MASK) {
     /* drag in progress, simulate trackball */
-	 float xangle,yangle,view[7];
+	 /* in ../src/matrix.c - not part of the api */
+	 void make_matrix( float rotx, float roty, float rotz,
+							 float scale, float transx, float transy, float transz,
+							 float mat[4][4] );
+	 float xangle,yangle,view[7], matrix[4][4];
 
-	 yangle = (x - info->beginx) * 200.0/ area.width;
-	 xangle = (y - info->beginy) * 200.0/ area.height;
+	 yangle = (float) (x - info->beginx) * 200.0/ (float) area.width;
+	 xangle = (float) (y - info->beginy) * 200.0/ (float) area.height;
 
-	 vis5d_get_view(info->v5d_display_context,view,view+1,
-						 view+2,view+3,view+4,view+5,view+6);
-
-	 vis5d_set_view(info->v5d_display_context,
-						 xangle+view[0],yangle+view[1],view[2],view[3],
-						 view[4],view[5],view[6]);
+	 make_matrix(xangle, yangle, 0.0, 1.0, 0., 0., 0., matrix);
+	 vis5d_matrix_mult(info->v5d_display_context, matrix);
 
 	 glarea_draw(widget,NULL,NULL);
   }

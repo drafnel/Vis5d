@@ -100,7 +100,7 @@ on_alpha_button_release_event          (GtkWidget       *widget,
 		for(i=0;i<255;i++)
 		  vinfo->chs->sample->orig_alpha[i] = (guchar) UNPACK_ALPHA(vinfo->chs->sample->colors[i]);
 	 }
-  
+  vinfo->chs->alpha_adjust = adj->value;
 #ifdef WORDS_BIGENDIAN
   for(i=0;i<255;i++)
 	 alpha[i*4] = (guchar) vinfo->chs->sample->orig_alpha[i]*adj->value;
@@ -548,19 +548,28 @@ update_hslice_controls(v5d_var_info *vinfo, gint type)
 }
 
 /* activated when button 2 is pressed over the label */
-void hslice_toggle(v5d_var_info *vinfo)
+void hslice_toggle(v5d_var_info *vinfo, gint type)
 {
-
-  if(vinfo->hs->onscreen){
-	 vinfo->hs->onscreen=FALSE;
-	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
+  gint v5d_type;
+  hslicecontrols *hs;
+  if(type==HSLICE){
+	 v5d_type = VIS5D_HSLICE;
+	 hs = vinfo->hs;
+  }
+  else{
+	 v5d_type = VIS5D_CHSLICE;
+	 hs = vinfo->chs;
+  }
+  if(hs->onscreen){
+	 hs->onscreen=FALSE;
+	 vis5d_enable_graphics(vinfo->v5d_data_context, v5d_type,
 								  vinfo->varid, VIS5D_OFF);
-	 vis5d_set_color( vinfo->info->v5d_display_context, VIS5D_LABEL, vinfo->hs->label->labelid, 
+	 vis5d_set_color( vinfo->info->v5d_display_context, VIS5D_LABEL, hs->label->labelid, 
 							0.5,0.5,0.5,0.5);
   }else{
-	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
+	 vis5d_enable_graphics(vinfo->v5d_data_context, v5d_type,
 								  vinfo->varid, VIS5D_ON);
-	 vinfo->hs->onscreen=TRUE;
+	 hs->onscreen=TRUE;
 	 hs_label(vinfo);
   }
   
@@ -918,3 +927,16 @@ update_vslice_controls(v5d_var_info *vinfo, gint type)
   
 
 }
+
+void
+on_vslice_move_toggled                 (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  /* changes the function of the left mouse button in the 
+	  graphics window, to moving the afiliated vslice */
+
+ 
+  
+
+}
+

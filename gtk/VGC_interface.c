@@ -99,6 +99,8 @@ create_VarGraphicsControls (void)
   GtkObject *vsmin_adj;
   GtkWidget *vsmin;
   GtkWidget *label106;
+  GtkWidget *toolbar3;
+  GtkWidget *vslice_move;
   GtkWidget *label97;
   GtkWidget *table13;
   GtkWidget *button4;
@@ -109,7 +111,6 @@ create_VarGraphicsControls (void)
   GtkWidget *optionmenu3;
   GtkWidget *optionmenu3_menu;
   GtkWidget *label100;
-  GtkWidget *drawingarea1;
   GtkWidget *label84;
   GtkWidget *hbox24;
   GtkWidget *table11;
@@ -750,7 +751,7 @@ create_VarGraphicsControls (void)
   gtk_box_pack_start (GTK_BOX (hbox25), notebook4, TRUE, TRUE, 0);
   gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook4), GTK_POS_LEFT);
 
-  table14 = gtk_table_new (3, 2, FALSE);
+  table14 = gtk_table_new (4, 2, FALSE);
   gtk_widget_set_name (table14, "table14");
   gtk_widget_ref (table14);
   gtk_object_set_data_full (GTK_OBJECT (VarGraphicsControls), "table14", table14,
@@ -828,6 +829,28 @@ create_VarGraphicsControls (void)
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
   gtk_misc_set_padding (GTK_MISC (label106), 10, 0);
+
+  toolbar3 = gtk_toolbar_new (GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
+  gtk_widget_set_name (toolbar3, "toolbar3");
+  gtk_widget_ref (toolbar3);
+  gtk_object_set_data_full (GTK_OBJECT (VarGraphicsControls), "toolbar3", toolbar3,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (toolbar3);
+  gtk_table_attach (GTK_TABLE (table14), toolbar3, 0, 1, 3, 4,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+
+  vslice_move = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar3),
+                                GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
+                                NULL,
+                                _("Move Slice"),
+                                _("Move Slice"), NULL,
+                                NULL, NULL, NULL);
+  gtk_widget_set_name (vslice_move, "vslice_move");
+  gtk_widget_ref (vslice_move);
+  gtk_object_set_data_full (GTK_OBJECT (VarGraphicsControls), "vslice_move", vslice_move,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vslice_move);
 
   label97 = gtk_label_new (_("Settings"));
   gtk_widget_set_name (label97, "label97");
@@ -926,15 +949,6 @@ create_VarGraphicsControls (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label100);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook4), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook4), 1), label100);
-
-  drawingarea1 = gtk_drawing_area_new ();
-  gtk_widget_set_name (drawingarea1, "drawingarea1");
-  gtk_widget_ref (drawingarea1);
-  gtk_object_set_data_full (GTK_OBJECT (VarGraphicsControls), "drawingarea1", drawingarea1,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (drawingarea1);
-  gtk_box_pack_start (GTK_BOX (hbox25), drawingarea1, TRUE, TRUE, 0);
-  gtk_widget_set_usize (drawingarea1, 35, 35);
 
   label84 = gtk_label_new (_("VI"));
   gtk_widget_set_name (label84, "label84");
@@ -1235,12 +1249,12 @@ create_VarGraphicsControls (void)
   gtk_signal_connect (GTK_OBJECT (vsmin), "activate",
                       GTK_SIGNAL_FUNC (on_hsspin_changed),
                       GINT_TO_POINTER(0));
+  gtk_signal_connect (GTK_OBJECT (vslice_move), "toggled",
+                      GTK_SIGNAL_FUNC (on_vslice_move_toggled),
+                      NULL);
   gtk_signal_connect (GTK_OBJECT (button4), "clicked",
                       GTK_SIGNAL_FUNC (on_colorselect_clicked),
                       GINT_TO_POINTER(2));
-  gtk_signal_connect (GTK_OBJECT (drawingarea1), "button_press_event",
-                      GTK_SIGNAL_FUNC (on_drawingarea_button_press_event),
-                      NULL);
   gtk_signal_connect (GTK_OBJECT (spinbutton1), "activate",
                       GTK_SIGNAL_FUNC (on_hsspin_changed),
                       GINT_TO_POINTER(0));

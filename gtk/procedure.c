@@ -36,11 +36,13 @@ enum {
     SYMBOL_VAR,
     SYMBOL_MIN,
     SYMBOL_MAX,
-    SYMBOL_INT,
     SYMBOL_HEIGHT,
+    SYMBOL_INT,
     SYMBOL_STIPPLE,
     SYMBOL_WIDTH,
-  SYMBOL_COLOR,
+    SYMBOL_COLOR,
+  SCOPE_SYMBOL_CHSLICE,
+    SYMBOL_COLOR_TABLE,
   NULL_SYMBOL    /* should always be last - just a pointer to the end*/
 };
 
@@ -64,7 +66,12 @@ Symbols symbols[] = {
     { "stipple", SYMBOL_STIPPLE, SCOPE_SYMBOL_HSLICE,},
     { "width", SYMBOL_WIDTH, SCOPE_SYMBOL_HSLICE,},
     { "color", SYMBOL_COLOR, SCOPE_SYMBOL_HSLICE,},
-
+  { "chslice", SCOPE_SYMBOL_CHSLICE,  SCOPE_SYMBOL_IMAGE,},
+    { "var", SYMBOL_VAR,  SCOPE_SYMBOL_CHSLICE,},
+    { "min", SYMBOL_MIN,  SCOPE_SYMBOL_CHSLICE,},
+    { "max", SYMBOL_MAX,  SCOPE_SYMBOL_CHSLICE,},
+    { "height", SYMBOL_HEIGHT,  SCOPE_SYMBOL_CHSLICE,},
+    { "color_table", SYMBOL_COLOR_TABLE, SCOPE_SYMBOL_CHSLICE,},
   { NULL, 0, 0,},
 };
 
@@ -223,10 +230,86 @@ Image *image_add_item(Image *image, gpointer item, gint itemtype, gchar *imagena
 
 
 static guint
+parse_hslice_symbol(GScanner *scanner, Image *oneimage, guint symbol)
+{
+  guint tmp;
+  hslicecontrols *onehslice;
+  if(g_array_index(oneimage->item_type,gint,oneimage->item_type->len-1)
+	  != HSLICE){
+	 g_print("Expected HSLICE found %d\n",oneimage->item_type->data[oneimage->item_type->len-1]);
+	 return G_TOKEN_SYMBOL;
+  }
+  onehslice = (hslicecontrols *) g_ptr_array_index(oneimage->items,oneimage->items->len-1);
+  
+  switch (symbol){
+  case SYMBOL_VAR:
+	 return token_string(scanner,&onehslice->var);
+  case SYMBOL_MIN:
+	 return token_float(scanner, &onehslice->min);
+  case SYMBOL_MAX:
+	 return token_float(scanner, &onehslice->max);
+  case SYMBOL_INT:
+	 return token_float(scanner, &onehslice->interval);
+  case SYMBOL_HEIGHT:
+	 return token_float(scanner, &onehslice->height);
+  case SYMBOL_STIPPLE:
+	 symbol = token_int(scanner, &tmp);		
+	 onehslice->stipple = (gushort) tmp;
+	 return symbol;
+  case SYMBOL_WIDTH:
+	 return token_int(scanner, &onehslice->linewidth);
+  case SYMBOL_COLOR:
+	 {
+		gfloat color[4];
+		gint i;
+		symbol = token_float_list(scanner, 4, color);
+		for(i=0;i<4;i++)
+		  onehslice->color[i]=(gdouble) color[i];
+		return symbol;
+	 }
+	 
+  default:
+	 return G_TOKEN_SYMBOL;
+  }	 
+  return G_TOKEN_NONE;
+}
+
+
+static guint
+parse_chslice_symbol(GScanner *scanner, Image *oneimage, guint symbol)
+{
+  guint tmp;
+  hslicecontrols *onehslice;
+  if(g_array_index(oneimage->item_type,gint,oneimage->item_type->len-1)
+	  != CHSLICE){
+	 g_print("Expected CHSLICE found %d\n",oneimage->item_type->data[oneimage->item_type->len-1]);
+	 return G_TOKEN_SYMBOL;
+  }
+  onehslice = (hslicecontrols *) g_ptr_array_index(oneimage->items,oneimage->items->len-1);
+  
+  switch (symbol){
+  case SYMBOL_VAR:
+	 return token_string(scanner,&onehslice->var);
+  case SYMBOL_MIN:
+	 return token_float(scanner, &onehslice->min);
+  case SYMBOL_MAX:
+	 return token_float(scanner, &onehslice->max);
+  case SYMBOL_HEIGHT:
+	 return token_float(scanner, &onehslice->height);
+  case SYMBOL_COLOR_TABLE:
+	 return token_string(scanner,&onehslice->colortable);
+  default:
+	 return G_TOKEN_SYMBOL;
+  }	 
+  return G_TOKEN_NONE;
+}
+
+
+static guint
 parse_symbol (GScanner *scanner, GList **ProcedureList)
 {
   guint symbol;
-  guint tmp;
+  guint token;
   Image *oneimage;
   hslicecontrols *onehslice;
   
@@ -272,25 +355,18 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 		return token_string(scanner,&oneimage->name);
 		break;
 	 case SCOPE_SYMBOL_HSLICE:
+	 case SCOPE_SYMBOL_CHSLICE:
 		if(scanner->token != '{')
 		  return '{';
-
-		/*
-		sleep(4);
-		*/
 		context[++context_depth] = symbol;
 		g_scanner_set_scope(scanner,context[context_depth]);
-		onehslice = g_new0(hslicecontrols,1); /* *) g_malloc(sizeof(hslicecontrols));*/
+		onehslice = g_new0(hslicecontrols,1);
 		onehslice->var=NULL;
-
-		/*
-		*ProcedureList = procedure_add_item(*ProcedureList,(gpointer) onehslice, HSLICE, FALSE, NULL, -1);
-		*/
-
-		image_add_item(oneimage, (gpointer) onehslice, HSLICE, NULL);
-		
-
-
+		if(symbol==SCOPE_SYMBOL_HSLICE){
+		  image_add_item(oneimage, (gpointer) onehslice, HSLICE, NULL);
+		}else{
+		  image_add_item(oneimage, (gpointer) onehslice, CHSLICE, NULL);
+		}
 		return G_TOKEN_NONE;
 		break;
 	 default:
@@ -302,49 +378,19 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 	 if(scanner->token != '=')
 		return '=';
     oneimage = (Image *) g_list_last(*ProcedureList)->data;
-	 if(g_array_index(oneimage->item_type,gint,oneimage->item_type->len-1)
-		 != HSLICE){
-		g_print("Expected HSLICE found %d\n",oneimage->item_type->data[oneimage->item_type->len-1]);
-		return G_TOKEN_SYMBOL;
-	 }
-	 onehslice = (hslicecontrols *) g_ptr_array_index(oneimage->items,oneimage->items->len-1);
-
-	 switch (symbol){
-	 case SYMBOL_VAR:
-		return token_string(scanner,&onehslice->var);
-	 case SYMBOL_MIN:
-		return token_float(scanner, &onehslice->min);
-	 case SYMBOL_MAX:
-		return token_float(scanner, &onehslice->max);
-	 case SYMBOL_INT:
-		return token_float(scanner, &onehslice->interval);
-	 case SYMBOL_HEIGHT:
-		return token_float(scanner, &onehslice->height);
-	 case SYMBOL_STIPPLE:
-		symbol = token_int(scanner, &tmp);		
-		onehslice->stipple = (gushort) tmp;
-		return symbol;
-	 case SYMBOL_WIDTH:
-		return token_int(scanner, &onehslice->linewidth);
-    case SYMBOL_COLOR:
-		{
-		  gfloat color[4];
-		  gint i;
-		  symbol = token_float_list(scanner, 4, color);
-		  for(i=0;i<4;i++)
-			 onehslice->color[i]=(gdouble) color[i];
-		  return symbol;
-		}
-		
-	 default:
-		return G_TOKEN_SYMBOL;
-	 }	 
+	 return parse_hslice_symbol(scanner, oneimage, symbol);
+	 break;
+  case SCOPE_SYMBOL_CHSLICE:
+	 /* expect '=' */
+	 if(scanner->token != '=')
+		return '=';
+    oneimage = (Image *) g_list_last(*ProcedureList)->data;
+	 return parse_chslice_symbol(scanner, oneimage, symbol);
 	 break;
   default:
 	 /* flag an unrecognized context */
 	 printf("bad context %d\n",symbol);
   }
-
   return G_TOKEN_NONE;
 }
 
@@ -356,14 +402,9 @@ print_hslicecontrols(FILE *fp, hslicecontrols *hslice)
 		g_print("hslicecontrols is invalid without a variable name\n");
 		return;
 	 }
-  fprintf(fp,"  hslice {\n");
-  fprintf(fp,"    var = \"%s\";\n",hslice->var);
-  fprintf(fp,"    min = %g;\n",hslice->min);
-  fprintf(fp,"    max = %g;\n",hslice->max);
-  fprintf(fp,"    height = %g;\n",hslice->height);
-
   if(hslice->interval){
 	 /* this is a contour isoline slice */
+	 fprintf(fp,"  hslice {\n");
 	 fprintf(fp,"    interval = %g;\n",hslice->interval);
 	 fprintf(fp,"    stipple = 0x%x;\n",(unsigned short) hslice->stipple);
 	 fprintf(fp,"    width = %d;\n",hslice->linewidth);
@@ -372,8 +413,15 @@ print_hslicecontrols(FILE *fp, hslicecontrols *hslice)
 				hslice->color[2],hslice->color[3]);
   }else{
 	 /* this is a contour color filled slice */
-
+	 fprintf(fp,"  chslice {\n");
+	 if(hslice->colortable)
+		fprintf(fp,"    color_table = \"%s\";\n",hslice->colortable);
   }
+  fprintf(fp,"    var = \"%s\";\n",hslice->var);
+  fprintf(fp,"    min = %g;\n",hslice->min);
+  fprintf(fp,"    max = %g;\n",hslice->max);
+  fprintf(fp,"    height = %g;\n",hslice->height);
+
   fprintf(fp,"  }\n");
 }
 
@@ -496,6 +544,7 @@ void procedure_free_image(Image *image)
 	 for(i=0;i<image->items->len;i++){
 		type = g_array_index(image->item_type,gint,i);
 		switch (type){
+		case CHSLICE:
 		case HSLICE:
 		  hslice_free((hslicecontrols *) g_ptr_array_index(image->items,i));
 		  break;

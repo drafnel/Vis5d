@@ -22,7 +22,7 @@ libv5dgtk_la_SOURCES = window3D.c window3D.h \
 	                    procedure.c procedure.h \
                        PD_interface.c	PD_interface.h	\
                        ProcedureDialog.c  ProcedureDialog.h \
-	                    graph_labels.c  
+	                    graph_labels.c  graph_labels.h
 
 libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 

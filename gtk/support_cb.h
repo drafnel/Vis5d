@@ -49,7 +49,7 @@ typedef struct {
 typedef struct {
   gint v5d_display_context;
 
-  float beginx,beginy;  /* position of mouse */
+  gint beginx,beginy;  /* position of mouse */
 
   float zoom;           /* field of view in degrees */
 
@@ -75,10 +75,10 @@ typedef struct {
   gint    stipplefactor;
   gushort stipple;
   gboolean onscreen;
-
+  gchar *colortable;
   graph_label *label;
   preview_area *sample;
-
+  guint alpha_adjust;
   GtkWidget *level_value;  /* the vertical level label */
   gchar *var;  /* should be a reference used for procedure saving */
 } hslicecontrols;

@@ -1262,7 +1262,7 @@ Points
 	      <widget>
 		<class>GtkTable</class>
 		<name>table14</name>
-		<rows>3</rows>
+		<rows>4</rows>
 		<columns>2</columns>
 		<homogeneous>False</homogeneous>
 		<row_spacing>10</row_spacing>
@@ -1459,6 +1459,45 @@ Points
 		    <yfill>False</yfill>
 		  </child>
 		</widget>
+
+		<widget>
+		  <class>GtkToolbar</class>
+		  <name>toolbar3</name>
+		  <orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
+		  <type>GTK_TOOLBAR_ICONS</type>
+		  <space_size>5</space_size>
+		  <space_style>GTK_TOOLBAR_SPACE_EMPTY</space_style>
+		  <relief>GTK_RELIEF_NORMAL</relief>
+		  <tooltips>True</tooltips>
+		  <child>
+		    <left_attach>0</left_attach>
+		    <right_attach>1</right_attach>
+		    <top_attach>3</top_attach>
+		    <bottom_attach>4</bottom_attach>
+		    <xpad>0</xpad>
+		    <ypad>0</ypad>
+		    <xexpand>False</xexpand>
+		    <yexpand>False</yexpand>
+		    <xshrink>False</xshrink>
+		    <yshrink>False</yshrink>
+		    <xfill>True</xfill>
+		    <yfill>False</yfill>
+		  </child>
+
+		  <widget>
+		    <class>GtkToggleButton</class>
+		    <child_name>Toolbar:button</child_name>
+		    <name>vslice_move</name>
+		    <tooltip>Move Slice</tooltip>
+		    <signal>
+		      <name>toggled</name>
+		      <handler>on_vslice_move_toggled</handler>
+		      <last_modification_time>Mon, 24 Sep 2001 13:29:22 GMT</last_modification_time>
+		    </signal>
+		    <label>Move Slice</label>
+		    <active>False</active>
+		  </widget>
+		</widget>
 	      </widget>
 
 	      <widget>
@@ -1633,20 +1672,7 @@ Points
 	    </widget>
 
 	    <widget>
-	      <class>GtkDrawingArea</class>
-	      <name>drawingarea1</name>
-	      <width>35</width>
-	      <height>35</height>
-	      <signal>
-		<name>button_press_event</name>
-		<handler>on_drawingarea_button_press_event</handler>
-		<last_modification_time>Thu, 30 Aug 2001 17:20:52 GMT</last_modification_time>
-	      </signal>
-	      <child>
-		<padding>0</padding>
-		<expand>True</expand>
-		<fill>True</fill>
-	      </child>
+	      <class>Placeholder</class>
 	    </widget>
 	  </widget>
 

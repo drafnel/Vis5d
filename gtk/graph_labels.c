@@ -132,7 +132,7 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
   GList *item;
   graph_label *label=NULL;
   v5d_var_info *vinfo;
-  GtkWidget *widget;
+  GtkWidget *widget=NULL;
 
   item = g_list_first(info->graph_label_list);
 
@@ -150,6 +150,7 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
   }
   vinfo = (v5d_var_info *) label->data;
   switch(label->gtype){
+  case CHSLICE:
   case HSLICE:
 	 switch(button){
 	 case 1:
@@ -157,17 +158,19 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
 		break;
 	 case 2:
 		/* toggles the graphics but leaves the label in the window */
-		hslice_toggle(vinfo);
+		hslice_toggle(vinfo,label->gtype);
 		break;
 	 case 3:
 		/* removes the graphic and label from the display */
-		widget = lookup_widget(vinfo->VarGraphicsDialog,"Hslicebutton");
+		if(label->gtype == CHSLICE)
+		  widget = lookup_widget(vinfo->VarGraphicsDialog,"CHslicebutton");
+		else
+		  widget = lookup_widget(vinfo->VarGraphicsDialog,"Hslicebutton");
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), FALSE);
       break;
 	 default:
 	 }
 	 break;
-  case CHSLICE:
   case VSLICE:
   case CVSLICE:
   case ISOSURF:

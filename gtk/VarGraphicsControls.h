@@ -172,3 +172,10 @@ on_Vslicebutton_toggled                (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 void
 update_hslice_controls(v5d_var_info *vinfo, gint type);
+
+void
+hslice_toggle(v5d_var_info *vinfo, gint type);
+
+void
+on_vslice_move_toggled                 (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

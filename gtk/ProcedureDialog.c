@@ -77,10 +77,14 @@ void procedure_ctree_add_image(GtkCTree *ctree,
   for(i=0;i<image->item_type->len;i++){
 	 hslicecontrols *hs;
 	 type = g_array_index(image->item_type,gint, i);
+	 nstr[1]=NULL;
 	 switch(type){
+	 case CHSLICE:
+		nstr[1] = g_strdup("CHSlice");
 	 case HSLICE:
 		nstr[0] = NULL;
-		nstr[1] = g_strdup("HSlice");
+		if(nstr[1]==NULL)
+		  nstr[1] = g_strdup("HSlice");
 		hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
 		if(hs==NULL){
 		  printf("Error: expected hslice here\n");
@@ -89,8 +93,6 @@ void procedure_ctree_add_image(GtkCTree *ctree,
 		nstr[2] = hs->var;
 		vinfo = vinfo_array_find_var_by_name(vinfo_array, hs->var);
 		g_array_append_val(image->vinfo_array, vinfo);
-		/*		g_ptr_array_add(image->vinfo_array,(gpointer) vinfo); */
-		
 		gtk_ctree_node_set_selectable(ctree,
 												gtk_ctree_insert_node(ctree,node,NULL,nstr,0,NULL,NULL,NULL,NULL,1,0),
 												FALSE);
@@ -150,6 +152,44 @@ GtkWidget * new_ProcedureDialog(v5d_info *info, gchar *filename)
 
   return PD;
 }
+
+void 
+vinfo_toggle_chslice_from_procedure(v5d_var_info *vinfo, hslicecontrols *hs, gint enable)
+{
+  GtkWidget *CHslicebutton;
+  if(vinfo==NULL) {
+	 /* TODO: var was not found by name in dataset - a dialog should be open which
+		 gives the user the choice of selecting from the available variables 
+		 or canceling this operation */
+	 return;
+  }
+  if(enable)
+	 on_variable_activate(NULL, vinfo);
+  if(vinfo->VarGraphicsDialog)
+	 CHslicebutton = lookup_widget(vinfo->VarGraphicsDialog,"CHslicebutton");
+
+  if(CHslicebutton){
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CHslicebutton), enable);
+  }
+  if(! (enable && hs) ) 
+	 return;
+
+
+  if(hs->max > hs->min){
+	 if(hs->level > 0)
+		vinfo->chs->level = hs->level;
+	 vinfo->chs->max = hs->max;
+	 vinfo->chs->min = hs->min;
+  }
+  if(hs->height>0){
+	 vinfo->chs->height = hs->height;
+	 vis5d_height_to_gridlevel( vinfo->v5d_data_context,0, vinfo->varid, 
+										 vinfo->chs->height, &vinfo->chs->level);
+  }
+  update_hslice_controls(vinfo, CHSLICE);
+  glarea_draw(vinfo->info->GtkGlArea, NULL, NULL);
+}
+
 
 void
 vinfo_toggle_hslice_from_procedure(v5d_var_info *vinfo, hslicecontrols *hs, gint enable)
@@ -233,6 +273,10 @@ on_ProcedureCtree_tree_select_row      (GtkCTree        *ctree,
 		gtk_object_set_data(GTK_OBJECT(ctree),"SelectedNode",(gpointer) node);
 
 		switch(type){
+		case CHSLICE:
+		  hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
+		  vinfo_toggle_chslice_from_procedure(vinfo,hs, TRUE);
+		  break;
 		case HSLICE: 
 		  hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
 		  vinfo_toggle_hslice_from_procedure(vinfo,hs, TRUE);
@@ -268,6 +312,10 @@ on_ProcedureCtree_tree_unselect_row    (GtkCTree        *ctree,
 	 gtk_object_remove_data(GTK_OBJECT(ctree),"SelectedNode");
 
 	 switch(type){
+	 case CHSLICE: 
+		hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
+		vinfo_toggle_chslice_from_procedure(vinfo,hs, FALSE);
+		break;
 	 case HSLICE: 
 		hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
 		vinfo_toggle_hslice_from_procedure(vinfo,hs, FALSE);
@@ -380,7 +428,7 @@ on_okay_clicked                        (GtkButton       *button,
   GList *label_item;
   GList *ProcedureList;
   GtkWidget *PD, *INdialog;
-  GtkCTreeNode *node;
+  GtkCTreeNode *node, *prevnode, *newnode;
   GtkCTree *ctree;
   Image *image;
   gint position;
@@ -395,6 +443,11 @@ on_okay_clicked                        (GtkButton       *button,
   label_item = info->graph_label_list;
   ctree = GTK_CTREE(lookup_widget(PD,"ProcedureCtree"));
   node = GTK_CTREE_NODE(gtk_object_get_data(GTK_OBJECT(ctree),"SelectedNode"));
+  /* GtkCTreeRow(node)->sibling puts the new item after rather than before node */
+  if(node)
+	 prevnode = GTK_CTREE_ROW(node)->sibling;
+  else
+	 prevnode = NULL;
 
   image = gtk_ctree_node_get_row_data(ctree,node);
   position = g_list_index(ProcedureList , image);
@@ -406,6 +459,9 @@ on_okay_clicked                        (GtkButton       *button,
 	 label = (graph_label *) label_item->data;
 	 vinfo = (v5d_var_info *) label->data;
 	 switch(label->gtype){
+	 case CHSLICE:
+		image = image_add_item(image,(gpointer) vinfo->chs,CHSLICE,imagename);
+		break;
 	 case HSLICE:
 		image = image_add_item(image,(gpointer) vinfo->hs,HSLICE,imagename);
 		break;
@@ -415,15 +471,21 @@ on_okay_clicked                        (GtkButton       *button,
 	 label_item = g_list_next(label_item);
   }
   ProcedureList = g_list_insert(ProcedureList,(gpointer) image, position);
+
   image->name = g_strdup(  gtk_editable_get_chars(GTK_EDITABLE(user_data),0,-1));
 
-  /* GtkCTreeRow(node)->sibling puts the new item after rather than before node */
-  procedure_ctree_add_image(ctree, GTK_CTREE_ROW(node)->sibling , 
+  
+  procedure_ctree_add_image(ctree, prevnode, 
 									 info->vinfo_array,image );
 
   /* Now sibling should be the new node */
-  gtk_ctree_unselect(ctree, node);
-  gtk_ctree_select(ctree,  GTK_CTREE_ROW(node)->sibling);
+  if(node){
+	 gtk_ctree_unselect(ctree, node);
+    newnode = GTK_CTREE_ROW(node)->sibling;
+  }else{
+	 newnode = gtk_ctree_node_nth(ctree,0);
+  }
+  gtk_ctree_select(ctree,  newnode);
 
   
   gtk_widget_destroy(INdialog);

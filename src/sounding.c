@@ -97,10 +97,6 @@ static void draw_var_stuff( Display_Context dtx, int var, Context varctx);
 
 static void draw_ticks( Display_Context dtx, int var, Context varctx);
 
-static float pres_to_height(float pressure);
-
-static float height_to_pres(float height);
-
 static void draw_box ( Display_Context dtx );
 
 static float svp( float K);

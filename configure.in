@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.41 $)
+AC_REVISION($Revision: 1.42 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -130,7 +130,7 @@ AC_ARG_WITH(mcidas, [  --with-mcidas=<lib>     specify McIDAS library file], wit
 
 AC_ARG_WITH(mixkit, [  --with-mixkit=<lib>     specify mixkit library file], with_mixkit=$withval, with_mixkit=yes)
 
-AC_ARG_WITH(memory, [  --with-memory=<MB>      max. memory to use, 0 for none [default: 32]], VIS5D_MAX_MEM=$withval, VIS5D_MAX_MEM=32)
+AC_ARG_WITH(memory, [  --with-memory=<MB>      max. memory to use, 0 for no maximum [default: 0]], VIS5D_MAX_MEM=$withval, VIS5D_MAX_MEM=0)
 AC_DEFINE_UNQUOTED(VIS5D_MAX_MEM, $VIS5D_MAX_MEM, [max. memory to use (MB), 0 for no maximum])
 
 ##########################################################################

@@ -1788,7 +1788,58 @@ static void render_trajectories( Context ctx, int it, int tf )
    }
 }
 
+int draw_clock_labels(int dtime, int stime, int CurTime,int NumTimes, 
+							 int xpos, int ypos, XFontStruct *font,int JulianDate)
+{
+  char str[15];
+  int i, width1, width2, width3;
+  static char month[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+										"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  static int dds[24] = {31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365,
+								31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
+  i = stime;
+  sprintf( str, "%02d:%02d:%02d", i/3600, (i/60)%60, i%60 );
+  draw_text( xpos, ypos, str );
+  
+  width1 = text_width ( font, str);
+  
+  if (JulianDate) {
+	 sprintf( str, "%7d", v5dDaysToYYDDD( dtime ));
+  }
+  else {
+	 int iyyddd, iy, im, id, mon;
+	 
+	 iyyddd = v5dDaysToYYDDD( dtime );
+	 iy = iyyddd / 1000;
+	 id = iyyddd - (iy * 1000);
+	 im = ((iy % 4) == 0 && ((iy % 100) != 0 || (iy % 400) == 0)) ? 12 : 0;
+	 for (i=im; i<im+12; i++) {
+		if (id <= dds[i]) {
+		  mon = i-im;
+		  if (mon > 0) id = id - dds[i-1];
+		  break;
+		}
+	 }
+	 sprintf(str, "%02d %s %02d", id, month[mon], iy);
+  }
+  draw_text( xpos, 2*ypos, str );
+
+  width2 = text_width ( font, str);
+
+  sprintf( str, "%d of %d", CurTime+1, NumTimes );
+  draw_text( xpos, 3*ypos, str );
+
+  width3 = text_width ( font, str);
+
+  if(width1>width2 && width1>width3)
+	 return width1;
+  else if(width1>width2)
+	 return width3;
+  else if(width2>width3)
+	 return width2;
+  return width3;
+}
 
 
 /*
@@ -1801,10 +1852,6 @@ static void draw_clock( Display_Context dtx, unsigned int c )
 {
    static char day[7][20] = {"Sunday", "Monday", "Tuesday", "Wednesday",
                              "Thursday", "Friday", "Saturday" };
-   static char month[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-   static int dds[24] = {31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365,
-                         31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
    static float twopi = 2.0 * 3.141592;
    short pp[CLOCK_SEGMENTS+1][2];
@@ -1868,36 +1915,16 @@ static void draw_clock( Display_Context dtx, unsigned int c )
 										 dtx->CurTime,
 										 &dtime, &stime);
 	
+	time_str_width = draw_clock_labels(dtime,stime, dtx->CurTime, 
+												  dtx->NumTimes, clk_size, 
+												  dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE,
+												  dtx->gfx[WINDOW_3D_FONT]->font,
+												  dtx->JulianDate);
+
+
+
    dtimeold = dtime;
    stimeold = stime;
-   i = stimeold;
-   sprintf( str, "%02d:%02d:%02d", i/3600, (i/60)%60, i%60 );
-   draw_text( clk_size, dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE, str );
-   time_str_width = text_width ( dtx->gfx[WINDOW_3D_FONT]->font, str);
-
-   if (dtx->JulianDate) {
-     sprintf( str, "%7d", v5dDaysToYYDDD( dtimeold ));
-   }
-   else {
-     int iyyddd, iy, im, id, mon;
-
-     iyyddd = v5dDaysToYYDDD( dtimeold );
-     iy = iyyddd / 1000;
-     id = iyyddd - (iy * 1000);
-     im = ((iy % 4) == 0 && ((iy % 100) != 0 || (iy % 400) == 0)) ? 12 : 0;
-     for (i=im; i<im+12; i++) {
-       if (id <= dds[i]) {
-         mon = i-im;
-         if (mon > 0) id = id - dds[i-1];
-         break;
-       }
-     }
-     sprintf(str, "%02d %s %02d", id, month[mon], iy);
-   }
-   draw_text( clk_size, 2*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
-
-   sprintf( str, "%d of %d", dtx->CurTime+1, dtx->NumTimes );
-   draw_text( clk_size, 3*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
 
    if (dtx->NumTimes == 1 ||
        ((dtx->Elapsed[dtx->NumTimes-1] - dtx->Elapsed[0])
@@ -1910,6 +1937,43 @@ static void draw_clock( Display_Context dtx, unsigned int c )
       sprintf( str, "   Group %d", dtx->group_index);
       draw_text( (clk_size + time_str_width), (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
    }
+
+	if(dtx->numofctxs+dtx->numofitxs>1){
+	  int yo;
+	  Context ctx;
+	  Irregular_Context itx;
+	  for(yo=0;yo<dtx->numofctxs;yo++){
+		 ctx=dtx->ctxpointerarray[yo];
+
+		 vis5d_get_ctx_time_stamp( ctx->context_index,
+											ctx->CurTime,
+											&dtime, &stime);
+
+		 if((dtime!=dtimeold) || (stime!=stimeold))
+			fprintf(stderr,"Time of ctx data %d differs from display time \n",yo);
+	  }
+	  for(yo=0;yo<dtx->numofitxs;yo++){
+		 itx=dtx->itxpointerarray[yo];
+
+		 vis5d_get_itx_time_stamp( itx->context_index,
+											itx->CurTime,
+											&dtime, &stime);
+
+		 if((dtime!=dtimeold) || (stime!=stimeold)){
+			time_str_width += draw_clock_labels(dtime,stime, itx->CurTime, 
+														  itx->NumTimes, clk_size+time_str_width+clk_margin, 
+														  dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE,
+														  dtx->gfx[WINDOW_3D_FONT]->font,
+														  dtx->JulianDate);
+
+			fprintf(stderr,"Time of itx data %d differs from display time %d %d \n",yo,dtime,stime);
+		 }
+	  }
+
+	}
+
+
+
 }
 /* MJK 12.02.98 end */
 

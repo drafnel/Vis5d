@@ -3,45 +3,42 @@
 SGML_SRC = chap1.sgml  chap3.sgml  chap5.sgml  chap7.sgml  chap9.sgml   \
            chap2.sgml  chap4.sgml  chap6.sgml  chap8.sgml  vis5d.sgml
 
-HTML_FILES = t1.html     x1413.html  x2426.html  x2698.html  x396.html \
-             x1128.html  x1497.html  x2625.html  x35.html
+EXTRA_DIST = vis5d.pdf html $(SGML_SRC)
 
-$(HTML_FILES): html
-
-EXTRA_DIST = vis5d.pdf $(HTML_FILES) $(SGML_SRC)
-
-JADE = @JADE@
-JADETEX = @JADETEX@
-PDFJADETEX = @PDFJADETEX@
-DVIPS = @DVIPS@
-NWALSH = /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh
+DB2DVI = @DB2DVI@
+DB2HTML = @DB2HTML@
+DB2PDF = @DB2PDF@
+DB2PS = @DB2PS@
+DB2RTF = @DB2RTF@
 
 ps: vis5d.ps
+
+dvi: vis5d.dvi
 
 pdf: vis5d.pdf
 
 rtf: vis5d.rtf
 
-vis5d.tex: $(SGML_SRC)
-	$(JADE) -t tex -d $(NWALSH)/print/docbook.dsl vis5d.sgml
-
-vis5d.dvi: vis5d.tex
-	$(JADETEX) vis5d.tex
-
-vis5d.ps: vis5d.dvi
-	$(DVIPS) -Z vis5d.dvi -o vis5d.ps
-
-vis5d.pdf: vis5d.tex
-	$(PDFJADETEX) vis5d.tex
-
 html: $(SGML_SRC)
-	$(JADE) -t sgml -d $(NWALSH)/html/docbook.dsl vis5d.sgml
+	rm -rf html
+	$(DB2HTML) vis5d.sgml
+	mv vis5d html
+
+vis5d.dvi: $(SGML_SRC)
+	$(DB2DVI) vis5d.sgml
+
+vis5d.ps: $(SGML_SRC)
+	$(DB2PS) vis5d.sgml
+
+vis5d.pdf: $(SGML_SRC)
+	$(DB2PDF) vis5d.sgml
 
 vis5d.rtf: $(SGML_SRC)
-	$(JADE) -t rtf -d $(NWALSH)/print/docbook.dsl vis5d.sgml
+	$(DB2RTF) vis5d.sgml
 
 clean-local:
 	rm -f *.aux *.log
 
 maintainer-clean-local:
-	rm -f *.html *.dvi *.ps *.pdf *.rtf *.tex
+	rm -f *.dvi *.ps *.pdf *.rtf *.tex
+	rm -rf html

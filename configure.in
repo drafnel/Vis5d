@@ -34,10 +34,11 @@ AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
 
-AC_CHECK_PROG(JADE, jade, jade, ../missing jade)
-AC_CHECK_PROG(JADETEX, jadetex, jadetex, ../missing jadetex)
-AC_CHECK_PROG(PDFJADETEX, pdfjadetex, pdfjadetex, ../missing pdfjadetex)
-AC_CHECK_PROG(DVIPS, dvips, dvips, ../missing dvips)
+AC_CHECK_PROG(DB2HTML, db2html, db2html, ../missing db2html)
+AC_CHECK_PROG(DB2DVI, db2dvi, db2dvi, ../missing db2dvi)
+AC_CHECK_PROG(DB2PS, db2ps, db2ps, ../missing db2ps)
+AC_CHECK_PROG(DB2PDF, db2pdf, db2pdf, ../missing db2pdf)
+AC_CHECK_PROG(DB2RTF, db2rtf, db2rtf, ../missing db2rtf)
 
 # check how to transform the name of the installed program:
 AC_ARG_PROGRAM

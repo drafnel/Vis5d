@@ -1,6 +1,341 @@
-2001-07-26  stevengj  <stevengj@sourceforge.net>
+2001-09-05  jedwards  <jedwards@sourceforge.net>
 
-	* /cvsroot/vis5d/vis5d/configure.in: bumped version
+	* /cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/work.c: yet another bug fixed.  This one
+	occured only when using USE_SYSTEM_FONTS but not USE_GLLISTS.
+
+	* /cvsroot/vis5d/vis5d/src/misc.c: intialized linewidth for
+	isoline requests
+
+	* /cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/misc.c, /cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/work.c: fixed a minor bug in selecting
+	min and max contour values for shaded contours fixed an error in
+	compiling when USE_GLLISTS is not defined.
+
+2001-09-03  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/render.c: added support for linewidth of
+	HSLICE and VSLICE lines.
+
+	fixed a problem introduced in the last commit which prevented the
+	graphics box (VIS5D_BOX) from being drawn under certain
+	conditions.
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	 /cvsroot/vis5d/vis5d/src/globals.h,
+	 /cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	 /cvsroot/vis5d/vis5d/src/gui.c, /cvsroot/vis5d/vis5d/src/misc.c,
+	 /cvsroot/vis5d/vis5d/src/queue.c,
+	 /cvsroot/vis5d/vis5d/src/render.c,
+	 /cvsroot/vis5d/vis5d/src/work.c: changed shaded contours to plot
+	 extreme values for data outside of range rather than missing.
+	 Added support for selecting either colored vertex or texture
+	 shaded style of shaded contours.  Texture shaded contours update
+	 continuously when changing the colortable while the colored
+	 vertex method must recompute the contours.  However the graphics
+	 produced are different, and may not be to the liking of some
+	 users.  This will be presented as an option in gtk. lui5 will use
+	 the colored vertex (original method)
+
+	 Added support for changeing the linestyle of isoline plots,
+	 however this needs more work, I think that the way contours are
+	 currently drawn (as disjoint lines rather than line strips)
+	 precludes this being a usable option.
+
+	 Changed gui.c so that volumes are not recomputed while any mouse
+	 button is pressed in the graphics window, they are only
+	 recomputed when the mouse is released.  Currently the volume is
+	 not drawn, we can also consider redrawing the most recently
+	 rendered volume while doing mouse operations.
+
+2001-08-29  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/misc.c, /cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/work.c: added support for selecting
+	either color texture or color technique of shaded contours and
+	support for selecting fill style in either mode.
+
+	An api function was added to support selecting fill style
+	vis5d_var_graphics_option
+
+2001-08-28  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/work.c: rather than copying code to
+	generate_ functions, I've modified the draw_ functions to handle
+	gllists.  I've also cleaned up the draw_color_quadmesh routine and
+	added an option to draw as a texture_method.
+
+	* /cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/render.c: improved rendering of colored
+	contours in GL_LISTS
+
+2001-08-27  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/gui.c, /cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/save.c,
+	/cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/work.c: fixes a bug introduced in the
+	last commit for isosurfaces and adds chslice and cvslice to the
+	graphics which can use glLists.  Problem: changing the color table
+	in a colored slice is no longer a trivial operation and requires
+	recomputing the whole thing...
+
+	I also changed the color table algorythm so that out of bounds
+	values are rendered as the boundary color 0 or 254 rather than 255
+	(the missing value).
+
+	* /cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/contour.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/misc.c, /cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/save.c,
+	/cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/work.c: added USE_GLLISTS support for
+	vslice and isosurfaces.  See the notes from the previous commit
+	for a complete description.
+
+2001-08-26  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/save.c, /cvsroot/vis5d/vis5d/src/work.c:
+	experimental addition in macro flag USE_GLLISTS:
+
+	horizontal contours are stored in glLists rather than as lists of
+	vectors.  This turns over memory management for these objects to
+	the ogl library, and frees vis5d memory for other uses.  Compiling
+	with this flag will break save and restore functions for hslice.
+	This flag should be considered experimental at this time.
+
+	Jim
+
+2001-08-23  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/autogen.sh: fixes a bug introduced in last
+	commit of autogen.sh
+
+	* /cvsroot/vis5d/vis5d/autogen.sh,
+	/cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/vis5d+.glade: vis5d+.glade moved to gtk
+	directory and autogen.sh modified appropriatly.  configure.in
+	reflects new dir structure under gtk
+
+2001-08-22  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/map.c,
+	/cvsroot/vis5d/vis5d/src/rgbsliders.c,
+	/cvsroot/vis5d/vis5d/src/work.c, /cvsroot/vis5d/vis5d/src/work.h:
+	fixed a minor problem in the way include files were listed in
+	graphics.h
+
+	Added 2 new api functions and the underlying code to support them:
+
+	vis5d_set_chslice_limits(int index, int var, float low, float
+	high, float level) int vis5d_get_chslice_limits( int index, int
+	var, float *low, float *high, float *level )
+
+	Sets or retreves the chslice including the upper and lower limits
+	of the colortable.  Data values outside this range are ploted as
+	missing - transparent black.  setting low>= high results in a set
+	of reasonable limits being chosen for you.
+
+2001-08-20  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/record.c: corrected initialization of
+	vis5d_irregular_variable structure introduced in previous commit
+
+2001-08-19  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c: corrects error introduced in
+	last commit.  malloc for isosurface should not be done here.
+	removed
+
+	* /cvsroot/vis5d/vis5d/src/analysis.c,
+	/cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/compute.c,
+	/cvsroot/vis5d/vis5d/src/contour.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/grid.c, /cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/record.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/save.c,
+	/cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/textplot.c,
+	/cvsroot/vis5d/vis5d/src/traj.c,
+	/cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/work.c: This commit is a major change in
+	the internal structures of vis5d.  A vis5d_variable structure was
+	introduced and many of the items from the ctx context were moved
+	into it.  On my machine this resulted in the resident memory used
+	by vis5d being reduced from about 48M to 17M.  I suspect there are
+	a few memory leaks and I am unsure as to the functionality of the
+	irregular data - however I feel this change is well worth any
+	shortterm headaches it may cause.
+
+2001-08-17  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/vis5d+.glade: rearranged HSliceControls and
+	removed color selection to a seperate dialog
+
+	* /cvsroot/vis5d/vis5d/src/work.c: fixed a bug in contour limits
+	selection which caused a crash if the vertical levels are greater
+	than the number of columns in the data.  The bug did not affect
+	the lui5 interface.
+
+2001-08-10  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/vis5d+.glade: update of gtk development.
+	No more button grids.
+
+	* /cvsroot/vis5d/vis5d/src/work.c: improved scheme for computing
+	contour min and max values
+
+2001-08-08  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/vis5d+.glade: gtk interface initial
+	development continues
+
+2001-08-07  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/vis5d+.glade: callbacks.c no longer is
+	used.  Otherwise just moving things around looking for a format
+	that will work.
+
+	* /cvsroot/vis5d/vis5d/src/gl_to_ppm.c,
+	/cvsroot/vis5d/vis5d/src/work.c: In work.c USE_SYSTEM_FONTS needed
+	to wrap labels allocation, in gl_to_ppm.c
+
+	 In all versions of vis5d, the ifdefs in saving images into files
+	  are incorrect, file formats are fixed and do not depend on
+	  endianess.
+
+	Thanks to Jaakko for this one.
+
+	* /cvsroot/vis5d/vis5d/vis5d+.glade: fixed a bug in 'open in new
+	 frame' this wouldnt be worth a commit except that Ive fixed that
+	 bug before and it came back...
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/displaywidget.c,
+	/cvsroot/vis5d/vis5d/src/script.c: Added a parameter to the api
+	function vis5d_get_font when compiled with USE_SYSTEM_FONTS this
+	parameter defaults to WINDOW_3D_FONT which is the historical
+	behavior.
+
+	* /cvsroot/vis5d/vis5d/vis5d+.glade: merge of two different
+	development lines
+
+2001-08-06  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/vis5d+.glade: got rid of the seperate
+	preferences window in favor of cascading menus
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/contour.c,
+	/cvsroot/vis5d/vis5d/src/contour.h,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.all.c,
+	/cvsroot/vis5d/vis5d/src/graphics.gl.c,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/graphics.pex.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/script.c,
+	/cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/work.c: This commit introduces individual
+	font support for various objects withen the graphics window.  In
+	particular the contour label font can now be selected and sized.
+	To use this option you must currently compile with
+	-DUSE_SYSTEM_FONTS I find that selecting fonts in this manner
+	makes the contour labels much more readable - currently the font
+	is just written over the contour line.  I will probably modify
+	this so that a box is created around the label.  The box created
+	in countour.c is much too large and doesn't change size with zoom.
+
+	NOTE changes in the API
+
+	vis5d_set_font(int index, char *fontname, int size, Fontlist
+	which)
+
+	is added.
+
+	with USE_SYSTEM_FONTS defined int vis5d_get_font_height( int
+	index, int *height ) is changed to int vis5d_get_font_height(int
+	index, int *height, Fontlist which)
+
+	Fontlist is defined in api.h
+
+2001-08-05  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in: removed check for snprintf -
+	using g_snprintf instead which is provided in glib.
+
+2001-07-30  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/Makefile.am,
+	/cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/vis5d+.glade: Makefile.am and configure.in
+	have minor changes to reduce warnings on running autogen.sh.
+	vis5d+.glade has continued gtk interface development - primarily
+	improvement of the toolbar buttons and toggles.
+
+2001-07-27  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/compute.c: Thanks to Victor Homar.
+
+	fix for New Var calculated using variables from two different v5d
+	files attached to the same display.
+
+	* /cvsroot/vis5d/vis5d/Makefile.am,
+	/cvsroot/vis5d/vis5d/autogen.sh,
+	/cvsroot/vis5d/vis5d/configure.in: changes to look for snprintf
+	function, properly handle intl and po directories, build the gtk
+	glade generated files and automatically use --enable-gtk when
+	running configure from autogen.sh
+
+2001-07-26  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/Makefile.am,
+	/cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/gui.h, /cvsroot/vis5d/vis5d/src/main.c,
+	/cvsroot/vis5d/vis5d/src/main_i.c,
+	/cvsroot/vis5d/vis5d/src/ui_i.c,
+	/cvsroot/vis5d/vis5d/vis5d+.glade: Added gtk interface to main
+	distribution.  It does not install and to compile it you need to
+	use --enable-gtk argument to configure
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h:
+	Added function vis5d_gridlevel_to_pressure to api, changed minimum
+	level value in vis5d_set_hslice from 0 to LowLev[var].
 
 2001-07-19  jedwards  <jedwards@sourceforge.net>
 

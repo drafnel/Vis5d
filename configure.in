@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.34 $)
+AC_REVISION($Revision: 1.35 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(vis5d+, 1.2.0)
 
@@ -40,42 +40,36 @@ AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
 
-dnl
-dnl Because of autogen.sh pickiness, lines inside the if cannot be indented
-dnl
+# Because of autogen.sh pickiness, lines inside the if cannot be indented
+
 ALL_LINGUAS="pt_BR es"
 #
 # we need libintl.h to use NLS
 #
-AC_CHECK_HEADERS(libintl.h, , enable_nls="no" )
+AC_CHECK_HEADERS(libintl.h,[], enable_nls="no")
 AM_GNU_GETTEXT(use-libtool, need-ngettext)
 GTK_DIRS=
 if test "$usegtk" = "yes"; then
-AM_PATH_GTK(1.2.9,GTK_DIRS="gtk " ,
-            AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
+AM_PATH_GTK(1.2.9, GTK_DIRS="gtk ",
+            [AC_MSG_ERROR([Cannot find GTK: Is gtk-config in path?])])
 fi
 AC_SUBST(GTK_DIRS)
 
-dnl Set VIS5D_LOCALE_DIR in config.h.
+# Set VIS5D_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then
   AC_DEFINE_UNQUOTED(VIS5D_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale",[directory containing message catalogs])
 else
   AC_DEFINE_UNQUOTED(VIS5D_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 fi
 
-dnl Set VIS5D_SOURCE_DIR in config.h.
+# Set VIS5D_SOURCE_DIR in config.h.
 packagesrcdir=`cd $srcdir && pwd`
 AC_DEFINE_UNQUOTED(VIS5D_SOURCE_DIR, "${packagesrcdir}",[where the source was built])
 
-dnl Use -Wall if we have gcc.
-changequote(,)dnl
+# Use -Wall if we have gcc.
 if test "x$GCC" = "xyes"; then
-  case " $CFLAGS " in
-  *[\ \	]-Wall[\ \	]*) ;;
-  *) CFLAGS="$CFLAGS -Wall" ;;
-  esac
+  CFLAGS="$CFLAGS -Wall"
 fi
-changequote([,])dnl
 
 AC_CHECK_PROG(DB2HTML, db2html, db2html, ../missing db2html)
 AC_CHECK_PROG(DB2DVI, db2dvi, db2dvi, ../missing db2dvi)
@@ -140,7 +134,7 @@ AC_C_BIGENDIAN
 # Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
 
-AC_CHECK_FUNCS(strcasecmp strncasecmp strdup )
+AC_CHECK_FUNCS(strcasecmp strncasecmp strdup)
 
 # Find X11 libs and flags:
 AC_PATH_X
@@ -171,11 +165,8 @@ if test "$with_mesa" = "yes"; then
 fi
 if test -n "$GLLIBS"; then
 	AC_DEFINE(HAVE_OPENGL,1,[Define if we have OpenGL libraries.])
-   AC_CHECK_HEADERS(GL/gl.h, ,
-	          AC_MSG_ERROR(
- Couldn't include header file <GL/gl.h>
- you may need to specify the path to OpenGL include files in CPPFLAGS.
-              ) )
+   AC_CHECK_HEADERS(GL/gl.h,[],
+	[AC_MSG_ERROR([Couldn't include header file <GL/gl.h>; you may need to specify the path to OpenGL include files in CPPFLAGS.])])
 else
 	echo "couldn't find OpenGL libraries!"
 	if test "$with_mesa" = "yes"; then
@@ -390,9 +381,7 @@ if test "$with_mixkit" != "no"; then
 		# Look for the header; 
 	   AC_LANG_PUSH(C++)
 		AC_CHECK_HEADERS(mixkit/mixio.h, 
-			[AC_DEFINE(HAVE_MIXKIT,1,[Do we have mixkit library?])
-      	 ])
-
+		       [AC_DEFINE(HAVE_MIXKIT,1,[Do we have mixkit library?])])
 	   AC_LANG_POP(C++)
 		;;
 
@@ -524,5 +513,5 @@ fi
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
-AC_CONFIG_FILES([gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile ])
+AC_CONFIG_FILES([gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile])
 AC_OUTPUT

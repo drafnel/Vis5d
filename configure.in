@@ -48,14 +48,13 @@ AM_PATH_GTK(1.2.9, ,
 ALL_LINGUAS=""
 AM_GNU_GETTEXT
 INTLDIR=intl
-GTK_DIRS="po gtk"
+GTK_DIRS="gtk po"
 else
 INTLDIR=
 GTK_DIRS=
 fi
 AC_SUBST(GTK_DIRS)
 AC_SUBST(INTLDIR)
-
 
 dnl Set VIS5D_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then

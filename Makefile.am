@@ -1,8 +1,8 @@
 #
 # gettext support requires that subdir intl be first
 #
+SUBDIRS = @INTLDIR@  lui5 src util doc @GTK_DIRS@
 
-SUBDIRS = @INTLDIR@  lui5 src util doc  @GTK_DIRS@ 
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts userfuncs
 
 #

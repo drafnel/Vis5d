@@ -1,6 +1,6 @@
 bin_PROGRAMS = v5dimport
 
-CPPFLAGS = @CPPFLAGS@ -I../src -I../lui5
+CPPFLAGS = @CPPFLAGS@ -I$(srcdir)/../src -I$(srcdir)/../lui5
 
 V5D_LIB = ../src/libv5d.la
 

@@ -5,7 +5,7 @@ bin_PROGRAMS = $(CPROGS) @OPT_UTILS@
 EXTRA_PROGRAMS = $(FPROGS) listfonts fromxwd \
                  help maketopo makemap newmap outlgrid
 
-CPPFLAGS = @CPPFLAGS@ -I../src
+CPPFLAGS = @CPPFLAGS@ -I$(srcdir)/../src
 
 V5D_LIB = ../src/libv5d.la
 

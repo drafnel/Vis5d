@@ -39,6 +39,8 @@ extern int any_work_pending( void );
 
 extern int do_one_task( int threadnum );
 
+extern void set_hslice_pos(Context ctx, int var, hslice_request *request, float level);
+
 #ifdef HAVE_SGI_SPROC
 extern void work( void *threadnum );
 #else

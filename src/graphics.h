@@ -88,14 +88,6 @@
 
 
 
-#include <X11/Xlib.h>
-#ifdef HAVE_SGI_GL
-#  include <gl/glws.h>
-#endif
-#include "globals.h"
-#include "matrix.h"
-
-
 
 /*
  * Antialiasing passes:
@@ -156,9 +148,6 @@
 #    define UNPACK_ALPHA(X)       ( (X) & 0xff )
 #  endif
 #endif
-
-
-#include <X11/Xlib.h>
 
 
 /*

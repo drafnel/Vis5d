@@ -1302,36 +1302,46 @@ int vis5d_set_display_group( int index, int index_of_grp )
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_isosurface(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->Variable[var]->SurfTable[time]->valid = 0;
+  if(ctx->Variable[var])
+	 if(ctx->Variable[var]->SurfTable[time])
+		ctx->Variable[var]->SurfTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_hslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  if(ctx->Variable[var]->HSliceTable[time])
-	 ctx->Variable[var]->HSliceTable[time]->valid = 0;
+  if(ctx->Variable[var])
+	 if(ctx->Variable[var]->HSliceTable[time])
+		ctx->Variable[var]->HSliceTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_vslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->Variable[var]->VSliceTable[time]->valid = 0;
+
+  if(ctx->Variable[var])
+	 if(ctx->Variable[var]->VSliceTable[time])
+		ctx->Variable[var]->VSliceTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_chslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->Variable[var]->CHSliceTable[time]->valid = 0;
+  if(ctx->Variable[var])
+	 if(ctx->Variable[var]->CHSliceTable[time])
+		ctx->Variable[var]->CHSliceTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_cvslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->Variable[var]->CVSliceTable[time]->valid = 0;
+  if(ctx->Variable[var])
+	 if(ctx->Variable[var]->CVSliceTable[time])
+		ctx->Variable[var]->CVSliceTable[time]->valid = 0;
   return 0;
 }
 
@@ -8212,20 +8222,15 @@ int vis5d_set_hslice( int index, int var, float interval,
 
 
 	if(interval==0){
-	  void set_hslice_pos(Context ctx, int var, float level); /* in work.c */
-	  set_hslice_pos(ctx,var,level);
+	  set_hslice_pos(ctx,var,ctx->Variable[var]->HSliceRequest,level);
 	  return 0;
+	}else{
+	  ctx->Variable[var]->HSliceRequest->Interval = interval;
+	  ctx->Variable[var]->HSliceRequest->LowLimit = low;
+	  ctx->Variable[var]->HSliceRequest->HighLimit = high;
+	  ctx->Variable[var]->HSliceRequest->Level = level; 
+	  return new_slice_pos(index, HSLICE, var);
 	}
-	/* end of JPE */
-
-	
-
-   ctx->Variable[var]->HSliceRequest->Interval = interval;
-   ctx->Variable[var]->HSliceRequest->LowLimit = low;
-   ctx->Variable[var]->HSliceRequest->HighLimit = high;
-   ctx->Variable[var]->HSliceRequest->Level = level; 
-
-   return new_slice_pos(index, HSLICE, var);
 }
 
 
@@ -8323,6 +8328,23 @@ int vis5d_make_chslice( int index, int time, int var, int urgent )
    return 0;
 }
 
+int vis5d_set_chslice_limits(int index, int var, float low, float high, float level)
+{
+  CONTEXT("vis5d_set_chslice")
+
+	 if (var<0 || var>=ctx->NumVars) {
+      return VIS5D_BAD_VAR_NUMBER;
+	 }  
+  
+  if(low>=high){
+	 set_hslice_pos(ctx,var,ctx->Variable[var]->CHSliceRequest, level);  
+	 return 0;
+  }else{
+	 ctx->Variable[var]->CHSliceRequest->LowLimit = low;
+	 ctx->Variable[var]->CHSliceRequest->HighLimit = high;
+	 return vis5d_set_chslice( index, var, level);
+  }
+}
 
 int vis5d_set_chslice( int index, int var, float level )
 {
@@ -8354,6 +8376,22 @@ int vis5d_set_chslice( int index, int var, float level )
 int vis5d_get_chslice( int index, int var, float *level )
 {
   CONTEXT("vis5d_get_chslice")
+   if (var<0 || var>=ctx->NumVars) {
+      return VIS5D_BAD_VAR_NUMBER;
+   }
+  *level = ctx->Variable[var]->CHSliceRequest->Level;
+  return 0;
+}
+
+int vis5d_get_chslice_limits( int index, int var, float *low, float *high, float *level )
+{
+  CONTEXT("vis5d_get_chslice")
+   if (var<0 || var>=ctx->NumVars) {
+      return VIS5D_BAD_VAR_NUMBER;
+   }
+
+  *low = ctx->Variable[var]->CHSliceRequest->LowLimit;
+  *high = ctx->Variable[var]->CHSliceRequest->HighLimit;
   *level = ctx->Variable[var]->CHSliceRequest->Level;
   return 0;
 }

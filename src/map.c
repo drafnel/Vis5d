@@ -39,8 +39,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "binio.h"
-#include "graphics.h"
 #include "globals.h"
+#include "graphics.h"
 #include "map.h"
 #include "proj.h"
 #include "topo.h"

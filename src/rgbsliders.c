@@ -44,6 +44,7 @@
 #include "X11/Xlib.h"
 #include "../lui5/lui.h"
 #include "api.h"
+#include "globals.h"
 #include "graphics.h"
 #include "gui.h"
 #include "mwmborder.h"

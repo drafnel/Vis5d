@@ -804,6 +804,11 @@ extern int vis5d_set_chslice( int index, int var, float level );
 
 extern int vis5d_get_chslice( int index, int var, float *level );
 
+extern int vis5d_set_chslice_limits(int index, int var, float low, float high, float level);
+extern int vis5d_get_chslice_limits( int index, int var, float *low, float *high, float *level );
+
+
+
 extern int vis5d_make_cvslice( int index, int time, int var,
                                       int urgent );
 

@@ -2497,11 +2497,15 @@ static void calc_vslice( Context ctx, int time, int var,
    Calculate a horizontal colored slice and store it.
    Input:  time - the time step.
            var - which variable.
+			  low,high - min and max values to show, values outside these
+                      limits are plotted in transparent black 
+          
            level - position of slice in [0..Nl-1].
            threadnum - thread ID
    Output:  resulting data values are saved in CHSliceTable.
 **********************************************************************/
 static void calc_chslice( Context ctx, int time, int var,
+								  float low, float high,
                           float level, int threadnum )
 {
    struct chslice *slice = ctx->Variable[var]->CHSliceTable[time];
@@ -2513,6 +2517,11 @@ static void calc_chslice( Context ctx, int time, int var,
    int slice_rows, slice_cols;
    float density = 1.0;  /* Make this a parameter someday */
    Display_Context dtx;
+
+	if(low>=high){
+	  low = ctx->Variable[var]->MinVal;
+	  high = ctx->Variable[var]->MaxVal;
+	}
 
    dtx = ctx->dpy_ctx;
    if (ctx->Nl[var]==1) {
@@ -2621,24 +2630,16 @@ static void calc_chslice( Context ctx, int time, int var,
 
 
    /* scale data values to [0,254] with missing = 255 */
-   if (ctx->Variable[var]->MinVal==ctx->Variable[var]->MaxVal)
+   if (low==high)
      scale = 0.0;
    else
-     scale = 254.0 / (ctx->Variable[var]->MaxVal-ctx->Variable[var]->MinVal);
+     scale = 254.0 / (high-low);
    if (density==1.0) {
       /* simple calculation */
-      float minval = ctx->Variable[var]->MinVal;
       int i;
       for (i=0;i<slice_rows*slice_cols;i++) {
-         if (IS_MISSING(slicedata[i]) ||
-             slicedata[i] < minval ||
-             slicedata[i] > ctx->Variable[var]->MaxVal)
-            indexes[i] = 255;
-         else{
-            /* MJK 12.04.98 */
-            int index = (slicedata[i]-minval) * scale;
-            indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
-         }
+		  int index = (slicedata[i]-low) * scale;
+		  indexes[i] = (index < 0) ? 255 : ((index > 255) ? 255: index);
       }
    }
    else {
@@ -6385,7 +6386,10 @@ int do_one_task( int threadnum )
          break;
       case TASK_CHSLICE:
          /* calculate a horizontal colored slice */
-         calc_chslice( ctx, time, var, ctx->Variable[var]->CHSliceRequest->Level, threadnum );
+         calc_chslice( ctx, time, var, 
+							  ctx->Variable[var]->CHSliceRequest->LowLimit,
+							  ctx->Variable[var]->CHSliceRequest->HighLimit,
+							  ctx->Variable[var]->CHSliceRequest->Level, threadnum );
          break;
       case TASK_CVSLICE:
          /* calculate a vertical colored slice */
@@ -6521,27 +6525,26 @@ void *work( void *threadnum )
 
 /* computes reasonable contour min, max and interval based on the actual 
    data in the slice over time */ 
-
-void set_hslice_pos(Context ctx, int var, float level)
+void set_hslice_pos(Context ctx, int var, hslice_request *request, float level)
 {
   int i, t;
   Display_Context dtx;
 
   dtx = ctx->dpy_ctx;
 
-  ctx->Variable[var]->HSliceRequest->Level = level;
+  request->Level = level;
 
-  new_hslice_pos( ctx, ctx->Variable[var]->HSliceRequest->Level, &ctx->Variable[var]->HSliceRequest->Z,
-						&ctx->Variable[var]->HSliceRequest->Hgt );
+  new_hslice_pos( ctx, request->Level, &request->Z,
+						&request->Hgt );
 
   if (ctx->Variable[var]->MinVal > ctx->Variable[var]->MaxVal) {
-	 ctx->Variable[var]->HSliceRequest->Interval = 0.0;
-	 ctx->Variable[var]->HSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
-	 ctx->Variable[var]->HSliceRequest->HighLimit = ctx->Variable[var]->MaxVal;
+	 request->Interval = 0.0;
+	 request->LowLimit = ctx->Variable[var]->MinVal;
+	 request->HighLimit = ctx->Variable[var]->MaxVal;
   }
   else {
-	 ctx->Variable[var]->HSliceRequest->LowLimit = ctx->Variable[var]->MaxVal+1;
-	 ctx->Variable[var]->HSliceRequest->HighLimit = ctx->Variable[var]->MinVal-1;
+	 request->LowLimit = ctx->Variable[var]->MaxVal+1;
+	 request->HighLimit = ctx->Variable[var]->MinVal-1;
 	 for(t=0;t<ctx->NumTimes;t++){
 		float *slicedata;
 		if (ctx->DisplaySfcHSlice[var]){
@@ -6556,28 +6559,28 @@ void set_hslice_pos(Context ctx, int var, float level)
 
 		for(i=0;i<dtx->Nr*dtx->Nc;i++){
 		  if(! IS_MISSING(slicedata[i])){
-			 ctx->Variable[var]->HSliceRequest->LowLimit = (slicedata[i]<ctx->Variable[var]->HSliceRequest->LowLimit) ?
-				slicedata[i]: ctx->Variable[var]->HSliceRequest->LowLimit;
-			 ctx->Variable[var]->HSliceRequest->HighLimit = (slicedata[i]>ctx->Variable[var]->HSliceRequest->HighLimit) ?
-				slicedata[i]: ctx->Variable[var]->HSliceRequest->HighLimit;
+			 request->LowLimit = (slicedata[i]<request->LowLimit) ?
+				slicedata[i]: request->LowLimit;
+			 request->HighLimit = (slicedata[i]>request->HighLimit) ?
+				slicedata[i]: request->HighLimit;
 		  }
 		}
 	 }
 	 {
 		int factor=1;
 		float diff;
-		diff = ctx->Variable[var]->HSliceRequest->HighLimit - ctx->Variable[var]->HSliceRequest->LowLimit;
+		diff = request->HighLimit - request->LowLimit;
 		if(diff>100){
 		  while(diff>100){
 			 factor++;
 			 diff /= factor;
 		  }
 		  /*  sets the first and last contours outside the bounds of the data
-		  ctx->Variable[var]->HSliceRequest->LowLimit = factor*floor(ctx->Variable[var]->HSliceRequest->LowLimit/factor);
-		  ctx->Variable[var]->HSliceRequest->HighLimit =factor*ceil(ctx->Variable[var]->HSliceRequest->HighLimit/factor);
+		  request->LowLimit = factor*floor(request->LowLimit/factor);
+		  request->HighLimit =factor*ceil(request->HighLimit/factor);
 		  */
-		  ctx->Variable[var]->HSliceRequest->LowLimit = factor*ceil(ctx->Variable[var]->HSliceRequest->LowLimit/factor);
-		  ctx->Variable[var]->HSliceRequest->HighLimit =factor*floor(ctx->Variable[var]->HSliceRequest->HighLimit/factor);
+		  request->LowLimit = factor*ceil(request->LowLimit/factor);
+		  request->HighLimit =factor*floor(request->HighLimit/factor);
 		}else{
 		  while(diff<10){
 			 factor++;
@@ -6585,14 +6588,15 @@ void set_hslice_pos(Context ctx, int var, float level)
 		  }
 
 		  /*  sets the first and last contours outside the bounds of the data
-		  ctx->Variable[var]->HSliceRequest->LowLimit = floor(ctx->Variable[var]->HSliceRequest->LowLimit*factor)/(float) factor;
-		  ctx->Variable[var]->HSliceRequest->HighLimit = ceil(ctx->Variable[var]->HSliceRequest->HighLimit*factor)/(float) factor;
+		  request->LowLimit = floor(request->LowLimit*factor)/(float) factor;
+		  request->HighLimit = ceil(request->HighLimit*factor)/(float) factor;
 		  */
-		  ctx->Variable[var]->HSliceRequest->LowLimit = ceil(ctx->Variable[var]->HSliceRequest->LowLimit*factor)/(float) factor;
-		  ctx->Variable[var]->HSliceRequest->HighLimit = floor(ctx->Variable[var]->HSliceRequest->HighLimit*factor)/(float) factor;
+		  request->LowLimit = ceil(request->LowLimit*factor)/(float) factor;
+		  request->HighLimit = floor(request->HighLimit*factor)/(float) factor;
 		}
 	 }
-	 ctx->Variable[var]->HSliceRequest->Interval = round((ctx->Variable[var]->HSliceRequest->HighLimit - ctx->Variable[var]->HSliceRequest->LowLimit)/5.0);
+	 request->Interval = round((request->HighLimit - request->LowLimit)/5.0);
+	 
   }
 }
 

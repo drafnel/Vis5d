@@ -42,7 +42,7 @@
 #include "gui_i.h"
 #include "select_i.h"
 #include "ui_i.h"
-#include "../src/v5d.h"
+#include "v5d.h"
 
 
 extern int Debug_i;           /* -debug  in read_grid_i.c*/

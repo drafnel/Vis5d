@@ -47,7 +47,7 @@
 #include "proj_i.h"
 #include "projlist_i.h"
 #include "tokenize_i.h"
-#include "../src/v5d.h"
+#include "v5d.h"
 
 extern int Debug_i;           /* -debug  in read_grid_i.c*/
 

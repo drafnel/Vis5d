@@ -48,7 +48,7 @@
 #include "proj_i.h"
 #include "projlist_i.h"
 #include "read_grid_i.h"
-#include "../src/v5d.h"
+#include "v5d.h"
 
 
 int Debug_i;

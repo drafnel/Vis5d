@@ -46,7 +46,7 @@
 #include "misc_i.h"
 #include "proj_i.h"
 #include "projlist_i.h"
-#include "../src/v5d.h"
+#include "v5d.h"
 
 
 

@@ -1,3 +1,74 @@
+2000-11-28  jedwards  <jedwards@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in: removed import directory
+
+2000-11-08  jedwards  <jedwards@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/work.c:
+	This change allows vis5d_set_hslice to choose reasonable values
+	based on the data to be contoured when the value of interval
+	passed in is set to 0.  TODO: update api document regarding
+	vis5d_set_hslice.
+
+	* /cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/render.c: Moved variable LabelColor from
+	structure datacontext to label structure so that each label may be
+	individually colored.  Default color is white as before, label
+	color is changed through the vis5d_set_color where number is now
+	the label_id.  vis5d_make_label returns the label_id if
+	successful.
+
+	ToDo: The api documentation should be updated.  The make_label
+	should probably return an error if the coordinates of the label
+	position are outside the clipping plane (in which case it doesn't
+	print)
+
+	* /cvsroot/vis5d/vis5d/src/file.c,
+	/cvsroot/vis5d/vis5d/src/iapi.c: Relaxed conditions to read fsl
+	netcdf files slightly so that this code can also be used to read
+	my SYNOP files of otherwise the same format.  Added an ERROR
+	message for the case of trying to open a non-NetCDF file as
+	irregular data.
+
+2000-11-07  stevengj  <stevengj@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/acx_pthread.m4: Updated, fixing Solaris bug
+
+2000-10-28  stevengj  <stevengj@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/doc/acknowledgments.sgml: another grammar
+	fix
+
+	* /cvsroot/vis5d/vis5d/doc/acknowledgments.sgml: grammar fix
+
+	* /cvsroot/vis5d/vis5d/doc/Makefile.am,
+	/cvsroot/vis5d/vis5d/doc/acknowledgments.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap10.sgml,
+	/cvsroot/vis5d/vis5d/doc/license.sgml,
+	/cvsroot/vis5d/vis5d/doc/vis5d.sgml: added acknowledgments,
+	renamed license chapter
+
+	* /cvsroot/vis5d/vis5d/src/v5d.c,
+	/cvsroot/vis5d/vis5d/util/makemap.c,
+	/cvsroot/vis5d/vis5d/util/maketopo.c,
+	/cvsroot/vis5d/vis5d/util/topoinfo.c,
+	/cvsroot/vis5d/vis5d/configure.in: Added missing header files,
+	which caused problems on some systems (e.g. Solaris).
+
+	* /cvsroot/vis5d/vis5d/AUTHORS: added Jim's institution
+
+2000-10-27  stevengj  <stevengj@users.sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/AUTHORS, /cvsroot/vis5d/vis5d/ChangeLog:
+	updated
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/grid.c,
+	/cvsroot/vis5d/vis5d/src/main.c, /cvsroot/vis5d/vis5d/src/v5d.c:
+	Please don't leave commented-out source in the code, unless it
+	adds to the clarity.  Merely keeping track of the change history
+	is what CVS is for.
+
 2000-10-27  jedwards  <jedwards@users.sourceforge.net>
 
 	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,

@@ -297,7 +297,9 @@ parse_chslice_symbol(GScanner *scanner, Image *oneimage, guint symbol)
   case SYMBOL_HEIGHT:
 	 return token_float(scanner, &onehslice->height);
   case SYMBOL_COLOR_TABLE:
-	 return token_string(scanner,&onehslice->colortable);
+	 if(!onehslice->sample)
+		onehslice->sample = g_new0(preview_area, 1);	
+	 return token_string(scanner,&(onehslice->sample->name));
   default:
 	 return G_TOKEN_SYMBOL;
   }	 
@@ -414,8 +416,8 @@ print_hslicecontrols(FILE *fp, hslicecontrols *hslice)
   }else{
 	 /* this is a contour color filled slice */
 	 fprintf(fp,"  chslice {\n");
-	 if(hslice->colortable)
-		fprintf(fp,"    color_table = \"%s\";\n",hslice->colortable);
+	 if(hslice->sample && hslice->sample->name)
+		fprintf(fp,"    color_table = \"%s\";\n",hslice->sample->name);
   }
   fprintf(fp,"    var = \"%s\";\n",hslice->var);
   fprintf(fp,"    min = %g;\n",hslice->min);
@@ -448,6 +450,7 @@ print_ProcedureList(GList *ProcedureList,gchar *filename)
 	 item_types = (GArray *) ((Image *)nextimage->data)->item_type;
 	 for(i=0;i<items->len;i++){
 		switch(g_array_index(item_types,gint,i)){
+		case CHSLICE:
 		case HSLICE:
 		  print_hslicecontrols(fp, (hslicecontrols *) g_ptr_array_index(items,i));
 		  break;
@@ -564,7 +567,7 @@ void procedure_free(GList *Procedure)
 {
   GList *imagelist;
   Image *image;
-
+ 
 
   imagelist = g_list_first(Procedure);
   while(imagelist){

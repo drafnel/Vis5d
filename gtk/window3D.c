@@ -989,11 +989,13 @@ on_variable_activate                   (GtkMenuItem     *menuitem,
   v5d_var_info *vinfo = (v5d_var_info *) user_data;
 
   if(! vinfo->VarGraphicsDialog){
+	 gchar title[80];
 	 vinfo->VarGraphicsDialog = new_VarGraphicsControls();	 
+	 
+	 g_snprintf(title,80,_("%s Variable Graphics Controls"),vinfo->vname);
 
-	 /*  JPE - cant say that this does anything
-	 gtk_widget_hide_on_delete(vinfo->VarGraphicsDialog);
-	 */
+	 gtk_window_set_title(GTK_WINDOW(vinfo->VarGraphicsDialog),title);
+								 
 
 	 gtk_object_set_data(GTK_OBJECT(vinfo->VarGraphicsDialog),"v5d_var_info",(gpointer) vinfo);
 

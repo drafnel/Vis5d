@@ -666,21 +666,23 @@ static guint n_gradient_targets = (sizeof (gradient_target_table) /
 
 /***** Public functions *****/
 
+gchar *gradient_path_init(void)
+{  
+  return g_strdup(DATA_PREFIX "/colortables" G_SEARCHPATH_SEPARATOR_S VIS5D_SOURCE_DIR "/gtk/gradients/data"  );
+}
+
 void
 gradients_init (gint no_data)
 {
   if (gradients_list)
     gradients_free ();
   
-  gradient_path = g_strdup(DATA_PREFIX "/colortables" G_SEARCHPATH_SEPARATOR_S VIS5D_SOURCE_DIR "/gtk/gradients/data"  );
+  if(! gradient_path)
+	 gradient_path = gradient_path_init();
   
   if (gradient_path != NULL && !no_data)
     datafiles_read_directories (gradient_path, grad_load_gradient, 0);
 
-
-  /*
-  gimp_context_refresh_gradients ();
-  */
 }
 
 void
@@ -6518,3 +6520,20 @@ build_user_filename (gchar *name,
 
   return filename;
 }
+/*
+gradient_t *gradient_get_by_name(gchar *name)
+{
+  gradient_t *grad;
+	 
+  grad = grad_create_default_gradient ();
+  grad->name     = g_strdup(name); 
+  grad->dirty    = TRUE;
+
+  if(gradient_path == NULL)
+	 gradient_path = gradient_path_init();
+
+  grad->filename = build_user_filename (grad->name, gradient_path);
+
+  return grad;
+}
+*/

@@ -1,7 +1,7 @@
-#include <gtk/gtk.h>
-
 #ifndef __V5D_CALLBACKS__
 #define __V5D_CALLBACKS__ 1
+
+#include <gtk/gtk.h>
 
 #if defined(HAVE_OPENGL)
 #  ifndef WORDS_BIGENDIAN
@@ -32,6 +32,7 @@ typedef struct {
   GtkWidget *preview;
   /* the colors array is always of length one or 256, ncolors refers to 
 	  the number of colors requested by the user not to the size of the array */
+  gchar *name;
   gint ncolors;
   guint *colors;
   guchar *orig_alpha;
@@ -75,7 +76,6 @@ typedef struct {
   gint    stipplefactor;
   gushort stipple;
   gboolean onscreen;
-  gchar *colortable;
   graph_label *label;
   preview_area *sample;
   guint alpha_adjust;
@@ -84,13 +84,41 @@ typedef struct {
 } hslicecontrols;
 
 typedef struct {
+  gfloat min, max, interval;
+  gfloat r0, r1, c0, c1;
+  gdouble color[4];
+  gint linewidth;
+  gint    stipplefactor;
+  gushort stipple;
+  gboolean onscreen;
+  gchar *colortable;
+  graph_label *label;
+  preview_area *sample;
+  guint alpha_adjust;
+  gchar *var;  /* should be a reference used for procedure saving */
+} vslicecontrols;
+
+typedef struct {
+  v5d_graph_type type;
+  gpointer data;
+  
+} controls;
+
+
+
+
+typedef struct {
   gint v5d_data_context;
   gint varid;
   v5d_info *info;
   gint maxlevel;
   gchar vname[10];
+  
+  GList *ControlList;
 
   hslicecontrols *hs, *chs;
+  vslicecontrols *vs, *cvs;
+
 
   GtkWidget *VarGraphicsDialog;
 } v5d_var_info;

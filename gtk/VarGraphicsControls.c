@@ -185,6 +185,13 @@ on_colorselect_clicked                 (GtkButton       *button,
 													 GTK_SIGNAL_FUNC (on_hs_color_changed), (gpointer) vinfo);
 	 break;
   case VSLICE:
+	 /*
+	 gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorselection),vinfo->vs->color);
+	 signal_handle = gtk_signal_connect (GTK_OBJECT(colorselection), "color_changed",
+													 GTK_SIGNAL_FUNC (on_vs_color_changed), (gpointer) vinfo);
+	 */
+	 break;
+
   case ISOSURF:
 	 printf("need to hook it up\n");
 	 break;
@@ -823,7 +830,7 @@ GtkWidget *new_VarGraphicsControls()
 							GTK_SIGNAL_FUNC(on_colorsample_mouse_event),
 							(gpointer) vgc);
 
-
+  /*  
   preview = lookup_widget(vgc,"drawingarea1");
   old_mask =  gtk_widget_get_events(preview);
 
@@ -831,9 +838,7 @@ GtkWidget *new_VarGraphicsControls()
 								 old_mask |
 								 GDK_BUTTON_PRESS_MASK|
 								 GDK_BUTTON_RELEASE_MASK);
-
- 
-  
+  */
 
 
   return vgc;
@@ -889,6 +894,9 @@ on_Vslicebutton_toggled                (GtkToggleButton *togglebutton,
 	 notebook = lookup_widget(VGC,"notebook3");
 
 	 gtk_notebook_set_page(GTK_NOTEBOOK(notebook) ,VSLICE); 
+	 
+	 update_vslice_controls(vinfo, VSLICE);
+
 	 for(time=0;time<vinfo->info->numtimes;time++){
 		vis5d_make_vslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
@@ -910,19 +918,38 @@ void
 update_vslice_controls(v5d_var_info *vinfo, gint type)
 {
   GtkWidget *VGD;
-  float interval, low, high, r0, c0, r1, c1;
-  /*
+  
   vslicecontrols *vs;
 
   if(type == CHSLICE)
 	 vs = vinfo->cvs;
   else
 	 vs = vinfo->vs;
-  */
+  
   VGD = vinfo->VarGraphicsDialog;
+  if(! vs){
+	 vs = g_new0(vslicecontrols, 1);
+	 vs->var = vinfo->vname;
+	 vs->onscreen = TRUE;
 
-  vis5d_get_vslice( vinfo->v5d_data_context, vinfo->varid, &interval , &low, &high, 
-						  &r0, &c0, &r1, &c1);
+	 if(type == CHSLICE)
+		vinfo->cvs = vs;
+	 else
+		vinfo->vs = vs;
+  
+  }
+  vis5d_get_vslice( vinfo->v5d_data_context, vinfo->varid, &vs->interval , 
+						  &vs->min,&vs->max, &vs->r0, &vs->c0, &vs->r1, &vs->c1);
+	 
+  
+
+  /*
+  vis5d_set_vslice( vinfo->v5d_data_context,  vinfo->varid, 0, 0, 0,
+
+  vis5d_get_vslice( vinfo->v5d_data_context, vinfo->varid, &interval , &low, 
+						  &high, &r0, &c0, &r1, &c1);
+
+  */
 
   
 

@@ -1,3 +1,5 @@
+#ifndef __GRADIENT_CB__
+#define __GRADIENT_CB__ 1
 #include <gtk/gtk.h>
 #include <support_cb.h>
 
@@ -20,3 +22,7 @@ on_Close_clicked                       (GtkButton       *button,
 GtkWidget *new_GtkGradient(void);
 
 void gradient_preview_update(preview_area *sample, gboolean resize);
+
+void gradient_update_sample_from_name(preview_area *sample, gchar *name);
+
+#endif

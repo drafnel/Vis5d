@@ -187,6 +187,12 @@ vinfo_toggle_chslice_from_procedure(v5d_var_info *vinfo, hslicecontrols *hs, gin
 										 vinfo->chs->height, &vinfo->chs->level);
   }
   update_hslice_controls(vinfo, CHSLICE);
+  
+  if(hs->sample && hs->sample->name){
+	 gradient_update_sample_from_name(vinfo->chs->sample,hs->sample->name); 
+  }
+  
+
   glarea_draw(vinfo->info->GtkGlArea, NULL, NULL);
 }
 
@@ -405,6 +411,7 @@ on_close_clicked                       (GtkButton       *button,
   info = gtk_object_get_data(GTK_OBJECT(PD),"v5d_info");
   ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
 
+  /* gets stuck when you try to close a procedure opened with new */
   procedure_free( ProcedureList );
   
   gtk_widget_destroy(PD);

@@ -70,6 +70,38 @@ on_Close_clicked                       (GtkButton       *button,
 
 
 void
+gradient_update_sample(preview_area *sample, gradient_t *curr_gradient)
+{
+  gint i, j;
+  gdouble r,g,b,a;
+
+  for(i=0;i<255;i++){
+	 gradient_get_color_at(curr_gradient, (gdouble) i/254., &r, &g, &b, &a);
+	 
+	 sample->colors[i] = PACK_COLOR((gint) (r*255.0), (gint) (g*255.0), 
+											  (gint) (b*255.0), (gint) (a*255.0));
+	 
+  }
+}
+
+void
+gradient_update_sample_from_name(preview_area *sample, gchar *name)
+{
+  gradient_t *curr_gradient;
+
+  if(! gradients_list)
+	 gradients_init (FALSE);
+
+  curr_gradient = gradient_list_get_gradient(gradients_list, name);
+
+  gradient_update_sample(sample, curr_gradient);
+
+}
+
+
+
+
+void
 on_clist1_select_row                   (GtkCList        *clist,
                                         gint             row,
                                         gint             column,
@@ -78,8 +110,6 @@ on_clist1_select_row                   (GtkCList        *clist,
 {
   GtkWidget *Gradient, *glarea;
   gradient_t *curr_gradient;
-  int i;
-  gdouble r,g,b,a;
   preview_area *sample;
 
   curr_gradient = (gradient_t *) gtk_clist_get_row_data (clist, row); 
@@ -91,16 +121,12 @@ on_clist1_select_row                   (GtkCList        *clist,
   if(! sample && sample->colors)
 	 return;
 
-  for(i=0;i<255;i++){
-	 gradient_get_color_at(curr_gradient, (gdouble) i/254., &r, &g, &b, &a);
+  gradient_update_sample(sample, curr_gradient);
 
-	 
-	 sample->colors[i] = PACK_COLOR((gint) (r*255.0), (gint) (g*255.0), 
-											  (gint) (b*255.0), (gint) (a*255.0));
-	 
-  }
   gradient_preview_update(sample, FALSE);
-
+  /*
+  sample->name = g_strdup(curr_gradient->name);
+  */
   if(glarea)
 	 glarea_draw(glarea,NULL,NULL);
 }

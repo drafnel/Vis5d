@@ -1,6 +1,15 @@
 # List of source files containing translatable strings.
 
-src.gtk/main.c
-src.gtk/interface.c
-src.gtk/callbacks.c
-src.gtk/support.c
+gtk/colorselectiondialog.c
+gtk/procedure.c
+gtk/ProcedureDialog.c
+gtk/graph_labels.c
+gtk/support.c
+gtk/support_cb.c
+gtk/VarGraphicsControls.c
+gtk/VGC_interface.c
+gtk/interface.c
+gtk/w3D_interface.c
+gtk/main.c
+gtk/window3D.c
+gtk/PD_interface.c

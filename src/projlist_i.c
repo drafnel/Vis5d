@@ -513,7 +513,7 @@ struct vcs *new_vcs( struct grid_db *db, int kind, int nl, int lowlev,
    if (kind==VERT_UNEQUAL_MB) {
       for (i=1;i<nargs;i++) {
          if (args[i]<=args[i-1]) {
-            printf("Error in VCS, pressures should increase:");
+            printf("Error in VCS, pressures should decrease:");
             printf(" hgt[%d]=%g hgt[%d]=%g\n", i-1,
                    height_to_pressure(args[i-1]), i,
                    height_to_pressure(args[i]) );
@@ -644,7 +644,7 @@ char **sprint_vcs_list( struct grid_db *db )
 void print_vcs_list( struct grid_db *db )
 {
    struct vcs *v;
-   int i;
+   int i,j;
 
    /* construct array of pointers to strings */
    for (i=0; i<db->NumVcs; i++) {
@@ -670,9 +670,11 @@ void print_vcs_list( struct grid_db *db )
                     i+1, v->Nl, v->Args[0], v->Args[1] );
             break;
          case VERT_UNEQUAL_MB:
-            printf( "%3d Unequally-spaced Pressure mb %4d   %g %g\n",
-                    i+1, v->Nl, height_to_pressure(v->Args[0]),
-                    height_to_pressure(v->Args[1]) );
+            printf( "%3d Unequally-spaced Pressure mb %4d \n",
+                    i+1, v->Nl);
+            for(j=0;j<v->Nl;j++){
+              printf("        %3d %6g mb\n",j+1,height_to_pressure(v->Args[j]));
+            }
             break;
          case VERT_EPA:
             printf( "%3d EPA                        %4d\n",

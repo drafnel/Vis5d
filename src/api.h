@@ -703,17 +703,22 @@ extern int vis5d_font(  int index, char *fontname, int size );
 
 extern int vis5d_soundfont( int index, char *fontname );
 
-extern int vis5d_get_font( int index, char *fontname, int *size);
+
+#ifdef USE_SYSTEM_FONTS
+  extern int vis5d_get_font( int index, char *fontname, int *size, Fontlist which);
+#else
+  extern int vis5d_get_font( int index, char *fontname, int *size);
+#endif
 
 /* MJK 2.22.99 */
 int vis5d_resize_contour_font( int index, int factorx, int factory);
 
 
-extern int vis5d_get_font_height( int index, int *height 
 #ifdef USE_SYSTEM_FONTS
-		,Fontlist which							
+  extern int vis5d_get_font_height( int index, int *height ,Fontlist which);
+#else
+  extern int vis5d_get_font_height( int index, int *height);
 #endif
-                                 );
 
 
 extern int vis5d_linewidth( int index, float width );

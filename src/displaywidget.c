@@ -1256,7 +1256,11 @@ static int load_opt( int dindex )
    LUI_FieldSetDouble( boxz_field, (double) z2);
    size = 0;
    name[0] = 0;
+#ifdef USE_SYSTEM_FONTS
+   vis5d_get_font( dindex, name, &size, WINDOW_3D_FONT);
+#else
    vis5d_get_font( dindex, name, &size);
+#endif
    LUI_FieldSetText( fontname_field, name);
    LUI_FieldSetInt( fontsize, size);
    LUI_FieldSetText( funcpath_field, gtx->funcpath);

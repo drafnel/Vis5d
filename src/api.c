@@ -7098,12 +7098,18 @@ int vis5d_soundfont( int index, char *fontname )
    return 0;
 }
 
-
+#ifdef USE_SYSTEM_FONTS
+int vis5d_get_font( int index, char *fontname, int *size, Fontlist which)
+#else
 int vis5d_get_font( int index, char *fontname, int *size)
+#endif
 {
    DPY_CONTEXT("vis5d_get_font");
+#ifdef USE_SYSTEM_FONTS
+	strcpy(fontname,dtx->gfx[which]->FontName);
+#else	
    get_3d_font( dtx, fontname, size);
-
+#endif
    return 0;
 }
 
@@ -7117,11 +7123,11 @@ int vis5d_resize_contour_font( int index, int factorx, int factory)
    return 0;
 }
 
-int vis5d_get_font_height( int index, int *height 
 #ifdef USE_SYSTEM_FONTS
-		,Fontlist which							
+int vis5d_get_font_height( int index, int *height , Fontlist which)
+#else
+int vis5d_get_font_height( int index, int *height )
 #endif
-)
 {
    DPY_CONTEXT("vis5d_get_font");
 #ifdef HAVE_OPENGL

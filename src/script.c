@@ -4118,7 +4118,11 @@ static int cmd_get_font( ClientData client_data, Tcl_Interp *interp,
       return TCL_ERROR;
    }
    size = 0;
+#ifdef USE_SYSTEM_FONTS
+   result = vis5d_get_font( atoi(argv[1]), fontname, &size , WINDOW_3D_FONT);
+#else
    result = vis5d_get_font( atoi(argv[1]), fontname, &size );
+#endif
    sprintf(interp->result,"%s %d", fontname, size);
    return error_check( interp, "vis5d_get_font", result );
 }

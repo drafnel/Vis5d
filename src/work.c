@@ -6556,6 +6556,26 @@ void set_hslice_pos(Context ctx, int var, float level)
 		  
 		}
 	 }
+	 {
+		int factor=1;
+		float diff;
+		diff = ctx->HSliceHighLimit[var] - ctx->HSliceLowLimit[var];
+		if(diff>100){
+		  while(diff>100){
+			 factor++;
+			 diff /= factor;
+		  }
+		  ctx->HSliceLowLimit[var] = factor*floor(ctx->HSliceLowLimit[var]/factor);
+		  ctx->HSliceHighLimit[var] =factor*ceil(ctx->HSliceHighLimit[var]/factor);
+		}else{
+		  while(diff<10){
+			 factor++;
+			 diff *= factor;
+		  }
+		  ctx->HSliceLowLimit[var] = floor(ctx->HSliceLowLimit[var]*factor)/(float) factor;
+		  ctx->HSliceHighLimit[var] = ceil(ctx->HSliceHighLimit[var]*factor)/(float) factor;
+		}
+	 }
 	 ctx->HSliceInterval[var] = round((ctx->HSliceHighLimit[var] - ctx->HSliceLowLimit[var])/5.0);
   }
 }

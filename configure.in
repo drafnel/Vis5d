@@ -365,70 +365,13 @@ if test -z "$THREADLIBS"; then
                               AC_DEFINE(HAVE_SGI_SPROC)])
 fi
 
-# POSIX threads library is plural on AIX (need to check for
-# this *first* due to AIX brokenness; also, need to check
-# for pthread_attr_init instead of pthread_create due to
-# DEC stupidity):
+# Check for POSIX threads:
+sinclude(acx_pthread.m4)
 if test -z "$THREADLIBS"; then
-	AC_CHECK_LIB(pthreads, pthread_attr_init,
-	             [THREADLIBS="-lpthreads"
-                      AC_DEFINE(HAVE_PTHREADS)])
-fi
-# Normally (e.g. on Linux), POSIX threads are in -lpthread.
-# We can't just use AC_CHECK_LIB, though, because DEC lossage
-# requires that pthread.h be included for linking to work.
-if test -z "$THREADLIBS"; then
-	AC_MSG_CHECKING([for pthread_create in -lpthread])
-	save_LIBS="$LIBS"
-	LIBS="-lpthread $LIBS"
-	AC_TRY_LINK([#include <pthread.h>], [pthread_create(0,0,0,0);],
-                    ok=yes, ok=no)
-	LIBS="$save_LIBS"
-	if test "$ok" = "yes"; then
-		THREADLIBS="-lpthread"
-		AC_DEFINE(HAVE_PTHREADS)
-	fi
-	AC_MSG_RESULT(${ok})
-fi
-# this is for irix, which has pthread_create in libc.so
-# and pthread_join in libpthread.so.  Lose, lose, lose
-if test -z "$THREADLIBS"; then
-	AC_CHECK_LIB(pthread, pthread_join, [THREADLIBS="-lpthread"
-                                             AC_DEFINE(HAVE_PTHREADS)])
-fi
-if test -z "$THREADLIBS"; then
-	AC_CHECK_FUNC(pthread_create, [THREADLIBS=" "
-				       AC_DEFINE(HAVE_PTHREADS)])
-fi
-if test -n "$THREADLIBS"; then
-	# detect AIX lossage: threads are created detached by default
-       	# & the JOINABLE attribute has a nonstandard name (UNDETACHED).
-	AC_MSG_CHECKING([for PTHREAD_CREATE_UNDETACHED attribute])
-	AC_TRY_LINK([#include <pthread.h>], 
-                    [int attr=PTHREAD_CREATE_UNDETACHED;],
-                    ok=yes, ok=no)
-	if test "$ok" = "yes"; then
-	        AC_DEFINE(HAVE_PTHREAD_CREATE_UNDETACHED)
-	fi
-	AC_MSG_RESULT(${ok})
-	# more AIX lossage: must compile with cc_r
-	AC_CHECK_PROG(CCthreads, cc_r, cc_r, ${CC})
-	CC="$CCthreads"
-
-	# more AIX/DEC lossage: must compile with -D_THREAD_SAFE
-	# or -D_REENTRANT:
-	# (cc_r subsumes this on AIX, but it doesn't hurt to
-	#  do this as well, especially if cc_r is not available.)
-	AC_MSG_CHECKING([if special flags are required for pthreads])
-	ok=no
-	AC_REQUIRE([AC_CANONICAL_HOST])
-	case "${host_cpu}-${host_os}" in
-		*-aix*)  CFLAGS="-D_THREAD_SAFE $CFLAGS"
-			 ok="-D_THREAD_SAFE";;
-		alpha*-osf*)  CFLAGS="-D_REENTRANT $CFLAGS"
-			 ok="-D_REENTRANT";;
-	esac
-	AC_MSG_RESULT(${ok})
+	ACX_PTHREAD([THREADLIBS=" $PTHREAD_LIBS"
+        	     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+                     CC="$PTHREAD_CC"
+                     AC_DEFINE(HAVE_PTHREADS)])
 fi
 
 # Solaris threads:
@@ -455,11 +398,11 @@ AC_SUBST(THREADLIBS)
 
 if test -n "$THREADLIBS"; then
 case "${host_cpu}-${host_os}" in
-	powerpc*linux*)  
+	*linux*)  
 	echo "***********************************************************"
-	echo "Crashing problems have been observed on LinuxPPC (R5)"
-	echo "systems with threads enabled.  You may want to disable"
-	echo "threads by re-running configure with --disable-threads."
+	echo "Crashing problems have been observed on Linux systems"
+	echo "with threads enabled.  You may want to disable threads"
+        echo "by re-running configure with --disable-threads."
 	echo "***********************************************************"
 	;;
 esac

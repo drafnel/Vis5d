@@ -1060,9 +1060,12 @@ static int render_volume( Context ctx,
                           struct volume *v, unsigned int ctable[] )
 {
    register int rows, cols, slices, i, j, s;
+	register int rows1, cols1;
    register uint_1 *cp0, *cp1;
    register float *vp0, *vp1;
-
+	int	fastdraw;
+ 
+	int	stride = 1;
    if (!v || !v->slices)
       return 0;
 
@@ -1102,46 +1105,60 @@ static int render_volume( Context ctx,
    return 1;
 #endif
 
-
-   /* loop over slices */
-   for (s=0;s<slices;s++) {
-
-      /* draw 'rows' quadrilateral strips */
-      for (i=0;i<rows;i++) {
-#if defined(HAVE_SGI_GL) || defined(DENALI)
-         bgnqstrip();
-         for (j=0;j<cols;j++) {
-            cpack( ctable[*cp0++] );
-            v3f( vp0 );
-            vp0 += 3;
-            cpack( ctable[*cp1++] );
-            v3f( vp1 );
-            vp1 += 3;
-         }
-         endqstrip();
-#endif
-#ifdef HAVE_OPENGL
-         glBegin( GL_QUAD_STRIP );
-         for (j=0;j<cols;j++) {
-            glColor4ubv( (GLubyte *) &ctable[*cp0++] );
-            glVertex3fv( vp0 );
-            vp0 += 3;
-            glColor4ubv( (GLubyte *) &ctable[*cp1++] );
-            glVertex3fv( vp1 );
-            vp1 += 3;
-         }
-         glEnd();
-         check_gl_error( "render_volume (GL_QUAD_STRIP)" );
-#endif
-      }
-
-      /* skip a row after each slice */
-      cp0 += cols;
-      vp0 += cols*3;
-      cp1 += cols;
-      vp1 += cols*3;
+   vis5d_check_fastdraw(ctx->dpy_ctx->dpy_context_index, &fastdraw);
+   if (fastdraw) {
+	  stride = ctx->dpy_ctx->VStride;
+   } else {
+	  stride = 1;
    }
 
+   /*
+   ** adjust rows and cols based on stride. N.B. appears to be one more
+   ** row than we actually use
+   */
+   rows1 = (rows + 1 - 1) / stride;
+   cols1 = ((cols - 1) / stride) + 1;
+  
+
+	/* loop over slices */
+   for (s=0;s<slices;s+=stride) {
+
+     cp0 = v->index + (s * rows * cols) +
+		 (s * cols);	/* skip a row after each slice */
+
+     vp0 = v->vertex + (s * rows * cols * 3) +
+		 (s * cols * 3);	/* skip a row after each slice */
+
+     cp1 = cp0 + (cols * stride);
+     vp1 = vp0 + (cols * stride * 3);   /* 3 floats per vertex */
+  
+	  /* draw 'rows' quadrilateral strips */
+	  for (i=0;i<rows1;i++) {
+#if defined(SGI_GL) || defined(DENALI)
+		 bgnqstrip();
+		 for (j=0;j<cols1;j++) {
+			cpack( ctable[cp0[i*stride*cols+j*stride]] );
+			v3f( &vp0[i*stride*cols+j*stride] );
+			cpack( ctable[cp1[i*stride*cols+j*stride]] );
+			v3f( &vp1[i*stride*cols+j*stride] );
+		 }
+		 endqstrip();
+#endif
+#ifdef HAVE_OPENGL
+		 glBegin( GL_QUAD_STRIP );
+		 for (j=0;j<cols1;j++) {
+			glColor4ubv( (GLubyte *) &ctable[cp0[i*stride*cols+j*stride]] );
+			glVertex3fv( &vp0[(i*stride*cols+j*stride)*3] );
+			
+			glColor4ubv( (GLubyte *) &ctable[cp1[i*stride*cols+j*stride]] );
+			glVertex3fv( &vp1[(i*stride*cols+j*stride)*3] );
+		 }
+		 glEnd();
+#endif
+	  }
+	  
+	}
+	
 #if defined(HAVE_SGI_GL) || defined(DENALI)
    blendfunction( BF_ONE, BF_ZERO );  /* disable alpha blending */
 #endif

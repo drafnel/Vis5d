@@ -46,17 +46,13 @@
 #include "misc.h"
 #include "sync.h"
 
-
-
-/* must be consistent with memory.h */
-#define NULL_TYPE 0
-
+#define DEBUG_MEM 1
 
 struct mem {
    int        size;
    struct mem *prev;
    struct mem *next;
-   short int        free, magic;
+   short int  free, magic;
 #ifdef DEBUG_MEM
    int type;
 #endif
@@ -542,46 +538,49 @@ int mem_available( Context ctx )
 void *allocate( Context ctx, int bytes )
 {
   
-   assert( bytes>=0 );
+  assert( bytes>=0 );
 
-   if (ctx->memory_limit==0) {
-      /* just malloc */
-	  /*
-	  void *tmp;
-	  tmp = (void *) malloc( bytes );
-	  printf("allocate 0x%x\n",tmp);
-	  return tmp;
-	  */
-	  return (void *) malloc( bytes );
-   }
-   else {
-      void *addr;
-      int ma, d;
-
-      do {
-         LOCK_ON( ctx->memlock );
-         addr = alloc( ctx, bytes, 0, NULL_TYPE );
-         LOCK_OFF( ctx->memlock );
-         if (addr) {
-            /* all done, return */
-            return addr;
-         }
-         /* We didn't find a free block large enough, */
-         /* try deallocating some graphics */
-         ma = mem_available(ctx);
-         LOCK_ON( ctx->lrulock );
-         if (ma==mem_available(ctx)) {
-            d = deallocate_lru(ctx);
-         }
-         LOCK_OFF( ctx->lrulock );
-      } while (d>0);
-      /* Couldn't deallocate anything, we're REALLY out of memory */
+  if (ctx->memory_limit==0) {
+	 /* just malloc */
 #ifdef DEBUG_MEM
-      printf("Allocate %d failed\n", bytes );
-      dump_memory(ctx);
+	 void *tmp;
+	 tmp = (void *) malloc( bytes );
+	 printf("malloc from allocate 0x%x %d\n",tmp,bytes);
+	 return tmp;
+#else
+	 return (void *) malloc( bytes );
 #endif
-      return NULL;
-   }
+  }else {
+	 void *addr;
+	 int ma, d;
+
+	 do {
+		LOCK_ON( ctx->memlock );
+		addr = alloc( ctx, bytes, 0, NULL_TYPE );
+		LOCK_OFF( ctx->memlock );
+		if (addr) {
+		  /* all done, return */
+#ifdef DEBUG_MEM
+		  printf("allocate 0x%x %d\n",addr,bytes);
+#endif
+		  return addr;
+		}
+		/* We didn't find a free block large enough, */
+		/* try deallocating some graphics */
+		ma = mem_available(ctx);
+		LOCK_ON( ctx->lrulock );
+		if (ma==mem_available(ctx)) {
+		  d = deallocate_lru(ctx);
+		}
+		LOCK_OFF( ctx->lrulock );
+	 } while (d>0);
+	 /* Couldn't deallocate anything, we're REALLY out of memory */
+#ifdef DEBUG_MEM
+	 printf("Allocate %d failed\n", bytes );
+	 dump_memory(ctx);
+#endif
+	 return NULL;
+  }
 }
 
 #endif

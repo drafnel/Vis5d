@@ -79,17 +79,8 @@
 #define MAX(A,B)  ( (A) > (B) ? (A) : (B) )
 
 
-#define allocate(a, b) (void *) malloc(b)
-
-
-
-
 /* Maximum number of vertices... */
 #ifdef BIG_GFX
-/* WLH 31 Oct 98
-#  define MAX_ISO_VERTS 1200000
-*/
-/* WLH 31 Oct 98 */
 #  define MAX_ISO_VERTS 2400000    /* in an isosurface */
 #else
 #  define MAX_ISO_VERTS 650000     /* in an isosurface */
@@ -101,6 +92,57 @@
 #define MAX_TRAJ_VERTS 5000                   /* in a wind trajectory */
 
 
+static	void compute_iso_colors(
+	Context	ctx,
+	Context	cvctx,
+	int colorvar,
+	float min,
+	float max,
+	int	time,
+	int	cvctxtime,
+	int_2	*verts,
+	uint_1	*color_indexes,
+	int	n) 
+{
+	int	i;
+	float valscale;
+	float	vscale = 1.0 / VERTEX_SCALE;
+
+	valscale = 254.0 / (max-min);
+
+	if (!check_for_valid_time(cvctx, time)){
+	  for (i=0;i<n;i++) {
+		 color_indexes[i] = 255;
+	  }
+	}
+	else{
+	  /* Compute color indexes */
+	  for (i=0;i<n;i++) {
+		 float x, y, z;
+		 float row, col, lev;
+		 float val;
+
+		 x = verts[i*3+0] * vscale;
+		 y = verts[i*3+1] * vscale;
+		 z = verts[i*3+2] * vscale;
+
+		 xyzPRIME_to_grid( cvctx, time, colorvar, x, y, z, &row, &col, &lev );
+               
+		 if (cvctx->Nl[colorvar]==1) {
+			lev = 0.0;
+		 }
+		 val = interpolate_grid_value( cvctx, cvctxtime, colorvar, row, col, lev );
+		 if (IS_MISSING(val) || val < min || val > max) {
+			color_indexes[i] = 255;
+		 }
+		 else {
+			int index = (val - min) * valscale;
+			color_indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
+		 }
+	  }
+	}
+	
+}
 
 
 /*
@@ -114,9 +156,9 @@
 static void color_isosurface( Context ctx,int_2 *verts ,int time, int isovar, int cvowner, int colorvar )
 {
    uint_1 *color_indexes;
-   int i, n;
-   float vscale = 1.0 / VERTEX_SCALE;
-   float min, valscale;
+   uint_1 *deci_color_indexes;
+   int  n;
+
    Context cvctx;
    Display_Context dtx;
    int cvctxtime;
@@ -140,6 +182,12 @@ static void color_isosurface( Context ctx,int_2 *verts ,int time, int isovar, in
                   ctx->Variable[isovar]->SurfTable[time]->numverts*sizeof(uint_1) );
       ctx->Variable[isovar]->SurfTable[time]->colors = NULL;
    }
+   if (ctx->Variable[isovar]->SurfTable[time]->deci_colors) {
+	  deallocate( ctx, ctx->Variable[isovar]->SurfTable[time]->deci_colors,
+					  ctx->Variable[isovar]->SurfTable[time]->numverts*sizeof(uint_1) );
+	  ctx->Variable[isovar]->SurfTable[time]->deci_colors = NULL;
+   }
+  
    done_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
 
    if (colorvar!=-1) {
@@ -150,55 +198,36 @@ static void color_isosurface( Context ctx,int_2 *verts ,int time, int isovar, in
          return;
       }
 
-      min = cvctx->Variable[colorvar]->MinVal;
+		compute_iso_colors(ctx, cvctx, colorvar, cvctx->Variable[colorvar]->MinVal, 
+								 cvctx->Variable[colorvar]->MaxVal, time, cvctxtime,
+								 ctx->Variable[isovar]->SurfTable[time]->verts,
+								 color_indexes, n);
 
-      /* MJK 12.04.98 */
-      valscale = 254.0 / (cvctx->Variable[colorvar]->MaxVal - cvctx->Variable[colorvar]->MinVal);
+      if (ctx->Variable[isovar]->SurfTable[time]->deci_verts) {
+		  /* Allocate storage for new color indexes */
+		  n = ctx->Variable[isovar]->SurfTable[time]->deci_numverts;
+		  deci_color_indexes = allocate( ctx, n*sizeof(uint_1) );
+		  if (!deci_color_indexes) {
+			 return;
+		  }
 
-      if (!check_for_valid_time(cvctx, time)){
-         for (i=0;i<n;i++) {
-            color_indexes[i] = 255;
-         }
+        compute_iso_colors(ctx, cvctx,  colorvar, cvctx->Variable[colorvar]->MinVal, 
+									cvctx->Variable[colorvar]->MaxVal,time, cvctxtime,
+									ctx->Variable[isovar]->SurfTable[time]->deci_verts,
+									deci_color_indexes, n);
+
       }
-      else{
-         /* Compute color indexes */
-         for (i=0;i<n;i++) {
-            float x, y, z;
-            float row, col, lev;
-            float val;
 
-
-            x = verts[i*3+0] * vscale;
-            y = verts[i*3+1] * vscale;
-            z = verts[i*3+2] * vscale;
-
-            xyzPRIME_to_grid( cvctx, time, colorvar, x, y, z, &row, &col, &lev );
-               
-
-            if (cvctx->Nl[colorvar]==1) {
-               lev = 0.0;
-            }
-            val = interpolate_grid_value( cvctx, cvctxtime, colorvar, row, col, lev );
-            if (IS_MISSING(val) ||
-                val < cvctx->Variable[colorvar]->MinVal ||
-                val > cvctx->Variable[colorvar]->MaxVal) {
-               color_indexes[i] = 255;
-            }
-            else {
-               /* MJK 12.04.98 */
-               int index = (val - min) * valscale;
-               color_indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
-            }
-         }
-      }
    }
    else {
-      color_indexes = NULL;
+	  color_indexes = NULL;
+	  deci_color_indexes = NULL;
    }
 
    /* save results */
    wait_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
    ctx->Variable[isovar]->SurfTable[time]->colors = color_indexes;
+   ctx->Variable[isovar]->SurfTable[time]->deci_colors = deci_color_indexes;
    ctx->Variable[isovar]->SurfTable[time]->colorvar = colorvar;
    ctx->Variable[isovar]->SurfTable[time]->cvowner = cvowner;
    done_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
@@ -232,11 +261,10 @@ static void calc_isosurface( Context ctx, int time, int var,
    int_2 *cverts;
    int_1 *cnorms;
    Display_Context dtx;
-#ifdef BIG_GFX
-   uint_4 *index;
-#else
-   uint_2 *index;
-#endif
+   uint_index *index;
+	int			deci_numverts;
+	int_2			*deci_cverts;
+	int_1			*deci_cnorms;
 
    dtx = ctx->dpy_ctx;
    if (ctx->SameIsoColorVarOwner[var]){ 
@@ -317,41 +345,116 @@ static void calc_isosurface( Context ctx, int time, int var,
       if (numverts>0 && numindexes>0) {
          int vbytes, nbytes, bytes;
 
-         /* allocate memory to store compressed vertices */
-         vbytes = 3*numverts*sizeof(int_2);
-         cverts = (int_2 *) allocate_type( ctx, vbytes, CVX_TYPE );
-         /* convert (r,c,l) coords to compressed (x,y,z) */
-         if (ctx->GridSameAsGridPRIME){
-            gridPRIME_to_compXYZPRIME( dtx, time, var, numverts, vr,vc,vl, (void*) cverts );
-         }
-         else{
-            grid_to_gridPRIME( ctx, time, var, numverts,vr,vc,vl,vr2, vc2, vl2);
-            gridPRIME_to_compXYZPRIME( ctx->dpy_ctx, time, var, numverts,
-                                       vr2, vc2, vl2, (void*) cverts );
-         }
-         /* allocate memory to store compressed normals */
-         nbytes = 3*numverts*sizeof(int_1);
-         cnorms = (int_1 *) allocate_type( ctx, nbytes, CNX_TYPE );
-         /* cvt normals from floats in [-1,1] to 1-byte ints in [-125,125] */
+#ifdef HAVE_MIXKIT
 
-         if (ctx->GridSameAsGridPRIME){
-            project_normals( ctx, numverts, vr,vc,vl, nx,ny,nz, (void*) cnorms );
-         }
-         else{
-            project_normalsPRIME( dtx, numverts, vr2, vc2, vl2, nx,ny,nz, (void*) cnorms );
-         }
+	/*
+	** Decimate the mesh if dtx->MaxTMesh is non-zero and the 
+	** number of t's in the isosurface is greater 
+	** than dtx->MaxTMesh.
+	*/
+	if (dtx->MaxTMesh > 0 && (numindexes - 2) > dtx->MaxTMesh) {
+	  float			*deci_vc, *deci_vr, *deci_vl = NULL;
+	  float			*deci_nx, *deci_ny, *deci_nz = NULL;
+	  static const    int	fudge = 10;
+	  const			char *s;
 
-         /* allocate memory to store index array */
-#ifdef BIG_GFX
-         bytes = numindexes * sizeof(uint_4);
-         index = (uint_4 *) allocate_type( ctx, bytes, PTS_TYPE );
-         memcpy( index, vpts, numindexes * sizeof(uint_4) );
-#else
-         bytes = numindexes * sizeof(uint_2);
-         index = (uint_2 *) allocate_type( ctx, bytes, PTS_TYPE );
-         /* convert 4-byte vpts[] elements to 2-byte index[] elements */
-         for (i=0;i<numindexes;i++)
-            index[i] = (uint_2) vpts[i];
+
+	  int deci_vbytes, deci_nbytes;
+
+	  int	n = (dtx->MaxTMesh + fudge) * 3 * sizeof(float);
+
+	  printf("Entering Decimate\n");
+
+
+	  deci_vr = allocate(ctx, n);
+	  deci_vc = allocate(ctx, n);
+	  deci_vl = allocate(ctx, n);
+	  deci_nx = allocate(ctx, n);
+	  deci_ny = allocate(ctx, n);
+	  deci_nz = allocate(ctx, n);
+	  
+	  /*
+	  ** Decimate a triangel strip. Unfortunately at this point
+	  ** we can't strip the resulting decimated mesh. I.e. we return
+	  ** a list of individual triangles
+	  */
+
+
+	  DecimateTriStrip(
+							 vr, vc, vl, nx, ny, nz, numverts, vpts, numindexes,
+							 deci_vr, deci_vc, deci_vl, 
+							 deci_nx, deci_ny, deci_nz, dtx->MaxTMesh, 
+							 &deci_numverts
+							 );
+
+	  /* allocate memory to store compressed vertices */
+	  deci_vbytes = 3*deci_numverts*sizeof(int_2);
+	  deci_cverts = (int_2 *) allocate_type(ctx,deci_vbytes,CVX_TYPE);
+	  /* convert (r,c,l) coords to compressed (x,y,z) */
+	  grid_to_compXYZ(
+							ctx, time, var, deci_numverts, deci_vr, deci_vc,
+							deci_vl, (void*) deci_cverts
+							);
+	  
+	  /* allocate memory to store compressed normals */
+	  deci_nbytes = 3*deci_numverts*sizeof(int_1);
+	  deci_cnorms = (int_1 *) allocate_type(ctx,deci_nbytes,CNX_TYPE);
+	  
+	  /*
+	  ** cvt normals from floats in [-1,1] to 1-byte 
+	  ** ints in [-125,125]
+	  */
+	  project_normals(
+							ctx, deci_numverts, deci_vr, deci_vc, deci_vl, 
+							deci_nx, deci_ny, deci_nz, (void*) deci_cnorms
+							);
+	  
+	  
+	  deallocate(ctx, deci_vc, n);
+	  deallocate(ctx, deci_vr, n);
+	  deallocate(ctx, deci_vl, n);
+	  deallocate(ctx, deci_nx, n);
+	  deallocate(ctx, deci_ny, n);
+	  deallocate(ctx, deci_nz, n);
+	}
+	else {
+		deci_cverts = NULL;
+		deci_cnorms = NULL;
+		deci_numverts = 0;
+	}
+#endif	
+	/* allocate memory to store compressed vertices */
+	vbytes = 3*numverts*sizeof(int_2);
+	cverts = (int_2 *) allocate_type( ctx, vbytes, CVX_TYPE );
+	/* convert (r,c,l) coords to compressed (x,y,z) */
+	if (ctx->GridSameAsGridPRIME){
+	  gridPRIME_to_compXYZPRIME( dtx, time, var, numverts, vr,vc,vl, (void*) cverts );
+	}
+	else{
+	  grid_to_gridPRIME( ctx, time, var, numverts,vr,vc,vl,vr2, vc2, vl2);
+	  gridPRIME_to_compXYZPRIME( ctx->dpy_ctx, time, var, numverts,
+										  vr2, vc2, vl2, (void*) cverts );
+	}
+	/* allocate memory to store compressed normals */
+	nbytes = 3*numverts*sizeof(int_1);
+	cnorms = (int_1 *) allocate_type( ctx, nbytes, CNX_TYPE );
+	/* cvt normals from floats in [-1,1] to 1-byte ints in [-125,125] */
+	
+	if (ctx->GridSameAsGridPRIME){
+	  project_normals( ctx, numverts, vr,vc,vl, nx,ny,nz, (void*) cnorms );
+	}
+	else{
+	  project_normalsPRIME( dtx, numverts, vr2, vc2, vl2, nx,ny,nz, (void*) cnorms );
+	}
+	
+	/* allocate memory to store index array */
+	bytes = numindexes * sizeof(uint_index);
+	index = (uint_index *) allocate_type( ctx, bytes, PTS_TYPE );
+	memcpy( index, vpts, numindexes * sizeof(uint_index) );
+#ifndef BIG_GFX
+	/* convert 4-byte vpts[] elements to 2-byte index[] elements */
+	for (i=0;i<numindexes;i++)
+	  index[i] = (uint_index) vpts[i];
 #endif
 
       }
@@ -360,6 +463,9 @@ static void calc_isosurface( Context ctx, int time, int var,
          cnorms = NULL;
          index = NULL;
          numverts = numindexes = 0;
+			deci_cverts = NULL;
+			deci_cnorms = NULL;
+			deci_numverts = 0;
       }
 
       /******************** Store the new surface ************************/
@@ -384,6 +490,11 @@ static void calc_isosurface( Context ctx, int time, int var,
       ctx->Variable[var]->SurfTable[time]->numindex = numindexes;
       ctx->Variable[var]->SurfTable[time]->index = index;
       ctx->Variable[var]->SurfTable[time]->valid = 1;
+
+		ctx->Variable[var]->SurfTable[time]->deci_numverts = deci_numverts;
+		ctx->Variable[var]->SurfTable[time]->deci_verts = deci_cverts;
+		ctx->Variable[var]->SurfTable[time]->deci_norms = deci_cnorms;
+
 #endif
       done_write_lock( &ctx->Variable[var]->SurfTable[time]->lock );
       /* BUG FIX MJK 8.6.98
@@ -411,11 +522,9 @@ static void calc_isosurface( Context ctx, int time, int var,
 #ifdef USE_GLLISTS
 		deallocate(ctx,cverts,3*sizeof(int_2)*numverts);
 		deallocate(ctx,cnorms,3*sizeof(int_1)*numverts);
-#ifdef BIG_GFX
-		deallocate(ctx,index,numindexes*sizeof(uint_4));
-#else
-		deallocate(ctx,index,numindexes*sizeof(uint_2));
-#endif
+
+		deallocate(ctx,index,numindexes*sizeof(uint_index));
+
 #endif
 
    if((ctx->SameIsoColorVarOwner[var] && time==ctx->CurTime) ||

@@ -143,7 +143,10 @@ static LUI_FIELD *lposition_field;
 static LUI_FIELD *lsize_field;
 static LUI_FIELD *legendx_field;
 static LUI_FIELD *legendy_field;
-
+#ifdef	HAVE_MIXKIT
+static LUI_FIELD *maxtmesh_field;
+static LUI_FIELD *vstride_field;
+#endif
 
 static LUI_NEWBUTTON *finish_button;
 
@@ -1175,6 +1178,12 @@ static int finish_cb( LUI_NEWBUTTON *button, XEvent *event )
                               LUI_FieldGetInt(lsize_field),
                               LUI_FieldGetInt(legendx_field),
                               LUI_FieldGetInt(legendy_field));
+
+#ifdef	HAVE_MIXKIT
+	vis5d_set_maxtmesh(dindex, LUI_FieldGetInt(maxtmesh_field));
+	vis5d_set_vstride(dindex, LUI_FieldGetInt(vstride_field));
+#endif
+
    vis5d_load_topo_and_map( dindex ); 
    return 0;
 }
@@ -1221,6 +1230,10 @@ static int load_opt( int dindex )
    float x1, y1, z1, x2, y2, z2, scale, exponent;
    int size, flag;
    int fa, fb, fc, fd, fe;
+
+#ifdef	HAVE_MIXKIT
+   int	maxtmesh, vstride;
+#endif
 
    GuiContext gtx = get_gui_gtx(dindex);
 
@@ -1290,6 +1303,15 @@ static int load_opt( int dindex )
    LUI_FieldSetInt( lsize_field, fc);
    LUI_FieldSetInt( legendx_field, fd);
    LUI_FieldSetInt( legendy_field, fe);
+
+
+#ifdef	HAVE_MIXKIT
+   vis5d_get_maxtmesh( dindex, &maxtmesh);
+   LUI_FieldSetInt(maxtmesh_field, maxtmesh);
+   vis5d_get_vstride( dindex, &vstride);
+   LUI_FieldSetInt(vstride_field, vstride);
+#endif
+
    return 0;
 }
 
@@ -1437,9 +1459,11 @@ static int opt_cb( LUI_NEWBUTTON *b, int state)
 
       LUI_NewLabelCreate( optwin, LUI_LEFT, LUI_NEXT_Y, 175, 26, "legend position:");
       lposition_field = LUI_FieldCreate( optwin, LUI_NEXT_X, LUI_SAME_Y, 70, 26 );
+		/* this ifdef was included in the ncar changes - not sure what it does - JPE */
+#ifdef DEAD
       LUI_NewLabelCreate( optwin, LUI_LEFT, LUI_NEXT_Y, 175, 26, "top = 28 bottom = 29");
       LUI_NewLabelCreate( optwin, LUI_LEFT, LUI_NEXT_Y, 175, 26, "left = 38 right = 37");
-
+#endif
       LUI_NewLabelCreate( optwin, LUI_LEFT, LUI_NEXT_Y, 175, 26, "legend relative x_pos:");
       legendx_field = LUI_FieldCreate( optwin, LUI_NEXT_X, LUI_SAME_Y, 70, 26 );
 
@@ -1449,6 +1473,14 @@ static int opt_cb( LUI_NEWBUTTON *b, int state)
       LUI_NewLabelCreate( optwin, LUI_LEFT, LUI_NEXT_Y, 175, 26, "legend size:");
       lsize_field = LUI_FieldCreate( optwin, LUI_NEXT_X, LUI_SAME_Y, 70, 26 );
       
+#ifdef	HAVE_MIXKIT
+
+      LUI_NewLabelCreate( optwin, LUI_LEFT, LUI_NEXT_Y, 175, 26, "max tri mesh:");
+      maxtmesh_field = LUI_FieldCreate( optwin, LUI_NEXT_X, LUI_SAME_Y, 70, 26 );
+		
+      LUI_NewLabelCreate( optwin, LUI_LEFT, LUI_NEXT_Y, 175, 26, "volume stride:");
+      vstride_field = LUI_FieldCreate( optwin, LUI_NEXT_X, LUI_SAME_Y, 70, 26 );
+#endif
 
       finish_button = LUI_PushButtonCreate( optwin, LUI_LEFT, LUI_NEXT_Y,
                                                 80, 26, "Done" );

@@ -74,6 +74,9 @@
 /* Default animation rate in milliseconds: */
 #define ANIMRATE 100
 
+#define	DEFAULT_MAXTMESH	-1	/* no max	*/
+#define	DEFAULT_VSTRIDE		4	
+
 
 /* Default scale and exponent values for logrithmic vertical coordinate system: */
 #define DEFAULT_LOG_SCALE  1012.5

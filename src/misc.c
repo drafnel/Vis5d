@@ -300,6 +300,9 @@ void init_graphics_pos( Context ctx, int var )
 
 	if(! ctx->Variable[var]->VSliceRequest){
 	  ctx->Variable[var]->VSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
+#ifdef DEBUG_MEM	  
+	  printf("VSliceRequest 0x%x %d\n",ctx->Variable[var]->VSliceRequest,sizeof(vslice_request));
+#endif
 	}
 	ctx->Variable[var]->VSliceRequest->stipple=VIS5D_SOLID_LINE;
    ctx->Variable[var]->VSliceRequest->linewidth = 1;
@@ -461,7 +464,7 @@ int free_isosurface( Context ctx, int time, int var )
                                                  ctx->context_index)];
          if ( ctime==ftime){
             if (ctx->Variable[var]->SurfTable[time]->valid) {
-               int b4;
+               int b4, b5, b6, b7;
                /* colors */
                if (ctx->Variable[var]->SurfTable[time]->colors) {
                   b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
@@ -473,6 +476,28 @@ int free_isosurface( Context ctx, int time, int var )
                }
                ctx->Variable[var]->SurfTable[time]->valid = 0;
                total += b4;
+               /* vertices */
+               b5 = ctx->SurfTable[var][time]->deci_numverts * sizeof(int_2) * 3;
+               if (b5) {
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->deci_verts, b5 );
+               }
+               /* normals */
+               b6 = ctx->SurfTable[var][time]->deci_numverts * sizeof(int_1) * 3;
+               if (b6) {
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->deci_norms, b6 );
+               }
+
+               /* colors */
+               if (ctx->Variable[var]->SurfTable[time]->deci_colors) {
+                  b7 = ctx->Variable[var]->SurfTable[time]->deci_numverts * sizeof(uint_1);
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->deci_colors, b7 );
+                  ctx->Variable[var]->SurfTable[time]->deci_colors = NULL;
+               }
+               else {
+                  b7 = 0;
+               }
+					total += b5 + b6 + b7;
+
             }
          }
       }
@@ -484,7 +509,7 @@ int free_isosurface( Context ctx, int time, int var )
       if (ctx->Variable[var] && 
 			 ctx->Variable[var]->SurfTable[time] && 
 			 ctx->Variable[var]->SurfTable[time]->valid) {
-         int b1, b2, b3, b4;
+         int b4, b5, b6, b7;
          /* colors */
          if (ctx->Variable[var]->SurfTable[time]->colors) {
             b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
@@ -495,14 +520,37 @@ int free_isosurface( Context ctx, int time, int var )
             b4 = 0;
          }
          ctx->Variable[var]->SurfTable[time]->valid = 0;
-         return b4;
+         total += b4;
+         /* vertices */
+         b5 = ctx->SurfTable[var][time].deci_numverts * sizeof(int_2) * 3;
+         if (b5) {
+            deallocate( ctx, ctx->SurfTable[var][time].deci_verts, b5 );
+         }
+         /* normals */
+         b6 = ctx->SurfTable[var][time].deci_numverts * sizeof(int_1) * 3;
+         if (b6) {
+            deallocate( ctx, ctx->SurfTable[var][time].deci_norms, b6 );
+         }
+
+         /* colors */
+         if (ctx->SurfTable[var][time].deci_colors) {
+            b7 = ctx->SurfTable[var][time].deci_numverts * sizeof(uint_1);
+            deallocate( ctx, ctx->SurfTable[var][time].deci_colors, b7 );
+            ctx->SurfTable[var][time].deci_colors = NULL;
+         }
+         else {
+            b7 = 0;
+         }
+	total += b5 + b6 + b7;
+	return total;
+
       }
       else 
 		  {
-         return 0;
-      }
+			 return 0;
+		  }
    }
-  
+	
 
 #else
    Display_Context dtx;
@@ -530,11 +578,7 @@ int free_isosurface( Context ctx, int time, int var )
                   deallocate( ctx, ctx->Variable[var]->SurfTable[time]->norms, b2 );
                }
                /* indices */
-#ifdef          BIG_GFX
-               b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_4);
-#else
-               b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_2);
-#endif
+               b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_index);
                if (b3) {
                   deallocate( ctx, ctx->Variable[var]->SurfTable[time]->index, b3 );
                }
@@ -572,11 +616,7 @@ int free_isosurface( Context ctx, int time, int var )
             deallocate( ctx, ctx->Variable[var]->SurfTable[time]->norms, b2 );
          }
          /* indices */
-#ifdef    BIG_GFX
-         b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_4);
-#else
-         b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_2);
-#endif
+         b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_index);
          if (b3) {
             deallocate( ctx, ctx->Variable[var]->SurfTable[time]->index, b3 );
          }

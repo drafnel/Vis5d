@@ -45,10 +45,6 @@ main (int argc, char *argv[])
   /*
   mtrace ();
   */
-#ifdef ENABLE_NLS
-  bindtextdomain (PACKAGE, VIS5D_LOCALE_DIR);
-  textdomain (PACKAGE);
-#endif
   gtk_set_locale ();
 
   /* TODO: need to look for gtkrc file, currently we just look in 
@@ -59,8 +55,6 @@ main (int argc, char *argv[])
 
   gtk_init (&argc, &argv);
 
-  add_pixmap_directory (DATA_PREFIX "/pixmaps");
-  add_pixmap_directory (VIS5D_SOURCE_DIR "/pixmaps");
   
   window3D = new_window3D(NULL);
 

@@ -58,6 +58,7 @@
 #include <sys/stat.h>
 #include "xdump.h"
 
+GLuint v5d_glGenLists(GLsizei  cnt);
 
 extern int vis5d_verbose;
 /*
@@ -183,7 +184,7 @@ context_init(
 
 int make_big_window( char *title, int xpos, int ypos, int width, int height)
 {
-   static int attrib_list[] = {
+   int attrib_list[] = {
       GLX_RGBA,
       GLX_RED_SIZE, 1,
       GLX_GREEN_SIZE, 1,
@@ -191,45 +192,43 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       GLX_DEPTH_SIZE, 1,
       GLX_DOUBLEBUFFER,
       None };
+	int size_attrib_list = sizeof(attrib_list)/sizeof(int);
+	int stereo_attrib_list[(sizeof(attrib_list)/sizeof(int))+1];
+	int i;
+
    Window root;
    XSetWindowAttributes win_attrib;
    XSizeHints sizehints;
-   XVisualInfo *visualinfo;
+   XVisualInfo *visualinfo=NULL;
    unsigned long mask;
    Screen *screen = DefaultScreenOfDisplay( GfxDpy );
 
    check_gl_error("somewhere before calling make_big_window");
 
    root = DefaultRootWindow(GfxDpy);
+
    /*********************/
    /* Choose the visual */
    /*********************/
-   visualinfo = glXChooseVisual( GfxDpy, GfxScr, attrib_list );
-   if (!visualinfo) {
-      printf("Error: couldn't get RGB, Double-Buffered, Depth-Buffered GLX");
-      printf(" visual!\n");
-      exit(0);
-   }
-   /* Create the GL/X context. */
-   if (biggfx.gl_ctx){
-      glXDestroyContext( GfxDpy, biggfx.gl_ctx);
-   }
-   biggfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, True );
-   if (!biggfx.gl_ctx) {
-      /* try (indirect context) */
-      biggfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, False );
-      if (!biggfx.gl_ctx) {
-        printf("Error: glXCreateContext failed!\n");
-        exit(0);
-      }
-      else {
-        printf("Warning: using indirect GL/X context, may be slow\n");
-      }
-   }
-   check_gl_error("make_big_window (glXChooseVisual & glxCreateContext)");
 
+   for(i=0;i<size_attrib_list-1;i++)
+	  stereo_attrib_list[i] = attrib_list[i];
+   stereo_attrib_list[size_attrib_list-1] = GLX_STEREO;
+   stereo_attrib_list[size_attrib_list] = None;
+   visualinfo = glXChooseVisual( GfxDpy, GfxScr, stereo_attrib_list );
 
-
+   if(visualinfo){
+	  printf("Stereo Mode Enabled\n");
+	  GfxStereoEnabled = 1;
+   }else
+	  {
+		 visualinfo = glXChooseVisual( GfxDpy, GfxScr, attrib_list );
+		 if (!visualinfo) {
+			printf("Error: couldn't get RGB, Double-Buffered, Depth-Buffered GLX");
+			printf(" visual!\n");
+			exit(0);
+		 }
+	  }
    /*******************/
    /* Make the window */
    /*******************/
@@ -283,16 +282,6 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
    }
    check_gl_error("make_big_window (no_border)");
 
-   /* Bind the GLX context to the window (make this window the current one) */
-   if (BigWindow){
-      if (!glXMakeCurrent( GfxDpy, BigWindow, biggfx.gl_ctx )) {
-         printf("Error: glXMakeCurrent failed!\n");
-         exit(0);
-      }
-   }
-/* MJK 11.19.98 */
-   check_gl_error("make_big_window (glXMakeCurrent)");
-
    if (!off_screen_rendering){
       XMapWindow( GfxDpy, BigWindow);
    }
@@ -315,6 +304,16 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       GfxDepth = visualinfo->depth;
       GfxColormap = win_attrib.colormap;
    }
+
+   /*
+    * Need to make sure the correct draw buffer is initially selected - SGI bug?
+    * (It seems that the second time you bring up the application, the correct
+    * buffer is not selected. The default by the spec for a double-buffered
+    * visual is that the BACK buffer should be selected, but that doesn't
+    * seem to be the case.)
+    */
+   glDrawBuffer(GL_BACK);
+
    /* Setup lighting parameters */
    {
       static GLfloat light0_pos[] = { 0.0, 0.0, 1000.0, 0.0 };
@@ -368,7 +367,7 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
                     int width, int height )
 {
 
-   static int attrib_list[] = {
+   int attrib_list[] = {
       GLX_RGBA,
       GLX_RED_SIZE, 1,
       GLX_GREEN_SIZE, 1,
@@ -385,7 +384,7 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       None };
    XSetWindowAttributes win_attrib;
    XSizeHints sizehints;
-   XVisualInfo *visualinfo;
+   XVisualInfo *visualinfo=NULL;
    unsigned long mask;
 
 
@@ -400,20 +399,43 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       height = BigWinHeight/DisplayCols;
    }
 
-   visualinfo = glXChooseVisual( GfxDpy, GfxScr, attrib_list );
+	dtx->StereoEnabled = 0;
+   if(GfxStereoEnabled){
+	  int size_attrib_list = sizeof(attrib_list)/sizeof(int);
+	  int stereo_attrib_list[(sizeof(attrib_list)/sizeof(int))+1];
+	  int i;
 
-   if (!visualinfo) {
-      printf("Error: couldn't get RGB, Double-Buffered, Depth-Buffered GLX");
-      printf(" visual!\n");
-      exit(0);
+	  for(i=0;i<size_attrib_list-1;i++)
+		 stereo_attrib_list[i] = attrib_list[i];
+	  stereo_attrib_list[size_attrib_list-1] = GLX_STEREO;
+	  stereo_attrib_list[size_attrib_list] = None;
+	  visualinfo = glXChooseVisual( GfxDpy, GfxScr, stereo_attrib_list );
+	  if(visualinfo){
+		 dtx->StereoEnabled = 1;
+	  }
    }
 
+	if(! visualinfo)
+	  {
+		 visualinfo = glXChooseVisual( GfxDpy, GfxScr, attrib_list );
+
+		 if (!visualinfo) {
+			printf("Error: couldn't get RGB, Double-Buffered,");
+			printf("Depth-Buffered GLX visual!\n");
+			exit(0);
+		 }
+	  }
 
    /* Create the GL/X context. */
 
    if (dtx->gl_ctx){
-      glXDestroyContext( GfxDpy, dtx->gl_ctx);
+	  GLXContext prevctx;
+	  prevctx = glXGetCurrentContext();
+	  if(prevctx == dtx->gl_ctx)
+		 glXMakeCurrent( GfxDpy, None, NULL);
+	  glXDestroyContext( GfxDpy, dtx->gl_ctx);
    }
+
    dtx->gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, True );
    if (!dtx->gl_ctx) {
       /* try (indirect context) */ 
@@ -749,9 +771,9 @@ void resize_3d_window( int width, int height )
 
 void resize_BIG_window( int width, int height )
 {
-   glXMakeCurrent( GfxDpy, BigWindow, biggfx.gl_ctx);
-   glViewport( 0, 0, width, height );
-   glXMakeCurrent( GfxDpy, current_dtx->GfxWindow, current_dtx->gl_ctx );
+	glFinish();
+	XResizeWindow(GfxDpy, BigWindow, (unsigned int)width,(unsigned int)height);
+	glXWaitX();
    check_gl_error("resize_BIG_window");
 }
    
@@ -961,6 +983,85 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
 
    glViewport(0, 0,width,height);
 }
+
+
+void stereo_set_3d_perspective(int whicheye, float frontclip)
+{
+   int width = current_dtx->WinWidth;
+   int height = current_dtx->WinHeight;
+   GLint	mm;
+   float	near, far, eye;
+   float	left, right, top, bottom;
+
+   check_gl_error("stereo_set_3d_perspective");
+
+   if(!current_dtx->Perspective){
+	(void) fprintf(stderr, "Error: Stereo requires Perspective mode\n");
+	return;
+   }
+
+   switch(whicheye){
+      case VIS5D_STEREO_LEFT:
+         eye = -VIS5D_EYE_SEP;
+	 break;
+      case VIS5D_STEREO_RIGHT:
+         eye = VIS5D_EYE_SEP;
+	 break;
+      default:
+	(void) fprintf(stderr, "Error: stereo_set_3d_perspective bad eye\n");
+	return;
+   }
+
+   near = EYE_DIST - ZMAGIC + (2.0F*MAGIC*frontclip);
+   far = EYE_DIST + ZMAGIC;
+
+   if (width>height) {
+      left = -MAGIC / EYE_DIST * near - eye/EYE_DIST*near;
+      right = MAGIC / EYE_DIST * near - eye/EYE_DIST*near;
+      top = MAGIC / EYE_DIST * near * height /width;
+      bottom = -top;
+   }
+   else {
+      left = -MAGIC / EYE_DIST * near * width / height - eye/EYE_DIST*near;
+      right = MAGIC / EYE_DIST * near * width / height - eye/EYE_DIST*near;
+      top = MAGIC / EYE_DIST * near;
+      bottom = -top;
+   }
+
+   glGetIntegerv(GL_MATRIX_MODE, &mm);
+
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glFrustum(left, right, bottom, top, near, far);
+   glTranslatef(-eye, 0.0, 0.0);
+
+   glMatrixMode(mm);
+
+   check_gl_error("end stereo_set_3d_perspective");
+}
+
+void stereo_set_buff(int whichbuf)
+{
+   GLint	buf;
+   switch(whichbuf){
+      case VIS5D_STEREO_LEFT:
+	 buf = GL_BACK_LEFT;
+	 break;
+      case VIS5D_STEREO_RIGHT:
+	 buf = GL_BACK_RIGHT;
+	 break;
+      case VIS5D_STEREO_BOTH:
+	 buf = GL_BACK;
+	 break;
+      default:
+	(void) fprintf(stderr, "Error: stereo_set_buf bad buffer\n");
+	return;
+   }
+   glDrawBuffer(buf);
+}
+
+
+
 
 void project( float p[3], float *x, float *y )
 {
@@ -1211,170 +1312,167 @@ void end_aa_pass( int n )
    check_gl_error("end_aa_pass");
 }
 
+/*
+ * The original image saving was completely done in X - which does not
+ * work if you are using stereo visuals.  So, I have completely changed
+ * this portion.
+ *
+ * boote@ncar.ucar.edu
+ */
 
+static	int	VIS5DUseImageMagicConvert = 0;
+static  int	VIS5DInitializedFormats = 0;
 
-/*** save_formats *****************************************************
-   Return a set of flag bits indicating what image formats we can
-   save as.
-**********************************************************************/
 int save_formats( void )
 {
    int formats;
    char s[1000];
    struct stat buf;
+   FILE *f;
 
+   formats = VIS5D_RGB;
 
-   formats = VIS5D_XWD;
+   VIS5DInitializedFormats = 1;
 
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
+   if (installed("convert")){
+	VIS5DUseImageMagicConvert = 1;
       /* found ImageMagick convert program so use it!! */
       formats |= VIS5D_PPM;
       formats |= VIS5D_GIF;
       formats |= VIS5D_PS;
       formats |= VIS5D_COLOR_PS;
-      formats |= VIS5D_RGB;
+      formats |= VIS5D_XWD;
       formats |= VIS5D_TGA;
    }
    else{
-      formats |= VIS5D_PPM;
-
-      if (installed("xpr"))  formats |= VIS5D_PS;
-
-      if (installed("fromxwd")) {
-         formats |= VIS5D_RGB;
-      }
-      else {
-         /* the rest of the image formats depend on fromxwd */
-         return formats;
-      }
-
+      if (installed("toppm"))  formats |= VIS5D_PPM;
       if (installed("togif"))  formats |= VIS5D_GIF;
-      if (installed("tops"))  formats |= VIS5D_COLOR_PS;
+      if (installed("tops")){
+	  formats |= VIS5D_COLOR_PS;
+	  formats |= VIS5D_PS;
+      }
    }
 
    return formats;
 }
 
 
-
-int save_3d_window( char *filename, int format )
+  
+int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
 {
-   char xwdname[100];
+   char rgbname[100];
    char cmd[1000];
-   char s[1000];
-   struct stat buf;
    FILE *f;
-   int use_convert;
 
    set_pointer(1);
-
 
    XRaiseWindow( GfxDpy, BigWindow);
    XSync( GfxDpy, 0 );
 
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
-      /* found convert, use it! */
-      printf("Using ImageMagick convert program\n");
-      use_convert = 1;
-   }
-   else{
-      use_convert = 0;
-   }
+   if(!VIS5DInitializedFormats) (void)save_formats();
 
-   if (format==VIS5D_XWD) {
-      strcpy( xwdname, filename );
+   if (format==VIS5D_RGB) {
+      strcpy( rgbname, filename );
    }
    else {
-      strcpy( xwdname, TMP_XWD );
+      strcpy( rgbname, TMP_RGB );
    }
 
-   /* Make an X window dump file (.xwd) */
-   f = fopen(xwdname,"w");
+   /* Make an rgb dump file (.rgb) */
+   f = fopen(rgbname,"w");
    if (!f) {
       printf("Error unable to open %s for writing\n", filename);
       set_pointer(0);
       return 0;
    }
 
-   Window_Dump( GfxDpy, GfxScr, BigWindow, f );
+   SGI_Dump( GfxDpy, GfxScr, BigWindow, f, oglbuf);
    fclose(f);
 
-   if (use_convert && format != VIS5D_XWD){
-      if (format==VIS5D_RGB){
-         sprintf( cmd, "./util/convert %s sgi:%s", xwdname, filename );
+   if (VIS5DUseImageMagicConvert && format != VIS5D_RGB){
+      if (format==VIS5D_XWD){
+         sprintf( cmd, "./util/convert %s xwd:%s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
-         unlink( xwdname );
+         unlink( rgbname );
       }
       if (format==VIS5D_GIF){
-         sprintf( cmd, "./util/convert %s gif:%s", xwdname, filename );
+         sprintf( cmd, "./util/convert %s gif:%s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
-         unlink( xwdname );
+         unlink( rgbname );
       }
       if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
-         sprintf( cmd, "./util/convert %s ps:%s", xwdname, filename );
+         sprintf( cmd, "./util/convert %s ps:%s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
-         unlink( xwdname );
+         unlink( rgbname );
       }
       if (format==VIS5D_PPM){
-         sprintf( cmd, "./util/convert %s ppm:%s", xwdname, filename );
+         sprintf( cmd, "./util/convert %s ppm:%s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
-         unlink( xwdname );
+         unlink( rgbname );
       }
       if (format==VIS5D_TGA){
-         sprintf( cmd, "./util/convert %s tga:%s", xwdname, filename );
+         sprintf( cmd, "./util/convert %s tga:%s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
-         unlink( xwdname );
+         unlink( rgbname );
       }
    }
    else{
-      if (format==VIS5D_RGB) {
-         sprintf( cmd, "fromxwd %s %s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
-      }
-      else if (format==VIS5D_GIF) {
-         /* convert xwd to rgb */
-         sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
+      if (format==VIS5D_GIF) {
          /* convert rgb to gif */
-         sprintf( cmd, "togif %s %s", TMP_RGB, filename );
+         sprintf( cmd, "togif %s %s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system( cmd );
-         unlink( xwdname );
-         unlink( TMP_RGB );
+         unlink( rgbname );
+      }
+      else if (format==VIS5D_PPM) {
+         sprintf(cmd,"toppm %s > %s", rgbname, filename );
+         printf("Executing: %s\n", cmd );
+         system( cmd );
+         unlink( rgbname );
       }
       else if (format==VIS5D_PS) {
-         sprintf( cmd, "xpr -device ps -gray 4 %s >%s", xwdname, filename );
+         sprintf(cmd,"tops %s > %s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system( cmd );
-         unlink( xwdname );
+         unlink( rgbname );
       }
       else if (format==VIS5D_COLOR_PS) {
-         /* convert xwd to rgb */
-         sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
          /* convert rgb to color PS */
-         sprintf(cmd,"tops %s -rgb > %s", TMP_RGB, filename );
+         sprintf(cmd,"tops %s -rgb > %s", rgbname, filename );
          printf("Executing: %s\n", cmd );
          system( cmd );
-         unlink( xwdname );
-         unlink( TMP_RGB );
+         unlink( rgbname );
       }
    }
 
    printf("Done writing image file.\n");
    set_pointer(0);
    return 1;
+}
+
+int save_3d_window( char *filename, int format )
+{
+   if(current_dtx->StereoOn)
+   	return save_3d_window_from_oglbuf(filename,format,GL_BACK_LEFT);
+   return save_3d_window_from_oglbuf(filename,format,GL_BACK);
+}
+
+int save_3d_right_window( char *filename, int format )
+{
+   if(current_dtx->StereoOn)
+       return save_3d_window_from_oglbuf(filename,format,GL_BACK_RIGHT);
+
+   (void)fprintf(stderr,
+	"Stereo *right* window save not supported when not in stereo mode.\n");
+   (void)fprintf(stderr,
+	"Hopefully this is not a big suprise for you ;-)\n");
+
+   return 0;
 }
 
 int save_snd_window(Display_Context dtx, char *filename, int format )
@@ -1583,14 +1681,11 @@ void set_transparency( int alpha )
 
 
 void generate_isosurface( int n,
-#ifdef BIG_GFX
-                      uint_4 *index,
-#else
-                      uint_2 *index,
-#endif
-                      int_2 verts[][3],
-                      int_1 norms[][3],
-                      GLuint *list )
+								  uint_index *index,
+								  int_2 verts[][3],
+								  int_1 norms[][3],
+								  int	draw_triangles,
+								  GLuint *list )
 {
   int i;
 
@@ -1600,19 +1695,29 @@ void generate_isosurface( int n,
 		check_gl_error("generate_isosurface");
   }
   glNewList(*list,GL_COMPILE);
-
-
   glEnable( GL_LIGHTING );
 
-  /* Render the triangle strip */
-  GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
-  for (i=0;i<n;i++) {
-	 int j = index[i];
-	 glNormal3bv( (GLbyte *) norms[j] );
-	 glVertex3sv( verts[j] );
+
+  if (draw_triangles) {
+	 /* Render the triangles */
+	 glBegin(GL_TRIANGLES);
+	 for (i=0;i<n;i++) {
+		glNormal3bv( (GLbyte *) norms[i] );
+		glVertex3sv( verts[i] );
+	 }
+	 glEnd();
   }
-  glEnd();
-  
+  else 
+	 {
+		/* Render the triangle strip */
+		GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
+		for (i=0;i<n;i++) {
+		  int j = index[i];
+		  glNormal3bv( (GLbyte *) norms[j] );
+		  glVertex3sv( verts[j] );
+		}
+		glEnd();
+	 }  
   set_transparency(255);
   glDisable( GL_LIGHTING );
   glEndList();
@@ -1622,13 +1727,10 @@ void generate_isosurface( int n,
 
 
 void draw_isosurface( int n,
-#ifdef BIG_GFX
-                      uint_4 *index,
-#else
-                      uint_2 *index,
-#endif
+                      uint_index *index,
                       int_2 verts[][3],
                       int_1 norms[][3],
+							 int	draw_triangles,
                       unsigned int color, GLuint *list, int listtype )
 {
    int i;
@@ -1656,16 +1758,26 @@ void draw_isosurface( int n,
 	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 	
-
-   /* Render the triangle strip */
-   GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
-   for (i=0;i<n;i++) {
-      int j = index[i];
-      glNormal3bv( (GLbyte *) norms[j] );
-      glVertex3sv( verts[j] );
-   }
-   glEnd();
-
+  if (draw_triangles) {
+	 /* Render the triangles */
+	 glBegin(GL_TRIANGLES);
+	 for (i=0;i<n;i++) {
+		glNormal3bv( (GLbyte *) norms[i] );
+		glVertex3sv( verts[i] );
+	 }
+	 glEnd();
+  }
+  else 
+	  {
+		 /* Render the triangle strip */
+		 GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
+		 for (i=0;i<n;i++) {
+			int j = index[i];
+			glNormal3bv( (GLbyte *) norms[j] );
+			glVertex3sv( verts[j] );
+		 }
+		 glEnd();
+	  }
    glPopMatrix();
 
    glDisable( GL_LIGHTING );
@@ -1680,13 +1792,10 @@ void draw_isosurface( int n,
 
 
 void draw_colored_isosurface( int n,
-#ifdef BIG_GFX
-                              uint_4 *index,
-#else
-                              uint_2 *index,
-#endif
+                              uint_index *index,
                               int_2 verts[][3],
                               int_1 norms[][3],
+										int	draw_triangles,
                               uint_1 color_indexes[],
                               unsigned int color_table[],
                               int alpha )
@@ -1708,17 +1817,28 @@ void draw_colored_isosurface( int n,
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 	
 
-   /* Render the triangle strip */
-   GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
-   for (i=0;i<n;i++) {
-      int j = index[i];
-      unsigned int k = color_indexes[j];
-      glColor4ubv( (GLubyte *) &color_table[k] );
-      glNormal3bv( (GLbyte *) norms[j] );
-      glVertex3sv( verts[j] );
-   }
-   glEnd();
-
+	if (draw_triangles) {
+	  /* Render the triangles */
+	  glBegin(GL_TRIANGLES);
+	  for (i=0;i<n;i++) {
+		 glColor4ubv( (GLubyte *) &color_table[color_indexes[i]] );
+		 glNormal3bv( (GLbyte *) norms[i] );
+		 glVertex3sv( verts[i] );
+	  }
+	  glEnd();
+	}else 
+	  {
+		 /* Render the triangle strip */
+		 GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
+		 for (i=0;i<n;i++) {
+			int j = index[i];
+			unsigned int k = color_indexes[j];
+			glColor4ubv( (GLubyte *) &color_table[k] );
+			glNormal3bv( (GLbyte *) norms[j] );
+			glVertex3sv( verts[j] );
+		 }
+		 glEnd();
+	  }
    glPopMatrix();
 
    glDisable( GL_LIGHTING );

@@ -799,7 +799,7 @@ static void print_cursor_position( Display_Context dtx, int it )
  *         size - number of entries in table
  * Return:  -1 or constant alpha value
  */
-static int get_alpha( unsigned int color_table[], int size )
+int get_alpha( unsigned int color_table[], int size )
 {
    int alpha, i;
 
@@ -825,93 +825,124 @@ static int get_alpha( unsigned int color_table[], int size )
  */
 static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, int animflag )
 {
-   int var, alpha, lock;
-   Display_Context dtx;
-   int time, colorvar, cvowner;
+  int var, alpha, lock;
+  Display_Context dtx;
+  int time, colorvar, cvowner;
 
-   dtx = ctx->dpy_ctx;
+  dtx = ctx->dpy_ctx;
 
-   for (var=0;var<ctx->NumVars;var++) {
-      if (ctx->SameIsoColorVarOwner[var] ||
-          ctx->IsoColorVar[var] < 0){
-         time = ctxtime;
-      }
-      else{
-         time = dtxtime;
-      }
+  for (var=0;var<ctx->NumVars;var++) {
+	 if (ctx->SameIsoColorVarOwner[var] ||
+		  ctx->IsoColorVar[var] < 0){
+		time = ctxtime;
+	 }
+	 else{
+		time = dtxtime;
+	 }
+	 
+	 if(ctx->DisplaySurf[var] && !ctx->Variable[var]->SurfTable[time]){
+		ctx->Variable[var]->SurfTable[time] = (struct isosurface *) allocate(ctx,sizeof(struct isosurface));
+		memset(ctx->Variable[var]->SurfTable[time], 0, sizeof(struct isosurface));
+	 }	
 
-		if(ctx->DisplaySurf[var] && !ctx->Variable[var]->SurfTable[time]){
-		  ctx->Variable[var]->SurfTable[time] = (struct isosurface *) allocate(ctx,sizeof(struct isosurface));
-		  memset(ctx->Variable[var]->SurfTable[time], 0, sizeof(struct isosurface));
-		}	
-
-      if (ctx->DisplaySurf[var] && ctx->Variable[var]->SurfTable[time]->valid) {
-         if (animflag) {
-            lock = cond_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
-         }
-         else {
-            wait_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
-            lock = 1;
-         }
-         if (lock) {
-            recent( ctx, ISOSURF, var );
-            colorvar = ctx->Variable[var]->SurfTable[time]->colorvar;
-            cvowner = ctx->Variable[var]->SurfTable[time]->cvowner;
-            /* Determine alpha for surface:  -1=variable, 0..255=constant */
-            if (ctx->Variable[var]->SurfTable[time]->colors) {
-               alpha = UNPACK_ALPHA( dtx->Color[ctx->context_index*MAXVARS+
-                                     var][ISOSURF] ); 
-               /* alpha = get_alpha( ctx->ColorTable[VIS5D_ISOSURF_CT]->Colors[colorvar], 255 ); WLH 16 Aug 97 */
-            }
-            else {
-               alpha = UNPACK_ALPHA( dtx->Color[ctx->context_index*MAXVARS+
-                                     var][ISOSURF] );
-            }
-            if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
-               if (ctx->Variable[var]->SurfTable[time]->colors) {
+	 if (ctx->DisplaySurf[var] && ctx->Variable[var]->SurfTable[time]->valid) {
+		if (animflag) {
+		  lock = cond_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
+		}
+		else {
+		  wait_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
+		  lock = 1;
+		}
+		if (lock) {
+		  recent( ctx, ISOSURF, var );
+		  colorvar = ctx->Variable[var]->SurfTable[time]->colorvar;
+		  cvowner = ctx->Variable[var]->SurfTable[time]->cvowner;
+		  /* Determine alpha for surface:  -1=variable, 0..255=constant */
+		  if (ctx->Variable[var]->SurfTable[time]->colors) {
+			 alpha = UNPACK_ALPHA( dtx->Color[ctx->context_index*MAXVARS+
+														 var][ISOSURF] ); 
+			 /* alpha = get_alpha( ctx->ColorTable[VIS5D_ISOSURF_CT]->Colors[colorvar], 255 ); WLH 16 Aug 97 */
+		  }
+		  else {
+			 alpha = UNPACK_ALPHA( dtx->Color[ctx->context_index*MAXVARS+
+														 var][ISOSURF] );
+		  }
+		  if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
+			 if (ctx->Variable[var]->SurfTable[time]->colors) {
 #ifdef USE_GLLISTS
-					  printf("Should be drawing something here\n");
-#else					  
-                  draw_colored_isosurface(
-                                   ctx->Variable[var]->SurfTable[time]->numindex,
-                                   ctx->Variable[var]->SurfTable[time]->index,
-                                   (void *) ctx->Variable[var]->SurfTable[time]->verts,
-                                   (void *) ctx->Variable[var]->SurfTable[time]->norms,
-                                   (void *) ctx->Variable[var]->SurfTable[time]->colors,
-                                   dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[cvowner*MAXVARS+colorvar],
-                                   alpha );
+				printf("Should be drawing something here\n");
+#else					 
+				int	fastdraw;
+				vis5d_check_fastdraw(dtx->dpy_context_index, &fastdraw);
+				if ((fastdraw || animflag) && ctx->Variable[var]->SurfTable[time]->deci_verts) {
+				  if (ctx->Variable[var]->SurfTable[time]->deci_colors) {
+					 draw_colored_isosurface(
+													 ctx->Variable[var]->SurfTable[time]->deci_numverts,
+													 ctx->Variable[var]->SurfTable[time]->index,
+													 (void *) ctx->Variable[var]->SurfTable[time]->deci_verts,
+													 (void *) ctx->Variable[var]->SurfTable[time]->deci_norms,
+													 1,
+													 (void *) ctx->Variable[var]->SurfTable[time]->deci_colors,
+													 dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[cvowner*MAXVARS+colorvar],
+													 alpha 
+													 );
+				  }
+				  else {
+					 draw_isosurface(
+										  ctx->Variable[var]->SurfTable[time]->deci_numverts,
+										  ctx->Variable[var]->SurfTable[time]->index,
+										  (void *) ctx->Variable[var]->SurfTable[time]->deci_verts,
+										  (void *) ctx->Variable[var]->SurfTable[time]->deci_norms,
+										  1,
+										  dtx->Color[ctx->context_index*MAXVARS+var][0],
+										  NULL, GL_COMPILE
+										  );
+				  }
+				}
+				else 
+				  draw_colored_isosurface(
+												  ctx->Variable[var]->SurfTable[time]->numindex,
+												  ctx->Variable[var]->SurfTable[time]->index,
+												  (void *) ctx->Variable[var]->SurfTable[time]->verts,
+												  (void *) ctx->Variable[var]->SurfTable[time]->norms,
+												  0,
+												  (void *) ctx->Variable[var]->SurfTable[time]->colors,
+												  dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[cvowner*MAXVARS+colorvar],
+												  alpha );
 #endif
-               }
-               else {
+			 }
+			 else 
 #ifdef USE_GLLISTS
-					  {
-						 unsigned int color=dtx->Color[ctx->context_index*MAXVARS+var][0] ;
-						 float mat_color[4];
-						 mat_color[0] = UNPACK_RED( color )   / 255.0;
-						 mat_color[1] = UNPACK_GREEN( color ) / 255.0;
-						 mat_color[2] = UNPACK_BLUE( color )  / 255.0;
-						 mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
-						 glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
-						 set_transparency( UNPACK_ALPHA(color) );
-						 glCallList(ctx->Variable[var]->SurfTable[time]->glList);
-					  }
+				{
+				  unsigned int color=dtx->Color[ctx->context_index*MAXVARS+var][0] ;
+				  float mat_color[4];
+				  mat_color[0] = UNPACK_RED( color )   / 255.0;
+				  mat_color[1] = UNPACK_GREEN( color ) / 255.0;
+				  mat_color[2] = UNPACK_BLUE( color )  / 255.0;
+				  mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
+				  glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
+				  set_transparency( UNPACK_ALPHA(color) );
+				  glCallList(ctx->Variable[var]->SurfTable[time]->glList);
+				}
 #else
-                  draw_isosurface( ctx->Variable[var]->SurfTable[time]->numindex,
-                                   ctx->Variable[var]->SurfTable[time]->index,
-                                   (void *) ctx->Variable[var]->SurfTable[time]->verts,
-                                   (void *) ctx->Variable[var]->SurfTable[time]->norms,
-                                   dtx->Color[ctx->context_index*MAXVARS+var][0], NULL, 0 );
-
+			 {
+				draw_isosurface( ctx->Variable[var]->SurfTable[time]->numindex,
+									  ctx->Variable[var]->SurfTable[time]->index,
+									  (void *) ctx->Variable[var]->SurfTable[time]->verts,
+									  (void *) ctx->Variable[var]->SurfTable[time]->norms,
+									  0,
+									  dtx->Color[ctx->context_index*MAXVARS+var][0], NULL, 0 );
+				
+			 }
 #endif
-
-               
-               }
-            }
-            done_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
-         }
-      }
-   }
+		  }
+		}
+		done_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
+	 }
+  }
 }
+
+
 
 
 static void render_hclips( Display_Context dtx, int animflag)
@@ -2811,49 +2842,111 @@ void render_everything( Display_Context dtx, int animflag )
       return;
    }
 
-   /* MJK 12.02.98 */
-   clear_color (dtx->BgColor);
-
-
    /*** Draw 3-D Objects ***/
    set_3d( dtx->GfxProjection, dtx->FrntClip,
            dtx->Zoom, (float*) dtx->CTM);
+   if(dtx->StereoOn){
+      /*
+       * The set_3d call should have set the model matrix and the
+       * projection matrix correctly.  The stereo_set_3d_perspective
+       * call just changes the projection matrix slightly.
+       */
 
-   if (dtx->DisplayBox){
-      int i, listflag=0;
+      /* left eye */
+      stereo_set_3d_perspective(VIS5D_STEREO_LEFT,dtx->FrntClip);
+      stereo_set_buff(VIS5D_STEREO_LEFT);
+      clear_color (dtx->BgColor);
+      clear_3d_window();
+
+      if (dtx->DisplayBox){
+         int i;
+         for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
+            start_aa_pass(i);
+            draw_box(dtx, dtx->CurTime);
+            /* draw_tick_marks( dtx ); */
+            end_aa_pass(i);
+         }
+      }
+
+      clipping_on();
+      render_3d_only( dtx, animflag );
+      clipping_off();
+   
+      if (dtx->DisplayClips){
+         render_vclips( dtx, animflag );
+         render_hclips( dtx, animflag );
+      }
+
+      /* right eye */
+      stereo_set_3d_perspective(VIS5D_STEREO_RIGHT,dtx->FrntClip);
+      stereo_set_buff(VIS5D_STEREO_RIGHT);
+      clear_color (dtx->BgColor);
+      clear_3d_window();
+
+      if (dtx->DisplayBox){
+         int i;
+         for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
+            start_aa_pass(i);
+            draw_box(dtx, dtx->CurTime);
+            /* draw_tick_marks( dtx ); */
+            end_aa_pass(i);
+         }
+      }
+
+      clipping_on();
+      render_3d_only( dtx, animflag );
+      clipping_off();
+   
+      if (dtx->DisplayClips){
+         render_vclips( dtx, animflag );
+         render_hclips( dtx, animflag );
+      }
+
+      /* reset to default draw buffer */
+      stereo_set_buff(VIS5D_STEREO_BOTH);
+   }else{
+
+		 /*
+		  * The clear_3d_window call was moved out of vis5d_draw_frame and moved
+		  * down into this function so stereo and mono rendering loops can both
+		  * work with the same higher level api function.
+		  */
+		 clear_3d_window();
+		 clear_color (dtx->BgColor);
+		 
+		 if (dtx->DisplayBox){
+			int i, listflag=0;
 #ifdef USE_GLLISTS
-		if(dtx->NumBoxVerts > 0 && ! glIsList(dtx->DisplayBox)){
-		  dtx->DisplayBox = v5d_glGenLists(1);
-		  glNewList(dtx->DisplayBox,GL_COMPILE_AND_EXECUTE);
-		  listflag=1;
+			if(dtx->NumBoxVerts > 0 && ! glIsList(dtx->DisplayBox)){
+			  dtx->DisplayBox = v5d_glGenLists(1);
+			  glNewList(dtx->DisplayBox,GL_COMPILE_AND_EXECUTE);
+			  listflag=1;
 #endif
-		  
-		  for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
-			 start_aa_pass(i);
-			 draw_box(dtx, dtx->CurTime); 
-			 /* draw_tick_marks( dtx ); */
-			 end_aa_pass(i);
-		  }
+			  
+			  for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
+				 start_aa_pass(i);
+				 draw_box(dtx, dtx->CurTime); 
+				 /* draw_tick_marks( dtx ); */
+				 end_aa_pass(i);
+			  }
 #ifdef USE_GLLISTS
-		  glEndList();
-		}
-		else
-		  glCallList(dtx->DisplayBox);
+			  glEndList();
+			}
+			else
+			  glCallList(dtx->DisplayBox);
 #endif
-   }
+		 }
 
-   clipping_on();
-   render_3d_only( dtx, animflag );
+		 clipping_on();
+		 render_3d_only( dtx, animflag );
 
-   /*** Draw box now, but first disable clipping planes ***/
-   clipping_off();
+		 clipping_off();
 
-
-   if (dtx->DisplayClips){
-      render_vclips( dtx, animflag );
-      render_hclips( dtx, animflag );
-   }
-
+		 if (dtx->DisplayClips){
+			render_vclips( dtx, animflag );
+			render_hclips( dtx, animflag );
+		 }
+	  }
 
    /*** Draw 2-D objects ***/
    set_2d();
@@ -2861,9 +2954,9 @@ void render_everything( Display_Context dtx, int animflag )
 
    /*** Draw Sounding ***/
    render_sounding_only( dtx , 0); 
-
+	
    if (dtx->AnimRecord) {
-      save_frame( dtx, dtx->CurTime ); 
+	  save_frame( dtx, dtx->CurTime ); 
    }
    finish_rendering();
 }

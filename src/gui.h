@@ -86,6 +86,9 @@ struct gui_context {
    LUI_NEWBUTTON *displayBUTTON;
    LUI_NEWBUTTON *blank1BUTTON;
    LUI_NEWBUTTON *blank2BUTTON;
+  LUI_NEWBUTTON *savesceneBUTTON;
+  LUI_NEWBUTTON *stereoBUTTON;
+
    LUI_NEWBUTTON *perspecBUTTON;
    LUI_BUTTON_PAD *radiopadBUTTON;
    LUI_BUTTON *normalBUTTON;
@@ -420,7 +423,11 @@ struct gui_context {
 
   LUI_NEWLABEL *Irregular_Heading;
 
-
+  /* Save scene: */
+  Window SaveSceneWindow;
+  LUI_FIELD *SaveSceneField;
+  LUI_RADIO *SaveSceneRadio;
+  int SceneFormats[2];      /* scene file format for each button displayed */
 
 };
 

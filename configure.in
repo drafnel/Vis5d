@@ -30,7 +30,7 @@ AC_SUBST(SHARED_VERSION_INFO)
 # Use native cc if present
 AC_MSG_CHECKING([for vendor's cc to be used instead of gcc])
 AC_CHECK_PROG(CC, cc, cc)
-
+AC_PROG_CXX
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
@@ -45,7 +45,7 @@ AM_PATH_GTK(1.2.9, ,
             AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
 
   dnl Add the languages which your application supports here.
-ALL_LINGUAS="pt_BR"
+ALL_LINGUAS="pt_BR es"
 #AM_WITH_NLS('use-libtool')
 AM_GNU_GETTEXT
 INTLDIR=intl
@@ -122,6 +122,8 @@ AC_ARG_WITH(mesa, [  --with-mesa             force the use of Mesa instead of ot
 AC_ARG_WITH(netcdf, [  --with-netcdf=<lib>     specify NetCDF library file], with_netcdf=$withval, with_netcdf=yes)
 
 AC_ARG_WITH(mcidas, [  --with-mcidas=<lib>     specify McIDAS library file], with_mcidas=$withval, with_mcidas=yes)
+
+AC_ARG_WITH(mixkit, [  --with-mixkit=<lib>     specify mixkit library file], with_mixkit=$withval, with_mixkit=yes)
 
 AC_ARG_WITH(memory, [  --with-memory=<MB>      max. memory to use, 0 for none [default: 32]], VIS5D_MAX_MEM=$withval, VIS5D_MAX_MEM=32)
 AC_DEFINE_UNQUOTED(VIS5D_MAX_MEM, $VIS5D_MAX_MEM, [max. memory to use (MB), 0 for no maximum])
@@ -330,10 +332,8 @@ if test "$with_netcdf" != "no"; then
 
 	case $V5D_LIBS_AUX in
 		*netcdf*)
-		# Look for the header; if we don't find it, we'll use the
-		# one in our src/ directory.
-    echo "checking whether to use system <netcdf.h> instead of src/netcdf.h..."
-		AC_CHECK_HEADERS(netcdf.h)
+		# Look for the header; 
+			AC_CHECK_HEADERS(netcdf.h)
 		;;
 
 		*)
@@ -344,6 +344,63 @@ if test "$with_netcdf" != "no"; then
 		echo "    http://www.unidata.ucar.edu/packages/netcdf/"
 		echo "and/or use --with-netcdf=<lib> to specify the location"
 		echo "of libnetcdf.a."
+		echo "****************************************************"
+		;;
+	esac
+fi
+
+##########################################################################
+# Find mixkit
+
+if test "$with_mixkit" != "no"; then
+	# first, check a couple common locations for mixkit lib:
+	if test "$with_mixkit" != "yes"; then
+		mixkit_dir=`dirname $with_mixkit`
+		case $mixkit_dir in
+			/*) ;; # already an absolute path
+			*) mixkit_dir="`pwd`/$mixkit_dir" ;;
+		esac
+		LDFLAGS="-L$mixkit_dir $LDFLAGS"
+      V5D_LIBS_AUX="-lmix  $V5D_LIBS_AUX"
+	elif test -r $srcdir/libmix.a; then
+		LDFLAGS="-L`pwd`/$srcdir $LDFLAGS"
+      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
+	elif test -r $srcdir/src/libmix.a; then
+		LDFLAGS="-L`pwd`/$srcdir/src $LDFLAGS"
+      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
+	elif test -d /usr/mixkit/lib; then
+		LDFLAGS="-L/usr/mixkit/lib $LDFLAGS"
+		if test -d /usr/mixkit/include; then
+			CPPFLAGS="-I/usr/mixkit/include $CPPFLAGS"
+		fi
+      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
+	elif test -d /usr/local/mixkit/lib; then
+		LDFLAGS="-L/usr/local/mixkit/lib $LDFLAGS"
+		if test -d /usr/local/mixkit/include; then
+			CPPFLAGS="-I/usr/local/mixkit/include $CPPFLAGS"
+		fi
+      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
+	fi
+	case $V5D_LIBS_AUX in
+		*mix*)
+		# Look for the header; 
+	   AC_LANG_PUSH(C++)
+		AC_CHECK_HEADERS(mixkit/mixio.h, 
+			[AC_DEFINE(HAVE_MIXKIT,1,[Do we have mixkit library?])
+      	 ])
+
+	   AC_LANG_POP(C++)
+	   AM_CONDITIONAL(CXX,test -n '1')
+		;;
+
+		*)
+ 		echo "****************************************************"
+		echo "Didn't find the mixkit library;"
+		echo "You can download the Mixkit source"
+		echo "code from the Qslim home page:"
+		echo "    http://graphics.cs.uiuc.edu/~garland/software/qslim.html"
+		echo "and/or use --with-mixkit=<lib> to specify the location"
+		echo "of libmix.a."
 		echo "****************************************************"
 		;;
 	esac

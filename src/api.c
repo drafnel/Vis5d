@@ -364,6 +364,7 @@ static void init_context( Context ctx )
    ctx->UserVerticalSystem = -1;
 
    ctx->MegaBytes = MBS;
+
    ctx->Volume = NULL;
    for (i=0;i<MAXVARS;i++) {
       ctx->IsoColorVar[i] = -1;
@@ -597,6 +598,7 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
    dtx->UserProjection = -1;
    dtx->UserVerticalSystem = -1;
    dtx->LogoSize = 1;
+
    for (yo=0; yo<12; yo++){
       dtx->tick_do[0] = 0;
    }
@@ -1653,11 +1655,11 @@ int vis5d_assign_display_to_data( int index, int display_index)
                                       vindex, -1, vindex, -1, vindex, -1 );
       }
    }
-
+	/*
    for (var=0;var<ctx->NumVars;var++) {
       init_graphics_pos( ctx, var );
    }
-
+	*/
   /* this var is important! */
    ctx->GridSameAsGridPRIME = vis5d_check_dtx_same_as_ctx(dtx->dpy_context_index,
                                                           ctx->context_index); 
@@ -1667,6 +1669,10 @@ int vis5d_assign_display_to_data( int index, int display_index)
       is init'd and screw things up, such is the case when the func
       vis5d_load_v5dfile is run from the interp. */
    if (ctx->meminited){
+	  for (var=0;var<ctx->NumVars;var++) {
+		 init_graphics_pos( ctx, var );
+	  }
+
       if (!dtx->CurvedBox) {
          if (ctx->Volume){
             free_volume( ctx );
@@ -1801,6 +1807,7 @@ int vis5d_load_v5dfile( int dindex, int mbs, char *filename, char *ctxname )
 
    index = vis5d_alloc_data_context();
    ctx = ctx_table[index] = new_context();
+
    init_context( ctx );
    ctx->context_index = index;
    ctx->InsideInit = 1;
@@ -1808,8 +1815,6 @@ int vis5d_load_v5dfile( int dindex, int mbs, char *filename, char *ctxname )
    strcpy(ctx->ContextName, ctxname);
 */
    ctx->LogFlag = 0;
-
-   vis5d_init_memory( index, mbs);
 
    if (vis5d_open_gridfile( index, filename, 1 )<0) {
       /* WLH 6 Oct 98 */
@@ -2981,6 +2986,9 @@ int vis5d_init_display_values ( int index, int iindex, int display )
    dtx->CursorColor = &dtx->TrajColor[0];
 
    dtx->Redraw = 0;
+
+	dtx->FastDraw = 0;
+
    if (ctx){
       dtx->Nr = ctx->Nr;
       dtx->Nc = ctx->Nc;
@@ -3971,9 +3979,16 @@ int vis5d_init_data_end( int index )
          return VIS5D_OUT_OF_MEMORY;
       }
    }
+	{
+	  int var;
+	  for (var=0;var<ctx->NumVars;var++) {
+		 init_graphics_pos( ctx, var );
+	  }
+	}
    /* Read some or all of the grid data into main memory now.  If we */
    /* have enough memory, the whole file will be loaded.  Otherwise, */
    /* an arbitrary set of grids will be loaded. */
+
 
    if (ctx->PreloadCache) {
       preload_cache(ctx);
@@ -6146,6 +6161,25 @@ int vis5d_check_redraw( int index, int *redraw )
    return 0;
 }
 
+
+int vis5d_signal_fastdraw( int index, int fastdraw )
+/* Signal that a fastdraw is requested */
+{
+   DPY_CONTEXT("vis5d_signal_fastdraw")
+   if (dtx->numofctxs + dtx->numofitxs >= 1){
+      dtx->FastDraw = fastdraw;
+   }
+   return 0;
+}
+
+
+int vis5d_check_fastdraw( int index, int *fastdraw )
+{
+   DPY_CONTEXT("vis5d_check_fastdraw");
+   *fastdraw = dtx->FastDraw;
+   return 0;
+}
+
 int vis5d_draw_frame( int index, int animflag )
 {
    int howmany;
@@ -6159,19 +6193,20 @@ int vis5d_draw_frame( int index, int animflag )
    set_current_window( dtx );
 	
    set_line_width( dtx->LineWidth );
-#ifndef CAVE
 
-/* MJK 3.29.99 */
+	/*
+#ifndef NCAR_STEREO
+#ifndef CAVE
     if (dtx->Reversed){
        clear_color( PACK_COLOR(255,255,255,255) );
     }
     else{
        clear_color( dtx->BgColor );
     }
-
-
    clear_3d_window(); 
 #endif
+#endif
+	*/
 
 	render_everything( dtx, animflag );
 
@@ -11242,3 +11277,201 @@ int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context)
   return 0;
 }
 
+
+#include "graphics.scenes.h"
+
+int
+vis5d_get_scene_formats(
+	int	*formats
+)
+{
+	/*
+	formats = VIS5D_VRML | VIS5D_POV;;
+	*/
+	*formats = VIS5D_VRML;
+
+	return 0;
+}
+
+/*
+ * Save VIS5D scene to a file.
+ * Input:  index
+ *         filename - name of image file.
+ *         format - 1 = VIS5D_VRML
+ *         format - 2 = VIS5D_POV (* not currently implemented *)
+ */
+int vis5d_save_scene(int index, char *filename, int format )
+{
+   DPY_CONTEXT("vis5d_save_scene");
+
+   if ((filename == (char *) NULL) || (filename[0] == 0)) {
+      /* no filename! */
+      return VIS5D_FAIL;
+   }
+
+   if (save_3d_scene(dtx, filename, format)){
+      return 0;
+   }
+   else {
+      return VIS5D_FAIL;
+   }
+}
+
+int vis5d_stereo_enabled( int index, int *enabled )
+{
+    DPY_CONTEXT("vis5d_stereo_enabled")
+    set_current_window(dtx);
+    *enabled = dtx->StereoEnabled;
+    return 0;
+}
+
+int vis5d_stereo_set( int index, int stereo)
+{
+   DPY_CONTEXT("vis5d_stereo_off")
+   set_current_window( dtx );
+
+   if(!dtx->StereoEnabled){
+      fprintf(stderr,"Stereo is unavailable.\n");
+      return 1;
+   }
+
+   if(stereo){
+      dtx->StereoOn = 1;
+      dtx->OldGfxProjection =
+			 vis5d_graphics_mode(index,VIS5D_PERSPECTIVE,VIS5D_GET);
+      vis5d_graphics_mode(index,VIS5D_PERSPECTIVE,VIS5D_ON);
+   }else{
+      dtx->StereoOn = 0;
+      vis5d_graphics_mode(index,VIS5D_PERSPECTIVE,dtx->OldGfxProjection);
+   }
+
+   vis5d_draw_frame(index,0);
+
+   return 0;
+}
+  
+int vis5d_stereo_get( int index, int *stereo )
+{
+   DPY_CONTEXT("vis5d_stereo_get")
+   set_current_window( dtx );
+  
+   *stereo = dtx->StereoOn;
+   
+   return 0;
+}
+   
+/*
+ * Save right view window image to a file.
+ * Input:  
+ *         filename - name of image file.
+ *         format:  1 = VIS5D_SGI, 2 = VIS5D_GIF, 4 = VIS5D_XWD,
+ *                   8 = VIS5D_PS, 16 = VIS5D_COLOR_PS
+ */
+int vis5d_save_right_window( char *filename, int format )
+{
+   Display_Context dtx;
+   int i;
+   char s[1000];
+   struct stat buf;
+   FILE *f;
+   int use_convert;
+
+   strcpy( s, "./util/convert");
+   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
+      use_convert = 1;
+   }
+   else{
+      use_convert = 0;
+   }
+
+
+   if (filename[0]==0) {
+      /* no filename! */
+      return VIS5D_FAIL;
+   }
+   if (off_screen_rendering && format != VIS5D_PPM){
+      printf("Error: when off screen rendering, save format must be VIS5D_PPM\n");
+      return VIS5D_FAIL;
+   }
+
+   XRaiseWindow( GfxDpy, BigWindow);
+ 
+   /* MJK 11.19.98 */
+   vis5d_finish_work();
+
+   for (i = 0; i < DisplayRows*DisplayCols; i++){
+      dtx = vis5d_get_dtx(i);
+      vis5d_draw_frame(dtx->dpy_context_index, 0);
+      vis5d_swap_frame(dtx->dpy_context_index);
+      XSync( GfxDpy, 0 );
+      vis5d_draw_frame(dtx->dpy_context_index, 0);
+      vis5d_swap_frame(dtx->dpy_context_index);
+      XSync( GfxDpy, 0 );
+   }
+       
+   if (!off_screen_rendering && (( format == VIS5D_PPM && use_convert) ||
+       (format != VIS5D_PPM)) && save_3d_right_window( filename, format )){
+      return 0;
+   }
+#ifdef OPENGL
+   else if (format == VIS5D_PPM){
+      int x = 0;
+      int y = 0;
+      for (i = 0; i < DisplayCols; i++){
+         dtx = vis5d_get_dtx(i);
+         x += dtx->WinWidth;
+      }
+      for (i = 0; i < DisplayRows; i++){
+         dtx = vis5d_get_dtx(i*DisplayCols);
+         y += dtx->WinHeight;
+      }
+      if (!open_ppm_file( filename, x, y)){
+         return VIS5D_FAIL;
+      }
+      for (i = 0; i < DisplayRows*DisplayCols; i++){
+         dtx = vis5d_get_dtx(i);
+         if (!add_display_to_ppm_file( dtx, i)){
+            return VIS5D_FAIL;
+         }
+      }
+      if (!close_ppm_file()){
+         return VIS5D_FAIL;
+      }
+   }
+#endif
+   else {
+      return VIS5D_FAIL;
+   }
+}
+
+
+
+int vis5d_set_maxtmesh(int index, int maxtmesh) 
+{
+  DPY_CONTEXT("vis5d_set_maxtmesh")
+
+  dtx->MaxTMesh = maxtmesh;
+  return 0;
+}
+int vis5d_get_maxtmesh(int index, int *maxtmesh) 
+{
+  DPY_CONTEXT("vis5d_get_maxtmesh")
+  *maxtmesh = dtx->MaxTMesh;
+  return 0;
+}
+
+int vis5d_set_vstride(int index, int vstride) 
+{
+  DPY_CONTEXT("vis5d_set_vstride")
+  if (vstride < 1) vstride = 1;
+
+  dtx->VStride = vstride;
+  return 0;
+}
+int vis5d_get_vstride(int index, int *vstride) 
+{
+  DPY_CONTEXT("vis5d_get_vstride")
+
+  *vstride = dtx->VStride;
+  return 0;
+}

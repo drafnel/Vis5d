@@ -98,7 +98,12 @@ static void usage( void )
    P("   -box alon alat ahgt\n");
    P("      Set aspect ratio of the 3-D box (longitude:latitude:height).\n");
    P("      Example:  vis5d LAMPS.v5d -box 4 2 1\n");
-
+#ifdef	HAVE_MIXKIT
+   P("   -maxtmesh num_tris\n");
+   P("      Specify the maximum number of triangles in an isosurface to\n");
+   P("      draw when interacting (rotating, zooming, translating) or\n");
+   P("      animating an isosurface. The default is to draw all of them.\n");
+#endif
    /* MJK 12.02.98 */
    P("   -circle\n");
    P("      Display a circular clock\n");
@@ -269,6 +274,13 @@ static void usage( void )
    P("      Force VeryLarge flag to be set or cleared.  This controls\n");
    P("      whether graphics generation is sync'd with rendering.\n");
    P("      Default is calculated from ratio of file and memory sizes.\n");
+#ifdef	HAVE_MIXKIT
+	P("   -vstride stride \n");
+	P("      Specify the stride to use when stepping through volume elements\n");
+	P("      when interacting (rotating, zooming, translating) with a\n");
+	P("      volume rendering. The stride applies to all three dimensions.\n");
+	P("      The default is 4.\n");
+#endif
    P("   -wdpy xdisplay\n");
    P("      Make widgets appear on a different display.  Useful in\n");
    P("      combination with -full for making slides and videos.\n");
@@ -287,7 +299,7 @@ static void usage( void )
    P("   F  - Faster animation.\n");
    P("   S  - Slower animation.\n");
    P("   l  - reduce the size of Vis5D logo\n");
-   P("   L  - increse the size of Vis5D logo\n");
+   P("   L  - increase the size of Vis5D logo\n");
 
 #undef P
 }
@@ -903,6 +915,9 @@ main( int argc, char *argv[] )
 
    int julian[VIS5D_MAX_DPY_CONTEXTS];          /* -date */
    char *mapname[VIS5D_MAX_DPY_CONTEXTS];       /* -map */
+#ifdef	HAVE_MIXKIT
+	int maxtmesh[VIS5D_MAX_DPY_CONTEXTS];        /* -maxtmesh */
+#endif
    int mbs[VIS5D_MAX_DPY_CONTEXTS];             /* -mbs */
 /* MJK 4.27.99   
    char *path[VIS5D_MAX_DPY_CONTEXTS];           -path 
@@ -923,6 +938,9 @@ main( int argc, char *argv[] )
    float scale[VIS5D_MAX_DPY_CONTEXTS];
    float exponent[VIS5D_MAX_DPY_CONTEXTS];
    int verylarge[VIS5D_MAX_DPY_CONTEXTS];       /* -verylarge (-1=don't care)*/
+#ifdef	HAVE_MIXKIT
+	int vstride[VIS5D_MAX_DPY_CONTEXTS];         /* -vstride */
+#endif
    char *wdpy_name = NULL;                      /* -wdpy */
    float linewidth[VIS5D_MAX_DPY_CONTEXTS];     /* -wide */
    char u2[VIS5D_MAX_DPY_CONTEXTS][20],
@@ -937,7 +955,7 @@ main( int argc, char *argv[] )
 
    /* MJK 12.02.98 */
    int topo_base[VIS5D_MAX_DPY_CONTEXTS];       /* -topobase */
-   float topo_base_lev[VIS5D_MAX_DPY_CONTEXTS];
+   float topo_base_lev[VIS5D_MAX_DPY_CONTEXTS]={0};
 
    int reverse_poles;
 
@@ -1019,6 +1037,9 @@ main( int argc, char *argv[] )
       user_topo[yo] = 0;
       julian[yo] = 1;
       mapname[yo] = NULL; 
+#ifdef	HAVE_MIXKIT
+		maxtmesh[yo] = DEFAULT_MAXTMESH;
+#endif
       mbs[yo] = MBS;
       /* MJK 4.27.99
       path[yo] = NULL;
@@ -1034,6 +1055,9 @@ main( int argc, char *argv[] )
       scale[yo] = DEFAULT_LOG_SCALE;
       exponent[yo] = DEFAULT_LOG_EXP;
       verylarge[yo] = -1;
+#ifdef	HAVE_MIXKIT
+      vstride[yo] = DEFAULT_VSTRIDE;
+#endif
       linewidth[yo] = 1.0;
       samescale[yo] = 0;
       legend_position[yo] = VIS5D_BOTTOM;
@@ -1174,7 +1198,13 @@ main( int argc, char *argv[] )
          mapname[filepointer] = argv[i+1];
          i++;
       }
-      /* MJK 11.19.98 */      
+#ifdef	HAVE_MIXKIT
+		else if (strcmp(argv[i],"-maxtmesh")==0 && i+1<argc) {
+		  maxtmesh[filepointer] = atoi( argv[i+1] );
+		  i++;
+		}
+#endif
+
       else if (strcmp(argv[i],"-offscreen")==0) {
          off_screen_rendering = 1;
       }
@@ -1347,6 +1377,13 @@ main( int argc, char *argv[] )
         verylarge[filepointer] = atoi(argv[i+1]);
         i++;
       }
+ #ifdef	HAVE_MIXKIT
+		else if (strcmp(argv[i],"-vstride")==0 && i+1<argc) {
+		  vstride[filepointer] = atoi( argv[i+1] );
+		  if (vstride[filepointer] < 1) vstride[filepointer] = 1;
+		  i++;
+		}
+#endif
       else if (strcmp(argv[i],"-wdpy")==0 && i+1<argc) {
          /* widget display */
          wdpy_name = argv[i+1];
@@ -1620,13 +1657,12 @@ main( int argc, char *argv[] )
          vis5d_set_legends(dindex, legend_position[dindex], legend_size[dindex],
                            legendx[dindex], legendy[dindex]);
 
-         /* MJK 4.5.99 */
-         /*
-         if (funcpath[dindex]) {
-            strcpy(gtx->funcpath, funcpath[dindex]);
-         }
-         */
+#ifdef	HAVE_MIXKIT
+			vis5d_set_maxtmesh(dindex,  maxtmesh[dindex]);
+			vis5d_set_vstride(dindex, vstride[dindex]);
+#endif
          in_the_init_stage = 0;
+
       }
    }
 

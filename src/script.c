@@ -1028,7 +1028,7 @@ static int cmd_open_recordfile( ClientData client_data, Tcl_Interp *interp,
 static int cmd_init_window( ClientData client_data, Tcl_Interp *interp,
                             int argc, char *argv[] )
 {
-   int result = 0;;
+   int result = 0;
    if (!arg_check( interp, "vis5d_init_window", argc, 5,5 )) {
       return TCL_ERROR;
    }
@@ -6501,8 +6501,202 @@ static int cmd_unlink_slice( ClientData client_data, Tcl_Interp *interp,
 }
 
 
+static int cmd_get_scene_formats( ClientData client_data, Tcl_Interp *interp,
+                                  int argc, char *argv[] )
+{
+   int formats;
+   char result[1000];
 
+   vis5d_get_scene_formats(&formats);
 
+   /* form a string list of image formats supported */
+   strcpy( result, "{ " );
+   if (formats & VIS5D_VRML) {
+      strcat( result, "VIS5D_VRML " );
+   }
+   if (formats & VIS5D_POV) {
+      strcat( result, "VIS5D_POV " );
+   }
+   strcat( result, "}" );
+   interp->result = result;
+   return TCL_OK;
+}
+
+static int cmd_save_scene( ClientData client_data, Tcl_Interp *interp,
+                            int argc, char *argv[] )
+{
+   int index, format;
+   int result;
+   char *name; 
+
+   if (!arg_check( interp, "vis5d_save_scene", argc, 3, 3  )) {
+      return TCL_ERROR;
+   }
+
+   index = atoi(argv[1]);
+   name = argv[2];
+
+   if(strcmp(argv[3],"VIS5D_VRML")==0) {
+      format = VIS5D_VRML;
+   }
+   else if(strcmp(argv[3],"VIS5D_POV")==0){
+      format = VIS5D_POV;
+   }
+   else {
+      interp->result = "vis5d_save_scene: bad format";
+      return TCL_ERROR;
+   }
+
+   result = vis5d_save_scene( index, name, format );
+   return error_check( interp, "vis5d_save_scene", result );
+}
+
+static int cmd_stereo_enabled( ClientData client_data, Tcl_Interp *interp,
+                                  int argc, char *argv[] )
+{
+   int stereo_status;
+   int n;
+
+   if(!arg_check(interp, "vis5d_stereo_enabled", argc, 1, 1))
+      return TCL_ERROR;
+   
+   n = vis5d_stereo_enabled(atoi(argv[1]), &stereo_status);
+   sprintf(interp->result, "%d", stereo_status);
+   return error_check( interp, "vis5d_stereo_enabled", n);
+}
+
+static int cmd_stereo_get( ClientData client_data, Tcl_Interp *interp,
+			  int argc, char *argv[])
+{
+   int stereo_status;
+   int n;
+
+   if(!arg_check(interp, "vis5d_stereo_get", argc, 1, 1))
+	return TCL_ERROR;
+
+   n = vis5d_stereo_get(atoi(argv[1]), &stereo_status);
+   sprintf(interp->result, "%d", stereo_status);
+
+   return error_check(interp, "vis5d_stereo_get",n);
+}
+
+static int cmd_stereo_set( ClientData client_data, Tcl_Interp *interp,
+			  int argc, char *argv[])
+{
+   int stereo_status;
+   int n;
+
+   if(!arg_check(interp, "vis5d_stereo_set", argc, 2, 2))
+	return TCL_ERROR;
+
+   n = vis5d_stereo_set(atoi(argv[1]), atoi(argv[2]));
+
+   return error_check(interp, "vis5d_stereo_get",n);
+}
+
+static int cmd_stereo_on( ClientData client_data, Tcl_Interp *interp,
+			  int argc, char *argv[])
+{
+   int stereo_status;
+   int n;
+
+   if(!arg_check(interp, "vis5d_stereo_on", argc, 1, 1))
+	return TCL_ERROR;
+
+   n = vis5d_stereo_set(atoi(argv[1]), 1);
+
+   return error_check(interp, "vis5d_stereo_on",n);
+}
+
+static int cmd_stereo_off( ClientData client_data, Tcl_Interp *interp,
+			  int argc, char *argv[])
+{
+   int stereo_status;
+   int n;
+
+   if(!arg_check(interp, "vis5d_stereo_off", argc, 1, 1))
+	return TCL_ERROR;
+
+   n = vis5d_stereo_set(atoi(argv[1]), 0);
+
+   return error_check(interp, "vis5d_stereo_off",n);
+}
+
+static int cmd_save_right_window( ClientData client_data, Tcl_Interp *interp,
+                            int argc, char *argv[] )
+{
+   int format;
+   int result;
+   char *name; 
+   if (!arg_check( interp, "vis5d_save_right_window", argc, 2, 3  )) {
+      return TCL_ERROR;
+   }
+   else {
+      if (argc==4){
+         name = argv[2];
+         if (strcmp(argv[3],"VIS5D_GIF")==0) {
+            format = VIS5D_GIF;
+         }
+         else if (strcmp(argv[3],"VIS5D_RGB")==0) {
+            format = VIS5D_RGB;
+         }
+         else if (strcmp(argv[3],"VIS5D_XWD")==0) {
+            format = VIS5D_XWD;
+         }
+         /* MJK 11.19.98 */         
+         else if (strcmp(argv[3],"VIS5D_PPM")==0) {
+            format = VIS5D_PPM;
+         }
+         else if (strcmp(argv[3],"VIS5D_TGA")==0) {
+            format = VIS5D_TGA;
+         }
+         else if (strcmp(argv[3],"VIS5D_PS")==0) {
+            format = VIS5D_PS;
+         }
+         else if (strcmp(argv[3],"VIS5D_COLOR_PS")==0) {
+            format = VIS5D_COLOR_PS;
+         }
+         
+         else {
+            interp->result = "vis5d_save_right_window: bad format";
+            return TCL_ERROR;
+         }
+      }
+      else{
+         name = argv[1];
+         if (strcmp(argv[2],"VIS5D_GIF")==0) {
+            format = VIS5D_GIF;
+         }
+         else if (strcmp(argv[2],"VIS5D_RGB")==0) {
+            format = VIS5D_RGB;
+         }
+         else if (strcmp(argv[2],"VIS5D_XWD")==0) {
+            format = VIS5D_XWD;
+         }
+         else if (strcmp(argv[2],"VIS5D_PS")==0) {
+            format = VIS5D_PS;
+         }
+         else if (strcmp(argv[2],"VIS5D_TGA")==0) {
+            format = VIS5D_TGA;
+         }
+         else if (strcmp(argv[2],"VIS5D_COLOR_PS")==0) {
+            format = VIS5D_COLOR_PS;
+         }
+         /* MJK 11.19.98 */            
+         else if (strcmp(argv[2],"VIS5D_PPM")==0) {
+            format = VIS5D_PPM;
+         }         
+         else {
+            interp->result = "vis5d_save_right_window: bad format";
+            return TCL_ERROR;
+         }
+      }
+  
+      result = vis5d_save_right_window(  name, format );
+      return error_check( interp, "vis5d_save_right_window", result );
+   }
+}
+  
 static void register_vis5d_gui_commands( Tcl_Interp *interp )
 {
 
@@ -6868,10 +7062,16 @@ static void register_api_commands( Tcl_Interp *interp )
    /* MJK 12.04.98 */
    REGISTER( "vis5d_enable_sfc_graphics", cmd_enable_sfc_graphics );
 
+   REGISTER( "vis5d_get_scene_formats", cmd_get_scene_formats );
+   REGISTER( "vis5d_save_scene", cmd_save_scene );
 
-/*
-   REGISTER( "vis5d_", cmd_ );
-*/
+   REGISTER( "vis5d_stereo_enabled", cmd_stereo_enabled );
+   REGISTER( "vis5d_stereo_get", cmd_stereo_get );
+   REGISTER( "vis5d_stereo_set", cmd_stereo_set );
+   REGISTER( "vis5d_stereo_on", cmd_stereo_on );
+   REGISTER( "vis5d_stereo_off", cmd_stereo_off );
+   REGISTER( "vis5d_save_right_window", cmd_save_right_window );
+
 #undef REGISTER
 }
 

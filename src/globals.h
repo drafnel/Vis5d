@@ -98,6 +98,14 @@ typedef enum
 #define NORMAL_SCALE 125.0
 
 
+/* size of index values */
+#ifdef BIG_GFX
+typedef uint_4 uint_index ;
+#else
+typedef uint_2 uint_index ;
+#endif
+
+
 /*** Graphics Data Structures ***/
 
 /* Info about isosurfaces */
@@ -111,20 +119,27 @@ struct isosurface {
    int_2   *verts;      /* array [numverts][3] of vertices */
    int_1   *norms;      /* array [numverts][3] of normals */
    int     numindex;    /* number of indexes */
-#ifdef BIG_GFX
-   uint_4  *index;      /* array of indices into verts, norms arrays */
+   uint_index  *index;      /* array of indices into verts, norms arrays */
                         /* 4-bytes indices means LONG strips OK */
-#else
-   uint_2  *index;      /* array of indices into verts, norms arrays */
-                        /* 2-byte indices means the largest possible */
-                        /* isosurface has 65000 vertices. */
-#endif
 #endif
    int     numverts;    /* number of vertices */
    uint_1  *colors;     /* array [numverts] of color table indexes */
    int     colorvar;    /* variable which is coloring the surface, or -1 */
    int     cvowner;     /* vis5d_ctx index the var belongs too */
    int     cvtime;      /* time step for the color var ctx */
+
+
+  /*
+  **   Decimated version of isosurface
+  */
+  int		deci_numverts;    /* number of vertices */
+  int_2	*deci_verts;      /* array [numverts][3] of vertices */
+  int_1	*deci_norms;      /* array [numverts][3] of normals */
+  uint_1	*deci_colors;     /* array [numverts] of color table indexes */
+
+
+
+
 };
 
 
@@ -912,6 +927,11 @@ struct display_context {
    int CurTime;                 /* current time step in [0..NumTimes-1] */
    int Redraw;                  /* Used to trigger 3-D window redraw */
 
+  int FastDraw;		/* draw scene quickly (appoximate real scene)*/
+  int	MaxTMesh;		/* max tri's in a isosurface	*/
+  int	VStride;		/* volume rendering stride	*/
+
+
    int Animateing;              /* 1/-1 means this dtx is currently animating */
                                 /* along side a bunch of other dtx's which are */
                                 /* grouped together. */
@@ -1047,6 +1067,10 @@ struct display_context {
   struct Topo *topo;
   char DisplaySfcMap;          /* display surface map */
    /* MJK 12.02.98 end */
+
+   int		StereoEnabled;		/* Stereo mode enabled		*/
+   int		StereoOn;		/* Actually display stereo	*/
+   int		OldGfxProjection;       /* 0 = parallel, 1 = perspective */
 
 };
 
@@ -1434,7 +1458,7 @@ typedef struct display_context *Display_Context;
 typedef struct display_group *Display_Group;
 typedef struct irregular_context *Irregular_Context;
 
-/* JPE useful for debugging
+/* JPE useful for debugging 
 #define allocate(a, b) (void *) malloc(b)
 */
 

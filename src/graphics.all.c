@@ -75,6 +75,7 @@ int SndDepth = 0;
 int SndScrWidth = 0, SndScrHeight = 0;
 int SndRootWindow = 0;
 
+int GfxStereoEnabled = 0;
 
 
 extern void init_graphics2( void );

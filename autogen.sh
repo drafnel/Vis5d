@@ -144,23 +144,6 @@ do
 done
 
 
-(test -f $srcdir/gtk/interface.c) || {
-GLADE=1
-(glade --version) < /dev/null > /dev/null 2>&1 || {
-  echo
-  echo "**Error**: You must have \`glade' installed to build the gtk interface"
-  echo "Download the appropriate package for your distribution,"
-  echo "or get the source tarball at ftp://ftp.gnu.org/pub/gnu/"
-  GLADE=0
-}
-if test "$GLADE" = 1; then
-	 echo Running glade -w vis5d+.glade ...
-	 glade -w gtk/gradients/gradients.glade
-	 glade -w gtk/hslicecontrols.glade
-	 glade -w gtk/window3D.glade
-	 glade -w gtk/vis5d+.glade
-fi
-}
 
 conf_flags="--enable-gtk"
 #conf_flags="--enable-gtk --enable-maintainer-mode --enable-compile-warnings" #--enable-iso-c

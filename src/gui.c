@@ -289,6 +289,9 @@ void destroy_gui_context( GuiContext gtx )
    if (gtx->SavePicWindow){
       XDestroyWindow( GuiDpy, gtx->SavePicWindow);
    }      
+   if (gtx->SaveSceneWindow){
+	  XDestroyWindow( GuiDpy, gtx->SaveSceneWindow);
+   }      
    if (gtx->TrajWindow){   
       XDestroyWindow( GuiDpy, gtx->TrajWindow);
    }         
@@ -3010,9 +3013,60 @@ void set_slice_alpha( int index, int graphic, int vowner, int var, int alpha )
 
 /* MJK 12.07.98 end */
 
+  
+/************************************************************/
+/* Create the scene save requester.                        */
+/************************************************************/
+static void make_savescene_window( int index )
+{
+   GuiContext gtx = get_gui_gtx(index);
+   LUI_NEWBUTTON *b;
+   char **labels;
+   int n, formats;
 
+   vis5d_get_scene_formats( &formats );
 
+   gtx->SaveSceneWindow = LUI_CreateWindowAt( LUI_RootWindow, 50, 250, 290,222 );
 
+   LUI_NewLabelCreate( gtx->SaveSceneWindow, LUI_LEFT, LUI_TOP, 280, 30,
+                       "Save Scene" );
+
+   /* allocate array of 2 char pointers */
+   labels = (char **) malloc( 2 * sizeof(char *) );
+
+   /* make labels for radio button and update SceneFormats array */
+   n = 0;
+   if (formats & VIS5D_VRML) {
+      labels[n] = strdup("VRML");
+      gtx->SceneFormats[n] = VIS5D_VRML;
+      n++;
+   }
+   if (formats & VIS5D_POV) {
+      labels[n] = strdup("POV");
+      gtx->SceneFormats[n] = VIS5D_POV;
+      n++;
+   }
+
+   gtx->SaveSceneRadio = LUI_RadioCreate( gtx->SaveSceneWindow,
+                                        LUI_LEFT, LUI_NEXT_Y, 280,
+                                        n, labels );
+
+   LUI_NewLabelCreate( gtx->SaveSceneWindow, LUI_LEFT, LUI_NEXT_Y, 280, 30,
+                     "File name: " );
+
+   gtx->SaveSceneField = LUI_FieldCreate( gtx->SaveSceneWindow,
+                                   LUI_LEFT, LUI_NEXT_Y, 280, 26 );
+
+   b = LUI_PushButtonCreate( gtx->SaveSceneWindow, 30, LUI_NEXT_Y,
+                             100, 26, "Save" );
+   LUI_ButtonCallback( b, ok_cb );
+  
+   b = LUI_PushButtonCreate( gtx->SaveSceneWindow, 160, LUI_SAME_Y,
+                             100, 26, "Cancel" );
+   LUI_ButtonCallback( b, cancel_cb );
+  
+   XUnmapWindow( GuiDpy, gtx->SaveSceneWindow );
+}
 
 
 /************************************************************/
@@ -3564,6 +3618,14 @@ void show_widgets( int index )
    gtx->reverseBUTTON->state = vis5d_graphics_mode(index, VIS5D_REVERSE,VIS5D_GET);
    gtx->perspec_button->state = vis5d_graphics_mode(index, VIS5D_PERSPECTIVE,VIS5D_GET);
    gtx->legendsBUTTON->state = vis5d_graphics_mode(index, VIS5D_LEGENDS, VIS5D_GET);
+
+   {
+	  int value;
+	  
+	  vis5d_stereo_get(index,&value);
+	  gtx->stereoBUTTON->state = value;
+   }
+
 
    /* MJK 12.04.98 begin */
    {
@@ -5125,6 +5187,16 @@ static int proj_cb( LUI_NEWBUTTON *pb )
 {
    int index = pb->context_index;
    GuiContext gtx = get_gui_gtx(index);
+
+   /* projection should be perspective for STEREO */
+   int	value;
+
+   vis5d_stereo_get(pb->context_index,&value);
+   if(value){
+	  LUI_ButtonSetState(gtx->perspec_button, value);
+	  return 0;
+	}
+
    vis5d_graphics_mode(pb->context_index, VIS5D_PERSPECTIVE, VIS5D_TOGGLE);
    group_event(gtx->group_index, 13,
                   vis5d_graphics_mode(pb->context_index, VIS5D_PERSPECTIVE, VIS5D_GET));
@@ -7141,6 +7213,57 @@ static void info_cb( int index)
    vis5d_invalidate_dtx_frames(index);
 }
 
+/* called when STEREO button is selected */
+static int stereo_cb( LUI_NEWBUTTON *pb )
+{
+   int index = pb->context_index;
+   GuiContext gtx = get_gui_gtx(index);
+   int	value;
+   /* toggle stereo rendering */
+   if (pb->mousebutton==Button1) {
+      vis5d_stereo_get(index,&value);
+      value = value ? 0 : 1;
+      vis5d_stereo_set(index,value);
+      vis5d_stereo_get(index,&value);
+      LUI_ButtonSetState(pb,value);
+      group_event(gtx->group_index, 200,value);
+      /* stereo forces perspective view - so fetch current value */
+      value = vis5d_graphics_mode(index,VIS5D_PERSPECTIVE,VIS5D_GET);
+      LUI_ButtonSetState(gtx->perspec_button, value);
+      group_event(gtx->group_index, 13,value);
+      vis5d_invalidate_dtx_frames(index);
+   }
+   return 0;
+}
+
+/* called when SAVE SCENE button is selected */
+static int scene_cb( LUI_NEWBUTTON *pb )
+{
+  XEvent pe;
+  char filename[1000];
+  int index = pb->context_index;
+  GuiContext gtx = get_gui_gtx(index);
+
+  verify_value = -1;
+  XMapWindow( GuiDpy, gtx->SaveSceneWindow );
+  
+  while (verify_value < 0) {
+	 if (XPending(GuiDpy)) {
+		XNextEvent(GuiDpy, &pe);
+		LUI_EventDispatch(&pe);
+	 }
+  }
+  XUnmapWindow( GuiDpy, gtx->SaveSceneWindow );
+  if (verify_value==1) {
+	 int n = LUI_RadioGetCurrent( gtx->SaveSceneRadio );
+	 int format = gtx->SceneFormats[n];
+	 LUI_FieldGetText( gtx->SaveSceneField, filename );
+	 vis5d_save_scene( pb->context_index, filename, format );
+  }
+  
+  return 0;
+}
+
 
 /* called when SAVE PIC button is selected */
 static int savepic_cb( LUI_NEWBUTTON *pb )
@@ -7832,7 +7955,7 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
    int vindex;
    float *p;
    GuiContext gtx;
-
+	int verylarge = vis5d_verylarge_mode(index,VIS5D_GET);
    
    gtx = get_gui_gtx(index);
    cb_dindex = index;
@@ -7847,9 +7970,10 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
          vis5d_signal_redraw( index, 1 );
          copy_grp_colors( gtx->group_index, index, 0 , 0, VIS5D_TOPO);
       }
-      else if (action==LUI_RGB_CHANGE) {
-         vis5d_signal_redraw( index, 1 );
-         copy_grp_colors( gtx->group_index, index, 0 , 0, VIS5D_TOPO);      
+      else if (action==LUI_RGB_CHANGE ||
+					(!verylarge && action==LUI_RGB_MODIFY)) {
+		  vis5d_signal_redraw( index, 1 );
+		  copy_grp_colors( gtx->group_index, index, 0 , 0, VIS5D_TOPO);      
       }
       else {
           /* ignore alpha events, not used */
@@ -7900,13 +8024,16 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
          vis5d_color_table_recompute( table, 256, p, 0, 1 );
          LUI_ColorBarRedraw( cb );
       }
-      else if (action==LUI_RGB_CHANGE) {
+		else if (action==LUI_RGB_CHANGE ||
+					(!verylarge && action==LUI_RGB_MODIFY)) { 
          /* mouse used to draw curve */
       }
-      else if (action==LUI_ALPHA_CHANGE) {
+      else if (action==LUI_ALPHA_CHANGE ||
+					(!verylarge && action==LUI_ALPHA_MODIFY)) {
+
       }
       else {
-         return 0;
+		  return 0;
       }
 #ifdef USE_GLLISTS
 		{
@@ -7979,16 +8106,15 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
          /* added this function */
          copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
       }
-      else if (action==LUI_RGB_CHANGE) {
-         vis5d_signal_redraw( index, 1 );
-         /* BUG FIX MJK 8.8.98 */
-         /* added this function */
-         copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
+		else if (action==LUI_RGB_CHANGE ||
+					(!verylarge && action==LUI_RGB_MODIFY)) {
+		  vis5d_signal_redraw( index, 1 );
+		  copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
       }
-      else if (action==LUI_ALPHA_CHANGE) {
-         /* BUG FIX MJK 8.8.98 */
-         /* added this function */
-         copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
+		else if (action==LUI_ALPHA_CHANGE ||
+					(!verylarge && action==LUI_ALPHA_MODIFY)) {
+
+		  copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
       }
 #ifdef USE_GLLISTS
 		{
@@ -8053,18 +8179,18 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
          /* added this function */
          copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_VOLUME);
       }
-      else if (action==LUI_RGB_CHANGE) {
-         vis5d_signal_redraw( index, 1 );
-         /* BUG FIX MJK 8.8.98 */
-         /* added this function */
-         copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_VOLUME);
+		else if (action==LUI_RGB_CHANGE ||
+					(!verylarge && action==LUI_RGB_MODIFY)) {
+
+		  vis5d_signal_redraw( index, 1 );
+		  copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_VOLUME);
       }
-      else if (action==LUI_ALPHA_CHANGE) {
-         /* TODO: update opacity */
-         vis5d_signal_redraw( index, 1 );
-         /* BUG FIX MJK 8.8.98 */
-         /* added this function */
-         copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_VOLUME);
+		else if (action==LUI_ALPHA_CHANGE ||
+					(!verylarge && action==LUI_ALPHA_MODIFY)) {
+
+		  /* TODO: update opacity */
+		  vis5d_signal_redraw( index, 1 );
+		  copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_VOLUME);
       }
 
    }
@@ -8216,10 +8342,11 @@ void unmap_gtx_CpWindow( int index )
          type 102 = send return if in LABEL mode so
                     as to get rid of that annoying
                     cursor.
-*/                  
+			type 200 = Stereo
+             status 0 = turn off
+             status 1 = turn on
+*/
 
-
-/* HERE */
 static void group_event( int gindex, int type, int status)
 {
    int yo;
@@ -8519,6 +8646,19 @@ static void group_event( int gindex, int type, int status)
                   vis5d_edit_label( index, '\r' );
                }
             }
+            else if (type==200){
+				  if(status==0){
+					 vis5d_stereo_set(index, 0);
+					 gtx_table[index]->stereoBUTTON->state = 0;
+					 vis5d_invalidate_dtx_frames(index);
+				  }
+				  if(status==1){
+					 vis5d_stereo_set(index, 1);
+					 gtx_table[index]->stereoBUTTON->state = 1;
+					 vis5d_invalidate_dtx_frames(index);
+				  }
+            }
+
          }
       }
    }
@@ -8753,10 +8893,18 @@ static int gfx_window_event( int index, XEvent *ev )
       }
       vis5d_graphics_mode(index, VIS5D_PRETTY, VIS5D_OFF);
       vis5d_invalidate_dtx_frames(index);
+
+      /* Don't redraw until we get a motion event! */
+      vis5d_signal_redraw(index, 0);
+		/*
+      vis5d_invalidate_dtx_frames(index);
+		*/
+
    } /* if ev->type==ButtonPress */
 
    /*** Button down and pointer moving ***/
    else if (ev->type == MotionNotify && keystatus == 0) {
+	  vis5d_signal_fastdraw(index, 1);
       current_x = ev->xmotion.x;
       current_y = ev->xmotion.y;
       if (gtx->p1) {
@@ -8811,6 +8959,7 @@ static int gfx_window_event( int index, XEvent *ev )
       
    /*** Button release ***/
    else if (ev->type == ButtonRelease && keystatus == 0) {
+	  vis5d_signal_fastdraw(index, 0);
       if (ev->xbutton.button == Button1) {
          gtx->p1 = 0;
       }
@@ -9846,12 +9995,38 @@ void create_nodata_widgets( int index )
    LUI_ButtonContextIndex(gtx->displayBUTTON, index );
    LUI_ButtonContextIndex(gtx->blank1BUTTON, index );
 
+   /* row 7 */
 
+   if (gtx->savesceneBUTTON)
+	  LUI_NewButtonDestroy(gtx->savesceneBUTTON);
+
+   gtx->savesceneBUTTON = LUI_PushButtonCreate(gtx->CpWindow, 7,
+															  LUI_NEXT_Y, wb, hb, "SAVE SCENE");
+   LUI_ButtonCallback(gtx->savesceneBUTTON, scene_cb);
+   LUI_ButtonContextIndex(gtx->savesceneBUTTON, index );
+   /* row 7 */
+	{
+	  int enabled;
+	  vis5d_stereo_enabled(index,&enabled);
+	  if(enabled){
+		 if (gtx->stereoBUTTON)
+			LUI_NewButtonDestroy(gtx->stereoBUTTON);
+
+		 gtx->stereoBUTTON = LUI_ToggleButtonCreate(gtx->CpWindow, LUI_NEXT_X,
+																  LUI_SAME_Y, wb, hb, "STEREO");
+
+		 LUI_ButtonCallback(gtx->stereoBUTTON, stereo_cb);
+		 LUI_ButtonContextIndex(gtx->stereoBUTTON, index );
+
+	  }
+	}
 
    LUI_ButtonPadClose("Buttons");
    LUI_ButtonPadVisible("Buttons", 1);
    LUI_ButtonPadQuery("Buttons", &x, &y, &w, &h);
-   gtx->CpHeight += hb*8+8;
+
+   gtx->CpHeight += hb*9+10;
+
    if (!gtx->VerifyWindow){
       make_verify_window(index);
       make_OK_window( index );
@@ -9860,6 +10035,9 @@ void create_nodata_widgets( int index )
       make_savefile_window(index);
       make_restore_window(index);
       make_savepic_window(index);
+
+		make_savescene_window(index);
+
       make_expression_window(index);
       make_rgb_sliders( gtx );
       make_uvw_widget( gtx );
@@ -10349,14 +10527,40 @@ void create_widgets( int index, int volflag, char *programname )
    LUI_ButtonContextIndex(gtx->displayBUTTON, index );
    LUI_ButtonContextIndex(gtx->blank1BUTTON, index );
 
+   /* row 7 */
+
+   if (gtx->savesceneBUTTON)
+      LUI_NewButtonDestroy(gtx->savesceneBUTTON);
+
+   gtx->savesceneBUTTON = LUI_PushButtonCreate(gtx->CpWindow, 7,
+                        LUI_NEXT_Y, wb, hb, "SAVE SCENE");
+   LUI_ButtonCallback(gtx->savesceneBUTTON, scene_cb);
+   LUI_ButtonContextIndex(gtx->savesceneBUTTON, index );
+
+   /* row 7 */
+	{
+	  int enabled;
+	  vis5d_stereo_enabled(index,&enabled);
+	  if(enabled){
+		 if (gtx->stereoBUTTON)
+			LUI_NewButtonDestroy(gtx->stereoBUTTON);
+
+		 gtx->stereoBUTTON = LUI_ToggleButtonCreate(gtx->CpWindow, LUI_NEXT_X,
+																  LUI_SAME_Y, wb, hb, "STEREO");
+
+		 LUI_ButtonCallback(gtx->stereoBUTTON, stereo_cb);
+		 LUI_ButtonContextIndex(gtx->stereoBUTTON, index );
+	  }
+	}
+
 
 
    LUI_ButtonPadClose("Buttons");
    LUI_ButtonPadVisible("Buttons", 1);
    LUI_ButtonPadQuery("Buttons", &x, &y, &w, &h);
-   gtx->CpHeight += hb*8+8;
 
 
+	gtx->CpHeight += hb*9+10;
    
    /******************************************************************/
    /* Create the radio buttons.                                    ***/
@@ -10942,6 +11146,9 @@ void create_widgets( int index, int volflag, char *programname )
       make_savefile_window(index);
       make_restore_window(index);
       make_savepic_window(index);
+
+      make_savescene_window(index);
+
       make_expression_window(index);
       make_rgb_sliders( gtx );
       make_uvw_widget( gtx );
@@ -11647,6 +11854,8 @@ int set_window_decor_all (int index)
 
     set_window_decor (GuiDpy, gtx->display_window);
 
+	 set_window_decor (GuiDpy, gtx->SaveSceneWindow);
+
     XSync (GuiDpy, 0);
 
 
@@ -11816,6 +12025,7 @@ int     reinit_gui (int index)
     if (gtx->CHSliceWindow) XUnmapWindow (GuiDpy, gtx->CHSliceWindow);
     if (gtx->MapWindow) XUnmapWindow (GuiDpy, gtx->MapWindow);
 
+	 if (gtx->SaveSceneWindow) XUnmapWindow (GuiDpy, gtx->SaveSceneWindow);
     XSync (GuiDpy, 0);
 
     gtx->cur_isosurf = -1;
@@ -11934,6 +12144,11 @@ int set_busy_cursor ( int busy)
          if (GuiBigWin){
             vis5d_set_busy_cursor (GuiDpy, GuiBigWin, busy);
          }
+			if (gtx_table[i]->SaveSceneWindow){
+			  vis5d_set_busy_cursor(GuiDpy,
+											gtx_table[i]->SaveSceneWindow,busy);
+			}
+
       }
    }
    if (BigWindow){

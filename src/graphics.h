@@ -181,7 +181,8 @@ extern Colormap SndColormap;
 extern int SndDepth;
 extern int SndScrWidth, SndScrHeight;
 extern int SndRootWindow; 
-
+extern int GfxStereoEnabled;		/* Stereo mode enabled		*/
+  
 
 
 /**********************************************************************/
@@ -485,19 +486,14 @@ extern void end_aa_pass( int n );
  *         index - array of [n] indexes into verts[] and norms[]
  *         verts - array of scaled integer vertices
  *         norms - array of scaled integer normals
+ *	   draw_triangles - draw triangles, not tristrips 
  *         color - the isosurface color - ignored if list is non-null
  *         *list - a pointer to the gllist to save to or NULL
  *         listtype - one of GL_COMPILE or GL_COMPILE_AND_EXECUTE
  */
-#ifdef BIG_GFX
-extern void draw_isosurface( int n, uint_4 *index,
-                             int_2 verts[][3], int_1 norms[][3],
+extern void draw_isosurface( int n, uint_index *index,
+                             int_2 verts[][3], int_1 norms[][3], int	draw_triangles,
                              unsigned int color, GLuint *list, int listtype );
-#else
-extern void draw_isosurface( int n, uint_2 *index,
-                             int_2 verts[][3], int_1 norms[][3],
-                             unsigned int color, GLuint *list, int listtype );
-#endif
 
 
 /*
@@ -506,24 +502,19 @@ extern void draw_isosurface( int n, uint_2 *index,
  *         index - array of [n] indexes into verts[] and norms[]
  *         verts - array of scaled integer vertices
  *         norms - array of scaled integer normals
+ *	   draw_triangles - draw triangles, not tristrips 
  *         color_indexes - array of indexes into the color table
  *         color_table - array [256] of 4-byte packed colors
  *         alphavalue - -1=variable, 0..255=constant
  */
 extern void draw_colored_isosurface( int n,
-#ifdef BIG_GFX
-                                     uint_4 *index,
-#else
-                                     uint_2 *index,
-#endif
+                                     uint_index *index,
                                      int_2 verts[][3],
                                      int_1 norms[][3],
+												 int draw_triangles,
                                      uint_1 color_indexes[],
                                      unsigned int color_table[],
                                      int alphavalue );
-
-
-
 /*
  * Draw a lit triangle strip.
  * Input:  n - number of vertices
@@ -718,14 +709,19 @@ extern int text_width( XFontStruct *font, char *str );
 void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list);
 void generate_polyline( int n, float vert[][3], GLuint *list );
 
-#ifdef BIG_GFX
-void generate_isosurfaces(int n, uint_4 *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
-#else
-void generate_isosurfaces(int n, uint_2 *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
-#endif
+void generate_isosurfaces(int n, uint_index *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
 
 void set_transparency( int alpha );
 
+
+#define	VIS5D_STEREO_LEFT	0
+#define	VIS5D_STEREO_RIGHT	1
+#define	VIS5D_STEREO_BOTH	2
+
+#define VIS5D_EYE_SEP	0.1
+
+extern void stereo_set_3d_perspective(int whicheye, float frontclip);
+extern void stereo_set_buffer(int whichbuf);
 
 
 #endif

@@ -146,6 +146,8 @@ extern "C" {
 #define VIS5D_LINE_STIPPLE     570
 #define VIS5D_LINE_WIDTH       580
 
+#define	VIS5D_STEREO           590
+
 
 /* These are the defines used in the function
    vis5d_set_dtx_projection */
@@ -233,6 +235,9 @@ typedef enum{
 #define VIS5D_COLOR_PS 16
 #define VIS5D_PPM      32
 #define VIS5D_TGA      64
+
+#define	VIS5D_VRML	1
+#define	VIS5D_POV	2
 
 
 /* Number of trajectory sets */
@@ -638,6 +643,11 @@ extern int vis5d_make_new_var( int index, char *newname, int nl,
 extern int vis5d_signal_redraw( int index, int count );
 
 extern int vis5d_check_redraw( int index, int *redraw );
+
+extern int vis5d_signal_fastdraw( int index, int fastdraw );
+
+extern int vis5d_check_fastdraw( int index, int *fastdraw );
+
 
 extern int vis5d_draw_frame( int index, int animflag );
 
@@ -1233,6 +1243,25 @@ extern int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context);
 extern int vis5d_set_verbose_level(int level);
 
 extern int vis5d_var_graphics_options(int index, int type, int number, int what, int mode);
+
+
+
+extern int vis5d_get_current_grajset( int index, int *trajset);
+
+extern int vis5d_stereo_enabled(int index, int *enabled);
+extern int vis5d_stereo_set(int index, int stereo);
+extern int vis5d_stereo_get(int index, int *stereo);
+extern int vis5d_save_right_window(char *filename, int format);
+
+extern int vis5d_get_scene_formats(int *formats);
+extern int vis5d_save_scene(int index, char *filename, int format);
+
+int vis5d_set_maxtmesh(int index, int maxtmesh);
+int vis5d_get_maxtmesh(int index, int *maxtmesh);
+int vis5d_set_vstride(int index, int vstride);
+int vis5d_get_vstride(int index, int *vstride);
+
+
 
 #ifdef __cplusplus
 }                               /* extern "C" */

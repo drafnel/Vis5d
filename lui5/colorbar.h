@@ -37,6 +37,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define LUI_ALPHA_SHAPE    32     /* pressed arrow key */
 
 
+#define LUI_RGB_MODIFY     64     /* mouse motion */
+#define LUI_ALPHA_MODIFY  128     /* mouse motion */
+
+
+
+
 
 
 typedef struct lui_colorbar {

@@ -26,22 +26,14 @@ libv5dgtk_la_SOURCES = window3D.c window3D.h \
 
 libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-vis5d_SOURCES = \
-	main.c 
-
-
 vis5d_LDADD = libv5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
 	           gradients/libgradients.la \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@ \
                @GTK_LIBS@ -lgtkgl $(INTLLIBS) 
 
-#HSC_interface.c HSC_interface.h : hslicecontrols.glade
-#	glade -w $<
-#
-#support.c support.h interface.c interface.h callbacks.h : vis5d+.glade
-#	glade -w $<
-#
-#w3D_interface.c w3D_interface.h : window3D.glade
-#	glade -w $<
-
+if CXX
+vis5d_SOURCES = main.c dummy.C
+else
+vis5d_SOURCES = main.c
+endif

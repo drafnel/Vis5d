@@ -50,10 +50,14 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
   GtkWidget *window3D, *delete_frame;
   GList *window3Dlist=NULL;
 
-  printf("create window\n");
-  window3D = create_window3D();
-  printf("create window done\n");
+#ifdef ENABLE_NLS
+  bindtextdomain (PACKAGE, VIS5D_LOCALE_DIR);
+  textdomain (PACKAGE);
+#endif
+  add_pixmap_directory (DATA_PREFIX "/pixmaps");
+  add_pixmap_directory (VIS5D_SOURCE_DIR "/pixmaps");
 
+  window3D = create_window3D();
 
   if(oldwindow3D){
 	 delete_frame = lookup_widget(oldwindow3D,"delete_frame1");

@@ -900,10 +900,16 @@ static int colorbar_process( LUI_COLORBAR *cb, XEvent *event )
          }
 
          if (p4) {
+			  result = LUI_ALPHA_MODIFY;
+			  /*
             result = LUI_ALPHA_CHANGE;
+			  */
          }
          else {
+            result = LUI_RGB_MODIFY;
+				/*
             result = LUI_RGB_CHANGE;
+				*/
          }
          cb->params[DRAWFLAG] = 1.0;
       }

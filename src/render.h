@@ -55,5 +55,7 @@ extern void render_everything( Display_Context dtx, int GoTime );
 
 extern int check_for_valid_time( Context ctx, int dtxcurtime);
 
+extern int get_alpha( unsigned int color_table[], int size );
+
 #endif
 

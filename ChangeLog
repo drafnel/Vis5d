@@ -1,3 +1,118 @@
+2001-10-11  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/ChangeLog,
+	/cvsroot/vis5d/vis5d/configure.in: some minor cleanups
+
+2001-10-11  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in: fixed MIXKIT test in
+	configure.in
+
+	* /cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/gui.c, /cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/save.c, /cvsroot/vis5d/vis5d/src/work.c:
+	removed the USE_GLLISTS code which had several problems including
+	disabling vrml output and making it hard to update color and other
+	image attributes.
+
+2001-10-10  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/src/main.c: configure.in changed to not
+	support NLS without libintl.h include paths in gtk and
+	gtk/gradients changed
+
+	* /cvsroot/vis5d/vis5d/Makefile.am,
+	/cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/graphics.vrml.c,
+	/cvsroot/vis5d/vis5d/src/memory.c,
+	/cvsroot/vis5d/vis5d/src/sounding.c: port to sgi indicated an
+	error in sounding.c debug macro should not be defined in memory.c
+	corrected gnu_gettext macro in configure.in corrected subdirectory
+	structure in Makefile.am ...
+
+	this commit should be release ready...
+
+2001-10-09  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/libmcidas5.a,
+	/cvsroot/vis5d/vis5d/src/main.c,
+	/cvsroot/vis5d/vis5d/src/memory.c,
+	/cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/netcdf.h,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/render.h,
+	/cvsroot/vis5d/vis5d/src/script.c,
+	/cvsroot/vis5d/vis5d/src/sgidump.c,
+	/cvsroot/vis5d/vis5d/src/sgidump.h,
+	/cvsroot/vis5d/vis5d/src/vis5d.h,
+	/cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/work.c, /cvsroot/vis5d/vis5d/autogen.sh,
+	/cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/lui5/browser2.c,
+	/cvsroot/vis5d/vis5d/lui5/colorbar.c,
+	/cvsroot/vis5d/vis5d/lui5/colorbar.h,
+	/cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/decimate.C,
+	/cvsroot/vis5d/vis5d/src/decimate.h,
+	/cvsroot/vis5d/vis5d/src/displaywidget.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.all.c,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/graphics.scenes.c,
+	/cvsroot/vis5d/vis5d/src/graphics.scenes.h,
+	/cvsroot/vis5d/vis5d/src/graphics.vrml.c,
+	/cvsroot/vis5d/vis5d/src/graphics.vrml.h,
+	/cvsroot/vis5d/vis5d/src/gui.c, /cvsroot/vis5d/vis5d/src/gui.h:
+	This is a merge of the contributions provided by NCAR.  It
+	includes support for stereo display, vrml output, and desimated
+	isosurface calculation.
+
+	Copyrights on some source files were changed in accordance with
+	the following correspondence from Don Middleton of NCAR:
+
+	> First, regarding the UCAR Copyright notices in Vis5D, mea culpa
+	- they > should not be there. As I understand it, any enhanced or
+	extended version of > Vis5D that we or anyone else create is bound
+	by the GPL. The Copyright > notice is a by-product of a script we
+	use for local software development > called "comment" and it jams
+	in the notice. My fault. Please consider this > explicit
+	permission from UCAR to strip those notices out.
+
+2001-09-26  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in: work on portuguese
+	translations and configure for gettext
+
+	* /cvsroot/vis5d/vis5d/configure.in: General update of gtk
+	development.  Also fixed problem with the po directory and added
+	file pt_BR.po for translation to portuguese.
+
+2001-09-25  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.all.c,
+	/cvsroot/vis5d/vis5d/src/grid.c,
+	/cvsroot/vis5d/vis5d/src/memory.c,
+	/cvsroot/vis5d/vis5d/src/memory.h,
+	/cvsroot/vis5d/vis5d/src/misc.c, /cvsroot/vis5d/vis5d/src/topo.c,
+	/cvsroot/vis5d/vis5d/src/work.c: An attempt to clean up memory
+	allocation and freeing.
+
+
+	Also a new api function was added - vis5d_matrix_mult( index,
+	float matrix[4][4]) multiples the model matrix associated with the
+	display by matrix.
+
 2001-09-05  jedwards  <jedwards@sourceforge.net>
 
 	* /cvsroot/vis5d/vis5d/src/graphics.ogl.c,

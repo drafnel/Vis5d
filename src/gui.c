@@ -11906,5 +11906,43 @@ int set_busy_cursor ( int busy)
 
     return 1;
 }
+/*
+ * Map the 2-D sounding graphics window
+ * Input:  index - the context number
+ *         show -  1 map the sndwindow, 0 unmap the sndwindow
+ *
+ */
+/* MJK 12.10.98 begin - moved from api.c 09.27.00 JPE*/
+extern Display_Context vis5d_get_dtx( int index );
 
-/* MJK 12.04.98 end */
+int vis5d_map_sndwindow( int index)
+{
+	Display_Context dtx;
+
+	dtx = vis5d_get_dtx(index);
+
+   XSynchronize(SndDpy, 1);
+	if (dtx->Sound.SoundCtrlWindow){
+	  extern Display *GuiDpy;
+	  XMapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
+	} 
+   XMapWindow( SndDpy, dtx->Sound.soundwin);
+   XSynchronize(SndDpy, 0);
+   return 0;
+}
+
+int vis5d_unmap_sndwindow( int index )
+{
+	Display_Context dtx;
+
+	dtx = vis5d_get_dtx(index);
+
+	if (dtx->Sound.SoundCtrlWindow){
+	  extern Display *GuiDpy;
+	  XUnmapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
+	}
+   XUnmapWindow( SndDpy, dtx->Sound.soundwin);
+   return 0;
+}
+
+/* MJK 12.10.98 end - moved from api.c 09.27.00 JPE*/

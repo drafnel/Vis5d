@@ -65,14 +65,16 @@ static int pretty_flag = 0;
 #define TMP_XWD "tmp.xwd"
 #define TMP_RGB "tmp.rgb"
 
+#define GLBEGINNOTE  /*printf("calling glbegin at line %d\n",__LINE__);*/
 
 /* Accumulation buffer antialiasing */
+/* JPE: Not used anywhere - tell me if I am wrong: jedwards@inmet.gov.br
 #define AA_INC  1.0
 static float  xoffsets[AA_PASSES] =
     { -AA_INC, 0.0, AA_INC,  -AA_INC, 0.0, AA_INC,  -AA_INC, 0.0, AA_INC };
 static float  yoffsets[AA_PASSES] =
     { -AA_INC, -AA_INC, -AA_INC,  0.0, 0.0, 0.0,  AA_INC, AA_INC, AA_INC };
-
+*/
 
 /* "Screen door" transparency */
 static GLuint stipple[3][32];
@@ -95,6 +97,7 @@ void check_gl_error( char *where )
 {
    GLenum error;
 
+	/*printf("OpenGL near %s\n",where);  */
    while (1) {
       error = glGetError();
       if (error==GL_NO_ERROR) {
@@ -352,7 +355,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
 int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
                     int width, int height )
 {
-   int mapit;
+
    static int attrib_list[] = {
       GLX_RGBA,
       GLX_RED_SIZE, 1,
@@ -368,22 +371,15 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       GLX_ACCUM_ALPHA_SIZE, 1,
 */
       None };
-   Window root;
    XSetWindowAttributes win_attrib;
    XSizeHints sizehints;
    XVisualInfo *visualinfo;
    unsigned long mask;
-   Screen *screen = DefaultScreenOfDisplay( GfxDpy );
-   int cur;
-   GLXContext prevctx;
-   GLXDrawable prevdraw;
 
    if (!BigWindow){
       printf("no BigWindow \n");
       exit(0);
    }
-   root = BigWindow;
-
 
    /* MJK 11.19.98 */
    if (off_screen_rendering){
@@ -392,19 +388,22 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
    }
 
    visualinfo = glXChooseVisual( GfxDpy, GfxScr, attrib_list );
+
    if (!visualinfo) {
       printf("Error: couldn't get RGB, Double-Buffered, Depth-Buffered GLX");
       printf(" visual!\n");
       exit(0);
    }
 
+
    /* Create the GL/X context. */
+
    if (dtx->gfx.gl_ctx){
       glXDestroyContext( GfxDpy, dtx->gfx.gl_ctx);
    }
    dtx->gfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, True );
    if (!dtx->gfx.gl_ctx) {
-      /* try (indirect context) */
+      /* try (indirect context) */ 
       dtx->gfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, False );
       if (!dtx->gfx.gl_ctx) {
         printf("Error: glXCreateContext failed!\n");
@@ -415,7 +414,6 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       }
    }
    current_dtx = dtx;
-
 
    if (!dtx->GfxWindow){
       /* Make the window */
@@ -470,8 +468,14 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       /* This is a hack for borderless windows! */
       no_border( GfxDpy, dtx->GfxWindow );
    }
+	return finish_3d_window_setup(dtx,xpos,ypos,width,height);
+}
 
+int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int height)
+{
 
+   GLXContext prevctx;
+   GLXDrawable prevdraw;
 
    prevctx = glXGetCurrentContext();
    prevdraw= glXGetCurrentDrawable();
@@ -578,7 +582,9 @@ int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
 
 
    /* Bind the GLX context to the window (make this window the current one) */
-   glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx );
+	/*   glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx ); 
+	 JPE replaced with: */
+   set_current_window( dtx );
 
    /* Setup the font */
    if (xfont) {
@@ -627,6 +633,7 @@ int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
  */
 void set_current_window( Display_Context dtx )
 {
+   check_gl_error("b set_current_window");
    if (dtx!=current_dtx) {
       /* MJK 11.19.98 */
       if (dtx->GfxPixmap){
@@ -698,6 +705,8 @@ void clear_color( unsigned int bgcolor )
    g = UNPACK_GREEN( bgcolor ) / 255.0;
    b = UNPACK_BLUE( bgcolor ) / 255.0;
    a = UNPACK_ALPHA( bgcolor ) / 255.0;
+   check_gl_error("b clear_color");
+
    glClearColor( r, g, b, a );
    check_gl_error("clear_color");
 }
@@ -710,7 +719,9 @@ void clear_color( unsigned int bgcolor )
 void clear_3d_window( void )
 {
    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
    check_gl_error("clear_3d_window");
+
 }
 
 
@@ -845,6 +856,7 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
 
 
    check_gl_error("set_3d");
+
    if (frontclip<0.0F) {
       frontclip = 0.0F;
    }
@@ -906,7 +918,10 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
 
       glMatrixMode( GL_PROJECTION );
       glLoadIdentity();
+   check_gl_error("1end set_3d");
+
       glOrtho( -x, x, -y, y, near, far );
+   check_gl_error("2end set_3d");
 
       glMatrixMode( GL_MODELVIEW );
       glTranslatef( 0.0, 0.0, -ZMAGIC );
@@ -922,10 +937,18 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
       glFogf( GL_FOG_END, far );
    }
    glEnable( GL_DEPTH_TEST );
+
+   check_gl_error("3 set_3d");
+
+
    glGetDoublev( GL_MODELVIEW_MATRIX, current_dtx->ModelMat );
+
    glGetDoublev( GL_PROJECTION_MATRIX, current_dtx->ProjMat );
+
    current_dtx->Perspective = perspective;
+
    check_gl_error("end set_3d");
+
    glViewport(0, 0,width,height);
 }
 
@@ -933,8 +956,8 @@ void project( float p[3], float *x, float *y )
 {
    GLint viewport[4];
    GLdouble winx, winy, winz;
-   float *m;
-   int i;
+
+
 
    /*glGetIntegerv( GL_VIEWPORT, viewport );*/
    viewport[0] = 0;
@@ -959,8 +982,8 @@ void unproject( float x, float y, float p[3], float d[3] )
    GLdouble x0, y0, z0;
    GLdouble x1, y1, z1;
    GLdouble len;
-   float *m;
-   int i;
+
+
 
    /*glGetIntegerv( GL_VIEWPORT, viewport );*/
    viewport[0] = 0;
@@ -1041,7 +1064,7 @@ void set_depthcue( int onoff )
 void set_line_width( double w )
 {
    glLineWidth( (GLfloat) w );
-   check_gl_error("set_linewidth");
+   check_gl_error("set_line_width");
 }
 
 
@@ -1189,7 +1212,7 @@ int save_formats( void )
    int formats;
    char s[1000];
    struct stat buf;
-   FILE *f;
+
 
    formats = VIS5D_XWD;
 
@@ -1575,7 +1598,7 @@ void draw_isosurface( int n,
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 
    /* Render the triangle strip */
-   glBegin( GL_TRIANGLE_STRIP );
+   GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
    for (i=0;i<n;i++) {
       int j = index[i];
       glNormal3bv( (GLbyte *) norms[j] );
@@ -1622,7 +1645,7 @@ void draw_colored_isosurface( int n,
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 
    /* Render the triangle strip */
-   glBegin( GL_TRIANGLE_STRIP );
+   GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
    for (i=0;i<n;i++) {
       int j = index[i];
       unsigned int k = color_indexes[j];
@@ -1664,7 +1687,7 @@ void draw_triangle_strip( int n, int_2 verts[][3], int_1 norms[][3],
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 
    /* Render the triangle strip */
-   glBegin( GL_TRIANGLE_STRIP );
+   GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
    for (i=0;i<n;i++) {
       glNormal3bv( (GLbyte *) norms[i] );
       glVertex3sv( verts[i] );
@@ -1719,7 +1742,7 @@ void draw_colored_triangle_strip( int n,
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 
    /* Render the triangle strip */
-   glBegin( GL_TRIANGLE_STRIP );
+   GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
    for (i=0;i<n;i++) {
       glColor4ubv( (GLubyte *) &color_table[color_indexes[i]] );
       /* MJK 12.4.98 */
@@ -1776,7 +1799,7 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
    for (i=0;i<rows-1;i++) {
       base1 = i * columns;
       base2 = (i+1) * columns;
-      glBegin( GL_QUAD_STRIP );
+      GLBEGINNOTE glBegin( GL_QUAD_STRIP );
       for (j=0;j<columns;j++) {
          glTexCoord1i( (GLint) color_indexes[base1+j] );
         glVertex3sv( verts[base1+j] );
@@ -1825,7 +1848,7 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
       for (j=0;j<columns;j++) {
          row2ptr[j] = color_table[color_indexes[base2+j]];
       }
-      glBegin( GL_QUAD_STRIP );
+      GLBEGINNOTE glBegin( GL_QUAD_STRIP );
       for (j=0;j<columns;j++) {
         glColor4ubv( (GLubyte *) &row1ptr[j] );
         glVertex3sv( verts[base1+j] );
@@ -1895,7 +1918,7 @@ void draw_lit_color_quadmesh( int rows, int columns,
       for (j=0;j<columns;j++) {
          row2ptr[j] = color_table[color_indexes[base2+j]];
       }
-      glBegin( GL_QUAD_STRIP );
+      GLBEGINNOTE glBegin( GL_QUAD_STRIP );
       for (j=0;j<columns;j++) {
         glColor4ubv( (GLubyte *) &row1ptr[j] );
         glNormal3fv( norms[base1+j] );
@@ -1934,7 +1957,7 @@ void draw_wind_lines( int nvectors, int_2 verts[][3], unsigned int color )
    glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 
-   glBegin( GL_LINES );
+   GLBEGINNOTE glBegin( GL_LINES );
    for (i=0;i<nvectors;i++) {
       j = i * 4;
       /* main vector */
@@ -1964,7 +1987,7 @@ void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
    glShadeModel( GL_FLAT );
    glDisable( GL_DITHER );
-   glBegin( GL_LINES );
+   GLBEGINNOTE glBegin( GL_LINES );
    for (i=0;i<n;i+=2 ) {
       glVertex3sv( verts[i] );
       glVertex3sv( verts[i+1] );
@@ -1985,7 +2008,7 @@ void draw_colored_disjoint_lines( int n, int_2 verts[][3],
 
    glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-   glBegin( GL_LINES );
+   GLBEGINNOTE glBegin( GL_LINES );
    for (i=0;i<n;i+=2 ) {
       glColor4ubv( (GLubyte *) &color_table[color_indexes[i/2]] );
       glVertex3sv( verts[i] );
@@ -2008,7 +2031,7 @@ void draw_polylines( int n, int_2 verts[][3], unsigned int color )
 
    glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-   glBegin( GL_LINE_STRIP );
+   GLBEGINNOTE glBegin( GL_LINE_STRIP );
    for (i=0;i<n;i++ ) {
       glVertex3sv( verts[i] );
    }
@@ -2029,7 +2052,7 @@ void draw_colored_polylines( int n, int_2 verts[][3],
 
    glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-   glBegin( GL_LINE_STRIP );
+   GLBEGINNOTE glBegin( GL_LINE_STRIP );
    for (i=0;i<n;i++ ) {
       glColor4ubv( (GLubyte *) &color_table[color_indexes[i]] );
       glVertex3sv( verts[i] );
@@ -2048,18 +2071,20 @@ void draw_multi_lines( int n, float verts[][3], unsigned int color )
 
    glColor4ubv( (GLubyte *) &color );
 
-   glBegin( GL_LINE_STRIP );
+   
+   GLBEGINNOTE glBegin( GL_LINE_STRIP );
    for (i=0;i<n;i++ ) {
       if (verts[i][0]==-999.0) {
          /* start new line */
          glEnd();
-         glBegin( GL_LINE_STRIP );
+         GLBEGINNOTE glBegin( GL_LINE_STRIP );
       }
       else {
          glVertex3fv( verts[i] );
       }
    }
    glEnd();
+
    check_gl_error("draw_multi_lines");
 }
 
@@ -2085,12 +2110,12 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
       sounding_cursor = glGenLists(1);
       glNewList( sounding_cursor, GL_COMPILE );
       glLineWidth(3.0); 
-      glBegin( GL_LINES );
+      GLBEGINNOTE glBegin( GL_LINES );
       glVertex3f( 0.0, 0.0, dtx->Zmin);
       glVertex3f( 0.0, 0.0, dtx->Zmax );
       glEnd();
       glLineWidth(1.0);
-      glBegin( GL_LINES );
+      GLBEGINNOTE glBegin( GL_LINES );
       glVertex3f( -0.05, 0.0, dtx->Zmax);
       glVertex3f(  0.05, 0.0, dtx->Zmax);
       glVertex3f( 0.0, -0.05, dtx->Zmax);
@@ -2102,7 +2127,7 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
     /* Make line-segment cursor object */
       line_cursor = glGenLists(1);
       glNewList( line_cursor, GL_COMPILE );
-      glBegin( GL_LINES );
+      GLBEGINNOTE glBegin( GL_LINES );
       glVertex3f( -0.05, 0.0, 0.0 );
       glVertex3f(  0.05, 0.0, 0.0 );
       glVertex3f( 0.0, -0.05, 0.0 );
@@ -2115,7 +2140,7 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
    /* Makt polygona cursor object */
       polygon_cursor = glGenLists(1);
       glNewList( polygon_cursor, GL_COMPILE );
-      glBegin( GL_QUADS );
+      GLBEGINNOTE glBegin( GL_QUADS );
       /* X axis */
       glVertex3f( -0.05, -0.005,  0.005 );
       glVertex3f( -0.05,  0.005, -0.005 );
@@ -2179,7 +2204,7 @@ void polyline( float vert[][3], int n )
 {
    register int i;
 
-   glBegin( GL_LINE_STRIP );
+   GLBEGINNOTE glBegin( GL_LINE_STRIP );
    for (i=0;i<n;i++) {
       glVertex3fv( vert[i] );
    }
@@ -2197,7 +2222,7 @@ void disjointpolyline( float vert[][3], int n )
 
    glShadeModel( GL_FLAT );   /* faster */
    glDisable( GL_DITHER );
-   glBegin( GL_LINES );
+   GLBEGINNOTE glBegin( GL_LINES );
    for (i=0;i<n;i+=2) {
       glVertex3fv( vert[i] );
       glVertex3fv( vert[i+1] );
@@ -2225,7 +2250,7 @@ void quadmeshnorm( float vert[][3], float norm[][3], unsigned int color[],
    for (i=0;i<rows-1;i++) {
       base1 = i * cols;
       base2 = (i+1) * cols;
-      glBegin( GL_QUAD_STRIP );
+      GLBEGINNOTE glBegin( GL_QUAD_STRIP );
       for (j=0;j<cols;j++) {
         glColor4ubv( (GLubyte *) &color[base1+j] ); 
         glNormal3fv( norm[base1+j] );
@@ -2251,7 +2276,7 @@ void polyline2d( short vert[][2], int n )
 
    glShadeModel( GL_FLAT );
    glDisable( GL_DITHER );
-   glBegin( GL_LINE_STRIP );
+   GLBEGINNOTE glBegin( GL_LINE_STRIP );
    for (i=0;i<n;i++) {
       glVertex2i( vert[i][0], current_dtx->WinHeight-vert[i][1] );
    }

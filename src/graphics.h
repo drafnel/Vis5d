@@ -249,6 +249,9 @@ extern int use_glx_window( Context ctx, Display *dpy,
 extern int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
                               GLXContext glctx, XFontStruct *xfont );
 extern void check_gl_error( char* where );
+
+extern int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int height);
+
 #endif
 
 

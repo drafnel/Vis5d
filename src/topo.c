@@ -659,15 +659,23 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
       /* use same topography resolution as grid resolution */
       qc = dtx->Topo_cols;
       qr = dtx->Topo_rows;
+		printf("one way %d %d\n",qr,qc);
    }
    else {
       int maxverts = hi_res ? HI_RES_VERTS : LO_RES_VERTS;
-      float r = sqrt( (float) maxverts
+      float r;
+		if(((dtx->Xmax - dtx->Xmin)*(dtx->Ymax - dtx->Ymin))==0){
+		  fprintf(stderr,"Error in init_topo %f %f %f %f\n",dtx->Xmax,dtx->Xmin,dtx->Ymax,dtx->Ymin);
+		  return -1;
+		}
+
+
+      r = sqrt( (float) maxverts
                       / ((dtx->Xmax - dtx->Xmin)*(dtx->Ymax - dtx->Ymin)) );
       qc = (int) (r * (dtx->Xmax - dtx->Xmin) + 0.5);
       qr = (int) (r * (dtx->Ymax - dtx->Ymin) + 0.5);
-   }
 
+   }
    /* allocate space for topography vertex and color arrays */
    if (dtx->TopoVertex){
       free(dtx->TopoVertex);

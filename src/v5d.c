@@ -562,12 +562,9 @@ static void compute_ga_gb( int nr, int nc, int nl,
 
 
    for (lev=0;lev<nl;lev++) {
-      float ave, var;
       float min, max;
       min = BIGVALUE;
       max = SMALLVALUE;
-      ave = 0.0;
-      var = 0.0;
       for (k=0;k<nrnc;k++) {
          if (!IS_MISSING(data[j]) && data[j]<min)
             min = data[j];
@@ -1702,6 +1699,8 @@ static int read_v5d_header( v5dstruct *v )
          case TAG_NUMVARS:
             assert( length==4 );
             read_int4( f, &v->NumVars );
+
+				printf("v5d numvars = %d\n",v->NumVars);
             break;
          case TAG_VARNAME:
             assert( length==14 );   /* 1 int + 10 char */
@@ -2609,10 +2608,69 @@ int v5dCloseFile( v5dstruct *v )
 /*****           Simple v5d file writing functions.               *****/
 /**********************************************************************/
 
+/* JPE 09-19-2000
+ * Create a new v5d structure specifying both a map projection and vertical
+ * coordinate system.  See README file for argument details.
+ * Return:  1 = ok, 0 = error.
+ */
+int v5dCreateStruct(v5dstruct *v, int numtimes, int numvars,
+               int nr, int nc, const int nl[],
+               const char varname[MAXVARS][10],
+               const int timestamp[], const int datestamp[],
+               int compressmode,
+               int projection,
+               const float proj_args[],
+               int vertical,
+               const float vert_args[] )
+{
+   int var, time, maxnl, i;
+
+
+   v->NumTimes = numtimes;
+   v->NumVars = numvars;
+   v->Nr = nr;
+   v->Nc = nc;
+   maxnl = nl[0];
+   for (var=0;var<numvars;var++) {
+      if (nl[var]>maxnl) {
+         maxnl = nl[var];
+      }
+      v->Nl[var] = nl[var];
+      v->LowLev[var] = 0;
+      strncpy( v->VarName[var], varname[var], 10 );
+      v->VarName[var][9] = 0;
+   }
+
+   /* time and date for each timestep */
+   for (time=0;time<numtimes;time++) {
+      v->TimeStamp[time] = timestamp[time];
+      v->DateStamp[time] = datestamp[time];
+   }
+
+   v->CompressMode = compressmode;
+
+   /* Map projection and vertical coordinate system */
+   v->Projection = projection;
+   memcpy( v->ProjArgs, proj_args, MAXPROJARGS*sizeof(float) );
+
+   v->VerticalSystem = vertical;
+   if (vertical == 3) {
+     /* convert pressures to heights */
+     for (i=0; i<MAXVERTARGS; i++) {
+       if (vert_args[i] > 0.000001) {
+         v->VertArgs[i] = pressure_to_height(vert_args[i]);
+       }
+       else v->VertArgs[i] = 0.0;
+     }
+   }
+   else {
+     memcpy( v->VertArgs, vert_args, MAXVERTARGS*sizeof(float) );
+   }
+	return 0;
+}
 
 
 static v5dstruct *Simple = NULL;
-
 
 
 /*
@@ -2630,51 +2688,12 @@ int v5dCreate( const char *name, int numtimes, int numvars,
                int vertical,
                const float vert_args[] )
 {
-   int var, time, maxnl, i;
+
 
    /* initialize the v5dstruct */
    Simple = v5dNewStruct();
-
-   Simple->NumTimes = numtimes;
-   Simple->NumVars = numvars;
-   Simple->Nr = nr;
-   Simple->Nc = nc;
-   maxnl = nl[0];
-   for (var=0;var<numvars;var++) {
-      if (nl[var]>maxnl) {
-         maxnl = nl[var];
-      }
-      Simple->Nl[var] = nl[var];
-      Simple->LowLev[var] = 0;
-      strncpy( Simple->VarName[var], varname[var], 10 );
-      Simple->VarName[var][9] = 0;
-   }
-
-   /* time and date for each timestep */
-   for (time=0;time<numtimes;time++) {
-      Simple->TimeStamp[time] = timestamp[time];
-      Simple->DateStamp[time] = datestamp[time];
-   }
-
-   Simple->CompressMode = compressmode;
-
-   /* Map projection and vertical coordinate system */
-   Simple->Projection = projection;
-   memcpy( Simple->ProjArgs, proj_args, MAXPROJARGS*sizeof(float) );
-
-   Simple->VerticalSystem = vertical;
-   if (vertical == 3) {
-     /* convert pressures to heights */
-     for (i=0; i<MAXVERTARGS; i++) {
-       if (vert_args[i] > 0.000001) {
-         Simple->VertArgs[i] = pressure_to_height(vert_args[i]);
-       }
-       else Simple->VertArgs[i] = 0.0;
-     }
-   }
-   else {
-     memcpy( Simple->VertArgs, vert_args, MAXVERTARGS*sizeof(float) );
-   }
+   v5dCreateStruct(Simple, numtimes,numvars,nr,nc,nl,varname,timestamp,datestamp,
+						 compressmode, projection, proj_args, vertical, vert_args);
 
    /* create the file */
    if (v5dCreateFile( name, Simple )==0) {
@@ -2685,6 +2704,9 @@ int v5dCreate( const char *name, int numtimes, int numvars,
       return 1;
    }
 }
+
+
+
 
 
 

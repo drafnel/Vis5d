@@ -45,7 +45,7 @@
 #include "../src/v5d.h"
 
 
-int Debug_i;           /* -debug */
+extern int Debug_i;           /* -debug  in read_grid_i.c*/
 char *path = NULL;   /* -path */
 
 

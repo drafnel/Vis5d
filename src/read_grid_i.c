@@ -51,7 +51,7 @@
 #include "../src/v5d.h"
 
 
-extern int Debug_i;
+int Debug_i;
 
 
 /* Meters per degree: */

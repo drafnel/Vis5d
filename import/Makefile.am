@@ -2,7 +2,7 @@ bin_PROGRAMS = v5dimport
 
 CPPFLAGS = @CPPFLAGS@ -I$(srcdir)/../src -I$(srcdir)/../lui5
 
-V5D_LIB = ../src/libv5d.la
+V5D_LIB = ../src/libvis5d.la
 
 HDRS = analyze.h file.h grid.h gui.h memory.h misc.h model.h output.h proj.h projlist.h read_epa.h read_gr3d.h read_grads.h read_grid.h read_uwvis.h read_v5d.h resample.h select.h tokenize.h topo.h ui.h
 

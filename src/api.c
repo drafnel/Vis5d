@@ -1,5 +1,3 @@
-
-
 /*
  * Vis5D system for visualizing five dimensional gridded data sets.
  * Copyright (C) 1990 - 2000 Bill Hibbard, Johan Kellum, Brian Paul,
@@ -196,7 +194,7 @@ static Context *ctx_table = NULL;
 static Display_Context *dtx_table = NULL;
 static Display_Group *grp_table = NULL;
 
-static int init_display_context( Display_Context dtx);
+static int init_display_context( Display_Context dtx, int initXwindow);
 static void init_display_group (Display_Group grp );
 static void initialize_stuff( Context ctx );
 int init_var_clrtable( int dindex, int vindex, int var );
@@ -232,25 +230,28 @@ void debugstuff(void)
  */
 #define CONTEXT( msg ) \
   Context ctx; \
+  /*printf("in c %s\n",msg);*/ \
   if (index<0 || index>=VIS5D_MAX_CONTEXTS || (ctx = ctx_table[index])==NULL) { \
     debugstuff(); \
-    printf("bad context in %s\n", msg); \
+    printf("bad context in %s %d 0x%x\n", msg,index,ctx); \
     return VIS5D_BAD_CONTEXT; \
   }
 
 #define DPY_CONTEXT( msg ) \
   Display_Context dtx; \
+  /*printf("in c %s\n",msg);*/ \
   if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS || (dtx = dtx_table[index])==NULL) { \
-    printf("bad display_context in %s\n", msg); \
+    printf("bad display_context in %s %d 0x%x\n", msg, index, dtx); \
     debugstuff(); \
     return VIS5D_BAD_CONTEXT; \
   }
 
 #define IRG_CONTEXT( msg ) \
   Irregular_Context itx; \
+  /*printf("in c %s\n",msg);*/ \
   if (index<0 || index>=VIS5D_MAX_CONTEXTS || (itx = itx_table[index])==NULL) { \
     debugstuff(); \
-    printf("bad irregular context in %s\n", msg); \
+    printf("bad irregular context in %s %d 0x%x\n", msg,index,itx); \
     return VIS5D_BAD_CONTEXT; \
   }
 
@@ -311,7 +312,7 @@ Context vis5d_get_ctx( int index )
       return ctx_table[index];
    }
 }
-
+ 
 Display_Context vis5d_get_dtx( int index )
 {
    if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS) {
@@ -464,7 +465,7 @@ static Display_Context new_display_context( void )
    /* this calloc call eats up time! */
    dtx = (Display_Context) calloc( 1, sizeof(struct display_context) );
    if (dtx) {
-      init_display_context( dtx);
+      init_display_context( dtx, 1);
    }
    return dtx;
 }
@@ -474,7 +475,7 @@ static Display_Context new_display_context( void )
  */
 static Display_Group new_display_group( void )
 {
-   int yo;
+
    Display_Group grp;
 
    grp = (Display_Group) calloc( 1, sizeof(struct display_group) );
@@ -492,17 +493,18 @@ static Display_Group new_display_group( void )
  */
 static void init_display_group( Display_Group grp)
 {
-   int yo;
+
    memset( grp, 0, sizeof(struct display_group) );
 }
+
 
 
 /*
  * Initialize the fields of the context to reasonable defaults.
  */
-static int init_display_context( Display_Context dtx )
+static int init_display_context( Display_Context dtx ,int initXwindow)
 {   
-   Window win; 
+
    int yo;
    static unsigned int nice_color[] = {
       PACK_COLOR( 0xffU, 0xffU, 0x00U, 0xffU ),
@@ -530,7 +532,7 @@ static int init_display_context( Display_Context dtx )
       PACK_COLOR( 0x40U, 0xc0U, 0xffU, 0xffU ),
       PACK_COLOR( 0x04U, 0xffU, 0xc0U, 0xffU ),
       PACK_COLOR( 0xffU, 0x40U, 0xc0U, 0xffU )  };
-   int var, time, i, j, k, w;
+   int   i, j, k;
 
  
    /* initialize everything to zero for starters */
@@ -545,7 +547,10 @@ static int init_display_context( Display_Context dtx )
    for (yo=0; yo<12; yo++){
       dtx->tick_do[0] = 0;
    }
-   make_3d_window( dtx, "Johan", 0, 0, 1, 1);
+   if(initXwindow){
+	  make_3d_window( dtx, "Johan", 0, 0, 1, 1);
+	}
+
    set_current_window( dtx );
 
    dtx->TopoName[0] = 0;
@@ -714,7 +719,7 @@ static int init_display_context( Display_Context dtx )
 
 static void clear_irregular_context( Irregular_Context itx)
 {
-   int i;
+
    
    memset( itx->TextPlotTable, 0, sizeof(itx->TextPlotTable) );
 }
@@ -1121,7 +1126,7 @@ int vis5d_set_grp_var_values( int index )
    Display_Context dtx, bigdtx;
    Context ctx, bigctx;
    char thename[30];
-   char othername[30];
+
    int yo, tor, good;
    float minmin, maxmax, min, max;
    int bigloop, ctxloop, varloop; 
@@ -1370,7 +1375,7 @@ static int add_ctx_index_to_dtx( int index, int index_of_ctx)
 {
    int yo;
    int ontinue;
-   Context ctx;
+
    DPY_CONTEXT("add_ctx_index_to_dtx")
 
    ontinue = 1;
@@ -1431,8 +1436,8 @@ static int remove_ctx_index_from_dtx( int index, int index_of_ctx)
 
 int vis5d_assign_display_to_data( int index, int display_index)
 {
-   int var, yo, current;
-   int vindex, proceed;
+   int var;
+   int vindex;
    Display_Context dtx;
    CONTEXT("vis5d_assign_display_to_data")
 
@@ -1441,7 +1446,7 @@ int vis5d_assign_display_to_data( int index, int display_index)
    /* bug that happen if this isn't done */
    ungroup_all_displays();
    dtx = vis5d_get_dtx(display_index);
-   proceed = 1;
+
    if( ctx->dpy_ctx){
       if (ctx->dpy_ctx->CurrentVolumeOwner == ctx->context_index){
          ctx->dpy_ctx->CurrentVolumeOwner = -1;
@@ -1494,8 +1499,11 @@ int vis5d_assign_display_to_data( int index, int display_index)
       remove_ctx_index_from_dtx(ctx->dpy_ctx->dpy_context_index, ctx->context_index);
    }
    ctx->dpy_ctx = dtx;
+
    add_ctx_index_to_dtx( display_index, index);
+
    calculate_display_time_steps( dtx);
+
    if (dtx->numofctxs >1){
       memset( ctx->SurfTable, 0, sizeof(ctx->SurfTable) );
       memset( ctx->HSliceTable, 0, sizeof(ctx->HSliceTable) );
@@ -1689,8 +1697,8 @@ int vis5d_load_v5dfile( int dindex, int mbs, char *filename, char *ctxname )
 {
    Context ctx;
    int yo, index;
-   int volflag;
-   int dnumber, na[VIS5D_MAX_CONTEXTS];
+
+   int dnumber;
    
 
    index = vis5d_alloc_data_context();
@@ -1953,7 +1961,7 @@ int vis5d_reset_display_context( int index )
    tempwin = dtx->GfxWindow;
    memset( dtx, 0, sizeof(struct display_context) );
    dtx->GfxWindow = tempwin;
-   init_display_context( dtx);
+   init_display_context( dtx, 1);
    dtx->dpy_context_index = index;
    return 0;
 }
@@ -1984,6 +1992,7 @@ int vis5d_init_begin( int index, int dindex )
    static int first_time = 1;
 
    /*printf("sizeof(vis5d_context)=%d\n", sizeof(struct vis5d_context) );*/
+	printf("init_begin %d %x\n",dindex,dtx_table[dindex]);
 
    if (first_time){
       init_var_links();
@@ -1993,7 +2002,7 @@ int vis5d_init_begin( int index, int dindex )
       if (!dtx){
          dtx = dtx_table[dindex] = new_display_context();
          dtx->dpy_context_index = dindex;
-         init_display_context( dtx );
+         init_display_context( dtx, 1 );
       }
       return 0;
    }
@@ -2015,6 +2024,7 @@ int vis5d_init_begin( int index, int dindex )
       }
 
       ctx = ctx_table[index] = new_context();
+
       init_context( ctx );
       ctx->context_index = index;
 
@@ -2023,10 +2033,13 @@ int vis5d_init_begin( int index, int dindex )
       /* create a display context too! */
       /* if it's not already created though.. */
       dtx = vis5d_get_dtx(dindex);
+
+      printf("init_context done %x %d\n",dtx,dindex);
+
       if (!dtx){
          dtx = dtx_table[dindex] = new_display_context();
          dtx->dpy_context_index = dindex;
-         init_display_context( dtx );
+         init_display_context( dtx, 1 );
       }
       return 0;
    }
@@ -2151,9 +2164,40 @@ int vis5d_init_window( char *title, int x, int y,
    }
 }
 
+int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
+               int nr, int nc, const int nl[],
+               const char varname[MAXVARS][10],
+               const int timestamp[], const int datestamp[],
+               int compressmode,
+               int projection,
+               const float proj_args[],
+               int vertical,
+               const float vert_args[] )
+{
+  Context ctx; 
+  /*printf("in c %s\n",msg);*/ 
+  if (index<0 || index>=VIS5D_MAX_CONTEXTS) { 
+    debugstuff(); 
+    printf("bad context in vis5d_set_ctx_values %d\n",index); 
+    return VIS5D_BAD_CONTEXT; 
+  }
+  if((ctx = ctx_table[index])==NULL) {
+	 ctx = ctx_table[index] = new_context();
+	 init_context( ctx );
+	 ctx->context_index = index;
+	 ctx->InsideInit = 1;  /* not sure if this is good */
+	 ctx->LogFlag = 0;
+
+  }
+  v5dCreateStruct(&ctx->G,numtimes,numvars,nr,nc,nl,varname,timestamp,datestamp,
+							 compressmode,projection,proj_args,vertical,vert_args);
 
 
 
+
+  return set_ctx_from_internalv5d(ctx);
+
+}
 
 /***************************************************************************/
 /* This get's the needed information from a vis5d data context and returns */
@@ -2415,7 +2459,7 @@ int vis5d_set_dtx_values( int index, v5dstruct *v5d)
 {
    int i, yo;
    float lat1, lat2;
-   Context ctx;
+
    DPY_CONTEXT("vis5d_set_dtx_values")
 
    /* first get rid of all the graphics */
@@ -2626,7 +2670,7 @@ int vis5d_init_display_values ( int index, int iindex, int display )
    /* \|/ \|/ */
    /***********/
    Irregular_Context itx;
-   int var, time, i, j, k, w;
+   int var, time, i, w;
 
    if (index != -1 && iindex != -1 ){
       printf("Error in vis5d_init_display_values\n");
@@ -2666,6 +2710,7 @@ int vis5d_init_display_values ( int index, int iindex, int display )
    else{
       dtx = vis5d_get_dtx( display );
    }
+
    if (!ctx && !itx){
       return 0;
    }
@@ -2815,6 +2860,7 @@ int vis5d_init_display_values ( int index, int iindex, int display )
    }
 #endif
    vis5d_get_dtx_values(dtx->dpy_context_index, &dtx->G);
+
    if (ctx){
       vis5d_assign_display_to_data( index, display);
    }
@@ -3031,39 +3077,6 @@ int vis5d_init_sndwindow( int index, char *title, int x, int y,
    }
 }
 
-/*
- * Map the 2-D sounding graphics window
- * Input:  index - the context number
- *         show -  1 map the sndwindow, 0 unmap the sndwindow
- *
- */
-/* MJK 12.10.98 begin*/
-int vis5d_map_sndwindow( int index)
-{
-   DPY_CONTEXT("vis5d_map_sndwindow");
-
-   XSynchronize(SndDpy, 1);
-   if (dtx->Sound.SoundCtrlWindow){
-      extern Display *GuiDpy;
-      XMapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
-   }
-   XMapWindow( SndDpy, dtx->Sound.soundwin);
-   XSynchronize(SndDpy, 0);
-   return 0;
-}
-
-int vis5d_unmap_sndwindow( int index )
-{
-   DPY_CONTEXT("vis5d_map_sndwindow");
-
-   if (dtx->Sound.SoundCtrlWindow){
-      extern Display *GuiDpy;
-      XUnmapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
-   }
-   XUnmapWindow( SndDpy, dtx->Sound.soundwin);
-   return 0;
-}
-/* MJK 12.10.98 end */
 #ifdef HAVE_SGI_GL
 /*
  * Attach a "pure" IRIS GL window to this vis5d context.
@@ -3100,8 +3113,32 @@ int vis5d_init_glx_window( int index, Display *dpy, Window window,
 int vis5d_init_opengl_window( int index, Display *dpy, Window window,
                               GLXContext glctx )
 {
-   DPY_CONTEXT("vis5d_init_opengl_window");
-   return use_opengl_window( dtx, dpy, window, glctx, NULL );
+  Display_Context dtx; 
+  int newdtx=0;
+  if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS ) { 
+    printf("bad display_context in vis5d_init_opengl_window\n"); 
+    debugstuff(); 
+    return VIS5D_BAD_CONTEXT; 
+  }
+  if((dtx=dtx_table[index])==NULL){
+	 newdtx=1;
+    dtx_table[index] = (Display_Context) calloc( 1, sizeof(struct display_context) );    
+	 dtx = dtx_table[index];
+    dtx->UserProjection=-1; /* not initialized elsewhere */
+    dtx->LineWidth = 1;
+  }
+  use_opengl_window( dtx, dpy, window, glctx, NULL );
+
+  if(newdtx){
+	 Window root;
+    int x,y;
+	 unsigned int w, h, bw,d;
+	 XGetGeometry(dpy, window,&root,&x,&y,&w,&h,&bw,&d  );
+    init_display_context(dtx,0);
+	 finish_3d_window_setup(dtx,x,y,w,h);
+  }
+   
+  return 0;
 }
 #endif
 
@@ -3278,7 +3315,7 @@ int vis5d_get_map( int index, char *mapname )
 /****************************************/
 int vis5d_init_topo_and_map_ctx( int index, char *toponame, int highres_flag )
 {
-   DPY_CONTEXT("vis5d_init_topo_ctx");
+   DPY_CONTEXT("vis5d_init_topo_and_map_ctx");
    strcpy( dtx->TopoName, toponame );
    dtx->HiResTopo = highres_flag;
    dtx->TopoFlag = 1;
@@ -3489,6 +3526,7 @@ static void load_topo_and_map( Display_Context dtx )
    else {
       strcpy( name, dtx->TopoName );
    }
+
    if (name[0]) {
       dtx->TopoFlag = init_topo( dtx, name, dtx->TextureFlag, dtx->HiResTopo );
    }
@@ -3515,7 +3553,6 @@ static void load_topo_and_map( Display_Context dtx )
    else {
       dtx->TextureFlag = 0;
    }
-
    /*** Load map ***/
    if (dtx->MapName[0] == 0) {
       /* depending on domain size, pick appropriate default */
@@ -3613,7 +3650,7 @@ int vis5d_initialize_stuff(int index) {
  */
 static void initialize_stuff( Context ctx )
 {
-   int var, time, i, j, k, w;
+   int var, time;
 
 
    /* Graphics structs */
@@ -3745,6 +3782,7 @@ int vis5d_init_data_end( int index )
          return VIS5D_FAIL;
       }
       init_trajPRIME(ctx->dpy_ctx);
+
       make_box( ctx->dpy_ctx, ctx->dpy_ctx->Ax, ctx->dpy_ctx->Ay, ctx->dpy_ctx->Az );
       if (!in_the_init_stage){
          load_topo_and_map( ctx->dpy_ctx );
@@ -3759,6 +3797,7 @@ int vis5d_init_data_end( int index )
          return VIS5D_FAIL;
       }
    }
+
 
    /* front */
    vis5d_set_hclip( ctx->dpy_ctx->dpy_context_index, 0,
@@ -4104,9 +4143,9 @@ int vis5d_get_ctx_time_stamp( int index, int timestep, int *day, int *time )
 /****************************************/
 int vis5d_get_dtx_time_stamp( int index, int timestep, int *day, int *time)
 {
-   int dtimeold, stimeold;
-   int dtime, stime;
-   int yo, spandex;
+
+
+
    DPY_CONTEXT("vis5d_get_dtx_time_stamp")
 
    if (timestep<0 || timestep>=dtx->NumTimes) {
@@ -4149,7 +4188,7 @@ int vis5d_set_ctx_time_stamp( int index, int timestep, int day, int time )
 int vis5d_signal_group_redraw( int index, int time)
 {
    Display_Group grp;
-   Display_Context dtx;
+
    int yo, spandex;
 
    grp = vis5d_get_grp(index);
@@ -4221,7 +4260,7 @@ int vis5d_set_probe_on_traj( int index, int time)
 int vis5d_set_dtx_timestep( int index, int time )
 {
    int yo, spandex;
-   int flo, dindex;
+
    Context ctx;
    Irregular_Context itx;
    DPY_CONTEXT("vis5d_set_dtx_timestep")
@@ -4254,13 +4293,13 @@ int vis5d_set_grp_timestep( int index, int time)
 {
    Display_Group grp;
    int yo, spandex, abc;
-   Display_Context dtx;
+	/*   Display_Context dtx; */
 
    grp = vis5d_get_grp(index);
    grp->CurTime = time;
    for (yo=0; yo < grp->numofdpys; yo++){
       spandex = grp->TimeStep[time].owners[yo];
-      dtx = vis5d_get_dtx( spandex);
+		/*      dtx = vis5d_get_dtx( spandex); */
       abc = grp->TimeStep[time].ownerstimestep[yo];
       vis5d_set_dtx_timestep(spandex, abc);
    }
@@ -4459,6 +4498,8 @@ int vis5d_get_ctx_numvars( int index, int *numvars )
    else{
       *numvars = 0;
    }
+   printf("numvars=%d\n",*numvars);
+
    return 0;
 }
 
@@ -4807,7 +4848,7 @@ int vis5d_set_wind_vars( int index,
                          int wtrajowner, int wtraj )
 {
    int time, ws;
-   Context ctx;
+	/*   Context ctx; */
    DPY_CONTEXT("vis5d_set_wind_vars")
 
    if (is_valid_dtx_ctx(index, u1varowner)){
@@ -4952,7 +4993,7 @@ int vis5d_set_wind_vars( int index,
    for (ws=0; ws<VIS5D_WIND_SLICES; ws++) {
       for (time=0; time<dtx->NumTimes; time++) {
          if (dtx->Uvarowner[ws] >= 0){
-            ctx = vis5d_get_ctx(dtx->Uvarowner[ws]);
+			  /*            ctx = vis5d_get_ctx(dtx->Uvarowner[ws]);*/
             if (dtx->HWindTable[ws][time].valid) {
                request_hwindslice( dtx, time, ws, 0 );
             }
@@ -5088,7 +5129,7 @@ int init_irregular_var_clrtable( int dindex, int iindex, int var )
 int vis5d_get_sizePRIME( int index, int *nr, int *nc, int *nl, int *lowlev,
                          int *windnl, int *windlow )
 {
-  int i;
+
   DPY_CONTEXT("vis5d_get_sizePRIME")
 
   if (nr)        *nr = dtx->Nr;
@@ -5144,7 +5185,7 @@ int vis5d_get_grid( int index, int time, int var, float *data )
  */
 int vis5d_put_grid( int index, int time, int var, float *data )
 {
-   CONTEXT("vis5d_get_grid");
+   CONTEXT("vis5d_put_grid");
    if (put_grid( ctx, time, var, data )) {
       return 0;
    }
@@ -5276,7 +5317,7 @@ int vis5d_get_curved( int index, int *curved )
 
 int vis5d_set_dtx_projection_and_vertsys( int index, int what, int type, float towhat)
 {
-   int i, yo;
+   int i;
    float lat1, lat2;
    DPY_CONTEXT("vis5d_set_dtx_projection_and_vertsys")
    
@@ -5498,8 +5539,8 @@ int vis5d_set_dtx_projection_and_vertsys( int index, int what, int type, float t
          setup_dtx(dtx, index);
          break;                  
       default:
-         printf("somehting is awry in vis5d_set_dtx_projection_and_vertsys\n");
-         return 0;
+         printf("something is awry in vis5d_set_dtx_projection_and_vertsys %d\n",what);
+         return -1;
    }
 
    /* WLH 22 Oct 98 */
@@ -5522,6 +5563,7 @@ int vis5d_load_topo_and_map( int index )
   DPY_CONTEXT("vis5d_load_topo_and_map")
 
   load_topo_and_map( dtx);
+  return 0;
 }
 
 int vis5d_check_topo( int index, int *topoflag )
@@ -5633,7 +5675,7 @@ int vis5d_get_topo_color_var( int index, int *colorvarctx, int *colorvar )
 int vis5d_make_clone_variable( int index, int var_to_clone, char *newname,
                                int *newvar )
 {
-   int i, n;
+   int  n;
    CONTEXT("vis5d_make_clone_variable")
 
    if (var_to_clone<0 || var_to_clone>=ctx->NumVars) {
@@ -5788,7 +5830,7 @@ int vis5d_make_expr_var( int index, char *expression, char *newname,
                          char *mess, int *newvarowner, int *newvar, int *recompute )
 {
    int result;
-   int expressionowner;
+
    Context ctx;
    DPY_CONTEXT("vis5d_make_expr_var")
 
@@ -5850,16 +5892,17 @@ int vis5d_signal_redraw( int index, int count )
 
 int vis5d_check_redraw( int index, int *redraw )
 {
-   DPY_CONTEXT("vis5d_check_redraw");
+  DPY_CONTEXT("vis5d_check_redraw"); 
+
    *redraw = dtx->Redraw;
    return 0;
 }
 
 int vis5d_draw_frame( int index, int animflag )
 {
-   int howmany, whichones[VIS5D_MAX_CONTEXTS];
-   int yo,spandex, cthing, ctime;
-   DPY_CONTEXT("vis5d_check_redraw");
+   int howmany;
+
+   DPY_CONTEXT("vis5d_draw_frame");
 
    vis5d_get_num_of_data_sets_in_display( index, &howmany);
 /*
@@ -5880,6 +5923,7 @@ int vis5d_draw_frame( int index, int animflag )
 */
 
    set_current_window( dtx );
+	
    set_line_width( dtx->LineWidth );
 #ifndef CAVE
 
@@ -5895,9 +5939,10 @@ int vis5d_draw_frame( int index, int animflag )
    clear_3d_window(); 
 #endif
 /* MJK 3.6.99 */
-   if (howmany >= 1){
-      render_everything( dtx, animflag );
-   }
+	    /*   JPE: For what reason must we have data before we can render a map?
+				if (howmany >= 1){ */
+	render_everything( dtx, animflag );
+	 	/*   } */
    dtx->Redraw = 0;
    return 0;
 }
@@ -5954,8 +5999,8 @@ int vis5d_invalidate_grp_frames( int index )
 
 int vis5d_invalidate_dtx_frames( int index )
 {
-   int spandex, yo, howmany, whichones[VIS5D_MAX_CONTEXTS];
-   Context ctx;
+
+
    DPY_CONTEXT("vis5d_invalidate_dtx_frames")
 
    invalidate_frames( dtx );
@@ -5969,7 +6014,7 @@ int vis5d_invalidate_dtx_frames( int index )
 
 vis5d_set_pointer( int index, int x, int y )
 {
-  DPY_CONTEXT("vis5d_set_fake_pointer")
+  DPY_CONTEXT("vis5d_set_pointer")
   dtx->PointerX = x;
   dtx->PointerY = y;
   return 0;
@@ -6427,7 +6472,7 @@ int vis5d_get_color( int index, int type, int number,
 {
    unsigned int *ptr;
    int n;
-   int r, g, b, a;
+
 
    n = get_graphics_color_address( index, type, number, &ptr );
    if (n) {
@@ -7154,7 +7199,7 @@ int vis5d_create_group_links( int gindex )
    Context ctx;
    int cnum;
    int *next_vindex, *next_type, *next_var;
-   char name[20], aname[20];
+   char  aname[20];
    int yo, lo, var, type, found_one_already;
    int d, c, good, k, i;
 
@@ -7403,7 +7448,7 @@ int vis5d_link_group_graphics (int vindex1, int type1, int number1,
 
 int vis5d_unlink_group_graphics (int vindex, int type, int number)
 {
-   int  numvar, numh, numv, nmax;
+   int  numvar, nmax;
    int  cur_vindex, end_vindex, cur_type, cur_num, end_type, end_num;
    int  *p_type, *p_num, *p_vindex;
 
@@ -7676,7 +7721,7 @@ int vis5d_link_slices (int vindex1, int type1, int number1,
  */
 int vis5d_unlink_slice (int vindex, int type, int number)
 {
-   int  numvar, numh, numv, nmax;
+   int  numvar, nmax;
    int  cur_vindex, end_vindex, cur_type, cur_num, end_type, end_num;
    int  *p_type, *p_num, *p_vindex;
 
@@ -7792,9 +7837,9 @@ static int new_slice_pos( int index, int type, int num )
 /* if type = HSLICE, VSLICE, CHSLICE or CVSLICE then num = variable number
    if type = HWIND, VWIND, HSTREAM or VSTREAM then num = slice number */
 {
-  Display_Context dtx;
+  /*Display_Context dtx;*/
   CONTEXT("vis5d_new_slice_pos")
-  dtx = ctx->dpy_ctx;
+	 /*dtx = ctx->dpy_ctx;*/
   switch (type) {
     case HSLICE:
       new_hslice_pos( ctx, ctx->HSliceLevel[num],
@@ -7888,8 +7933,8 @@ int vis5d_set_hslice( int index, int var, float interval,
                       float low, float high, float level )
 {
    float maxlev;
-   char aname[20];
-   int dtxloop, ctxloop;
+
+
    CONTEXT("vis5d_set_hslice")
    
    if (var<0 || var>=ctx->NumVars) {
@@ -7955,9 +8000,9 @@ int vis5d_set_vslice( int index, int var, float interval,
                       float low, float high,
                       float row0, float col0, float row1, float col1)
 {
-   float maxlev;
-   char aname[20];
-   int dtxloop, ctxloop;
+
+
+
    CONTEXT("vis5d_set_vslice")
 
    ctx->VSliceInterval[var] = interval;
@@ -8013,8 +8058,8 @@ int vis5d_make_chslice( int index, int time, int var, int urgent )
 int vis5d_set_chslice( int index, int var, float level )
 {
    float maxlev;
-   char aname[20];
-   int dtxloop, ctxloop;
+
+
    CONTEXT("vis5d_set_chslice")
 
    if (var<0 || var>=ctx->NumVars) {
@@ -8070,10 +8115,10 @@ int vis5d_make_cvslice( int index, int time, int var, int urgent )
 int vis5d_set_cvslice( int index, int var,
                        float row0, float col0, float row1, float col1 )
 {
-   float maxlev;
-   char aname[20];
-   int dtxloop, ctxloop;
-   float r, c, l;
+
+
+
+
    CONTEXT("vis5d_set_cvslice")
 
    ctx->CVSliceR1[var] = CLAMP( row0, 0.0, ctx->dpy_ctx->Nr-1 );
@@ -8089,7 +8134,7 @@ int vis5d_set_cvslice( int index, int var,
 int vis5d_get_cvslice( int index, int var,
                        float *row0, float *col0, float *row1, float *col1 )
 {
-   float r, c, l;
+
    CONTEXT("vis5d_get_cvslice")
    *row0 = ctx->CVSliceR1[var];
    *col0 = ctx->CVSliceC1[var];
@@ -8109,11 +8154,11 @@ int vis5d_get_cvslice( int index, int var,
 int vis5d_make_hwindslice( int index, int time, int slice, int urgent )
 {
    int vl;
-   Context ctx;
+   /*Context ctx;*/
    DPY_CONTEXT("vis5d_make_hwindslice")
 
    if (dtx->Uvarowner[slice] >= 0 && dtx->Vvarowner[slice] >= 0){
-      ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);
+	  /*ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);*/
       vl = vis5d_verylarge_mode( dtx->Uvarowner[slice], VIS5D_GET);
       if (!vl || time ==dtx->CurTime) {
          request_hwindslice( dtx, time, slice, urgent); 
@@ -8211,11 +8256,11 @@ int vis5d_get_hwindslice( int index, int ws, float *density, float *scale,
 int vis5d_make_vwindslice( int index, int time, int slice, int urgent )
 {
    int vl;
-   Context ctx;
+   /*Context ctx;*/
    DPY_CONTEXT("vis5d_make_vwindslice")
 
    if (dtx->Uvarowner[slice] >= 0 && dtx->Vvarowner[slice] >= 0){
-      ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);
+	  /*ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);*/
       vl = vis5d_verylarge_mode( dtx->Uvarowner[slice], VIS5D_GET);
       if (!vl || time == dtx->CurTime) {
         request_vwindslice( dtx, time, slice, urgent);
@@ -8275,11 +8320,11 @@ int vis5d_get_vwindslice( int index, int ws, float *density, float *scale,
 int vis5d_make_hstreamslice( int index, int time, int slice, int urgent )
 {
    int vl;
-   Context ctx;
+   /*Context ctx;*/
    DPY_CONTEXT("vis5d_make_hstreamslice")
 
    if (dtx->Uvarowner[slice] >= 0 && dtx->Vvarowner[slice] >= 0){
-      ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);
+	  /*ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);*/
       vl = vis5d_verylarge_mode( dtx->Uvarowner[slice], VIS5D_GET);
       if (!vl || time == dtx->CurTime) {
         request_hstreamslice( dtx, time, slice, urgent);
@@ -8328,12 +8373,12 @@ int vis5d_get_hstreamslice( int index, int ws, float *density, float *level )
 int vis5d_make_vstreamslice( int index, int time, int slice, int urgent )
 {
    int vl;
-   Context ctx;
+   /*Context ctx; */
    DPY_CONTEXT("vis5d_make_vstreamslice")
 
 
    if (dtx->Uvarowner[slice] >= 0 && dtx->Vvarowner[slice] >= 0){
-      ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);
+	  /*ctx = vis5d_get_ctx(dtx->Uvarowner[slice]);*/
       vl = vis5d_verylarge_mode( dtx->Uvarowner[slice], VIS5D_GET);
       if (!vl || time == dtx->CurTime) {
         request_vstreamslice( dtx, time, slice, urgent);
@@ -8885,8 +8930,8 @@ int vis5d_get_label( int index, int n, int *x, int *y, char *label )
 
 int vis5d_set_cursor( int index, float x, float y, float z )
 {
-   float lat, lon, hgt, row, col, lev;
-   int dindex;
+   float lat, lon, hgt;
+
    DPY_CONTEXT("vis5d_set_cursor")
 
    vis5d_xyzPRIME_to_geo(index, 0, 0, x, y, z, &lat, &lon, &hgt);
@@ -8967,11 +9012,16 @@ int vis5d_resize_BIG_window(  int width, int height )
       width = StaticWinWidth;
       height = StaticWinHeight;
    }
-   
+	
+
    XSynchronize(GfxDpy, 1);
+
    XResizeWindow(GfxDpy, BigWindow, width, height);
+
    resize_BIG_window( width, height);
+
    XSynchronize(GfxDpy, 0);
+
    return 0;
 
 }
@@ -9052,7 +9102,7 @@ int vis5d_save_window( char *filename, int format )
    int i;
    char s[1000];
    struct stat buf;
-   FILE *f;
+
    int use_convert;
 
    strcpy( s, "./util/convert");
@@ -9848,7 +9898,7 @@ int set_cursor_type (Display *dpy, Window win, int shape)
 
 int vis5d_set_busy_cursor( Display *dpy, Window win, int busy)
 {
-   Cursor cursor;
+
    
    if (busy){
       set_cursor_type (dpy, win, XC_watch);
@@ -10103,7 +10153,7 @@ static int add_itx_index_to_dtx( int index, int index_of_itx)
 {
    int yo;
    int ontinue;
-   Irregular_Context itx;
+
    DPY_CONTEXT("add_itx_index_to_dtx")
 
    ontinue = 1;
@@ -10147,7 +10197,7 @@ static int remove_itx_index_from_dtx( int index, int index_of_itx)
 
 int vis5d_assign_display_to_irregular_data( int index, int display_index)
 {
-   int i, yo;
+
    Display_Context dtx;
    IRG_CONTEXT("vis5d_assign_display_to_irregular_data")
 
@@ -10190,9 +10240,9 @@ int vis5d_alloc_irregular_data_context( void )
 
 int vis5d_load_irregular_v5dfile( int dindex, int mbs, char *filename, char *ctxname ){
    Irregular_Context itx;
-   int i, yo, index;
+   int i, index;
    int dnumber;
-   int j, k, l;
+
 
    index = vis5d_alloc_irregular_data_context();
    itx = itx_table[index] = new_irregular_context();
@@ -10288,7 +10338,7 @@ int vis5d_get_num_of_itxs_in_display( int index, int *number, int numarray[])
 
 int vis5d_get_num_of_data_sets_in_display( int index, int *number)
 {
-   int yo;
+
    Display_Context dtx;
 
    if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS || (dtx = dtx_table[index])==NULL){
@@ -10330,7 +10380,7 @@ int vis5d_initialize_irregular_stuff( int index)
 
 int vis5d_init_irregular_data_end( int index )
 {
-   int i, yo;
+
    int memsize;
    float ratio;
    IRG_CONTEXT("vis5d_init_irregular_data_end")
@@ -10654,7 +10704,7 @@ int vis5d_destroy_irregular_data_context( int index )
 {
    Irregular_Context itx;
    Display_Context dtx;
-   int dindex;
+
 
    if (itx_table[index]){
       itx = itx_table[index];
@@ -10682,5 +10732,23 @@ int vis5d_destroy_irregular_data_context( int index )
 
 
    return 0;
+}
+
+int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context)
+{
+  XWindowAttributes window_attributes;
+
+  XGetWindowAttributes(display, bw, &window_attributes) ;      
+  GfxDpy = display;
+  GfxScr = DefaultScreen( GfxDpy );
+
+  ScrWidth = DisplayWidth( GfxDpy, GfxScr );
+  ScrHeight = DisplayHeight( GfxDpy, GfxScr );
+  find_best_visual( GfxDpy, GfxScr, &GfxDepth, &GfxVisual, &GfxColormap );
+  BigWindow = bw;
+  BigWinWidth = window_attributes.width;
+  BigWinHeight = window_attributes.height; 
+
+  return 0;
 }
 

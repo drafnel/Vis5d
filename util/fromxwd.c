@@ -170,6 +170,9 @@ void writeimage(char *name,
     }
     iclose(image);
 }
+void Error(char *string);
+void _swapshort (char *bp, unsigned int n);
+void _swaplong (char *bp, unsigned int n);
 
 main(argc, argv)
 int argc;

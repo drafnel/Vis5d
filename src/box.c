@@ -471,8 +471,8 @@ void make_box( Display_Context dtx, float ax, float ay, float az )
       dtx->Ymax = ay;    dtx->Ymin = -dtx->Ymax;
       dtx->Zmax = az;    dtx->Zmin = -dtx->Zmax;
    }
-
    /* Compute according to the projection. */
+
    switch (dtx->Projection) {
       case PROJ_GENERIC:
          dtx->CurvedBox = 0;
@@ -783,6 +783,7 @@ void draw_box( Display_Context dtx, int it )
    }
 
    set_depthcue( 0 );
+
 }
 
 void draw_tick_marks( Display_Context dtx )

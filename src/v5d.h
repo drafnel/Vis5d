@@ -78,7 +78,6 @@ typedef unsigned short V5Dushort;   /* Must be 2 byte, except for cray */
 /*** converters, etc.                                                 ***/
 /***                                                                  ***/
 /************************************************************************/
-
 extern int v5dCreateSimple( const char *name,
                             int numtimes, int numvars,
                             int nr, int nc, int nl,
@@ -313,6 +312,19 @@ extern int v5dWriteCompressedGrid( const v5dstruct *v,
 
 
 extern int v5dWriteGrid( v5dstruct *v, int time, int var, const float data[] );
+
+  /* JPE added 09-19-2000  */
+extern int v5dCreateStruct( v5dstruct *v, int numtimes, int numvars,
+										int nr, int nc, const int nl[],
+										const char varname[MAXVARS][10],
+										const int timestamp[], const int datestamp[],
+										int compressmode,
+										int projection,
+										const float proj_args[],
+										int vertical,
+										const float vert_args[] );
+
+
 
 #ifdef __cplusplus
 }                               /* extern "C" */

@@ -593,7 +593,7 @@ void F77_FUNC(idate,IDATE)(int *imon, int *iday, int *iyear )
    *imon = 1;
    *iday = 1;
    *iyear = 92;
-   return 0;
+   return ;
 }
 #endif
 

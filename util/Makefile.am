@@ -7,7 +7,7 @@ EXTRA_PROGRAMS = $(FPROGS) listfonts fromxwd \
 
 CPPFLAGS = @CPPFLAGS@ -I$(srcdir)/../src
 
-V5D_LIB = ../src/libv5d.la
+V5D_LIB = ../src/libvis5d.la
 
 # note that if we don't specify prog_SOURCES, automake assumes prog.c
 

@@ -160,8 +160,7 @@ static void *get_compressed_grid( Context ctx, int time, int var,
 
 int write_gridfile( Context ctx, char filename[] )
 {
-   char name[1000];
-   int i, time, var, first;
+   int i, time, var;
    void *compdata;
    float *ga, *gb;
    v5dstruct *v;
@@ -275,8 +274,7 @@ int write_gridfile( Context ctx, char filename[] )
  */
 int open_gridfile( Context ctx, char filename[] )
 {
-   char name[1000];
-   int ok, i, time, var, first;
+   int ok;
 
    /* MJK 12.02.98 begin */
    ok = -1;
@@ -290,7 +288,13 @@ int open_gridfile( Context ctx, char filename[] )
       }
    }
    /* MJK 12.02.98 end */
+   return set_ctx_from_internalv5d(ctx);
 
+}
+
+int set_ctx_from_internalv5d(Context ctx)
+{
+  int i, time, var, first;
 
    /* Initalize parameter type table */
    for (i=0;i<MAXVARS;i++) {
@@ -370,11 +374,8 @@ int open_gridfile( Context ctx, char filename[] )
       ctx->Elapsed[time] = ctx->DayStamp[time] * 24*60*60
                          + ctx->TimeStamp[time] - first;
    }
-
-   return 1;
+	return 1;
 }
-
-
 
 void free_grid_cache( Context ctx )
 {
@@ -441,7 +442,7 @@ int init_grid_cache( Context ctx, int maxbytes, float *ratio )
 
    ctx->NumCachedGrids = 0;
 
-   printf("Cache size: %d grids\n", ctx->MaxCachedGrids );
+   printf("Cache size: %d grids %d %d\n", ctx->MaxCachedGrids, ctx->NumTimes,ctx->NumVars);
   
    if (ctx->MaxCachedGrids != ctx->NumTimes*ctx->NumVars){
       int needed;
@@ -736,8 +737,8 @@ float *get_grid( Context ctx, int time, int var )
 /* var = fromctx var */
 float *get_grid2( Context toctx, Context fromctx, int time, int var, int numlevs )
 {
-   float *data, *ga, *gb, fdata;
-   void *compdata;
+   float *data, fdata;
+
    int nrncnl, nr, nc, nl;
    float yonrr, yoncc, yonll, nnr, nnc, nnl, lat, lon, hgt;
 

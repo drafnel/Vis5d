@@ -1231,6 +1231,7 @@ struct vis5d_context {
    int memory_used;
    LOCK memlock;
    LOCK lrulock;
+   int meminited;
 
 #ifdef HAVE_OPENGL
    GLdouble ModelMat[16], ProjMat[16];  /* ModelView and Projection matrices */

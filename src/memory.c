@@ -440,6 +440,8 @@ int init_memory( Context ctx, int bytes )
    ALLOC_LOCK( ctx->memlock );
    ALLOC_LOCK( ctx->lrulock );
 
+   ctx->meminited = 1;
+
    return 1;
 }
 

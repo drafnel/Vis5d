@@ -1556,11 +1556,11 @@ int vis5d_assign_display_to_data( int index, int display_index)
    ctx->GridSameAsGridPRIME = vis5d_check_dtx_same_as_ctx(dtx->dpy_context_index,
                                                           ctx->context_index); 
 
-   /* This if (ctx->memlock){ statment is added becuase 
+   /* This if (ctx->meminited){ statment is added becuase 
       vis5d_assign_display_to_data maybe called before the memory
       is init'd and screw things up, such is the case when the func
       vis5d_load_v5dfile is run from the interp. */
-   if (ctx->memlock){
+   if (ctx->meminited){
       if (!dtx->CurvedBox) {
          if (ctx->Volume){
             free_volume( ctx );

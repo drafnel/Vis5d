@@ -642,11 +642,12 @@ extern void draw_multi_lines( int n, float verts[][3],
 
 /*
  * Draw a 3-D cursor at location (x,y,z).
- * Input:  style - 0=lines, 1=polygons
- *         x, y, z - position
- *         color - cursor color
+ * Input:   style - 0=lines, 1=polygons
+ *          x, y, z - position
+ *          color - cursor color
+ * returns: the offset to the GLlist of the line_cursor 
  */
-extern void draw_cursor( Display_Context dtx, int style,
+extern GLuint draw_cursor( Display_Context dtx, int style,
                          float x, float y, float z,
                          unsigned int color );
 

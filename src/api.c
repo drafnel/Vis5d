@@ -323,6 +323,17 @@ Context vis5d_get_ctx( int index )
       return ctx_table[index];
    }
 }
+
+int vis5d_get_ctx_name( int index, char *name )
+{
+  CONTEXT("vis5d_get_ctx_name");
+  
+  strcpy(name, ctx->ContextName);
+
+  return 0;
+}
+
+
  
 Display_Context vis5d_get_dtx( int index )
 {
@@ -6721,6 +6732,7 @@ int vis5d_set_volume( int index, int CurrentVolumeOwner, int CurrentVolume )
 {
    DPY_CONTEXT("vis5d_set_volume")
 
+	dtx->VolumeFlag=1;
    dtx->CurrentVolumeOwner = CurrentVolumeOwner;
    dtx->CurrentVolume = CurrentVolume;
    return 0;
@@ -9640,18 +9652,12 @@ int vis5d_save_window( char *filename, int format )
 {
    Display_Context dtx;
    int i;
-   char s[1000];
    struct stat buf;
-
-   int use_convert;
-
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
-      use_convert = 1;
-   }
-   else{
-      use_convert = 0;
-   }
+#ifdef IMCONVERT
+   int use_convert=1;
+#else
+   int use_convert=0;
+#endif
 
 
    if (filename[0]==0) {
@@ -11053,7 +11059,7 @@ int vis5d_get_itx_var_name( int index, int var, char *name )
 
 int vis5d_get_itx_name( int index, char *name )
 {
-   IRG_CONTEXT("vis5d_get_itx_file_name");
+   IRG_CONTEXT("vis5d_get_itx_name");
 
    strcpy( name, itx->ItxName);
    return 0;
@@ -11366,19 +11372,13 @@ int vis5d_save_right_window( char *filename, int format )
 {
    Display_Context dtx;
    int i;
-   char s[1000];
    struct stat buf;
    FILE *f;
-   int use_convert;
-
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
-      use_convert = 1;
-   }
-   else{
-      use_convert = 0;
-   }
-
+#ifdef IMCONVERT
+   int use_convert=1;
+#else
+   int use_convert=0;
+#endif
 
    if (filename[0]==0) {
       /* no filename! */

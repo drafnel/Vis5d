@@ -109,7 +109,7 @@ on_alpha_button_release_event          (GtkWidget       *widget,
 	 alpha[i*4+3] = (guchar) vinfo->chs->sample->orig_alpha[i]*adj->value;
 #endif
 #ifdef USE_GLLISTS
-  for(time=0;time<vinfo->info->numtimes;time++){
+  for(time=0;time<vinfo->numtimes;time++){
 	 vis5d_invalidate_chslice(vinfo->v5d_data_context , vinfo->varid, time);
 	 vis5d_make_chslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
   }
@@ -245,7 +245,7 @@ on_hsspin_changed                      (GtkEditable     *editable,
 	 vis5d_set_chslice_limits(vinfo->v5d_data_context,vinfo->varid,
 									  hsc->min,hsc->max,hsc->level);
 
-	 for(time=0;time<vinfo->info->numtimes;time++){
+	 for(time=0;time<vinfo->numtimes;time++){
 		vis5d_invalidate_chslice(vinfo->v5d_data_context , vinfo->varid, time);
 		vis5d_make_chslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
@@ -253,7 +253,7 @@ on_hsspin_changed                      (GtkEditable     *editable,
   }else{
 	 vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,hsc->interval,
 							hsc->min,hsc->max,hsc->level);
-	 for(time=0;time<vinfo->info->numtimes;time++){
+	 for(time=0;time<vinfo->numtimes;time++){
 		vis5d_make_hslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
 	 hs_label(vinfo);
@@ -452,7 +452,7 @@ update_hslice_controls(v5d_var_info *vinfo, gint type)
 							  &(hs->interval),&(hs->min),
 							  &(hs->max), &(hs->level));
 
-		vis5d_get_color( vinfo->v5d_data_context, VIS5D_HSLICE, vinfo->varid,
+		vis5d_get_color( vinfo->info->v5d_display_context, VIS5D_HSLICE, vinfo->varid,
 							  color,
 							  color+1,
 							  color+2,
@@ -602,7 +602,7 @@ on_Hslicebutton_toggled                (GtkToggleButton *togglebutton,
 	 gtk_notebook_set_page(GTK_NOTEBOOK(notebook) ,HSLICE);
   
 	 update_hslice_controls(vinfo, HSLICE);
-	 for(time=0;time<vinfo->info->numtimes;time++){
+	 for(time=0;time<vinfo->numtimes;time++){
 		vis5d_make_hslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
@@ -643,7 +643,7 @@ on_level_vscale_button_release_event   (GtkWidget       *widget,
 							&(vinfo->hs->interval),&(vinfo->hs->min),
 							&(vinfo->hs->max), &(vinfo->hs->level));
 	 
-	 for(time=0;time<vinfo->info->numtimes;time++){
+	 for(time=0;time<vinfo->numtimes;time++){
 		vis5d_make_hslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
   }else{
@@ -653,7 +653,7 @@ on_level_vscale_button_release_event   (GtkWidget       *widget,
 									  &(vinfo->chs->min),
 									  &(vinfo->chs->max), &(vinfo->chs->level));
 
-	 for(time=0;time<vinfo->info->numtimes;time++){
+	 for(time=0;time<vinfo->numtimes;time++){
 		vis5d_make_chslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
 
@@ -685,7 +685,7 @@ on_CHslicebutton_toggled               (GtkToggleButton *togglebutton,
 	 
 	 update_hslice_controls(vinfo, CHSLICE);
 
-	 for(time=0;time<vinfo->info->numtimes;time++){
+	 for(time=0;time<vinfo->numtimes;time++){
 		vis5d_make_chslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_CHSLICE,
@@ -897,7 +897,7 @@ on_Vslicebutton_toggled                (GtkToggleButton *togglebutton,
 	 
 	 update_vslice_controls(vinfo, VSLICE);
 
-	 for(time=0;time<vinfo->info->numtimes;time++){
+	 for(time=0;time<vinfo->numtimes;time++){
 		vis5d_make_vslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_VSLICE,

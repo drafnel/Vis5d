@@ -3,20 +3,19 @@
 
 #include <gtk/gtk.h>
 
-#if defined(HAVE_OPENGL)
-#  ifndef WORDS_BIGENDIAN
+/* from ../src/graphics.h */
+#ifndef WORDS_BIGENDIAN
 #    define PACK_COLOR(R,G,B,A)   ( (A)<<24 | (B)<<16 | (G)<<8 | (R) )
 #    define UNPACK_RED(X)         ( (X) & 0xff )
 #    define UNPACK_GREEN(X)       ( ( (X) >> 8 ) & 0xff )
 #    define UNPACK_BLUE(X)        ( ( (X) >> 16 ) & 0xff )
 #    define UNPACK_ALPHA(X)       ( ( (X) >> 24 ) & 0xff )
-#  else
+#else
 #    define PACK_COLOR(R,G,B,A)   ( (R)<<24 | (G)<<16 | (B)<<8 | (A) )
 #    define UNPACK_RED(X)         ( ( (X) >> 24 ) & 0xff )
 #    define UNPACK_GREEN(X)       ( ( (X) >> 16 ) & 0xff )
 #    define UNPACK_BLUE(X)        ( ( (X) >> 8 ) & 0xff )
 #    define UNPACK_ALPHA(X)       ( (X) & 0xff )
-#  endif
 #endif
 
 typedef enum {
@@ -27,6 +26,8 @@ typedef enum {
   ISOSURF,
   VOLUME
 } v5d_graph_type;
+
+
 
 typedef struct {
   GtkWidget *preview;
@@ -54,6 +55,7 @@ typedef struct {
 
   float zoom;           /* field of view in degrees */
 
+  int numtimes;
 
   GtkWidget *GtkGlArea;
   int animate;
@@ -61,7 +63,6 @@ typedef struct {
   gint timeout_id;
   gint stepsize;
   int timestep;
-  int numtimes;
   int vcs;
   int label_count;
   GPtrArray *vinfo_array;
@@ -118,6 +119,7 @@ typedef struct {
 
   hslicecontrols *hs, *chs;
   vslicecontrols *vs, *cvs;
+  int numtimes;
 
 
   GtkWidget *VarGraphicsDialog;

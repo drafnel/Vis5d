@@ -6528,10 +6528,24 @@ int do_one_task( int threadnum )
 
 
    get_qentry( &ctx, &itx, &type, &i1, &i2, &i3, &f1, &f2, &f3, &f4, &f5 );
-   if (Debug) printf("got entry: %d\n", type );
+
    time = i1;
    var = i2;
-   if (Debug)  printf("\ntask type=%d\n", type );
+	if(Debug)  printf("do_one_task task type=%d time=%d var=%d\n", type , time, var);
+
+	if(time>=ctx->NumTimes){
+	  /* JPE: time is supposed to be ctx time but if two datasets of overlapping time
+		  are associated with the same display, requests are made for graphics
+        beyond the final time of the dataset which ends before display NumTimes 
+        (the last timestep of the display).  
+        I haven't yet found where this invalid request is being made,
+		  so for now I just say that the work has been done but don't do anything.
+	  */
+		  
+	  if(Debug) printf("WARNING: invalid request to do_one_task time %d exceeds NumTimes %d\n",time,ctx->NumTimes);
+	  return 1;
+   }
+
    switch (type) {
       case TASK_ISOSURFACE:
          /* compute an isosurface. */
@@ -6562,7 +6576,6 @@ int do_one_task( int threadnum )
 #endif /* HAVE_LIBNETCDF */
       case TASK_HSLICE:
          /* calculate a horizontal contour line slice. */
-		  
 		  calc_hslice( ctx, time, var, ctx->Variable[var]->HSliceRequest->Interval,
 							ctx->Variable[var]->HSliceRequest->LowLimit, ctx->Variable[var]->HSliceRequest->HighLimit,
 							ctx->Variable[var]->HSliceRequest->Level, threadnum );

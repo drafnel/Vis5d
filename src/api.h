@@ -323,6 +323,9 @@ extern int vis5d_init_begin( int index, int dindex );
 /* New 5.2 */
 extern int vis5d_init_data_end( int index );
 
+extern int vis5d_dtx_get_number_of_ctxs(int index);
+extern int vis5d_dtx_get_number_of_itxs(int index);
+
 extern int vis5d_get_num_of_ctxs_in_display( int index, int *number, int numarray[]);
 
 extern int vis5d_get_num_of_dtxs_in_group( int index, int *number, int numarray[]);
@@ -452,6 +455,8 @@ extern int vis5d_get_dtx_numtimes( int index, int *numtimes );
 extern int vis5d_get_grp_numtimes( int index, int *numtimes );
 
 extern void get_timer(int which);
+
+extern int vis5d_get_ctx_name( int index, char *name );
 
 extern int vis5d_get_ctx_numtimes( int index, int *numtimes );
 

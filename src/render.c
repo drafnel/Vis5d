@@ -396,6 +396,10 @@ void plot_string( char *str, float startx, float starty, float startz,
 
 }
 
+/* TODO: this function should provide support for users
+   to choose the policy by which a time is valid.
+*/
+
 int check_for_valid_time( Context ctx, int dtxcurtime)
 {
    Display_Context dtx;
@@ -412,6 +416,8 @@ int check_for_valid_time( Context ctx, int dtxcurtime)
    }
    ctxcurtime = 
    ldtime = lstime = 0;
+
+
    for( yo = 0; yo < dtx->numofctxs; yo ++){
       spandex = dtx->TimeStep[dtxcurtime].owners[yo];
       ctime = dtx->TimeStep[dtxcurtime].ownerstimestep[yo];
@@ -1273,45 +1279,49 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
  */
 static void render_chslices( Context ctx, int time, int tf, int animflag )
 {
-   int var, alpha, lock;
-   Display_Context dtx;
+  int var, alpha, lock;
+  Display_Context dtx;
+  struct chslice *slice;
+  unsigned int *slicecolors;
+  
+  dtx = ctx->dpy_ctx;
+  for (var=0;var<ctx->NumVars;var++) {
+	 if (ctx->DisplayCHSlice[var]) {
+		slice = ctx->Variable[var]->CHSliceTable[time];
+		slicecolors = dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var];
+		if (slice->valid) {
+		  if (animflag) {
+			 lock = cond_read_lock( &slice->lock );
+		  }
+		  else {
+			 wait_read_lock( &slice->lock );
+			 lock = 1;
+		  }
+		  if (lock) {
+			 recent( ctx, CHSLICE, var );
+			 if(!tf){
+				draw_color_quadmesh( slice->rows,
+											slice->columns,
+											(void *)slice->verts,
+											slice->color_indexes,
+											slicecolors,
+											0,NULL,0);
+			 }
+			 done_read_lock( &slice->lock );
+		  }
 
-   dtx = ctx->dpy_ctx;
-   for (var=0;var<ctx->NumVars;var++) {
-      if (ctx->DisplayCHSlice[var]) {
-         if (ctx->Variable[var]->CHSliceTable[time]->valid) {
-            if (animflag) {
-               lock = cond_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
-            }
-            else {
-               wait_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
-               lock = 1;
-            }
-            if (lock) {
-               recent( ctx, CHSLICE, var );
-					if(!tf){
-					  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
-												  ctx->Variable[var]->CHSliceTable[time]->columns,
-												  (void *)ctx->Variable[var]->CHSliceTable[time]->verts,
-												  ctx->Variable[var]->CHSliceTable[time]->color_indexes,
-												  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var], 
-												  0,NULL,0);
-					}
-               done_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
-            }
-
-            /* draw position label */
-            if (tf && dtx->DisplayBox && !dtx->CurvedBox) {
-               set_color( dtx->Color[ctx->context_index*MAXVARS+var][CHSLICE] );
-               clipping_off();
-               draw_horizontal_slice_tick( dtx, ctx->Variable[var]->CHSliceRequest->Level,
-                                           ctx->Variable[var]->CHSliceRequest->Z,
-                                           ctx->Variable[var]->CHSliceRequest->Hgt );
-               clipping_on();
-            }
-         }
-      }
-   }
+		  /* draw position label */
+		  if (tf && dtx->DisplayBox && !dtx->CurvedBox) {
+			 set_color( dtx->Color[ctx->context_index*MAXVARS+var][CHSLICE] );
+			 clipping_off();
+			 draw_horizontal_slice_tick( dtx, ctx->Variable[var]->CHSliceRequest->Level,
+												  ctx->Variable[var]->CHSliceRequest->Z,
+												  ctx->Variable[var]->CHSliceRequest->Hgt );
+			 clipping_on();
+		  }
+		}
+	 }
+  }
 }
 
 
@@ -2481,13 +2491,11 @@ void render_3d_only( Display_Context dtx, int animflag )
       /*** Draw 3-D lines ***/
 
       clipping_off();
-      /* MJK 12.02.98 begin */
+
       if (dtx->DisplayCursor)
       {
          if (dtx->DisplayProbe)
          {
-
-         /* MJK 3.29.99 */
             if (dtx->Reversed){
                draw_cursor (dtx, 0, dtx->CursorX, dtx->CursorY, dtx->CursorZ,
                             PACK_COLOR(0,0,0,255));
@@ -2496,13 +2504,9 @@ void render_3d_only( Display_Context dtx, int animflag )
                draw_cursor (dtx, 0, dtx->CursorX, dtx->CursorY, dtx->CursorZ,
                             dtx->BoxColor);
             }
-
-
-
          }
          else if (dtx->DisplaySound)
          {
-         /* MJK 3.29.99 */
             if (dtx->Reversed){
                draw_cursor (dtx, 2, dtx->CursorX, dtx->CursorY, 0,
                             PACK_COLOR(0,0,0,255));
@@ -2525,9 +2529,6 @@ void render_3d_only( Display_Context dtx, int animflag )
             print_cursor_position (dtx, dtx->CurTime);
          }
       }
-      /* MJK 12.02.98 end */
-
-		
 
       clipping_on();
 
@@ -2581,9 +2582,6 @@ void render_3d_only( Display_Context dtx, int animflag )
             set_color( dtx->LightMapColor );
             draw_map( dtx, dtx->CurTime, 1 );
          }
-
-
-      /* MJK 3.29.99 */
          if (dtx->Reversed){
             set_color( PACK_COLOR(0,0,0,255) );
          }
@@ -2593,8 +2591,6 @@ void render_3d_only( Display_Context dtx, int animflag )
 
       }
       set_depthcue(0);
-      /* MJK 12.02.98 end */
-
 
       for (yo= 0; yo < dtx->numofctxs; yo++){      
          ctx = dtx->ctxpointerarray[yo];       
@@ -2613,12 +2609,7 @@ void render_3d_only( Display_Context dtx, int animflag )
             render_cvslices( ctx, ctx->CurTime, 1, animflag );
          }      
       }
-
-
-
       /*** Draw transparent 3-D objects ***/
-
-
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
          ctx = dtx->ctxpointerarray[yo];

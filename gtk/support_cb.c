@@ -22,6 +22,7 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <gtk/gtk.h>
 
 #include "api.h"
@@ -48,16 +49,24 @@ void
 load_data_file  (GtkWidget *window3D, gchar *filename)
 {
   gint dc;
-  gint numvars, i;
+  gint numvars, i, irreg;
   
   v5d_var_info *vinfo;
   v5d_info *info;
-
   
   /* todo: should check for errors here */
   info = (v5d_info *) lookup_widget(window3D,"v5d_info");
-
-  dc = vis5d_load_v5dfile(info->v5d_display_context,0,filename,"context");
+  i = strlen(filename);
+ 
+  if(strncmp(".nc",filename+i-3,3) == 0){
+	 printf("loading irregular data\n");
+	 dc = vis5d_load_irregular_v5dfile(info->v5d_display_context,0,filename,"context");
+	 irreg = 1;
+  }else{
+	 printf("loading regular data\n");
+	 dc = vis5d_load_v5dfile(info->v5d_display_context,0,filename,"context");
+	 irreg = 0;
+  }
 
   if(dc==VIS5D_FAIL){
 	 /* TODO: message dialog - open failed */
@@ -70,33 +79,59 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 
   glarea_draw(info->GtkGlArea,NULL,NULL);
 
-  vis5d_get_ctx_numvars(dc,&numvars);
-  {
-	 float vertargs[MAXVERTARGS];
-	 vis5d_get_dtx_vertical(info->v5d_display_context, &(info->vcs), vertargs);
-  }
+  if(irreg==0){
+	 vis5d_get_ctx_numvars(dc,&numvars);
+	 {
+		float vertargs[MAXVERTARGS];
+		vis5d_get_dtx_vertical(info->v5d_display_context, &(info->vcs), vertargs);
+	 }
   
-  for(i=0;i < numvars; i++){
-	 vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
+	 for(i=0;i < numvars; i++){
+		vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
 	 
-	 vinfo->hs = NULL;
-	 vinfo->chs = NULL;
-	 vinfo->varid=i;
-	 vinfo->v5d_data_context=dc;
-	 vinfo->info = info;
-	 vis5d_get_ctx_var_name(dc,i,vinfo->vname);
-	 vinfo->maxlevel = vis5d_get_levels(dc, i);
-	 vinfo->VarGraphicsDialog=NULL;
-	 
-	 g_ptr_array_add(info->vinfo_array,(gpointer) vinfo);
+		vinfo->hs = NULL;
+		vinfo->chs = NULL;
+		vinfo->varid=i;
+		vinfo->v5d_data_context=dc;
+		vinfo->info = info;
+		vis5d_get_ctx_var_name(dc,i,vinfo->vname);
+		vinfo->maxlevel = vis5d_get_levels(dc, i);
+		vinfo->VarGraphicsDialog=NULL;
+		vis5d_get_ctx_numtimes(dc, &vinfo->numtimes);
 
-	 variable_menu_add_variable(window3D, vinfo);
+		g_ptr_array_add(info->vinfo_array,(gpointer) vinfo);
+
+		variable_menu_add_variable(window3D, vinfo);
+	 }
+  }else{
+	 vis5d_get_itx_numvars(dc,&numvars);
+	 for(i=0;i < numvars; i++){
+		vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
+		/* currently maxlevel = 0 is the only way this is identified
+			as an irregular variable */
+		vinfo->maxlevel = 0;
+		vinfo->hs = NULL;
+		vinfo->chs = NULL;
+		vinfo->varid=i;
+		vinfo->v5d_data_context=dc;
+		vinfo->info = info;
+		vis5d_get_itx_var_name(dc,i,vinfo->vname);
+		vinfo->VarGraphicsDialog=NULL;
+		vis5d_get_itx_numtimes(dc, &vinfo->numtimes);
+		g_ptr_array_add(info->vinfo_array,(gpointer) vinfo);
+		
+		variable_menu_add_variable(window3D, vinfo);
+		
+	 }
+	 
+
+
   }
-
   /* make the menu widgets sensitive */
   gtk_widget_set_sensitive(lookup_widget(window3D,"options1"),TRUE);
   gtk_widget_set_sensitive(lookup_widget(window3D,"procedures1"),TRUE); 
   gtk_widget_set_sensitive(lookup_widget(window3D,"variables"),TRUE);
+
   vis5d_get_dtx_numtimes(info->v5d_display_context, &info->numtimes);
   if(info->numtimes>1)
 	 gtk_widget_set_sensitive(lookup_widget(window3D,"toolbar1"),TRUE);

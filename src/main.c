@@ -1549,14 +1549,15 @@ main( int argc, char *argv[] )
 
 
          if (vis5d_open_gridfile( index, v5dfile[dindex], preload[dindex] )<0) {
+#ifdef HAVE_LIBNETCDF
 			  vis5d_destroy_data_context(index);
 			  index = -1;
-#ifdef HAVE_LIBNETCDF
-			  if(iindex = vis5d_load_irregular_v5dfile(dindex, mbs, v5dfile[dindex], v5dfile[dindex])<0){
-				 vis5d_terminate(1);
-				 exit(0);
-			  }
+			  if(iindex = vis5d_load_irregular_v5dfile(dindex, mbs[dindex], v5dfile[dindex], v5dfile[dindex])<0)
 #endif
+				 {
+					vis5d_terminate(1);
+					exit(0);
+				 }
          }
          if (first_area[dindex]){
             vis5d_init_firstarea(dindex, first_area[dindex]);

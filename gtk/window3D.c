@@ -712,10 +712,8 @@ gboolean glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event,
   }
   if (state & GDK_BUTTON3_MASK) {
     /* zooming drag */
-    info->zoom += ((y - info->beginy) / area.height) ;
-	 /*    if (info->zoom < 0.5) info->zoom = 0.5;
-			 if (info->zoom > 120) info->zoom = 120;
-	 */
+    info->zoom += ((float) (y - info->beginy) / (float) area.height) ;
+	
 	 vis5d_set_camera(info->v5d_display_context,0.0,0.0,info->zoom);
 	 glarea_draw(widget,NULL,NULL);
   }
@@ -756,8 +754,11 @@ gint _glarea_draw(gpointer infoptr)
 	 }else if(info->timestep>=info->numtimes){
 		info->timestep = info->timestep-info->numtimes;
 	 }
+	 /* 
 	 vis5d_make_timestep_graphics(info->v5d_display_context, info->timestep);
+	 */
 	 vis5d_set_dtx_timestep(info->v5d_display_context  ,info->timestep);
+	 
 	 redraw=1;
   }else{
 	 vis5d_check_redraw( info->v5d_display_context, &redraw );
@@ -1018,7 +1019,7 @@ on_variable_activate                   (GtkMenuItem     *menuitem,
 	 }else{
 		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"Vslicebutton"),TRUE);
 		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"CVslicebutton"),TRUE);
-		/*
+		/* 
 		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"Isosurfbutton"),TRUE);
 		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"Volumebutton"),TRUE);
 		*/
@@ -1040,49 +1041,77 @@ on_about1_activate                     (GtkMenuItem     *menuitem,
 void
 variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
 {
-  GtkWidget *variables_menu, *variable, *tearoff;
+  GtkWidget *variables_menu, *variable, *tearoff, *parent_menu;
   gpointer tmp;
+  int ctxcnt;
+  const char *menus[]={ "vars2d_menu", "vars3d_menu"};
+  const char *vars[] ={ "vars2d", "vars3d"};
+  const char *var[] ={ "var2d", "var3d"};
+  char parent_menu_name[20];  
+  char tearoffname[18];
+  typedef enum {V2D, V3D, VIRREG} vtype;
+  vtype myvtype;
 
-  if(vinfo->maxlevel == 1){
-	 variables_menu = lookup_widget(window3D,"vars2d_menu");
-	 gtk_widget_set_sensitive(lookup_widget(window3D,"vars2d"),TRUE);
-	 tmp = gtk_object_get_data(GTK_OBJECT(window3D),"tearoff_2d");
-	 if(tmp)
-		tearoff = GTK_WIDGET(tmp);
-	 else{
-		variable = lookup_widget(window3D,"var2d");
-		if(variable){
-		  gtk_widget_destroy(variable);  
-		  gtk_object_remove_data(GTK_OBJECT(window3D),"var2d");
+  switch (vinfo->maxlevel){
+  case 0:
+    myvtype = VIRREG;
+    break;
+  case 1:
+    myvtype = V2D;
+    break;
+  default:
+    myvtype = V3D;
+    break;
+  }
+
+  vis5d_get_num_of_data_sets_in_display(vinfo->info->v5d_display_context, ctxcnt);
+  
+  variables_menu = lookup_widget(window3D,menus[myvtype]);
+  parent_menu = variables_menu;
+
+  gtk_widget_set_sensitive(lookup_widget(window3D,vars[myvtype]),TRUE);
+
+  g_snprintf(tearoffname,18,"tearoff_%d.%d",ctxcnt, myvtype);
+
+  tmp = gtk_object_get_data(GTK_OBJECT(window3D),tearoffname);
+
+  if(tmp)
+	 tearoff = GTK_WIDGET(tmp);
+  else{
+	 variable = lookup_widget(window3D,var[myvtype]);
+	 if(variable){
+		gtk_widget_destroy(variable);  
+		gtk_object_remove_data(GTK_OBJECT(window3D),var[myvtype]);
+
+	 }else{
+		if(myvtype == VIRREG)
+		  vis5d_get_itx_name(vinfo->v5d_data_context,parent_menu_name);
+		else
+		  vis5d_get_ctx_name(vinfo->v5d_data_context,parent_menu_name);
+
+		parent_menu = lookup_widget(window3D,parent_menu_name); 
+		if(! parent_menu){
+		  parent_menu = gtk_menu_new();
+		  gtk_widget_set_name(parent_menu, parent_menu_name);
+		  gtk_widget_ref(parent_menu);
+		  gtk_object_set_data_full (GTK_OBJECT (window3D),parent_menu_name , 
+											 parent_menu, (GtkDestroyNotify) gtk_widget_unref);
+		  /*
+		  gtk_menu_item_set_submenu (GTK_MENU_ITEM (parent_menu), file1_menu);
+		  */
 		}
-		tearoff =  gtk_tearoff_menu_item_new();
-		gtk_widget_ref(tearoff);
-		gtk_widget_show(tearoff);
-		gtk_container_add (GTK_CONTAINER (variables_menu), tearoff);
-		gtk_object_set_data_full(GTK_OBJECT(window3D), "tearoff_2d", 
-										 tearoff, (GtkDestroyNotify) gtk_widget_unref);
 		
 	 }
-  }
-  else{
-	 variables_menu = lookup_widget(window3D,"vars3d_menu");
-	 gtk_widget_set_sensitive(lookup_widget(window3D,"vars3d"),TRUE);
-	 tmp = gtk_object_get_data(GTK_OBJECT(window3D),"tearoff_3d");
-	 if(tmp)
-		tearoff = GTK_WIDGET(tmp);
-	 else{
-		variable = lookup_widget(window3D,"var3d");
-		if(variable){
-		  gtk_widget_destroy(variable);
-		  gtk_object_remove_data(GTK_OBJECT(window3D),"var3d");
-		}
-		tearoff =  gtk_tearoff_menu_item_new();
-		gtk_widget_ref(tearoff);
-		gtk_widget_show(tearoff);
-		gtk_container_add (GTK_CONTAINER (variables_menu), tearoff);
-		gtk_object_set_data_full(GTK_OBJECT(window3D), "tearoff_3d", 
-										 tearoff, (GtkDestroyNotify) gtk_widget_unref);
-	 }
+
+	 tearoff =  gtk_tearoff_menu_item_new();
+	 gtk_widget_ref(tearoff);
+	 gtk_widget_show(tearoff);
+
+	 gtk_container_add (GTK_CONTAINER (parent_menu), tearoff);
+	 
+	 gtk_object_set_data_full(GTK_OBJECT(window3D), tearoffname, 
+									  tearoff, (GtkDestroyNotify) gtk_widget_unref);
+		
   }
   
 
@@ -1092,7 +1121,7 @@ variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
   variable = gtk_menu_item_new_with_label (vinfo->vname);
   gtk_widget_ref (variable);
   gtk_widget_show (variable);
-  gtk_container_add (GTK_CONTAINER (variables_menu), variable);
+  gtk_container_add (GTK_CONTAINER (parent_menu), variable);
 
   gtk_signal_connect (GTK_OBJECT (variable), "activate",
                       GTK_SIGNAL_FUNC (on_variable_activate),

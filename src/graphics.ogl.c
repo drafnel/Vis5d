@@ -110,7 +110,11 @@ void check_gl_error( char *where )
    while ((error = glGetError()) != GL_NO_ERROR) {
       fprintf(stderr, "vis5d: OpenGL error near %s: %s\n",
 	      where, gluErrorString( error ) );
-   }
+		fprintf(stderr, "OpenGL: %s %s %s\n",
+ 				  (char *) glGetString(GL_VENDOR),
+ 				  (char *) glGetString(GL_RENDERER),
+ 				  (char *) glGetString(GL_VERSION));   
+	}
 }
 
 
@@ -203,8 +207,6 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
    unsigned long mask;
    Screen *screen = DefaultScreenOfDisplay( GfxDpy );
 
-   check_gl_error("somewhere before calling make_big_window");
-
    root = DefaultRootWindow(GfxDpy);
 
    /*********************/
@@ -274,18 +276,15 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
          exit(0);
       }
    }
-   check_gl_error("make_big_window (XCreateWindow)");
 
    if (width==ScrWidth && height==ScrHeight) {
       /* This is a hack for borderless windows! */
       no_border( GfxDpy, BigWindow );
    }
-   check_gl_error("make_big_window (no_border)");
 
    if (!off_screen_rendering){
       XMapWindow( GfxDpy, BigWindow);
    }
-   check_gl_error("make_big_window (XMapWindow)");
 
    if (visualinfo->depth<8) {
       /* This case occurs on 8-bit SGI Indys, etc because in double buffer
@@ -305,57 +304,6 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       GfxColormap = win_attrib.colormap;
    }
 
-   /*
-    * Need to make sure the correct draw buffer is initially selected - SGI bug?
-    * (It seems that the second time you bring up the application, the correct
-    * buffer is not selected. The default by the spec for a double-buffered
-    * visual is that the BACK buffer should be selected, but that doesn't
-    * seem to be the case.)
-    */
-   glDrawBuffer(GL_BACK);
-
-   /* Setup lighting parameters */
-   {
-      static GLfloat light0_pos[] = { 0.0, 0.0, 1000.0, 0.0 };
-      static GLfloat light1_pos[] = { 0.0, 0.0, -1000.0, 0.0 };
-      static GLfloat light_ambient[] = { 0.15, 0.15, 0.15, 1.0 };
-      static GLfloat light_diffuse[] = { 0.6, 0.6, 0.6, 1.0 };
-      static GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-      static GLfloat model_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
-      /*static GLfloat mat_specular[] = { 0.5, 0.5, 0.5, 1.0 };*/
-      glLightfv( GL_LIGHT0, GL_AMBIENT, light_ambient );
-      glLightfv( GL_LIGHT0, GL_DIFFUSE, light_diffuse );
-      glLightfv( GL_LIGHT0, GL_SPECULAR, light_specular );
-      glLightfv( GL_LIGHT0, GL_POSITION, light0_pos );
-      glLightfv( GL_LIGHT1, GL_AMBIENT, light_ambient );
-      glLightfv( GL_LIGHT1, GL_DIFFUSE, light_diffuse );
-      glLightfv( GL_LIGHT1, GL_SPECULAR, light_specular );
-      glLightfv( GL_LIGHT1, GL_POSITION, light1_pos );
-      glLightModelfv( GL_LIGHT_MODEL_AMBIENT, model_ambient );
-      glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, 0 );
-      glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, 0 );
-      /*glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );*/
-      /*glMaterialf( GL_FRONT_AND_BACK, GL_SHININESS, 100.0 );*/
-      glEnable( GL_LIGHT0 );
-      glEnable( GL_LIGHT1 );
-      glEnable( GL_NORMALIZE );
-   }
-   /* Setup fog/depthcue parameters */
-   {
-      static GLfloat fog_color[] = { 0.2, 0.2, 0.2, 1.0 };
-
-      glFogi( GL_FOG_MODE, GL_LINEAR );
-      glFogfv( GL_FOG_COLOR, fog_color );
-   }
-	scalelist = v5d_glGenLists(1);
-	glNewList(scalelist,GL_COMPILE);
-	glPushMatrix();
-   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-	glEndList();
-
-
-   check_gl_error("make_big_window (glLight,glEnable,glFov)");
-
    return 1;
 }
 
@@ -366,7 +314,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
 int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
                     int width, int height )
 {
-
+  /* TODO: should query GL for best options available */
    int attrib_list[] = {
       GLX_RGBA,
       GLX_RED_SIZE, 1,
@@ -455,9 +403,6 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       win_attrib.background_pixmap = None;
       win_attrib.background_pixel = 0;
       win_attrib.border_pixel = 0;
-/******************************************************************************/
-/*    Johan don't forget to add KeyReleaseMask to pex and gl graphics!!!!!!!!!   */
-/******************************************************************************/
       win_attrib.colormap = GfxColormap;
       win_attrib.event_mask = ExposureMask | ButtonMotionMask | KeyReleaseMask
                               | KeyPressMask | ButtonPressMask | ButtonReleaseMask
@@ -524,6 +469,15 @@ int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int h
          }
       }
    } 
+
+	/*
+    * Need to make sure the correct draw buffer is initially selected - SGI bug?
+    * (It seems that the second time you bring up the application, the correct
+    * buffer is not selected. The default by the spec for a double-buffered
+    * visual is that the BACK buffer should be selected, but that doesn't<     * seem to be the case.)
+    */
+   
+	glDrawBuffer(GL_BACK);
    {
       static GLfloat light0_pos[] = { 0.0, 0.0, 1000.0, 0.0 };
       static GLfloat light1_pos[] = { 0.0, 0.0, -1000.0, 0.0 };
@@ -559,14 +513,23 @@ int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int h
       glFogfv( GL_FOG_COLOR, fog_color );
    }
 
+
+
    dtx->WinWidth = width;
    dtx->WinHeight = height;
 
    glViewport( 0, 0, dtx->WinWidth, dtx->WinHeight ); 
 
+	scalelist = v5d_glGenLists(1);
+ 	glNewList(scalelist,GL_COMPILE);
+ 	glPushMatrix();
+	glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+ 	glEndList();
+
+
    set_3d_font(dtx, DEFAULT_FONT,0);
 
-   if (prevctx && prevdraw){
+  if (prevctx && prevdraw){
       if (!glXMakeCurrent( GfxDpy, prevdraw, prevctx )) {
          printf("Error: glXMakeCurrent failed!\n");
          exit(0);
@@ -1319,8 +1282,6 @@ void end_aa_pass( int n )
  *
  * boote@ncar.ucar.edu
  */
-
-static	int	VIS5DUseImageMagicConvert = 0;
 static  int	VIS5DInitializedFormats = 0;
 
 int save_formats( void )
@@ -1330,28 +1291,27 @@ int save_formats( void )
    struct stat buf;
    FILE *f;
 
+#ifdef WORDS_BIGENDIAN
    formats = VIS5D_RGB;
+#endif
 
    VIS5DInitializedFormats = 1;
-
-   if (installed("convert")){
-	VIS5DUseImageMagicConvert = 1;
-      /* found ImageMagick convert program so use it!! */
-      formats |= VIS5D_PPM;
-      formats |= VIS5D_GIF;
-      formats |= VIS5D_PS;
-      formats |= VIS5D_COLOR_PS;
-      formats |= VIS5D_XWD;
-      formats |= VIS5D_TGA;
-   }
-   else{
-      if (installed("toppm"))  formats |= VIS5D_PPM;
-      if (installed("togif"))  formats |= VIS5D_GIF;
-      if (installed("tops")){
+#ifdef IMCONVERT
+	/* found ImageMagick convert program so use it!! */
+	formats |= VIS5D_PPM;
+	formats |= VIS5D_GIF;
+	formats |= VIS5D_PS;
+	formats |= VIS5D_COLOR_PS;
+	formats |= VIS5D_XWD;
+	formats |= VIS5D_TGA;
+#else
+	if (installed("toppm"))  formats |= VIS5D_PPM;
+	if (installed("togif"))  formats |= VIS5D_GIF;
+	if (installed("tops")){
 	  formats |= VIS5D_COLOR_PS;
 	  formats |= VIS5D_PS;
-      }
-   }
+	}
+#endif
 
    return formats;
 }
@@ -1385,43 +1345,49 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
       set_pointer(0);
       return 0;
    }
-
+#ifdef WORDS_BIGENDIAN
+	/* TODO: the SGI_Dump code currently only works on BIGENDIAN hardware */
    SGI_Dump( GfxDpy, GfxScr, BigWindow, f, oglbuf);
-   fclose(f);
+#else
+	Window_Dump( GfxDpy, GfxScr, BigWindow, f );
+#endif
 
-   if (VIS5DUseImageMagicConvert && format != VIS5D_RGB){
+   fclose(f);
+#ifdef IMCONVERT
+   if (format != VIS5D_RGB){
       if (format==VIS5D_XWD){
-         sprintf( cmd, "./util/convert %s xwd:%s", rgbname, filename );
+         sprintf( cmd, "%s %s xwd:%s",IMCONVERT, rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_GIF){
-         sprintf( cmd, "./util/convert %s gif:%s", rgbname, filename );
+         sprintf( cmd, "%s %s gif:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
-         sprintf( cmd, "./util/convert %s ps:%s", rgbname, filename );
+         sprintf( cmd, "%s %s ps:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_PPM){
-         sprintf( cmd, "./util/convert %s ppm:%s", rgbname, filename );
+         sprintf( cmd, "%s %s ppm:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_TGA){
-         sprintf( cmd, "./util/convert %s tga:%s", rgbname, filename );
+         sprintf( cmd, "%s %s tga:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
-   }
-   else{
+   }else
+#endif
+	  {
       if (format==VIS5D_GIF) {
          /* convert rgb to gif */
          sprintf( cmd, "togif %s %s", rgbname, filename );
@@ -1477,130 +1443,121 @@ int save_3d_right_window( char *filename, int format )
 
 int save_snd_window(Display_Context dtx, char *filename, int format )
 {
-   char xwdname[100];
-   char cmd[1000];
-   char s[1000];
-   struct stat buf;
-   FILE *f;
-   int use_convert;
+  char xwdname[100];
+  char cmd[1000];
+  char s[1000];
+  struct stat buf;
+  FILE *f;
 
-   set_pointer(1);
+  set_pointer(1);
 
-   XRaiseWindow(GfxDpy, dtx->Sound.SoundCtrlWindow);
-   XSync( GfxDpy, 0 );
-   vis5d_draw_frame(dtx->dpy_context_index, 0);
-   vis5d_swap_frame(dtx->dpy_context_index);
-   XSync( GfxDpy, 0 );
-   vis5d_draw_frame(dtx->dpy_context_index, 0);
-   vis5d_swap_frame(dtx->dpy_context_index);
-   XSync( GfxDpy, 0 );
+  XRaiseWindow(GfxDpy, dtx->Sound.SoundCtrlWindow);
+  XSync( GfxDpy, 0 );
+  vis5d_draw_frame(dtx->dpy_context_index, 0);
+  vis5d_swap_frame(dtx->dpy_context_index);
+  XSync( GfxDpy, 0 );
+  vis5d_draw_frame(dtx->dpy_context_index, 0);
+  vis5d_swap_frame(dtx->dpy_context_index);
+  XSync( GfxDpy, 0 );
 
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
-      /* found convert, use it! */
-      printf("Using ImageMagick convert program\n");
-      use_convert = 1;
-   }
-   else{
-      use_convert = 0;
-   }
-
-   if (format==VIS5D_XWD) {
-      strcpy( xwdname, filename );
-   }
-   else {
-      strcpy( xwdname, TMP_XWD );
-   }
-
-   /* Make an X window dump file (.xwd) */
-   f = fopen(xwdname,"w");
-   if (!f) {
-      printf("Error unable to open %s for writing\n", filename);
-      set_pointer(0);
-      return 0;
-   }
-   if (dtx->Sound.soundwin){
-      Window_Dump( GfxDpy, GfxScr,  dtx->Sound.soundwin, f );
-      fclose(f);
-   }
-   else{
-      return 0;
-   }
-
-   if (use_convert && format != VIS5D_XWD){
-      if (format==VIS5D_RGB){
-         sprintf( cmd, "./util/convert %s sgi:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_GIF){
-         sprintf( cmd, "./util/convert %s gif:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
-         sprintf( cmd, "./util/convert %s ps:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_PPM){
-         sprintf( cmd, "./util/convert %s ppm:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_TGA){
-         sprintf( cmd, "./util/convert %s tga:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-   }
-   else{
+  if (format==VIS5D_XWD) {
+	 strcpy( xwdname, filename );
+  }
+  else {
+	 strcpy( xwdname, TMP_XWD );
+  }
+  
+  /* Make an X window dump file (.xwd) */
+  f = fopen(xwdname,"w");
+  if (!f) {
+	 printf("Error unable to open %s for writing\n", filename);
+	 set_pointer(0);
+	 return 0;
+  }
+  if (dtx->Sound.soundwin){
+	 Window_Dump( GfxDpy, GfxScr,  dtx->Sound.soundwin, f );
+	 fclose(f);
+  }
+  else{
+	 return 0;
+  }
+#ifdef IMCONVERT
+  if (format != VIS5D_XWD){
+	 if (format==VIS5D_RGB){
+		sprintf( cmd, "%s %s sgi:%s", IMCONVERT,xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_GIF){
+		sprintf( cmd, "%s %s gif:%s", IMCONVERT,xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
+		sprintf( cmd, "%s %s ps:%s", IMCONVERT,xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_PPM){
+		sprintf( cmd, "%s %s ppm:%s",IMCONVERT, xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_TGA){
+		sprintf( cmd, "%s %s tga:%s",IMCONVERT, xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+  }
+  else
+#endif
+	 {
       if (format==VIS5D_RGB) {
-         sprintf( cmd, "fromxwd %s %s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
+		  sprintf( cmd, "fromxwd %s %s", xwdname, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
       }
       else if (format==VIS5D_GIF) {
-         /* convert xwd to rgb */
-         sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         /* convert rgb to gif */
-         sprintf( cmd, "togif %s %s", TMP_RGB, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
-         unlink( TMP_RGB );
+		  /* convert xwd to rgb */
+		  sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  /* convert rgb to gif */
+		  sprintf( cmd, "togif %s %s", TMP_RGB, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
+		  unlink( TMP_RGB );
       }
       else if (format==VIS5D_PS) {
-         sprintf( cmd, "xpr -device ps -gray 4 %s >%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
+		  sprintf( cmd, "xpr -device ps -gray 4 %s >%s", xwdname, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
       }
       else if (format==VIS5D_COLOR_PS) {
-         /* convert xwd to rgb */
-         sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         /* convert rgb to color PS */
-         sprintf(cmd,"tops %s -rgb > %s", TMP_RGB, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
-         unlink( TMP_RGB );
+		  /* convert xwd to rgb */
+		  sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  /* convert rgb to color PS */
+		  sprintf(cmd,"tops %s -rgb > %s", TMP_RGB, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
+		  unlink( TMP_RGB );
       }
-   }
-
-   printf("Done writing image file.\n");
-   set_pointer(0);
-   return 1;
+	 }
+  
+  printf("Done writing image file.\n");
+  set_pointer(0);
+  return 1;
 }
 
 
@@ -2376,7 +2333,7 @@ void draw_multi_lines( int n, float verts[][3], unsigned int color )
  
 
 
-void draw_cursor( Display_Context dtx, int style, float x, float y, float z, unsigned int color )
+GLuint draw_cursor( Display_Context dtx, int style, float x, float y, float z, unsigned int color )
 /*** Style 0: Line Cursor 
      Style 1: Polygon Cursor
      Style 2: Sounding Cursor
@@ -2384,103 +2341,109 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
 
 
 {
-   static GLuint line_cursor;
-   static GLuint polygon_cursor;
-   static GLuint sounding_cursor;
-   if (dtx->init_cursor_flag) {
+  static GLuint line_cursor;
+
+  if (dtx->init_cursor_flag) {
     /* do one-time initialization */
-
+	 GLuint polygon_cursor;
+	 GLuint sounding_cursor;
   
-    /* Make Sounding_cursor vertical line */
-      sounding_cursor = v5d_glGenLists(1);
-      glNewList( sounding_cursor, GL_COMPILE );
-      glLineWidth(3.0); 
-      GLBEGINNOTE glBegin( GL_LINES );
-      glVertex3f( 0.0, 0.0, dtx->Zmin);
-      glVertex3f( 0.0, 0.0, dtx->Zmax );
-      glEnd();
-      glLineWidth(1.0);
-      GLBEGINNOTE glBegin( GL_LINES );
-      glVertex3f( -0.05, 0.0, dtx->Zmax);
-      glVertex3f(  0.05, 0.0, dtx->Zmax);
-      glVertex3f( 0.0, -0.05, dtx->Zmax);
-      glVertex3f( 0.0,  0.05, dtx->Zmax);
-      glEnd();
-      glEndList();
- 
-
     /* Make line-segment cursor object */
-      line_cursor = v5d_glGenLists(1);
-      glNewList( line_cursor, GL_COMPILE );
-      GLBEGINNOTE glBegin( GL_LINES );
-      glVertex3f( -0.05, 0.0, 0.0 );
-      glVertex3f(  0.05, 0.0, 0.0 );
-      glVertex3f( 0.0, -0.05, 0.0 );
-      glVertex3f( 0.0,  0.05, 0.0 );
-      glVertex3f( 0.0, 0.0, -0.05 );
-      glVertex3f( 0.0, 0.0,  0.05 );
-      glEnd();
-      glEndList();
+	 line_cursor = v5d_glGenLists(3);
+	 glNewList( line_cursor, GL_COMPILE );
+	 GLBEGINNOTE glBegin( GL_LINES );
+	 glVertex3f( -0.05, 0.0, 0.0 );
+	 glVertex3f(  0.05, 0.0, 0.0 );
+	 glVertex3f( 0.0, -0.05, 0.0 );
+	 glVertex3f( 0.0,  0.05, 0.0 );
+	 glVertex3f( 0.0, 0.0, -0.05 );
+	 glVertex3f( 0.0, 0.0,  0.05 );
+	 glEnd();
+	 glEndList();
 
-   /* Makt polygona cursor object */
-      polygon_cursor = v5d_glGenLists(1);
-      glNewList( polygon_cursor, GL_COMPILE );
-      GLBEGINNOTE glBegin( GL_QUADS );
-      /* X axis */
-      glVertex3f( -0.05, -0.005,  0.005 );
-      glVertex3f( -0.05,  0.005, -0.005 );
-      glVertex3f(  0.05,  0.005, -0.005 );
-      glVertex3f(  0.05, -0.005,  0.005 );
-      glVertex3f( -0.05, -0.005, -0.005 );
-      glVertex3f( -0.05,  0.005,  0.005 );
-      glVertex3f(  0.05,  0.005,  0.005 );
-      glVertex3f(  0.05, -0.005, -0.005 );
-      /* Y-axis */
-      glVertex3f( -0.005, -0.05,  0.005 );
-      glVertex3f(  0.005, -0.05, -0.005 );
-      glVertex3f(  0.005,  0.05, -0.005 );
-      glVertex3f( -0.005,  0.05,  0.005 );
-      glVertex3f( -0.005, -0.05, -0.005 );
-      glVertex3f(  0.005, -0.05,  0.005 );
-      glVertex3f(  0.005,  0.05,  0.005 );
-      glVertex3f( -0.005,  0.05, -0.005 );
-      /* Z-axis */
-      glVertex3f( -0.005, -0.005,  0.05 );
-       glVertex3f(  0.005,  0.005,  0.05 );
-      glVertex3f(  0.005,  0.005, -0.05 );
-      glVertex3f( -0.005, -0.005, -0.05 );
-      glVertex3f( -0.005,  0.005,  0.05 );
-      glVertex3f(  0.005, -0.005,  0.05 );
-      glVertex3f(  0.005, -0.005, -0.05 );
-      glVertex3f( -0.005,  0.005, -0.05 );
-      glEnd();
-      glEndList();
+	 /* Makt polygona cursor object */
+	 polygon_cursor = line_cursor+1;
+	 glNewList( polygon_cursor, GL_COMPILE );
+	 GLBEGINNOTE glBegin( GL_QUADS );
+	 /* X axis */
+	 glVertex3f( -0.05, -0.005,  0.005 );
+	 glVertex3f( -0.05,  0.005, -0.005 );
+	 glVertex3f(  0.05,  0.005, -0.005 );
+	 glVertex3f(  0.05, -0.005,  0.005 );
+	 glVertex3f( -0.05, -0.005, -0.005 );
+	 glVertex3f( -0.05,  0.005,  0.005 );
+	 glVertex3f(  0.05,  0.005,  0.005 );
+	 glVertex3f(  0.05, -0.005, -0.005 );
+	 /* Y-axis */
+	 glVertex3f( -0.005, -0.05,  0.005 );
+	 glVertex3f(  0.005, -0.05, -0.005 );
+	 glVertex3f(  0.005,  0.05, -0.005 );
+	 glVertex3f( -0.005,  0.05,  0.005 );
+	 glVertex3f( -0.005, -0.05, -0.005 );
+	 glVertex3f(  0.005, -0.05,  0.005 );
+	 glVertex3f(  0.005,  0.05,  0.005 );
+	 glVertex3f( -0.005,  0.05, -0.005 );
+	 /* Z-axis */
+	 glVertex3f( -0.005, -0.005,  0.05 );
+	 glVertex3f(  0.005,  0.005,  0.05 );
+	 glVertex3f(  0.005,  0.005, -0.05 );
+	 glVertex3f( -0.005, -0.005, -0.05 );
+	 glVertex3f( -0.005,  0.005,  0.05 );
+	 glVertex3f(  0.005, -0.005,  0.05 );
+	 glVertex3f(  0.005, -0.005, -0.05 );
+	 glVertex3f( -0.005,  0.005, -0.05 );
+	 glEnd();
+	 glEndList();
+	 
+    /* Make Sounding_cursor vertical line */
+	 sounding_cursor = line_cursor+2;
+	 glNewList( sounding_cursor, GL_COMPILE );
+	 glLineWidth(3.0); 
+	 GLBEGINNOTE glBegin( GL_LINES );
+	 glVertex3f( 0.0, 0.0, dtx->Zmin);
+	 glVertex3f( 0.0, 0.0, dtx->Zmax );
+	 glEnd();
+	 glLineWidth(1.0);
+	 GLBEGINNOTE glBegin( GL_LINES );
+	 glVertex3f( -0.05, 0.0, dtx->Zmax);
+	 glVertex3f(  0.05, 0.0, dtx->Zmax);
+	 glVertex3f( 0.0, -0.05, dtx->Zmax);
+	 glVertex3f( 0.0,  0.05, dtx->Zmax);
+	 glEnd();
+	 glEndList();
+	 dtx->init_cursor_flag =  0;
+	 
+  }
 
-     dtx->init_cursor_flag =  0;
-   }
+  glColor4ubv( (GLubyte *) &color );
+  glPushMatrix();
+  if (style == 2)  z = 0 ; 
+  glTranslatef( x, y, z  );
+  
+  glCallList(line_cursor+style);
 
-   glColor4ubv( (GLubyte *) &color );
-   glPushMatrix();
-   if (style == 2)  z = 0 ; 
-   glTranslatef( x, y, z  );
-   if (style == 1) {
-      glCallList( polygon_cursor );
-   }
-   if (style == 2) {
-      glCallList( sounding_cursor ); 
-   }
-   else {
-      glCallList( line_cursor );
-   }
-   glPopMatrix();
-
-   check_gl_error("draw_cursor");
-
+  /*
+	 if (style == 1) {
+	 glCallList( polygon_cursor );
+	 }
+	 if (style == 2) {
+	 glCallList( sounding_cursor ); 
+	 }
+	 else {
+	 glCallList( line_cursor );
+	 }
+  */
+  
+  glPopMatrix();
+	
+  check_gl_error("draw_cursor");
+  return line_cursor;
 }
 
 GLuint v5d_glGenLists(GLsizei  cnt)
 {
   GLuint listbase;
+
   /* do not allow a list value of 1 - in this way we can signal 
 	  that a graphic is requested but has not been drawn */
 

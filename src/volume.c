@@ -1064,7 +1064,6 @@ static int render_volume( Context ctx,
    register uint_1 *cp0, *cp1;
    register float *vp0, *vp1;
 	int	fastdraw;
- 
 	int	stride = 1;
    if (!v || !v->slices)
       return 0;
@@ -1106,11 +1105,14 @@ static int render_volume( Context ctx,
 #endif
 
    vis5d_check_fastdraw(ctx->dpy_ctx->dpy_context_index, &fastdraw);
+
    if (fastdraw) {
 	  stride = ctx->dpy_ctx->VStride;
-   } else {
+   } 
+	/* sanity check */
+	if(stride<=0)
 	  stride = 1;
-   }
+
 
    /*
    ** adjust rows and cols based on stride. N.B. appears to be one more

@@ -83,6 +83,8 @@ static float  yoffsets[AA_PASSES] =
 */
 
 /* "Screen door" transparency */
+
+GLuint scalelist=0; /* a simple gllist for a common operation */
 static GLuint stipple[3][32];
 
 static Display_Context current_dtx = NULL;
@@ -346,6 +348,13 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       glFogi( GL_FOG_MODE, GL_LINEAR );
       glFogfv( GL_FOG_COLOR, fog_color );
    }
+	scalelist = glGenLists(1);
+	glNewList(scalelist,GL_COMPILE);
+	glPushMatrix();
+   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	glEndList();
+
+
    check_gl_error("make_big_window (glLight,glEnable,glFov)");
 
    return 1;
@@ -1620,22 +1629,33 @@ void draw_isosurface( int n,
 #endif
                       int_2 verts[][3],
                       int_1 norms[][3],
-                      unsigned int color )
+                      unsigned int color, GLuint *list, int listtype )
 {
    int i;
-   GLfloat mat_color[4];
 
-   mat_color[0] = UNPACK_RED( color )   / 255.0;
-   mat_color[1] = UNPACK_GREEN( color ) / 255.0;
-   mat_color[2] = UNPACK_BLUE( color )  / 255.0;
-   mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
-   glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
+	if(list==NULL){
+	  GLfloat mat_color[4];
+	  mat_color[0] = UNPACK_RED( color )   / 255.0;
+	  mat_color[1] = UNPACK_GREEN( color ) / 255.0;
+	  mat_color[2] = UNPACK_BLUE( color )  / 255.0;
+	  mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
+	  glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
+	  set_transparency( UNPACK_ALPHA(color) );
+	}else{
+	  if(*list<=0){
+		 *list = glGenLists(1);
+		 if(*list==0)
+			check_gl_error("draw_color_quadmesh");
+	  }
+	  glNewList(*list, listtype); 
 
-   set_transparency( UNPACK_ALPHA(color) );
+	}
+
    glEnable( GL_LIGHTING );
 
-   glPushMatrix();
+	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
 
    /* Render the triangle strip */
    GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
@@ -1648,9 +1668,12 @@ void draw_isosurface( int n,
 
    glPopMatrix();
 
-   set_transparency(255);
    glDisable( GL_LIGHTING );
-
+	if(list)
+	  glEndList();
+	else
+	  set_transparency(255);
+	  
    check_gl_error("draw_isosurface");
 }
 
@@ -1681,8 +1704,9 @@ void draw_colored_isosurface( int n,
 
    set_transparency( alpha );
 
-   glPushMatrix();
+		glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
 
    /* Render the triangle strip */
    GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
@@ -1723,9 +1747,10 @@ void draw_triangle_strip( int n, int_2 verts[][3], int_1 norms[][3],
    set_transparency( UNPACK_ALPHA(color) );
    glEnable( GL_LIGHTING );
 
-   glPushMatrix();
-   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 
+		glPushMatrix();
+   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
    /* Render the triangle strip */
    GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
    for (i=0;i<n;i++) {
@@ -1778,8 +1803,11 @@ void draw_colored_triangle_strip( int n,
       set_transparency( alpha );
    }
 
-   glPushMatrix();
+	
+   	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
+   
 
    /* Render the triangle strip */
    GLBEGINNOTE glBegin( GL_TRIANGLE_STRIP );
@@ -1805,146 +1833,94 @@ void draw_colored_triangle_strip( int n,
 
 }
 
-
-
-
-void generate_color_quadmesh( int rows, int columns, int_2 verts[][3],
-                          uint_1 color_indexes[], unsigned int color_table[], GLuint *list)
+void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
+                          uint_1 color_indexes[], unsigned int color_table[], 
+								  int texture_method, GLuint *list, int listtype )
 {
-   register int i, j, base1, base2;
 
+  register int i, j, base1, base2;
+
+  if(list!=NULL){
 	if(*list<=0){
 	  *list = glGenLists(1);
 	  if(*list==0)
-		 check_gl_error("generate_disjoint_lines");
+		 check_gl_error("draw_color_quadmesh");
 	}
-	glEnableClientState(GL_COLOR_ARRAY);
-	glColorPointer(4,GL_UNSIGNED_BYTE,0,(GLvoid *) color_table);
+	glNewList(*list, listtype);
+	
+  }
+  if(texture_method){
+	 glTexImage1D( GL_TEXTURE_1D, 0, 4, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+						color_table );
+	 glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+  
+	 glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	 glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+  
+	 glEnable( GL_TEXTURE_1D );
+	 glMatrixMode( GL_TEXTURE );
+	 glLoadIdentity();
+	 glScalef( 1.0/255.0, 1.0/255.0, 1.0/255.0 );
+  
+	 glMatrixMode( GL_MODELVIEW );
+	 glPushMatrix();
+	 glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+  
+	 glColor4f( 1.0, 1.0, 1.0, 1.0 );
 
-	glNewList(*list, GL_COMPILE);
-	/* variable alpha in the mesh */
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	glEnable( GL_BLEND );
-	glAlphaFunc( GL_GREATER, 0.05 );
-	glEnable( GL_ALPHA_TEST );
+	 /* render mesh as a sequence of quad strips */
+	 for (i=0;i<rows-1;i++) {
+		base1 = i * columns;
+		base2 = (i+1) * columns;
+		GLBEGINNOTE glBegin( GL_QUAD_STRIP );
+		for (j=0;j<columns;j++) {
+		  glTexCoord1i( (GLint) color_indexes[base1+j] );
+		  glVertex3sv( verts[base1+j] );
+		  glTexCoord1i( (GLint) color_indexes[base2+j] );
+		  glVertex3sv( verts[base2+j] );
+		}
+		glEnd();
+	 }
+  
+	 glDisable( GL_TEXTURE_1D );
+	 glPopMatrix();
+  }else{
+	 glEnableClientState(GL_COLOR_ARRAY);
+	 glColorPointer(4,GL_UNSIGNED_BYTE,0,(GLvoid *) color_table);
+	 /* variable alpha in the mesh */
+	 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	 glEnable( GL_BLEND );
+	 glAlphaFunc( GL_GREATER, 0.05 );
+	 glEnable( GL_ALPHA_TEST );
 
-   /* get first row of colors */
-   /* render mesh as a sequence of quad strips */
-   for (i=0;i<rows-1;i++) {
-	  base1 = i * columns;
-	  base2 = (i+1) * columns;
-	  GLBEGINNOTE glBegin( GL_QUAD_STRIP );
-	  for (j=0;j<columns;j++) {
-		 glArrayElement(color_indexes[base1+j]);
-		 glVertex3sv( verts[base1+j] );
-		 glArrayElement(color_indexes[base2+j]);
-		 glVertex3sv( verts[base2+j] );
-	  }
-	  glEnd();
-   }
+	 glPushMatrix();
+	 glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 
-   glDisable( GL_BLEND );
-   glDisable( GL_POLYGON_STIPPLE );
-   glDisable( GL_ALPHA_TEST );
-	glEndList();
-	glDisableClientState(GL_COLOR_ARRAY);
-   check_gl_error("draw_color_quadmesh");
-}
-void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
-                          uint_1 color_indexes[], unsigned int color_table[], int alpha)
-{
-/*#define TEXTURE_SLICE*/
-#ifdef TEXTURE_SLICE
-
-   register int i, j, base1, base2;
-
-   glTexImage1D( GL_TEXTURE_1D, 0, 4, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                 color_table );
-   glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-
-   glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-   glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-   glEnable( GL_TEXTURE_1D );
-   glMatrixMode( GL_TEXTURE );
-   glLoadIdentity();
-   glScalef( 1.0/255.0, 1.0/255.0, 1.0/255.0 );
-
-   glMatrixMode( GL_MODELVIEW );
-   glPushMatrix();
-   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-
-   glColor4f( 1.0, 1.0, 1.0, 1.0 );
-
-   /* render mesh as a sequence of quad strips */
-   for (i=0;i<rows-1;i++) {
+	 /* render mesh as a sequence of quad strips */
+	 for (i=0;i<rows-1;i++) {
       base1 = i * columns;
       base2 = (i+1) * columns;
       GLBEGINNOTE glBegin( GL_QUAD_STRIP );
       for (j=0;j<columns;j++) {
-         glTexCoord1i( (GLint) color_indexes[base1+j] );
+		  glArrayElement(color_indexes[base1+j]);
         glVertex3sv( verts[base1+j] );
-         glTexCoord1i( (GLint) color_indexes[base2+j] );
+		  glArrayElement(color_indexes[base2+j]);
         glVertex3sv( verts[base2+j] );
       }
       glEnd();
-   }
 
-   glDisable( GL_TEXTURE_1D );
-   glPopMatrix();
+	 }
 
-#else
-   register int i, j, base1, base2;
-   unsigned int color_row1[1000];
-   unsigned int color_row2[1000];
-   unsigned int *row1ptr, *row2ptr, *tmp;
+	 glPopMatrix();
+	 glDisable( GL_BLEND );
+	 glDisable( GL_POLYGON_STIPPLE );
+	 glDisable( GL_ALPHA_TEST );
 
-	/* variable alpha in the mesh */
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-	glEnable( GL_BLEND );
-	glAlphaFunc( GL_GREATER, 0.05 );
-	glEnable( GL_ALPHA_TEST );
-
-   glPushMatrix();
-   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-
-   /* get first row of colors */
-   for (j=0;j<columns;j++) {
-      color_row1[j] = color_table[color_indexes[j]];
-   }
-   row1ptr = color_row1;
-   row2ptr = color_row2;
-
-   /* render mesh as a sequence of quad strips */
-   for (i=0;i<rows-1;i++) {
-      base1 = i * columns;
-      base2 = (i+1) * columns;
-      /* second row of colors */
-      for (j=0;j<columns;j++) {
-         row2ptr[j] = color_table[color_indexes[base2+j]];
-      }
-      GLBEGINNOTE glBegin( GL_QUAD_STRIP );
-      for (j=0;j<columns;j++) {
-        glColor4ubv( (GLubyte *) &row1ptr[j] );
-        glVertex3sv( verts[base1+j] );
-        glColor4ubv( (GLubyte *) &row2ptr[j] );
-        glVertex3sv( verts[base2+j] );
-      }
-      glEnd();
-      /* swap row1ptr and row2ptr */
-      tmp = row1ptr;
-      row1ptr = row2ptr;
-      row2ptr = tmp;
-   }
-
-   glPopMatrix();
-
-   glDisable( GL_BLEND );
-   glDisable( GL_POLYGON_STIPPLE );
-   glDisable( GL_ALPHA_TEST );
-#endif
-
-   check_gl_error("draw_color_quadmesh");
+  }
+  if(list!=NULL){
+	 glEndList();
+  }
+  check_gl_error("draw_color_quadmesh");
 }
 
 
@@ -2031,8 +2007,10 @@ void draw_wind_lines( int nvectors, int_2 verts[][3], unsigned int color )
    glDisable( GL_DITHER );
    glColor4ubv( (GLubyte *) &color );
 
-   glPushMatrix();
+   	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
+   
 
    GLBEGINNOTE glBegin( GL_LINES );
    for (i=0;i<nvectors;i++) {
@@ -2085,8 +2063,10 @@ void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuin
   /* TODO: How to make the area behind the string opaque? */
 
   glColor4ubv( (GLubyte *) &color );
-  glPushMatrix();
-  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+  	glPushMatrix();
+   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
+  
   glPushAttrib(GL_LIST_BIT);
   
   glListBase(fontbase);
@@ -2126,13 +2106,29 @@ void generate_disjoint_lines(int n, int_2 verts[][3], GLuint *list )
 }
 	 
 
-void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
+void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color, 
+								 GLuint *list, int listtype )
 {
    int i;
- 
-   glColor4ubv( (GLubyte *) &color );
-   glPushMatrix();
+
+	/* JPE: leave color out of list, this allows colors to be changed without */
+	/* regenerating graphics - color must be set when list is called */
+
+	if(list==NULL){
+	  glColor4ubv( (GLubyte *) &color );
+   }else{
+	  if(*list<=0){
+		 *list = glGenLists(1);
+		 if(*list==0)
+			check_gl_error("generate_disjoint_lines");
+	  }
+	  glNewList(*list, listtype);
+	}
+
+	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
+   
    glShadeModel( GL_FLAT );
    glDisable( GL_DITHER );
 	if(vis5d_verbose & VERBOSE_OPENGL) printf("draw_disjoint_lines %d\n",n);
@@ -2144,6 +2140,8 @@ void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
    glPopMatrix();
+	if(list!=NULL)
+	  glEndList();
 }
 
 
@@ -2153,8 +2151,10 @@ void draw_colored_disjoint_lines( int n, int_2 verts[][3],
 {
    int i;
 
-   glPushMatrix();
+   	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
+   
    GLBEGINNOTE glBegin( GL_LINES );
    for (i=0;i<n;i+=2 ) {
       glColor4ubv( (GLubyte *) &color_table[color_indexes[i/2]] );
@@ -2176,8 +2176,10 @@ void draw_polylines( int n, int_2 verts[][3], unsigned int color )
    glShadeModel( GL_FLAT );
    glDisable( GL_DITHER );
 
-   glPushMatrix();
+   	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
+   
    GLBEGINNOTE glBegin( GL_LINE_STRIP );
    for (i=0;i<n;i++ ) {
       glVertex3sv( verts[i] );
@@ -2197,8 +2199,10 @@ void draw_colored_polylines( int n, int_2 verts[][3],
 {
    int i;
 
-   glPushMatrix();
+	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	
+   
    GLBEGINNOTE glBegin( GL_LINE_STRIP );
    for (i=0;i<n;i++ ) {
       glColor4ubv( (GLubyte *) &color_table[color_indexes[i]] );

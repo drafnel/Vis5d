@@ -362,7 +362,9 @@ static void calc_isosurface( Context ctx, int time, int var,
       wait_write_lock( &ctx->Variable[var]->SurfTable[time]->lock );
 #ifdef USE_GLLISTS
 		if(numverts>0)
-		  generate_isosurface(numindexes,index,cverts,cnorms,&ctx->Variable[var]->SurfTable[time]->glList );
+		  draw_isosurface(numindexes,index,cverts,cnorms, 0, 
+								&ctx->Variable[var]->SurfTable[time]->glList, 
+								GL_COMPILE );
 		ctx->Variable[var]->SurfTable[time]->isolevel = iso_level;
 		ctx->Variable[var]->SurfTable[time]->valid = 1;																			
 #else
@@ -2191,9 +2193,9 @@ static void calc_hslice( Context ctx, int time, int var,
    wait_write_lock( &(slice->lock) );
 
 #ifdef USE_GLLISTS
-	generate_disjoint_lines(num1,cverts1, slice->glList);
+	draw_disjoint_lines(num1,cverts1, 0, slice->glList, GL_COMPILE);
 	if(num2>0){
-	  generate_disjoint_lines(num2,cverts2,slice->glList+1);
+	  draw_disjoint_lines(num2,cverts2,0, slice->glList+1, GL_COMPILE);
 	}
 
 	if(numboxverts>0)
@@ -2206,7 +2208,7 @@ static void calc_hslice( Context ctx, int time, int var,
 	}	  
 #  else
 	if(num3>0)
-	  generate_disjoint_lines(num3,cverts3,slice->glList+2);
+	  draw_disjoint_lines(num3,cverts3, 0, slice->glList+2, GL_COMPILE);
 #  endif
 	deallocate(ctx,cverts1,num1*sizeof(int_2) * 3);
 	deallocate(ctx,cverts2,num2*sizeof(int_2) * 3);
@@ -2512,9 +2514,9 @@ static void calc_vslice( Context ctx, int time, int var,
    wait_write_lock( &vslice->lock );
 
 #ifdef USE_GLLISTS
-	generate_disjoint_lines(num1,cverts1, vslice->glList);
+	draw_disjoint_lines(num1,cverts1, 0, vslice->glList, GL_COMPILE);
 	if(num2>0){
-	  generate_disjoint_lines(num2,cverts2,vslice->glList+1);
+	  draw_disjoint_lines(num2,cverts2,0, vslice->glList+1, GL_COMPILE);
 	}
 
 	if(numboxverts>0)
@@ -2527,7 +2529,7 @@ static void calc_vslice( Context ctx, int time, int var,
 	}	  
 #  else
 	if(num3>0)
-	  generate_disjoint_lines(num3,cverts3,vslice->glList+2);
+	  draw_disjoint_lines(num3,cverts3,0, vslice->glList+2, GL_COMPILE);
 #  endif
 	deallocate(ctx,cverts1,num1*sizeof(int_2) * 3);
 	deallocate(ctx,cverts2,num2*sizeof(int_2) * 3);
@@ -2775,9 +2777,9 @@ static void calc_chslice( Context ctx, int time, int var,
    /* store new slice */
    slice->level = level;
    slice->valid = 1;
-	generate_color_quadmesh(slice_rows, slice_cols, cverts, indexes, 
-									dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-									&slice->glList);
+	draw_color_quadmesh(slice_rows, slice_cols, cverts, indexes, 
+							  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
+								0,	&slice->glList, GL_COMPILE);
 	deallocate(ctx, cverts, 3*sizeof(int_2)*slice_rows*slice_cols);
 	deallocate(ctx, indexes, sizeof(uint_1)*slice_rows*slice_cols);
 
@@ -2969,9 +2971,9 @@ static void calc_cvslice( Context ctx, int time, int var,
    ctx->Variable[var]->CVSliceTable[time]->r2 = r2;
    ctx->Variable[var]->CVSliceTable[time]->c2 = c2;
    ctx->Variable[var]->CVSliceTable[time]->valid = 1;
-	generate_color_quadmesh(rows, cols, cverts, indexes, 
-									dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-									&ctx->Variable[var]->CVSliceTable[time]->glList);
+	draw_color_quadmesh(rows, cols, cverts, indexes, 
+							  dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
+							  0,&ctx->Variable[var]->CVSliceTable[time]->glList,GL_COMPILE);
 	deallocate(ctx, cverts, 3*sizeof(int_2)*rows*cols);
 	deallocate(ctx, indexes, sizeof(uint_1)*rows*cols);
 #else

@@ -485,16 +485,18 @@ extern void end_aa_pass( int n );
  *         index - array of [n] indexes into verts[] and norms[]
  *         verts - array of scaled integer vertices
  *         norms - array of scaled integer normals
- *         color - the isosurface color
+ *         color - the isosurface color - ignored if list is non-null
+ *         *list - a pointer to the gllist to save to or NULL
+ *         listtype - one of GL_COMPILE or GL_COMPILE_AND_EXECUTE
  */
 #ifdef BIG_GFX
 extern void draw_isosurface( int n, uint_4 *index,
                              int_2 verts[][3], int_1 norms[][3],
-                             unsigned int color );
+                             unsigned int color, GLuint *list, int listtype );
 #else
 extern void draw_isosurface( int n, uint_2 *index,
                              int_2 verts[][3], int_1 norms[][3],
-                             unsigned int color );
+                             unsigned int color, GLuint *list, int listtype );
 #endif
 
 
@@ -550,13 +552,19 @@ extern void draw_colored_triangle_strip( int n,
  *         verts - array [rows*columns][3] of scaled 1-byte int vertices
  *         color_indexes - array [rows*columns] of color indexes
  *         color_table - array of colors indexed by color_indexes
- *         alphavalue - the alpha value: 0..255 = constant, -1 = variable
+ *         texture_method - true to use gl_textures to apply colors
+ *         *list           - if non-null save graphics into a glList 
+ *         listtype        - GL_COMPILE or GL_COMPILE_AND_EXECUTE 
+ *                           ignored if list is NULL
  */
 extern void draw_color_quadmesh( int rows, int columns,
                                  int_2 verts[][3],
                                  uint_1 color_indexes[],
                                  unsigned int color_table[],
-                                 int alphavalue );
+											int texture_method, 
+											GLuint *list, 
+											int listtype );
+
 
 
 
@@ -598,7 +606,8 @@ void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuin
  *         color - the color
  */
 extern void draw_disjoint_lines( int n, int_2 verts[][3],
-                                 unsigned int color );
+                                 unsigned int color , 
+											GLuint *list, int listtype);
 
 
 
@@ -705,18 +714,16 @@ extern int text_width( XFontStruct *font, char *str );
 
 
 /* JPE generate list functions */
-void generate_color_quadmesh( int rows, int columns, int_2 verts[][3],
-										uint_1 color_indexes[], unsigned int color_table[], GLuint *list);
-
 
 void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list);
-void generate_disjoint_lines(int n, int_2 verts[][3], GLuint *list );
 void generate_polyline( int n, float vert[][3], GLuint *list );
+
 #ifdef BIG_GFX
 void generate_isosurfaces(int n, uint_4 *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
 #else
 void generate_isosurfaces(int n, uint_2 *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
 #endif
+
 void set_transparency( int alpha );
 
 

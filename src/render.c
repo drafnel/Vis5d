@@ -893,17 +893,14 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
 						 mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
 						 glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
 						 set_transparency( UNPACK_ALPHA(color) );
-						 glPushMatrix();
-						 glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 						 glCallList(ctx->Variable[var]->SurfTable[time]->glList);
-						 glPopMatrix();
 					  }
 #else
                   draw_isosurface( ctx->Variable[var]->SurfTable[time]->numindex,
                                    ctx->Variable[var]->SurfTable[time]->index,
                                    (void *) ctx->Variable[var]->SurfTable[time]->verts,
                                    (void *) ctx->Variable[var]->SurfTable[time]->norms,
-                                   dtx->Color[ctx->context_index*MAXVARS+var][0] );
+                                   dtx->Color[ctx->context_index*MAXVARS+var][0], NULL, 0 );
 
 #endif
 
@@ -1011,7 +1008,7 @@ static void render_textplots( Irregular_Context itx, int time)
          draw_disjoint_lines( itx->TextPlotTable[time].numverts,
                               (void *) itx->TextPlotTable[time].verts,
                               itx->dpy_ctx->TextPlotColor[itx->context_index*
-                             MAXVARS+var]);
+                             MAXVARS+var] , NULL, 0);
       }
    }
 }
@@ -1042,17 +1039,14 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
             recent( ctx, HSLICE, var );
 #ifdef USE_GLLISTS
 			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE]) );
-				glPushMatrix();
-				glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-				glShadeModel( GL_FLAT );
-				glDisable( GL_DITHER );
 				glCallList(ctx->Variable[var]->HSliceTable[time]->glList[0]);
 #else
 
             /* draw main contour lines */
             draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num1,
                                  (void *) ctx->Variable[var]->HSliceTable[time]->verts1,
-                                 ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE] );
+                                 ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE], 
+											NULL, 0 );
 #endif
             if (labels) {
 #ifdef USE_SYSTEM_FONTS
@@ -1067,7 +1061,7 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
-                                    var][HSLICE] );
+                                    var][HSLICE], NULL, 0 );
 
 
 				  plot_strings( ctx->Variable[var]->HSliceTable[time]->num3, 
@@ -1084,7 +1078,7 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num3,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS
-                                    +var][HSLICE] );
+                                    +var][HSLICE], NULL, 0 );
 #  endif
 #endif
             }
@@ -1097,15 +1091,10 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
-                                    var][HSLICE] );
+                                    var][HSLICE], NULL, 0 );
 
 #endif
             }
-#ifdef USE_GLLISTS			
-			glShadeModel( GL_SMOOTH );
-			glEnable( GL_DITHER );
-			glPopMatrix();
-#endif
 
             /* draw the bounding box */
             /* MJK 12.01.98 */
@@ -1185,7 +1174,7 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
             draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num1,
                                  (void*) ctx->Variable[var]->VSliceTable[time]->verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
-                                 var][VSLICE] );
+                                 var][VSLICE], NULL, 0 );
 
 #endif
             if (labels) {
@@ -1201,7 +1190,7 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
-                                    var][VSLICE] );
+                                    var][VSLICE] , NULL, 0);
 					plot_strings( ctx->Variable[var]->VSliceTable[time]->num3,
 									  ctx->Variable[var]->VSliceTable[time]->labels,
 									  (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
@@ -1216,7 +1205,7 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num3,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
-                                    var][VSLICE] );
+                                    var][VSLICE] , NULL, 0);
 #  endif
 #endif
             }
@@ -1228,7 +1217,7 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
-                                    var][VSLICE] );
+                                    var][VSLICE] , NULL, 0);
 #endif
             }
 #ifdef USE_GLLISTS			
@@ -1333,16 +1322,14 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
                recent( ctx, CHSLICE, var );
 					if(!tf){
 #ifdef USE_GLLISTS
-					  glPushMatrix();
-					  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 					  glCallList( ctx->Variable[var]->CHSliceTable[time]->glList );
-					  glPopMatrix();
 #else
 					  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
 												  ctx->Variable[var]->CHSliceTable[time]->columns,
 												  (void *)ctx->Variable[var]->CHSliceTable[time]->verts,
 												  ctx->Variable[var]->CHSliceTable[time]->color_indexes,
-												  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],-1);
+												  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var], 
+												  0,NULL,0);
 #endif
 					}
                done_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
@@ -1393,17 +1380,14 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
             recent( ctx, CVSLICE, var );
             if ( !tf) {
 #ifdef USE_GLLISTS
-				  glPushMatrix();
-				  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 				  glCallList( ctx->Variable[var]->CVSliceTable[time]->glList );
-				  glPopMatrix();				  
 #else
                draw_color_quadmesh( ctx->Variable[var]->CVSliceTable[time]->rows,
                                     ctx->Variable[var]->CVSliceTable[time]->columns,
                                     (void *)ctx->Variable[var]->CVSliceTable[time]->verts,
                                     ctx->Variable[var]->CVSliceTable[time]->color_indexes,
                                     dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-                                    -1 );
+                                    0,NULL,0 );
 #endif
             }
             done_read_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
@@ -1501,7 +1485,7 @@ static void render_hwind_slices( Context ctx, int time, int animflag )
 
                draw_disjoint_lines( dtx->HWindTable[w][time].nvectors,
                                     (void *) dtx->HWindTable[w][time].verts,
-                                    dtx->HWindColor[w] );
+                                    dtx->HWindColor[w] , NULL, 0);
 
                done_read_lock( &dtx->HWindTable[w][time].lock );
             }
@@ -1520,7 +1504,7 @@ static void render_hwind_slices( Context ctx, int time, int animflag )
                if (dtx->HWindTable[w][time].barbs) {
                  draw_disjoint_lines( dtx->HWindTable[w][time].nvectors,
                                       (void *) dtx->HWindTable[w][time].verts,
-                                      dtx->HWindColor[w] );
+                                      dtx->HWindColor[w], NULL, 0 );
                }
                else {
                  draw_wind_lines( dtx->HWindTable[w][time].nvectors / 4,
@@ -1582,7 +1566,7 @@ static void render_vwind_slices( Context ctx, int time, int animflag )
             if (dtx->VWindTable[w][time].barbs) {
               draw_disjoint_lines( dtx->VWindTable[w][time].nvectors,
                                    (void *) dtx->VWindTable[w][time].verts,
-                                   dtx->VWindColor[w] );
+                                   dtx->VWindColor[w], NULL, 0 );
             }
             else {
               draw_wind_lines( dtx->VWindTable[w][time].nvectors / 4,
@@ -1672,7 +1656,7 @@ static void render_hstream_slices( Context ctx, int time, int animflag )
             /* draw main contour lines */
             draw_disjoint_lines( dtx->HStreamTable[w][time].nlines,
                                  (void *) dtx->HStreamTable[w][time].verts,
-                                 dtx->HStreamColor[w] );
+                                 dtx->HStreamColor[w], NULL, 0 );
             
             done_read_lock( &dtx->HStreamTable[w][time].lock );
          }
@@ -1727,7 +1711,7 @@ static void render_vstream_slices( Context ctx, int time, int animflag )
             /* draw main contour lines */
             draw_disjoint_lines( dtx->VStreamTable[w][time].nlines,
                                  (void *) dtx->VStreamTable[w][time].verts,
-                                 dtx->VStreamColor[w] );
+                                 dtx->VStreamColor[w] , NULL, 0);
 
             done_read_lock( &dtx->VStreamTable[w][time].lock );
          }

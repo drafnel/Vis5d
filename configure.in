@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.43 $)
+AC_REVISION($Revision: 1.44 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -236,7 +236,7 @@ AC_SUBST(GLLIBS)
 # Check for any particular functions in the GL libs:
 save_LIBS="$LIBS"
 LIBS="$GLLIBS $XLIBS $LIBS"
-AC_CHECK_FUNCS(XMesaGetBackBuffer)
+AC_CHECK_HEADER([GL/xmesa.h], [AC_CHECK_FUNCS(XMesaGetBackBuffer)])
 LIBS="$save_LIBS"
 
 ##########################################################################

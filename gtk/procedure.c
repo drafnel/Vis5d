@@ -357,7 +357,7 @@ print_hslicecontrols(FILE *fp, hslicecontrols *hslice)
 	 fprintf(fp,"    interval = %g;\n",hslice->interval);
 	 fprintf(fp,"    stipple = 0x%x;\n",(unsigned short) hslice->stipple);
 	 fprintf(fp,"    width = %d;\n",hslice->linewidth);
-	 fprintf(fp,"    color = [%g, %g, %g, %g];\n"
+	 fprintf(fp,"    color = {%g, %g, %g, %g};\n"
 				,hslice->color[0],hslice->color[1],
 				hslice->color[2],hslice->color[3]);
   }else{

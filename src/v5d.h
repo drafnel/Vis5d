@@ -67,7 +67,7 @@ typedef unsigned short V5Dushort;   /* Must be 2 byte, except for cray */
 #define MAXTIMES    400
 #define MAXROWS     400
 #define MAXCOLUMNS  400 
-#define MAXLEVELS   100
+#define MAXLEVELS   400
 
 #define MAXRECS     10000
 
@@ -121,7 +121,8 @@ extern int v5dSetUnits( int var, const char *units );
 /***                                                                  ***/
 /************************************************************************/
 
-#define MAXPROJARGS 100
+/* ZLB 02-09-2000 */
+#define MAXPROJARGS (MAXROWS+MAXCOLUMNS+1)
 #define MAXVERTARGS (MAXLEVELS+1)
 
 /*
@@ -223,6 +224,14 @@ typedef struct {
                 ProjArgs[1] = Longitude of center of projection
                 ProjArgs[2] = Row Increment in Kilometers
                 ProjArgs[3] = Column Increment in Kilometers
+        ELSE IF Projection==-1 THEN
+        	ProjArgs[0]    = coordinate of latitude[0] (row[0])
+        	...
+        	ProjArgs[n]    = coordinate of latitude[n] (row[n])
+
+        	ProjArgs[NR]   = coordinate of latitude[0] (column[0])
+        	...
+        	ProjArgs[NR+n] = coordinate of latitude[n] (column[n])
         ENDIF
         */
 

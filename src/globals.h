@@ -927,6 +927,10 @@ struct display_context {
    float EastBound;
    float RowInc;
    float ColInc;
+   /* ZLB 02-09-2000 */
+   float Latitude[MAXROWS];	/* coordinates of Rows */
+   float Longitude[MAXCOLUMNS];	/* coordinates of Columns */
+
    float Lat1, Lat2;
    float PoleRow, PoleCol;
    float CentralLat;
@@ -1288,6 +1292,9 @@ struct vis5d_context {
    float EastBound;
    float RowInc;
    float ColInc;
+   /* ZLB 02-09-2000 */
+   float Latitude[MAXROWS];	/* coordinates of Rows */
+   float Longitude[MAXCOLUMNS];	/* coordinates of Columns */
    float Lat1, Lat2;
    float PoleRow, PoleCol;
    float CentralLat;

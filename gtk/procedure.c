@@ -25,7 +25,7 @@
 
 #include <glib.h>
 #include "procedure.h"
-#include <vis5d+/api.h>
+#include <api.h>
 /* define enumeration values to be returned for specific symbols */
 /* a SCOPE_SYMBOL is one which will change the current parser scope */
 

@@ -212,6 +212,10 @@ typedef enum{
 
 
 /* Map projections and vertical coordinate systems: */
+/* ZLB 2 Sep 2000 */
+#define PROJ_GENERIC_NONEQUAL -1 /* non equally spaced, no specific units */
+#define PROJ_MIN_VALUE        -1 /* smallest value of legal projection types */
+
 #define PROJ_GENERIC          0  /* No specific units */
 #define PROJ_LINEAR           1  /* Cylindrical-Equidistant (old vis5d) */
 #define PROJ_LAMBERT          2  /* Lambert conformal */

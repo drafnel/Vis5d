@@ -181,14 +181,16 @@ int setup_ctx_projection( Context ctx )
 {
    float lat1, lat2;
    float *projargs;
+   int i;
 
    /*
     * Usually, we use the projection info from the v5d file but if
-    * ctx->UserProjection>0 then we use the projection parameters from
-    * vis5d_init_projection().
+    * ctx->UserProjection>=PROJ_MIN_VALUE then we use the projection
+    * parameters from vis5d_init_projection().
     */
 
-   if (ctx->dpy_ctx->UserProjection>=0) {
+   /* ZLB */
+   if (ctx->dpy_ctx->UserProjection>=PROJ_MIN_VALUE) {
       projargs = ctx->dpy_ctx->UserProjArgs;
       ctx->Projection = ctx->dpy_ctx->UserProjection;
    }
@@ -238,6 +240,15 @@ int setup_ctx_projection( Context ctx )
          ctx->CentralCol = projargs[3];
          ctx->ColInc     = projargs[4];
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         for (i=0; i<ctx->Nr; i++) ctx->Longitude[i]=projargs[i];
+         for (i=0; i<ctx->Nc; i++) ctx->Latitude[i]=projargs[i+ctx->Nr];
+         ctx->NorthBound = ctx->Longitude[ctx->Nr-1];
+         ctx->WestBound  = ctx->Latitude[ctx->Nc-1];
+         ctx->RowInc     = (ctx->Longitude[ctx->Nr-1]-ctx->Longitude[0])/(ctx->Nr-1);
+         ctx->ColInc     = (ctx->Latitude[ctx->Nc-1]-ctx->Latitude[0])/(ctx->Nc-1);
+         break;
       default:
          printf("Error: unknown projection type in grid.c\n");
          return 0;
@@ -250,9 +261,9 @@ int setup_ctx_projection( Context ctx )
    switch (ctx->Projection) {
       case PROJ_GENERIC:
       case PROJ_LINEAR:
+      case PROJ_GENERIC_NONEQUAL: /* ZLB */
          ctx->SouthBound = ctx->NorthBound - ctx->RowInc * (ctx->Nr-1);
          ctx->EastBound = ctx->WestBound - ctx->ColInc * (ctx->Nc-1);
-
          break;
       case PROJ_LAMBERT:
          if (ctx->Lat1==ctx->Lat2) {
@@ -325,11 +336,14 @@ int setup_ctx_projection( Context ctx )
       case PROJ_MERCATOR:
          break;
       default:
-         printf("Error in set_projection\n");
+         printf("Error in setup_ctx_projection\n");
          return 0;
    }
    /* MJK 12.28.99 */
-   if (ctx->Projection != PROJ_GENERIC && ctx->Projection != PROJ_MERCATOR) {
+   /* ZLB 04.06.02 */
+   if (ctx->Projection != PROJ_GENERIC &&
+       ctx->Projection != PROJ_MERCATOR &&
+       ctx->Projection != PROJ_GENERIC_NONEQUAL) {
 /*
    if (ctx->Projection != PROJ_GENERIC) {
 */
@@ -351,16 +365,17 @@ int setup_ctx_projection( Context ctx )
 
 int setup_ctx_dtx_projection(Context ctx )
 {
+   int i;
    float lat1, lat2;
    float *projargs;
 
    /*
     * Usually, we use the projection info from the v5d file but if
-    * ctx->UserProjection>0 then we use the projection parameters from
-    * vis5d_init_projection().
+    * ctx->UserProjection>=-PROJ_MIN_VALUE then we use the projection
+    * parameters from vis5d_init_projection().
     */
 
-   if (ctx->dpy_ctx->UserProjection>=0) {
+   if (ctx->dpy_ctx->UserProjection>=PROJ_MIN_VALUE) {
       projargs = ctx->dpy_ctx->UserProjArgs;
       ctx->Projection = ctx->dpy_ctx->UserProjection;
       ctx->dpy_ctx->Projection = ctx->dpy_ctx->UserProjection;
@@ -437,6 +452,22 @@ int setup_ctx_dtx_projection(Context ctx )
          ctx->dpy_ctx->CentralCol = projargs[3];
          ctx->dpy_ctx->ColInc     = projargs[4];
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         for (i=0; i<ctx->Nr; i++) ctx->Longitude[i]=projargs[i];
+         for (i=0; i<ctx->Nc; i++) ctx->Latitude[i]=projargs[i+ctx->Nr];
+         ctx->NorthBound = ctx->Longitude[ctx->Nr-1];
+         ctx->WestBound  = ctx->Latitude[ctx->Nc-1];
+         ctx->RowInc     = (ctx->Longitude[ctx->Nr-1]-ctx->Longitude[0])/(ctx->Nr-1);
+         ctx->ColInc     = (ctx->Latitude[ctx->Nc-1]-ctx->Latitude[0])/(ctx->Nc-1);
+
+         for (i=0; i<ctx->Nr; i++) ctx->dpy_ctx->Longitude[i]=projargs[i];
+         for (i=0; i<ctx->Nc; i++) ctx->dpy_ctx->Latitude[i]=projargs[i+ctx->Nr];
+         ctx->dpy_ctx->NorthBound = ctx->NorthBound;
+         ctx->dpy_ctx->WestBound  = ctx->WestBound;
+         ctx->dpy_ctx->RowInc     = ctx->RowInc;
+         ctx->dpy_ctx->ColInc     = ctx->ColInc;
+         break;
       default:
          printf("Error: unknown projection type in grid.c\n");
          return 0;
@@ -449,6 +480,7 @@ int setup_ctx_dtx_projection(Context ctx )
    switch (ctx->Projection) {
       case PROJ_GENERIC:
       case PROJ_LINEAR:
+      case PROJ_GENERIC_NONEQUAL: /* ZLB */
          ctx->SouthBound = ctx->NorthBound - ctx->RowInc * (ctx->Nr-1);
          ctx->EastBound = ctx->WestBound - ctx->ColInc * (ctx->Nc-1);
 
@@ -549,11 +581,12 @@ int setup_ctx_dtx_projection(Context ctx )
       case PROJ_MERCATOR:
          break;
       default:
-         printf("Error in set_projection\n");
+         printf("Error in setup_ctx_dtx_projection\n");
          return 0;
    }
    /* MJK 12.28.99 */
-   if (ctx->Projection != PROJ_GENERIC && ctx->Projection != PROJ_MERCATOR) {
+   if (ctx->Projection != PROJ_GENERIC && ctx->Projection != PROJ_MERCATOR
+	/* ZLB */ && ctx->Projection != PROJ_GENERIC_NONEQUAL) {
 /*
    if (ctx->Projection != PROJ_GENERIC || ctx->Projection != PROJ_MERCATOR) {
 */
@@ -626,7 +659,7 @@ int setup_ctx_vertical_system( Context ctx )
          ctx->TopBound = ctx->Height[ctx->MaxNl-1];
          break;
       default:
-         printf("Error in grid.c, unknown vertical coord system\n");
+         printf("Error in setup_ctx_vertical_system, unknown vertical coord system\n");
          return 0;
    }
 
@@ -730,7 +763,7 @@ int setup_ctx_dtx_vertical_system( Context ctx )
          ctx->dpy_ctx->TopBound = ctx->Height[ctx->MaxNl-1];
          break;
       default:
-         printf("Error in grid.c, unknown vertical coord system\n");
+         printf("Error in setup_ctx_dtx_vertical_system, unknown vertical coord system\n");
          return 0;
    }
 
@@ -793,7 +826,8 @@ int setup_ctx_dtx_vertical_system( Context ctx )
  */
 void get_projection( Context ctx, int *projection, float *projargs )
 {
-   if (ctx->dpy_ctx->Projection<0 || ctx->dpy_ctx->UserProjection<0) {
+   if (ctx->dpy_ctx->Projection<PROJ_MIN_VALUE ||
+       ctx->dpy_ctx->UserProjection<PROJ_MIN_VALUE) {
       /* Haven't called setup_projection() yet, return v5d file's projection */
       *projection = ctx->G.Projection;
       memcpy( projargs, ctx->G.ProjArgs, MAXPROJARGS*sizeof(float) );
@@ -807,7 +841,7 @@ void get_projection( Context ctx, int *projection, float *projargs )
 
 void get_projection_d( Display_Context dtx, int *projection, float *projargs )
 {
-   if (dtx->Projection<0 || dtx->UserProjection<0) {
+   if (dtx->Projection<PROJ_MIN_VALUE || dtx->UserProjection<PROJ_MIN_VALUE) {
       /* Haven't called setup_projection() yet, return v5d file's projection */
       vis5d_get_dtx_values(dtx->dpy_context_index, &dtx->G);
       *projection = dtx->G.Projection;
@@ -928,7 +962,151 @@ static float binary_search( float value, float array[], int size )
    }
 }
 
+/**********************************************************************/
+/*****          longitude/column/x Coordinate Conversion          *****/
+/**********************************************************************/
 
+float gridcolumn_to_longitude( Context ctx, float column )
+{
+   int icolumn;
+   float rcolumn;
+
+   if ( ctx->Nc == 1) return ctx->WestBound;
+
+   icolumn = (int) column;
+   rcolumn = column - icolumn;
+   return ctx->WestBound - ( ctx->Longitude[icolumn] * (1.0-rcolumn) +
+                             ctx->Longitude[icolumn+1] * rcolumn );
+}
+
+float gridcolumnPRIME_to_longitude( Display_Context dtx, float column )
+{
+   int icolumn;
+   float rcolumn;
+
+   if ( dtx->Nc == 1) return dtx->WestBound;
+
+   icolumn = (int) column;
+   rcolumn = column - icolumn;
+   return dtx->WestBound - ( dtx->Longitude[icolumn] * (1.0-rcolumn) +
+                             dtx->Longitude[icolumn+1] * rcolumn );
+}
+
+float gridcolumnPRIME_to_xPRIME( Display_Context dtx, int time, int var, float column )
+{
+   int icolumn;
+   float rcolumn, lon;
+
+   if (column<=0.0) return dtx->Xmin;
+   else if (column>=dtx->Nc-1 || dtx->Nc == 1) return dtx->Xmax;
+
+   icolumn = (int) column;
+   rcolumn = column - icolumn;
+   lon = dtx->Latitude[icolumn] * (1.0-rcolumn) + dtx->Latitude[icolumn+1] * rcolumn;
+   return dtx->Xmin + (lon-dtx->EastBound)/(dtx->WestBound-dtx->EastBound)*
+                      (dtx->Xmax-dtx->Xmin);
+}
+
+static float xPRIME_to_gridcolPRIME( Display_Context dtx, float x )
+{
+   float lon;
+
+   if (x>=dtx->Xmax) return (float) (dtx->Nc-1);
+   else if (x<=dtx->Xmin) return 0.0;
+
+   lon = dtx->EastBound + (dtx->WestBound-dtx->EastBound) *
+         (x-dtx->Xmin)/(dtx->Xmax-dtx->Xmin);
+   return binary_search( lon, dtx->Latitude, dtx->Nc );
+}
+
+float longitude_to_gridcol( Context ctx, float lon )
+{
+#if 1
+   if (lon<=ctx->EastBound) return (float) (ctx->Nc-1);
+   else if (lon>=ctx->WestBound) return 0.0;
+
+   return ctx->Nc-1 - binary_search( lon, ctx->Latitude, ctx->Nc );
+#else
+   if (lon<=ctx->EastBound) return 0.0;
+   else if (lon>=ctx->WestBound) return (float) (ctx->Nc-1);
+
+   return binary_search( lon, ctx->Latitude, ctx->Nc );
+#endif
+}
+
+
+/**********************************************************************/
+/*****           latitude/row/y Coordinate Conversion             *****/
+/**********************************************************************/
+
+float gridrow_to_latitude( Context ctx, float row )
+{
+   int irow;
+   float rrow;
+
+   if ( ctx->Nr == 1) return ctx->NorthBound;
+
+   irow = (int) row;
+   rrow = row - irow;
+   return ctx->NorthBound - ( ctx->Latitude[irow] * (1.0-rrow) +
+                              ctx->Latitude[irow+1] * rrow );
+}
+
+float gridrowPRIME_to_latitude( Display_Context dtx, float row )
+{
+   int irow;
+   float rrow;
+
+   if ( dtx->Nr == 1) return dtx->NorthBound;
+
+   irow = (int) row;
+   rrow = row - irow;
+   return dtx->NorthBound - ( dtx->Latitude[irow] * (1.0-rrow) +
+                              dtx->Latitude[irow+1] * rrow );
+}
+
+float gridrowPRIME_to_yPRIME( Display_Context dtx, int time, int var, float row )
+{
+   int irow;
+   float rrow, lat;
+
+   if (row<=0.0) return dtx->Ymax;
+   else if (row>=dtx->Nr-1 || dtx->Nr == 1) return dtx->Ymin;
+
+   irow = (int) row;
+   rrow = row - irow;
+   lat = dtx->Longitude[irow] * (1.0-rrow) + dtx->Longitude[irow+1] * rrow;
+   return dtx->Ymax - (lat-dtx->SouthBound)/(dtx->NorthBound-dtx->SouthBound)*
+                      (dtx->Ymax-dtx->Ymin);
+}
+
+static float yPRIME_to_gridrowPRIME( Display_Context dtx, float y )
+{
+   float lat;
+
+   if (y>=dtx->Ymax) return 0.0;
+   else if (y<=dtx->Ymin) return (float) (dtx->Nr-1);
+
+   lat = dtx->SouthBound + (dtx->NorthBound-dtx->SouthBound) *
+         (dtx->Ymax-y)/(dtx->Ymax-dtx->Ymin);
+
+   return binary_search( lat, dtx->Longitude, dtx->Nr );
+}
+
+float latitude_to_gridrow( Context ctx, float lat )
+{
+#if 1
+   if (lat<=ctx->SouthBound) return (float) (ctx->Nr-1);
+   else if (lat>=ctx->NorthBound) return 0.0;
+
+   return ctx->Nr-1 - binary_search( lat, ctx->Longitude, ctx->Nr );
+#else
+   if (lat<=ctx->SouthBound) return 0.0;
+   else if (lat>=ctx->NorthBound) return (float) (ctx->Nr-1);
+
+   return binary_search( lat, ctx->Longitude, ctx->Nr );
+#endif
+}
 
 
 /**********************************************************************/
@@ -1216,7 +1394,7 @@ float gridlevelPRIME_to_height( Display_Context dtx, float level )
             rlevel = level - ilevel; 
             return dtx->Height[ilevel] * (1.0-rlevel) + dtx->Height[ilevel+1] * rlevel; 
          default:
-            printf("Error in gridlevel_to_height\n");
+            printf("Error in gridlevelPRIME_to_height\n");
       }       
    }
    return 0.0;
@@ -1271,7 +1449,7 @@ float height_to_gridlevPRIME( Display_Context dtx, float hgt )
             /* do a binary search of dtx->Height[] for hgt */
             return binary_search( hgt, dtx->Height, dtx->MaxNl );
          default:
-            printf("Error in height_to_gridlev\n");
+            printf("Error in height_to_gridlevPRIME\n");
       }
    /*}*/
    return 0.0;
@@ -1392,7 +1570,7 @@ float height_to_zTOPO(Display_Context dtx, float hgt )
             p = height_to_pressure( hgt );
             return P_TO_ZPRIME( p );
          default:
-            printf("Error in height_to_zPRIME\n");
+            printf("Error in height_to_zTOPO\n");
       }
    }
    return 0.0;
@@ -1452,7 +1630,7 @@ static float zPRIME_to_heightPRIME( Display_Context dtx, float z )
          p = ZPRIME_TO_PPRIME( z );
          return pressure_to_height( p );
       default:
-         printf("Error in z_to_height\n");
+         printf("Error in zPRIME_to_heightPRIME\n");
    }
    return 0.0;
 }
@@ -1614,10 +1792,17 @@ void gridPRIME_to_xyzPRIME( Display_Context dtx, int time, int var, int n,
             z[i] = d * slat;
          }
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         for (i=0;i<n;i++) {
+            x[i] = gridcolumnPRIME_to_xPRIME( dtx, time, var, c[i] );
+            y[i] = gridrowPRIME_to_yPRIME( dtx, time, var, r[i] );
+            z[i] = gridlevelPRIME_to_zPRIME( dtx, time, var, l[i] );
+         }
+         break;
       default:
          printf("Error in gridPRIME_to_xyzPRIME\n");
    }
-
 }
 
 /*
@@ -1882,6 +2067,7 @@ void grid_to_compXYZ( Context ctx, int time, int var, int n,
          printf("Error in grid_to_compXYZ\n");
    }
 }
+
 void xyz_to_compXYZ( Display_Context dtx, int n, float x[], float y[],
                      float z[], int_2 xyz[][3] )
 {
@@ -1995,6 +2181,29 @@ void gridPRIME_to_compXYZPRIMEcheck(Display_Context dtx, int time, int var, int 
                break;
          }
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         for (i=0;i<n;i++) {
+            if(c[i] < 0 || c[i] > dtx->Nc-1 ||
+               r[i] < 0 || r[i] > dtx->Nr-1 ||
+               l[i] < 0 || l[i] > dtx->Nl-1){
+               v++;
+            }
+            xx = gridcolumnPRIME_to_xPRIME( dtx, time, var, c[i] ) * VERTEX_SCALE;
+            yy = gridrowPRIME_to_yPRIME( dtx, time, var, r[i] ) * VERTEX_SCALE;
+            zz = gridlevelPRIME_to_zPRIME( dtx, time, var, l[i] ) * VERTEX_SCALE;
+            if (xx > 32760.0) xx = 32760.0;
+            if (xx < -32760.0) xx = -32760.0;
+            if (yy > 32760.0) yy = 32760.0;
+            if (yy < -32760.0) yy = -32760.0;
+            if (zz > 32760.0) zz = 32760.0;
+            if (zz < -32760.0) zz = -32760.0;
+            xyz[i-v][0] = xx;
+            xyz[i-v][1] = yy;
+            xyz[i-v][2] = zz;
+         }
+         *N = n-v;
+         break;
       case PROJ_CYLINDRICAL:
          {
             for (i=0;i<n;i++) {
@@ -2071,7 +2280,7 @@ void gridPRIME_to_compXYZPRIMEcheck(Display_Context dtx, int time, int var, int 
          *N = n-v;
          break;
       default:
-         printf("Error in gridPRIME_to_compXYZPRIME\n");
+         printf("Error in gridPRIME_to_compXYZPRIMEcheck\n");
    }
 }
 
@@ -2165,6 +2374,23 @@ void gridPRIME_to_compXYZPRIME( Display_Context dtx, int time, int var, int n,
                   }
                }
                break;
+         }
+         break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         for (i=0;i<n;i++) {
+            xx = gridcolumnPRIME_to_xPRIME( dtx, time, var, c[i] ) * VERTEX_SCALE;
+            yy = gridrowPRIME_to_yPRIME( dtx, time, var, r[i] ) * VERTEX_SCALE;
+            zz = gridlevelPRIME_to_zPRIME( dtx, time, var, l[i] ) * VERTEX_SCALE;
+            if (xx > 32760.0) xx = 32760.0;
+            if (xx < -32760.0) xx = -32760.0;
+            if (yy > 32760.0) yy = 32760.0;
+            if (yy < -32760.0) yy = -32760.0;
+            if (zz > 32760.0) zz = 32760.0;
+            if (zz < -32760.0) zz = -32760.0;
+            xyz[i][0] = xx;
+            xyz[i][1] = yy;
+            xyz[i][2] = zz;
          }
          break;
       case PROJ_CYLINDRICAL:
@@ -2530,7 +2756,7 @@ void geo_to_xyzPRIME( Display_Context dtx, int time, int var, int n,
          }
          break;
       default:
-         printf("Error in geo_to_xyz\n");
+         printf("Error in geo_to_xyzPRIME\n");
    }
 }
 
@@ -2669,7 +2895,12 @@ void geo_to_xyzTOPO( Display_Context dtx, int time, int var, int n,
          }
          break;
       default:
-         printf("Error in geo_to_xyz\n");
+	 	{
+			static int msg_issued = 0;
+			if ( !msg_issued )
+         printf("Error in geo_to_xyzTOPO\n");
+			msg_issued = 1;
+		}
    }
 }
 /*MJK 2.17.99 end */
@@ -2689,7 +2920,6 @@ void geo_to_xyzTOPO( Display_Context dtx, int time, int var, int n,
 void rowcol_to_latlon( Context ctx, int time, int var, float row, float col,
                        float *lat, float *lon )
 {
-
    switch (ctx->Projection) {
       case PROJ_GENERIC:
       case PROJ_LINEAR:
@@ -2766,14 +2996,21 @@ void rowcol_to_latlon( Context ctx, int time, int var, float row, float col,
                      * (ctx->WestBound-ctx->EastBound) / (float) (ctx->Nc-1);
          pandg_back(lat, lon, ctx->CentralLat, ctx->CentralLon, ctx->Rotation);
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         *lon = gridcolumn_to_longitude( ctx, col );
+         *lat = gridrow_to_latitude( ctx, row );
+         break;
       default:
          printf("Error in rowcol_to_latlon\n");
    }
 }
 
-void rowcolPRIME_to_latlon( Display_Context dtx, int time, int var, float row, float col,
-                       float *lat, float *lon )
+void rowcolPRIME_to_latlon( Display_Context dtx, int time, int var,
+		float row, float col, float *lat, float *lon )
 {
+   int irow, icol;
+   float rrow, rcol;
 
    switch (dtx->Projection) {
       case PROJ_GENERIC:
@@ -2851,6 +3088,11 @@ void rowcolPRIME_to_latlon( Display_Context dtx, int time, int var, float row, f
                      * (dtx->WestBound-dtx->EastBound) / (float) (dtx->Nc-1);
          pandg_back(lat, lon, dtx->CentralLat, dtx->CentralLon, dtx->Rotation);
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         *lon = gridcolumnPRIME_to_longitude( dtx, col );
+         *lat = gridrowPRIME_to_latitude( dtx, row );
+         break;
       default:
          printf("Error in rowcolPRIME_to_latlon\n");
    }
@@ -2876,6 +3118,12 @@ void xyzPRIME_to_gridPRIME( Display_Context dtx, int time, int var,
       case PROJ_MERCATOR:
          *col = (x-dtx->Xmin) / (dtx->Xmax-dtx->Xmin) * (float) (dtx->Nc-1);
          *row = (dtx->Ymax-y) / (dtx->Ymax-dtx->Ymin) * (float) (dtx->Nr-1);
+         *lev = zPRIME_to_gridlevPRIME( dtx, z );
+         break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         *col = xPRIME_to_gridcolPRIME( dtx, x );
+         *row = yPRIME_to_gridrowPRIME( dtx, y );
          *lev = zPRIME_to_gridlevPRIME( dtx, z );
          break;
       case PROJ_CYLINDRICAL:
@@ -3199,7 +3447,7 @@ void latlon_to_rowcolPRIME(Display_Context dtx, int time, int var,
          }
          break;
       default:
-         printf("Error in latlon_to_rowcol\n");
+         printf("Error in latlon_to_rowcolPRIME\n");
    }
 }
 
@@ -3303,6 +3551,13 @@ void geo_to_grid (Context ctx, int time, int var, int n,
             }
          }
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         for (i=0;i<n;i++) {
+            col[i] = longitude_to_gridcol( ctx, lon[i]);
+            row[i] = latitude_to_gridrow ( ctx, lat[i]);
+         }
+         break;
       default:
          printf("Error in geo_to_grid\n");
    }
@@ -3396,7 +3651,7 @@ void geo_to_gridPRIME (Display_Context dtx, int time, int var, int n,
          }
          break;
       default:
-         printf("Error in geo_to_grid\n");
+         printf("Error in geo_to_gridPRIME\n");
    }
    for (i=0;i<n;i++) {
       lev[i] = height_to_gridlevPRIME( dtx, hgt[i]);
@@ -3505,7 +3760,7 @@ void gridPRIME_to_geo (Display_Context dtx, int time, int var, int n,
          }
          break;
       default:
-         printf("Error in grid_to_geo\n");
+         printf("Error in gridPRIME_to_geo\n");
    }
    for (i=0;i<n;i++) {
       hgt[i] = gridlevelPRIME_to_height( dtx, lev[i]);
@@ -3650,6 +3905,8 @@ void xyz_to_geo( Context ctx, int time, int var,
    switch (ctx->Projection) {
       case PROJ_GENERIC:
       case PROJ_LINEAR:
+      /* ZLB 02-09-2000 ??????? */
+      case PROJ_GENERIC_NONEQUAL:
          *lon = ctx->WestBound - (x-ctx->dpy_ctx->Xmin)
               * (ctx->WestBound-ctx->EastBound) / (ctx->dpy_ctx->Xmax-ctx->dpy_ctx->Xmin);
          *lat = ctx->SouthBound + (y-ctx->dpy_ctx->Ymin)
@@ -3823,6 +4080,8 @@ void xyzPRIME_to_geo( Display_Context dtx, int time, int var,
    switch (dtx->Projection) {
       case PROJ_GENERIC:
       case PROJ_LINEAR:
+      /* ZLB 02-09-2000 ????? */
+      case PROJ_GENERIC_NONEQUAL:
          *lon = dtx->WestBound - (x-dtx->Xmin)
               * (dtx->WestBound-dtx->EastBound) / (dtx->Xmax-dtx->Xmin);
          *lat = dtx->SouthBound + (y-dtx->Ymin)
@@ -3974,7 +4233,7 @@ void xyzPRIME_to_geo( Display_Context dtx, int time, int var,
          }
          break;
       default:
-         printf("Error in xyz_to_geo\n");
+         printf("Error in xyzPRIME_to_geo\n");
    }
 }
 
@@ -4003,6 +4262,7 @@ void project_normals( Context ctx, int n, float vr[], float vc[], float vl[],
       case PROJ_LAMBERT:
       case PROJ_STEREO:
       case PROJ_ROTATED:
+      case PROJ_GENERIC_NONEQUAL:       /* ZLB 02-09-2000 */
       case PROJ_MERCATOR:
          /* don't need vr, vc, vl location information, just compress */
          for (i=0;i<n;i++) {   /* fully vectorized */
@@ -4154,7 +4414,7 @@ void project_normalsPRIME( Display_Context dtx,  int n, float vr[], float vc[], 
          break;
 
       default:
-         printf("Error in project_normals\n");
+         printf("Error in project_normalsPRIME\n");
    }
 
 }

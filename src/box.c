@@ -117,7 +117,8 @@ static void make_square_box( Display_Context dtx )
    ADD_VERTEX(  0.025, dtx->Ymax+0.25, dtx->Zmin );
    END_OF_LINE;
 
-   if (dtx->Projection==PROJ_GENERIC || dtx->Projection==PROJ_LINEAR) {
+   if (dtx->Projection==PROJ_GENERIC || dtx->Projection==PROJ_LINEAR
+       /* ZLB */ || dtx->Projection==PROJ_GENERIC_NONEQUAL) {
       /* East tick mark */
       ADD_VERTEX( dtx->Xmax, dtx->Ymin, dtx->Zmin );
       ADD_VERTEX( dtx->Xmax, dtx->Ymin-0.05, dtx->Zmin-0.05);
@@ -476,6 +477,7 @@ void make_box( Display_Context dtx, float ax, float ay, float az )
 
    switch (dtx->Projection) {
       case PROJ_GENERIC:
+      case PROJ_GENERIC_NONEQUAL:	/* ZLB 02-09-2000 */
          dtx->CurvedBox = 0;
          if (ax==0.0 && ay==0.0 && az==0.0) {
             float rdim, cdim, ldim;
@@ -671,6 +673,7 @@ void make_box( Display_Context dtx, float ax, float ay, float az )
       case PROJ_STEREO:
       case PROJ_MERCATOR:
       case PROJ_ROTATED:
+      case PROJ_GENERIC_NONEQUAL:	/* ZLB 02-09-2000 */
          make_square_box(dtx);
          break;
       case PROJ_CYLINDRICAL:

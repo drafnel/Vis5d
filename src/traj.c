@@ -72,6 +72,7 @@ int init_traj( Context ctx )
          ctx->TrajStep = 1.0;
          ctx->TrajLength = 1.0;
          break;
+      /* ZLB ???? */
       default:
          /* TODO: verify this is ok: (seems to work) */
          /* This is tricky:  compute distance, in meters, from left to */
@@ -119,6 +120,7 @@ int init_traj( Context ctx )
       case PROJ_ROTATED:
       case PROJ_CYLINDRICAL:
       case PROJ_SPHERICAL:
+      case PROJ_GENERIC_NONEQUAL:	/* ZLB 02-09-2000 */
       case PROJ_MERCATOR:
          for (i=0;i<ctx->Nr;i++) {
             for (j=0;j<ctx->Nc;j++) {
@@ -329,6 +331,7 @@ int init_trajPRIME( Display_Context dtx )
          dtx->TrajStep = 1.0;
          dtx->TrajLength = 1.0;
          break;
+      /* ZLB ???? */
       default:
          /* TODO: verify this is ok: (seems to work) */
          /* This is tricky:  compute distance, in meters, from left to */
@@ -372,6 +375,7 @@ int init_trajPRIME( Display_Context dtx )
       case PROJ_ROTATED:
       case PROJ_CYLINDRICAL:
       case PROJ_SPHERICAL:
+      case PROJ_GENERIC_NONEQUAL:	/* ZLB 02-09-2000 */
       case PROJ_MERCATOR:
          for (i=0;i<dtx->Nr;i++) {
             for (j=0;j<dtx->Nc;j++) {

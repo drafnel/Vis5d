@@ -372,8 +372,8 @@ static void init_context( Context ctx )
 
    memset( ctx, 0, sizeof(struct vis5d_context) );
 
-   ctx->UserProjection = -1;
-   ctx->UserVerticalSystem = -1;
+   ctx->UserProjection = PROJ_MIN_VALUE-1;
+   ctx->UserVerticalSystem = PROJ_MIN_VALUE-1;
 
    ctx->MegaBytes = MBS;
 
@@ -607,8 +607,8 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
 	*/
 
    dtx->VolRender = 1; /* until proven otherwise */
-   dtx->UserProjection = -1;
-   dtx->UserVerticalSystem = -1;
+   dtx->UserProjection = PROJ_MIN_VALUE-1;
+   dtx->UserVerticalSystem = PROJ_MIN_VALUE-1;
    dtx->LogoSize = 1;
 
    for (yo=0; yo<12; yo++){
@@ -1774,7 +1774,19 @@ int vis5d_check_dtx_same_as_ctx( int dindex, int vindex )
          return 0;
       }
    }
-
+   /* ZLB 02-09-2000 */
+   else if (dtx->Projection == PROJ_GENERIC_NONEQUAL){
+      for (yo=0; yo< ctx->Nr; yo++){
+         if (dtx->Longitude[yo] != ctx->Longitude[yo]){
+            return 0;
+         }
+      }
+      for (yo=0; yo< ctx->Nc; yo++){
+         if (dtx->Latitude[yo] != ctx->Latitude[yo]){
+            return 0;
+         }
+      }
+   }
 
    /* ok good so far... */
 
@@ -2492,6 +2504,15 @@ int vis5d_get_ctx_values( int index, v5dstruct *v5d)
       v5d->ProjArgs[2] = ctx->RowIncKm;
       v5d->ProjArgs[3] = ctx->ColIncKm;
    }
+   /* ZLB 02-09-2000 */
+   else if (ctx->Projection == PROJ_GENERIC_NONEQUAL){
+      for (yo = 0; yo < ctx->Nr; yo++){
+         v5d->ProjArgs[yo] = ctx->Longitude[yo];
+      }
+      for (yo = 0; yo < ctx->Nc; yo++){
+         v5d->ProjArgs[yo+ctx->Nr] = ctx->Latitude[yo];
+      }
+   }
 
    v5d->VerticalSystem = ctx->VerticalSystem;
 
@@ -2563,6 +2584,15 @@ int vis5d_get_dtx_values( int index,  v5dstruct *v5d)
       v5d->ProjArgs[1] = dtx->CentralLon;
       v5d->ProjArgs[2] = dtx->RowIncKm;
       v5d->ProjArgs[3] = dtx->ColIncKm;
+   }
+   /* ZLB 02-09-2000 */
+   else if (dtx->Projection == PROJ_GENERIC_NONEQUAL){
+      for (yo = 0; yo < dtx->Nr; yo++){
+         v5d->ProjArgs[yo] = dtx->Longitude[yo];
+      }
+      for (yo = 0; yo < dtx->Nc; yo++){
+         v5d->ProjArgs[yo+dtx->Nc] = dtx->Latitude[yo];
+      }
    }
    
    v5d->VerticalSystem = dtx->VerticalSystem;
@@ -2808,8 +2838,35 @@ int vis5d_set_dtx_values( int index, v5dstruct *v5d)
       dtx->SouthBound = dtx->NorthBound - dtx->RowInc * (dtx->Nr-1);
       dtx->EastBound = dtx->WestBound - dtx->ColInc * (dtx->Nc-1);
    }
+   /* ZLB 02-09-2000 */
+   else if (v5d->Projection == PROJ_GENERIC_NONEQUAL){
+      for (yo = 0; yo < v5d->Nr; yo++){
+         dtx->Longitude[yo] = v5d->ProjArgs[yo];
+      }
+      for (yo = 0; yo < v5d->Nc; yo++){
+         dtx->Latitude[yo] = v5d->ProjArgs[yo+v5d->Nr];
+      }
+      dtx->NorthBound = dtx->Longitude[v5d->Nr-1];
+      dtx->WestBound = dtx->Latitude[v5d->Nc-1];
+      dtx->RowInc = (dtx->Longitude[dtx->Nr-1]-dtx->Longitude[0])/(dtx->Nr-1);
+      dtx->ColInc = (dtx->Latitude[dtx->Nc-1]-dtx->Latitude[0])/(dtx->Nc-1);
+      dtx->SouthBound = dtx->NorthBound - dtx->RowInc * (dtx->Nr-1);
+      dtx->EastBound = dtx->WestBound - dtx->ColInc * (dtx->Nc-1);
+   }
+
+   /* ZLB 02-09-2000 */
+   if (v5d->Projection != PROJ_GENERIC_NONEQUAL) {
+      for (yo = 0; yo < v5d->Nr; yo++){
+         dtx->Longitude[yo] = dtx->NorthBound - yo*dtx->RowInc;
+      }
+      for (yo = 0; yo < v5d->Nc; yo++){
+         dtx->Latitude[yo] = dtx->WestBound - yo*dtx->ColInc;
+      }
+   }
+
    /* MJK 12.28.99 */
-   if (dtx->Projection != PROJ_GENERIC && dtx->Projection != PROJ_MERCATOR) {
+   if (dtx->Projection != PROJ_GENERIC && dtx->Projection != PROJ_MERCATOR &&
+	dtx->Projection!=PROJ_GENERIC_NONEQUAL) {
 /*
    if (dtx->Projection != PROJ_GENERIC) {
 */
@@ -3030,6 +3087,13 @@ int vis5d_init_display_values ( int index, int iindex, int display )
       dtx->EastBound = ctx->EastBound;
       dtx->RowInc = ctx->RowInc;
       dtx->ColInc = ctx->ColInc;
+      /* ZLB 02-09-2000, how about else below ???? */
+      for (yo = 0; yo < ctx->Nr; yo++){
+         dtx->Longitude[yo] = ctx->Longitude[yo];
+      }
+      for (yo = 0; yo < ctx->Nc; yo++){
+         dtx->Latitude[yo] = ctx->Latitude[yo];
+      }
       dtx->Lat1 = ctx->Lat1;
       dtx->Lat2 = ctx->Lat2;
       dtx->PoleRow = ctx->PoleRow;
@@ -5592,6 +5656,7 @@ int vis5d_get_curved( int index, int *curved )
 
 
 int vis5d_set_dtx_projection_and_vertsys( int index, int what, int type, float towhat)
+/* ZLB: to be modified ???????????????? */
 {
    int i;
    float lat1, lat2;
@@ -5748,7 +5813,10 @@ int vis5d_set_dtx_projection_and_vertsys( int index, int what, int type, float t
             dtx->EastBound = dtx->WestBound - dtx->ColInc * (dtx->Nc-1);
          }
          /* MJK 12.28.99 */
-         if (dtx->Projection != PROJ_GENERIC && dtx->Projection != PROJ_MERCATOR) {
+	 /* ZLB 04.05.02 */
+         if (dtx->Projection != PROJ_GENERIC &&
+	     dtx->Projection != PROJ_MERCATOR &&
+	     dtx->Projection != PROJ_GENERIC_NONEQUAL) {
 /*
          if (dtx->Projection != PROJ_GENERIC) {
 */

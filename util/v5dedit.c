@@ -194,7 +194,7 @@ static void edit_times( v5dstruct *v )
 static void edit_projection( v5dstruct *v )
 {
    char input[1000];
-   int n;
+   int i,n;
 
    while (1) {
       printf("\n");
@@ -241,6 +241,16 @@ static void edit_projection( v5dstruct *v )
             printf("  7. Central Longitude = %g\n", v->ProjArgs[5] );
             printf("  8. Rotation = %g\n", v->ProjArgs[6] );
             break;
+         /* ZLB 02-09-2000 */
+         case -1:
+            printf("  1. Generic nonequally spaced projection:\n");
+            for (i=0;i<v->Nc;i++) {
+               printf("%3d. column %3d:  %.4f\n", i+2, i+1, v->ProjArgs[i+v->Nr] );
+            }
+            for (i=0;i<v->Nr;i++) {
+               printf("%3d. row %3d:  %.4f\n", i+2+v->Nr, i+1, v->ProjArgs[i] );
+            }
+            break;
          default:
             printf("  Bad projection number: %d\n", v->Projection );
             return;
@@ -254,6 +264,7 @@ static void edit_projection( v5dstruct *v )
       if (n>0) {
          if (n==1) {
             printf("Projections\n");
+            printf("  0. Generic nonequally spaced\n");
             printf("  1. Generic linear\n");
             printf("  2. Cylindrical equidistant\n");
             printf("  3. Lambert Conformal\n");
@@ -267,7 +278,7 @@ static void edit_projection( v5dstruct *v )
             n = atoi( input );
             if (n>=1 && n<=5) {
                v->Projection = n-1;
-            }
+            } else if (n==0) v->Projection = -1;
          }
          else {
             printf("New value: ");

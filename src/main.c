@@ -1067,6 +1067,10 @@ main( int argc, char *argv[] )
       /* default wind var names */
       strcpy( traju[yo], "U" );   strcpy( trajv[yo], "V" );   strcpy( trajw[yo], "W" );
       strcpy( u2[yo], "U" );      strcpy( v2[yo], "V" );      strcpy( w2[yo], "W" );
+
+      /* ZLB 1 Sep 2000 */
+      user_data[yo]=user_maps[yo]=user_topo[yo]=0;
+
    }
    /* WLH 29 Sept 98 */
    pipe_name = NULL;

@@ -227,6 +227,15 @@ int write_gridfile( Context ctx, char filename[] )
          v->ProjArgs[3] = ctx->CentralCol;
          v->ProjArgs[4] = ctx->ColInc;    
          break;
+      /* ZLB 02-09-2000 */
+      case PROJ_GENERIC_NONEQUAL:
+         for (i=0;i<ctx->Nr;i++) {
+            v->ProjArgs[i] = ctx->Longitude[i];
+         }
+         for (i=0;i<ctx->Nc;i++) {
+            v->ProjArgs[i+ctx->Nr] = ctx->Latitude[i];
+         }
+         break;
       default:
          printf("Error: unknown projection type in grid.c\n");
    }

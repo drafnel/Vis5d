@@ -422,14 +422,14 @@ void v5dPrintStruct( const v5dstruct *v )
          printf("Unequally spaced levels in km:\n");
          printf("Level\tHeight(km)\n");
          for (i=0;i<maxnl;i++) {
-            printf("%3d     %10.3f\n", i+1, v->VertArgs[i] );
+            printf("%3d\t%-15.8f\n", i+1, v->VertArgs[i] );
          }
          break;
       case 3:
          printf("Unequally spaced levels in mb:\n");
          printf("Level\tPressure(mb)\n");
          for (i=0;i<maxnl;i++) {
-            printf("%3d     %10.3f\n", i+1, height_to_pressure(v->VertArgs[i]) );
+            printf("%3d\t%-15.8f\n", i+1, height_to_pressure(v->VertArgs[i]) );
          }
          break;
       default:
@@ -492,6 +492,18 @@ void v5dPrintStruct( const v5dstruct *v )
          printf("\tCenter Longitude: %f\n", v->ProjArgs[1] );
          printf("\tRow Increment: %f Kilometers\n", v->ProjArgs[2] );
          printf("\tCol Increment: %f Kilometers\n", v->ProjArgs[3] );
+         break;
+      /* ZLB 02-09-2000 */
+      case -1:
+         printf("Generic unequally spaced projection:\n");
+         printf("Column\tPosition\n");
+         for (i=0;i<v->Nc;i++) {
+            printf("%3d\t%-15.8f\n", i+1, v->ProjArgs[i+v->Nr] );
+         }
+         printf("Row\tPosition\n");
+         for (i=0;i<v->Nr;i++) {
+            printf("%3d\t%-15.8f\n", i+1, v->ProjArgs[i] );
+         }
          break;
       default:
          printf("Bad projection number: %d\n", v->Projection );
@@ -1289,8 +1301,28 @@ int v5dVerifyStruct( const v5dstruct *v )
             invalid = 1;
          }
          break;
+      /* ZLB 02-09-2000 */
+      case -1:  /* Generic non equally spaced */
+         for (i=1;i<v->Nr;i++) {
+            if (v->ProjArgs[i] <= v->ProjArgs[i-1]) {
+               printf("Row[%d]=%f >= Row[%d]=%f, row coordinates must increase\n",
+                      i, v->ProjArgs[i], i-1, v->ProjArgs[i-1] );
+               invalid = 1;
+               break;
+            }
+         }
+         if (invalid) break;
+         for (i=v->Nr+1;i<v->Nr+v->Nc;i++) {
+            if (v->ProjArgs[i] <= v->ProjArgs[i-1]) {
+               printf("Column[%d]=%f >= Column[%d]=%f, Column coordinates must increase\n",
+                      i-v->Nr, v->ProjArgs[i], i-v->Nr-1, v->ProjArgs[i-1] );
+               invalid = 1;
+               break;
+            }
+         }
+         break;
       default:
-         printf("Projection = %d, must be in 0..4\n", v->Projection );
+         printf("Projection = %d, must be in -1..5\n", v->Projection);
          invalid = 1;
    }
 
@@ -1848,7 +1880,9 @@ static int read_v5d_header( v5dstruct *v )
          case TAG_PROJECTION:
             assert( length==4 );
             read_int4( f, &v->Projection );
-            if (v->Projection<0 || v->Projection>5) { /* WLH 4-21-95 */
+	    /* WLH 4-21-95 */
+	    /* ZLB 04-06-02 */
+            if (v->Projection<-1 || v->Projection>5) {
                printf("Error while reading header, bad projection (%d)\n",
                        v->Projection );
                return 0;
@@ -2248,6 +2282,8 @@ static int write_v5d_header( v5dstruct *v )
    int var, time, filler, maxnl;
    int f;
    int newfile;
+   /* ZLB */
+   int n;
 
    if (v->FileFormat!=0) {
       printf("Error: v5d library can't write comp5d format files.\n");
@@ -2361,16 +2397,32 @@ static int write_v5d_header( v5dstruct *v )
    /* Vertical Coordinate System */
    WRITE_TAG( v, TAG_VERTICAL_SYSTEM, 4 );
    write_int4( f, v->VerticalSystem );
+   /* ZLB 02-09-2000 */
+#if 0
    WRITE_TAG( v, TAG_VERT_ARGS, 4+4*MAXVERTARGS );
    write_int4( f, MAXVERTARGS );
    write_float4_array( f, v->VertArgs, MAXVERTARGS );
+#else
+   n = ( v->VerticalSystem == 0 || v->VerticalSystem == 1 ) ? 2 : maxnl;
+   WRITE_TAG( v, TAG_VERT_ARGS, 4+4*n );
+   write_int4( f, n );
+   write_float4_array( f, v->VertArgs, n );
+#endif
 
    /* Map Projection */
    WRITE_TAG( v, TAG_PROJECTION, 4 );
    write_int4( f, v->Projection );
+   /* ZLB 02-09-2000 */
+#if 0
    WRITE_TAG( v, TAG_PROJ_ARGS, 4+4*MAXPROJARGS );
    write_int4( f, MAXPROJARGS );
    write_float4_array( f, v->ProjArgs, MAXPROJARGS );
+#else
+   n= ( v->Projection != -1 ) ? 10 : v->Nc + v->Nr;
+   WRITE_TAG( v, TAG_PROJ_ARGS, 4+4*n );
+   write_int4( f, n );
+   write_float4_array( f, v->ProjArgs, n );
+#endif
 
    /* write END tag */
    if (newfile) {
@@ -2996,6 +3048,10 @@ int F77_FUNC(v5dcreate,V5DCREATE)
 /* MJK 12.12.99 */
       case 5:
          args = 4;
+         break;
+      /* ZLB 02-09-2000 */
+      case -1:
+         args = *nr + *nc;
          break;
       default:
          args = 0;

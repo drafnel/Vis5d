@@ -457,7 +457,7 @@ typedef struct name_value {
 static NameValue *NameValueHead = NULL;
 
 
-#define MAXPROJARGS 100
+/*#define MAXPROJARGS 100*/
 
 
 
@@ -2733,6 +2733,10 @@ static int cmd_set_dtx_projection_and_vertical( ClientData client_data, Tcl_Inte
       }
       else if (strcmp(argv[3], "PROJ_SPHERICAL")==0){
          towhat = PROJ_SPHERICAL;
+      }
+      /* ZLB 02-09-2000 */
+      else if (strcmp(argv[3], "PROJ_GENERIC_NONEQUAL")==0){
+         towhat = PROJ_GENERIC_NONEQUAL;
       }
       else {
          towhat = atoi(argv[3]);

@@ -617,7 +617,8 @@ static void print_cursor_position( Display_Context dtx, int it )
    }
    /* end MJK 12.01.98 */
 
-   if (dtx->Projection==PROJ_LINEAR || dtx->Projection==PROJ_GENERIC) {
+   if (dtx->Projection==PROJ_LINEAR || dtx->Projection==PROJ_GENERIC
+       /* ZLB */ || dtx->Projection==PROJ_GENERIC_NONEQUAL) {
       /* Rectangular box:  put labels along edge of box in 3-D */
 
       set_depthcue( dtx->DepthCue );
@@ -753,7 +754,7 @@ static void print_cursor_position( Display_Context dtx, int it )
       /* display cursor position in geographic coordinates */
       xyzPRIME_to_geo (dtx, it, -1, dtx->CursorX, dtx->CursorY, dtx->CursorZ,
                        &lat, &lon, &hgt);
-      if (dtx->Projection == PROJ_GENERIC)
+      if (dtx->Projection == PROJ_GENERIC /* ZLB ?????*/)
       {
          sprintf (str, fmt, "Row", lat, "");
          draw_text( ix, (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );

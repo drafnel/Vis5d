@@ -20,11 +20,11 @@ C the functions you'll want to use for writing v5d file converters.
 C 5-D grid limits, must match those in v5d.h!!!
       integer MAXVARS, MAXTIMES, MAXROWS, MAXCOLUMNS, MAXLEVELS
 
-      parameter (MAXVARS=100)
+      parameter (MAXVARS=200)
       parameter (MAXTIMES=400)
       parameter (MAXROWS=400)
       parameter (MAXCOLUMNS=400)
-      parameter (MAXLEVELS=100)
+      parameter (MAXLEVELS=400)
 
 C Missing values
       real MISSING

@@ -82,7 +82,6 @@
 #define DEFAULT_LOG_SCALE  1012.5
 #define DEFAULT_LOG_EXP  -7.2
 
-
 #define DEFAULT_SOUNDFONTNAME "6x12"
 
 /**********************************************************************/

@@ -6779,7 +6779,10 @@ void set_hslice_pos(Context ctx, int var, hslice_request *request, float level)
 		int factor=1;
 		float diff;
 		diff = request->HighLimit - request->LowLimit;
-		if(diff>100){
+                if(diff<=0.0){
+		  request->LowLimit = 0.0;
+		  request->HighLimit = 1.0;
+		}else if(diff>100){
 		  while(diff>100){
 			 factor++;
 			 diff /= factor;
@@ -6794,6 +6797,7 @@ void set_hslice_pos(Context ctx, int var, hslice_request *request, float level)
 		  while(diff<10){
 			 factor++;
 			 diff *= factor;
+			 printf("%d %f\n",factor,diff);
 		  }
 
 		  /*  sets the first and last contours outside the bounds of the data

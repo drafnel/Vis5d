@@ -1299,7 +1299,8 @@ static void get_col_from_lon( int dindex, float lon, int type, float *col)
    *col = 0.0;
    vis5d_get_dtx_projection( dindex, &proj, projargs);
    if (proj == PROJ_GENERIC || proj == PROJ_LINEAR ||
-       proj == PROJ_CYLINDRICAL || proj == PROJ_SPHERICAL){
+       proj == PROJ_CYLINDRICAL || proj == PROJ_SPHERICAL
+       /* ZLB */ || proj == PROJ_GENERIC_NONEQUAL){
       int Nr, Nc, Nl, LowLev, MaxNlVar, WindNl, WindLow;
       
       vis5d_get_sizePRIME(dindex, &Nr, &Nc, &Nl,
@@ -1360,7 +1361,8 @@ static void get_row_from_lat(int dindex, float lat, int type, float *row)
    *row = 0.0;
    vis5d_get_dtx_projection( dindex, &proj, projargs);
    if (proj == PROJ_GENERIC || proj == PROJ_LINEAR ||
-       proj == PROJ_CYLINDRICAL || proj == PROJ_SPHERICAL){
+       proj == PROJ_CYLINDRICAL || proj == PROJ_SPHERICAL
+       /* ZLB */ || proj == PROJ_GENERIC_NONEQUAL){
       int Nr, Nc, Nl, LowLev, MaxNlVar, WindNl, WindLow;
 
       vis5d_get_sizePRIME(dindex, &Nr, &Nc, &Nl,
@@ -1435,6 +1437,8 @@ static int move_vslice( int index, int curx, int cury,
    float nr, nc;
    int Nr, Nc, Nl, LowLev, MaxNlVar, WindNl, WindLow;
    int vNr, vNc, vNl[MAXVARS], vLowLev[MAXVARS], vMaxNl, vMaxNlVar, vWindNl, vWindLow;
+   /* ZLB 02-09-2000 */
+   float xmin, xmax, ymin, ymax;
 
    /** INDEX = v5d_context index **/
    int dindex;
@@ -1442,6 +1446,8 @@ static int move_vslice( int index, int curx, int cury,
    vis5d_get_ctx_display_index( index, &dindex); 
    vis5d_get_sizePRIME(dindex, &Nr, &Nc, &Nl, &LowLev,  &WindNl, &WindLow);
    vis5d_get_size( index, &vNr, &vNc, vNl, vLowLev, &vMaxNl, &vMaxNlVar, &vWindNl, &vWindLow);
+   /* ZLB 02-09-2000 */
+   vis5d_get_box_bounds(dindex, &xmin, &xmax, &ymin, &ymax, &cx, &cy );
 
    nr = (float) (Nr-1);
    nc = (float) (Nc-1);
@@ -1515,23 +1521,47 @@ static int move_vslice( int index, int curx, int cury,
       switch (nearedge) {
          case 0:
             /* north */
+#if 1
+            /* ZLB: map t to reflect coordinate nonuniformity */
+	    vis5d_xyzPRIME_to_gridPRIME( dindex, time, var,
+	    		xmin+neart*(xmax-xmin), 0.0, 0.0, &t, &newcol, &t);
+#else
             newcol = nc*neart;
+#endif
             newrow = 0.0;
             break;
          case 1:
             /* east */
             newcol = nc;
+#if 1
+            /* ZLB: map t to reflect coordinate nonuniformity */
+	    vis5d_xyzPRIME_to_gridPRIME( dindex, time, var,
+	    		0.0, ymax-neart*(ymax-ymin), 0.0, &newrow, &t, &t);
+#else
             newrow = nr*neart;
+#endif
             break;
          case 2:
             /* south */
+#if 1
+            /* ZLB: map t to reflect coordinate nonuniformity */
+	    vis5d_xyzPRIME_to_gridPRIME( dindex, time, var,
+	    		xmin+neart*(xmax-xmin), 0.0, 0.0, &t, &newcol, &t);
+#else
             newcol = nc*neart;
+#endif
             newrow = nr;
             break;
          case 3:
             /* west */
             newcol = 0.0;
+#if 1
+            /* ZLB: map t to reflect coordinate nonuniformity */
+	    vis5d_xyzPRIME_to_gridPRIME( dindex, time, var,
+	    		0.0, ymax-neart*(ymax-ymin), 0.0, &newrow, &t, &t);
+#else
             newrow = nr*neart;
+#endif
             break;
       }
 

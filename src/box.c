@@ -709,14 +709,15 @@ void draw_box( Display_Context dtx, int it )
 
 
    set_depthcue( dtx->DepthCue );
-
-/* MJK 3.29.99 */
-   if (dtx->Reversed){
-      draw_multi_lines( dtx->NumBoxVerts, dtx->BoxVerts, PACK_COLOR(0,0,0,255) );
-   }
-   else{
-      draw_multi_lines( dtx->NumBoxVerts, dtx->BoxVerts, dtx->BoxColor );
-   }
+	
+	if(dtx->NumBoxVerts>0){
+	  if (dtx->Reversed){
+		 draw_multi_lines( dtx->NumBoxVerts, dtx->BoxVerts, PACK_COLOR(0,0,0,255) );
+	  }
+	  else{
+		 draw_multi_lines( dtx->NumBoxVerts, dtx->BoxVerts, dtx->BoxColor );
+	  }
+	}
 
 
    if (dtx->TickMarks) {

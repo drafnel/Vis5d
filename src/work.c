@@ -6226,11 +6226,11 @@ static void recolor_topography( Context ctx, int time )
             xyzPRIME_to_grid( ctx, ctxtime, colorvar, x, y, z,
                          &grow, &gcol, &glev );
 
-	    /* JPE parentheses grouping in this statement may be suspect */
-            if ( (((int) grow < 0) || ((int) gcol < 0)) ||
-                 (((grow < 0) || (grow > (ctx->Nr-1))) &&
-                 ((gcol < 0) || (gcol > (ctx->Nc-1))) &&
-                 ((glev < 0) || (glev > (ctx->Nl[colorvar]-1))))){
+	    /* WLH 13 Nov 2000 */
+             if ( ((int) grow < 0) || ((int) gcol < 0) ||
+                  (grow < 0) || (grow > ctx->Nr-1) ||
+                  (gcol < 0) || (gcol > ctx->Nc-1) ||
+                  (glev < 0) || (glev > ctx->Nl[colorvar]-1)){
                indexes[n] = 255;
             }
             else{

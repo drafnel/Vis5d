@@ -37,6 +37,8 @@ Summary of changes for new releases of Vis5d+:
     v5dimport was ignoring the lowlev and using levels 1012 1000 and
     750.
 
+  * Synchronized with mainline tree as of April 2, 2001.
+
 Vis5d+ 1.0.2
 
   * Converted the manual to DocBook format, thanks to a contribution by

@@ -556,6 +556,9 @@ void make_isocolor_window( GuiContext gtx )
    static int do_once = 1;
    int done_mainwin = 0;
 
+   /* WLH 15 Nov 2000 */
+   char string[20];
+
    if(do_once){
       do_once = 0;
       init_currents();
@@ -590,7 +593,12 @@ void make_isocolor_window( GuiContext gtx )
    }
    gtx->iso_button_matrix = bm;
 
+      /* WLH 15 Nov 2000
       labels[0] = "MonoColor";
+      */
+      labels[0] = string;
+      strcpy( labels[0], "MonoColor" );
+
       LUI_ButtonMatrixAddRow( bm, labels, &red, &green, &blue );
       for (yo=0; yo< gtx->how_many_regular_contexts; yo++){
          spandex = gtx->array_of_ctxs[yo];

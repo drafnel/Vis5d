@@ -697,7 +697,7 @@ void draw_box( Display_Context dtx, int it )
    static float by[3] = { -0.035, 0.0, -0.035 },  uy[3] = { 0.0, 0.07, 0.0 };
    static float bz[3] = { -0.035, -0.035, 0.0 }, uz[3] = { 0.0, 0.0, 0.07 };
    float x1, y1, z1, x2, y2, z2;
-   char str[100];
+   char str[100], xdir1[8], xdir2[8], ydir1[8], ydir2[8];
 
    /* set depth cueing & line color */
 /* MJK 3.29.99 */
@@ -707,7 +707,15 @@ void draw_box( Display_Context dtx, int it )
    else{
       set_color( dtx->BoxColor );
    }
-
+/*MiB*/
+   xdir1[0] = ' ';
+   xdir2[0] = ' ';
+   xdir1[1] = '\0 ';
+   xdir2[1] = '\0';
+   ydir1[0] = ' ';
+   ydir2[0] = ' ';
+   ydir1[1] = '\0 ';
+   ydir2[1] = '\0';
 
    set_depthcue( dtx->DepthCue );
 	
@@ -734,8 +742,51 @@ void draw_box( Display_Context dtx, int it )
       else {
          x1 = dtx->WestBound;
          x2 = dtx->EastBound;
+
          y1 = dtx->NorthBound;
          y2 = dtx->SouthBound;
+
+/*MiB   03/2001 limit range to -180, 180 */
+         if (x1 < -180.){
+	     x1 = 360. + x1;
+         }
+         if (x2 < -180.){
+	     x2 = 360. + x2;
+         }
+         if (x1 > 180.){
+	     x1 = -360. + x1;
+         }
+         if (x2 > 180.){
+	     x2 = -360. + x2;
+         }
+/*MiB   03/2001 Define East/West  */
+         if (x1 > 0.){
+	     	xdir1[0] = 'W';
+         } else {
+                xdir1[0] = 'E';
+                x1 = x1 *(-1.);
+                }
+         if (x2 > 0.){
+	     	xdir2[0] = 'W';
+         } else {
+                xdir2[0] = 'E';
+                x2 = x2 *(-1.);
+         } 
+/*MiB   03/2001 Define North/South  */
+         if (y1 > 0.){
+	     	ydir1[0] = 'N';
+         } else {
+                ydir1[0] = 'S';
+                y1 = y1 *(-1.);
+                }
+         if (y2 > 0.){
+	     	ydir2[0] = 'N';
+         } else {
+                ydir2[0] = 'S';
+                y2 = y2 *(-1.);
+         } 
+
+
 #ifdef LEVELTYPES
          z1 = dtx->BottomCoordinate;
          z2 = dtx->TopCoordinate;
@@ -750,24 +801,28 @@ void draw_box( Display_Context dtx, int it )
       if (dtx->CursorX - dtx->Xmin > 0.1 || dtx->DisplayCursor==0) {
          /* MJK 12.02.98 */
          float2string (dtx, 0, x1, str);
+/*MiB*/  strcat(str,xdir1);
          plot_string( str, dtx->Xmin-0.02, dtx->Ymin-0.1, dtx->Zmin-0.125, bx, ux, 0 );
       }
 
       if (dtx->Xmax - dtx->CursorX > 0.1 || dtx->DisplayCursor==0) {
          /* MJK 12.02.98 */
          float2string (dtx, 0, x2, str);
+/*MiB*/  strcat(str,xdir2);
          plot_string( str, dtx->Xmax-0.05, dtx->Ymin-0.1, dtx->Zmin-0.125, bx, ux, 0 );
       }
 
       if (dtx->Ymax - dtx->CursorY > 0.1 || dtx->DisplayCursor==0) {
          /* MJK 12.02.98 */
          float2string (dtx, 1, y1, str);
+/*MiB*/  strcat(str,ydir1);
          plot_string( str, dtx->Xmin-0.075, dtx->Ymax-0.03, dtx->Zmin-0.075, by, uy, 1 );
       }
 
       if (dtx->CursorY-dtx->Ymin > 0.1 || dtx->DisplayCursor==0) {
          /* MJK 12.02.98 */
          float2string (dtx, 2, y2, str);
+/*MiB*/  strcat(str,ydir2);
          plot_string( str, dtx->Xmin-0.075, dtx->Ymin-0.02, dtx->Zmin-0.075, by, uy, 1 );
       }
 
@@ -935,4 +990,3 @@ void draw_logo( Display_Context dtx, unsigned int c )
    polyline2d( p, 14 );
 
 }
-

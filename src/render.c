@@ -292,14 +292,22 @@ void plot_string( char *str, float startx, float starty, float startz,
       eight[] = { 0,0, 0,.8, .4,.8, .4,0, 0,0, 0,.4, .4,.4 },
       nine[] = { .4,.4, 0,.4, 0,.8, .4,.8, .4,0 },
       dash[] = { 0,.4, .4,.4 },
-      dot[] = { 0,0, 0,.1, .1,.1, .1,0, 0,0 };
+      dot[] = { 0,0, 0,.1, .1,.1, .1,0, 0,0 },
+ /*MiB  03/2001 Longitudes*/
+      west[] = {0.,0.8, 0.,0., 0.2,0.4, 0.4,0.0, 0.4,0.8},
+      east[] = {0.4,0.8, 0.0,0.8, 0.0,0.4, 0.3,0.4, 0.0,0.4, 0.0,0.0, 0.4,0.0},
+      north[] = {0.,0.0, 0.,0.8, 0.4,0.0, 0.4,0.8},
+      south[] = {0.0,0.1, 0.1,0.0, 0.3,0.0, 0.4,0.1, 0.4,0.3, 
+		 0.0,0.5, 0.0,0.7, 0.1,0.8, 0.3,0.8, 0.4,0.7};
 
-   static float *index[12] = { zero, one, two, three, four, five, six,
-                               seven, eight, nine, dash, dot };
+   static float *index[16] = { zero, one, two, three, four, five, six,
+                               seven, eight, nine, dash, dot, west, east,
+				north, south};
 
-   static float width[12] = { 0.6, 0.2, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
-      0.6, 0.6, 0.6, 0.3 };
-   static int verts[12] = { 5, 2, 6, 7, 5, 6, 6, 4, 7, 5, 2, 5 };
+   static float width[16] = { 0.6, 0.2, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
+      0.6, 0.6, 0.6, 0.3, 0.6, 0.6 , 0.6, 0.6};
+   static int verts[16] = { 5, 2, 6, 7, 5, 6, 6, 4, 7, 5, 2, 5 ,5, 7, 4, 10};
+
 
    float *temp, plot[100][3];
    float cx, cy, cz;
@@ -315,6 +323,14 @@ void plot_string( char *str, float startx, float starty, float startz,
             k = 10;
          else if (str[i]=='.')
             k = 11;
+/*MiB*/  else if (str[i]=='W')
+            k = 12;
+         else if (str[i]=='E')
+            k = 13;
+         else if (str[i]=='N')
+            k = 14;
+         else if (str[i]=='S')
+/*MiB*/     k = 15;
          else if (str[i]>='0' && str[i]<='9')
             k = str[i] - '0';
          else
@@ -344,6 +360,14 @@ void plot_string( char *str, float startx, float starty, float startz,
             k = 10;
          else if (str[i]=='.')
             k = 11;
+/*MiB*/  else if (str[i]=='W')
+            k = 12;
+         else if (str[i]=='N')
+            k = 14;
+         else if (str[i]=='S')
+            k = 15;
+         else if (str[i]=='E')
+/*MiB*/     k = 13;
          else if (str[i]>='0' && str[i]<='9')
             k = str[i] - '0';
          else
@@ -556,13 +580,19 @@ static void print_cursor_position( Display_Context dtx, int it )
    static float by[3] = { -0.035, 0.0, -0.035 },  uy[3] = { 0.0, 0.07, 0.0 };
    static float bz[3] = { -0.035, -0.035, 0.0 }, uz[3] = { 0.0, 0.0, 0.07 };
    float v[6][3];
-   float x, y, z;
-   char str[100];
+   float x, y, z, xx, yy;
+   char str[100], xdir1[8],ydir1[8];
 
    /* MJK 12.01.98 */
    float lat, lon, hgt, row, col, lev;
    int ix;
    char fmt[] = {"%s: %9.3f %s  "};
+
+/* MiB 03/2001   Longitudes in  [-180, 180]    Intitialize...*/
+   xdir1[0] = ' ';
+   xdir1[1] = '\0';
+   ydir1[0] = ' ';
+   ydir1[1] = '\0';
 
    /* MJK 12.01.98 begin*/
    if ((dtx->DisplayProbe) || (dtx->DisplaySound)){
@@ -618,11 +648,38 @@ static void print_cursor_position( Display_Context dtx, int it )
          z = VERTPRIME(z);
       }
 
+/*MiB   03/2001 limit range to -180, 180 */
+         xx = x;
+         if (xx < -180.){
+	     xx = 360. + xx;
+         }
+         if (xx > 180.){
+	     xx = -360. + xx;
+         }
+/*MiB   03/2001 Define East/West  */
+         if (xx > 0.){
+	     	xdir1[0] = 'W';
+         } else {
+                xdir1[0] = 'E';
+                xx = xx *(-1.);
+                }
+/*MiB   03/2001 Define North/South  */
+	 yy = y;
+         if (yy > 0.){
+	     	ydir1[0] = 'N';
+         } else {
+                ydir1[0] = 'S';
+                yy = yy *(-1.);
+                }
+  
+
       /* MJK 12.01.98 */                        
-      float2string(dtx, 0, x, str );
+      float2string(dtx, 0, xx, str );
+/*MiB*/  strcat(str,xdir1);
       plot_string( str, dtx->CursorX-0.04, dtx->Ymin-0.1,
                    dtx->Zmin-0.125, bx, ux, 0 );
-      float2string(dtx, 1, y, str );
+      float2string(dtx, 1, yy, str );
+/*MiB*/  strcat(str,ydir1);
       plot_string( str, dtx->Xmin-0.075, dtx->CursorY-0.02,
                    dtx->Zmin-0.075, by, uy, 1 );
       float2string(dtx, 2, z, str );
@@ -708,6 +765,8 @@ static void print_cursor_position( Display_Context dtx, int it )
 
          hemi[0] = 'W';
          if (lon < 0.0) lon = -lon, hemi[0] = 'E';
+/*MiB*/  if (lon > 180.) lon = -360. + lon, hemi[0] = 'W';
+/*MiB*/  if (lon < 0.0) lon = -lon, hemi[0] = 'E';
          sprintf (str, fmt, "Lon", lon, hemi);
          draw_text( ix, 2*(dtx->FontHeight+VSPACE), str );
       }
@@ -2723,4 +2782,3 @@ void render_everything( Display_Context dtx, int animflag )
    }
    finish_rendering();
 }
-

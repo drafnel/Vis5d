@@ -30,8 +30,9 @@
  */
 
 #include "../config.h"
-
+#include <stdlib.h>
 #include <X11/Xlib.h>
+#include "api.h"
 
 /* About this file ...
 
@@ -47,10 +48,34 @@
    a standalone program, so this one simple source file compiles to an
    executable that gives them that capability.
 */
+extern char toponame[]; /* resample_i.c */
+#define TOPO_FILE "EARTH.TOPO"
+
 int main( int argc, char *argv[] )
 {
-    Display* guidpy = XOpenDisplay( NULL );
-    int result = main_irun( guidpy, 1, argc, argv );
+  int result;
+  Display* guidpy = XOpenDisplay( NULL );
+
+  Vis5dDataPath[0]=0;
+
+  if (getenv("VIS5D_PATH") ){
+	 strcpy( Vis5dDataPath, getenv("VIS5D_PATH") );
+  }
+#ifdef DATA_PREFIX
+  if (Vis5dDataPath[0] == 0) { /* SGJ 1/11/00 */
+	 strcpy(Vis5dDataPath, DATA_PREFIX);
+  }
+#endif
+
+  if (getenv("VIS5D_TOPO") ){
+	 sprintf( toponame,"%s/%s",Vis5dDataPath,getenv("VIS5D_TOPO") );
+  }else{
+	 sprintf( toponame,"%s/EARTH.TOPO",Vis5dDataPath );
+  }	 
+    
+
+    printf("Setting toponame %s\n",toponame);
+    result = main_irun( guidpy, 1, argc, argv );
     return result;
 }
 

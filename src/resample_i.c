@@ -82,11 +82,13 @@ resampler.
 #include "proj_i.h"
 #include "resample_i.h"
 #include "topo_i.h"
-#include "../src/v5d.h"
-
+#include "v5d.h"
+#include "api.h"
 
 
 #define TOPO_FILE "EARTH.TOPO"
+char toponame[100]={"\0"};
+
 
 #define ABS(X)   ( (X) < 0.0 ? -(X) : (X) )
 
@@ -139,7 +141,11 @@ static void init_resampler( struct resampler *r, int outnl )
       r->DoVertical = 1;
       r->SampLev = (float *) MALLOC(r->inR * r->inC * r->outL * sizeof(float));
 
-      if (load_topo(TOPO_FILE)) {
+      	
+      if(toponame[0]=='0')
+		  strcpy(toponame,TOPO_FILE);
+
+      if (load_topo(toponame)){
          /* Specify topo resampling by looking at distance in lat/lon */
          /* between two grid points near the center of domain. */
          float lat1, lat2, lon1, lon2;
@@ -150,7 +156,7 @@ static void init_resampler( struct resampler *r, int outnl )
          set_topo_sampling( ABS(lat2-lat1), ABS(lon2-lon1) );
       }
       else {
-         printf("Note: topography file %s not found\n", TOPO_FILE);
+		  printf("Note: topography file %s not found\n", toponame);
       }
 
       /* Compute locations of vertical samples */

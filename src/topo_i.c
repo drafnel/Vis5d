@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "binio.h"
-
+#include "api.h"
 
 
 static float Topo_westlon, Topo_eastlon, Topo_northlat, Topo_southlat;
@@ -66,10 +66,10 @@ int load_topo( char filename[] )
 
       f = open( filename, O_RDONLY );
       if (f<0) {
-/*         printf("Topo file %s not found\n", filename );*/
+		  /*         printf("Topo file %s not found\n", filename );*/
          return 0;
       }
-
+		printf("Reading topo file %s\n",filename);
       /* Read file header */
       read_bytes( f, id, 40 );
       if (strcmp(id,"TOPO")==0) {

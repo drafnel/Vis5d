@@ -35,7 +35,6 @@
 #include "grid_i.h"
 
 
-
 /*
  * A resampler struct carries the information needed to resample a 3-D
  * grid from one projection and VCS to a new projection and VCS.

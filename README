@@ -10,3 +10,24 @@ For the lazy, a typical installation is simply:
 		./configure
 		make
 		su -c 'make install'
+
+
+NOTES ON THE GTK INTERFACE:
+
+The gtk user interface is incomplete and should only be built by those
+interested in contributing to it's development.  The gtk interface and
+it's files, with the exception of the i18n language files, do not
+install on a make install.
+
+gradient data files:  (COLORTABLES)
+
+gtk/gradient data files are in the format used by gimp (www.gimp.org).
+On my machine they are located in directory
+/usr/share/gimp/1.2/gradients vis5d+ expects them in
+$(toplevel)/gtk/gradients/data, a link will work.  gimp includes a
+very nice gradient editing tool to create new gradient files.  We do
+not yet have a set of gradient files specific to vis5d+, however if
+you would like to contribute any ...
+
+
+

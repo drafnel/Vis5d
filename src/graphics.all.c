@@ -98,6 +98,9 @@ int find_best_visual( Display *dpy, int scr, int *depth, Visual **visual,
    Window root;
    Screen *screen;
 
+	/* TODO: this function is called at least three times on startup
+		is it expensive?  can we reduce it to once? */
+
    assert( dpy );
 
    root = RootWindow( dpy, scr );

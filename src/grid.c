@@ -298,8 +298,7 @@ int set_ctx_from_internalv5d(Context ctx)
 
    /* Initalize parameter type table */
    for (i=0;i < ctx->G.NumVars;i++) {
-	  ctx->Variable[i] = (vis5d_variable *) malloc(sizeof(vis5d_variable));  
-	  ctx->Variable[i]->VarType = 0;
+	  ctx->Variable[i] = (vis5d_variable *) calloc(1,sizeof(vis5d_variable));  
    }
 
    /* Copy header info from G to global variables */
@@ -396,6 +395,12 @@ void free_grid_cache( Context ctx )
          }
       }
    }
+	for(it=0;it<ctx->MaxCachedGrids;it++)
+	  deallocate(ctx,ctx->GridCache[it].Data,0);
+
+	deallocate(ctx,ctx->GridCache,ctx->MaxCachedGrids
+				  * sizeof(struct cache_rec));
+	ctx->GridCache=NULL;
 }
 
 
@@ -1057,7 +1062,7 @@ int allocate_clone_variable( Context ctx, char name[], int var_to_clone )
    }
 	newvar = ctx->NumVars;
 
-	ctx->Variable[newvar] = (vis5d_variable *) malloc(sizeof(vis5d_variable));
+	ctx->Variable[newvar] = (vis5d_variable *) calloc(1,sizeof(vis5d_variable));
 
 
    ctx->Variable[newvar]->VarType = VIS5D_CLONE;

@@ -79,6 +79,11 @@
 #define MAX(A,B)  ( (A) > (B) ? (A) : (B) )
 
 
+#define allocate(a, b) (void *) malloc(b)
+
+
+
+
 /* Maximum number of vertices... */
 #ifdef BIG_GFX
 /* WLH 31 Oct 98

@@ -1434,4 +1434,10 @@ typedef struct display_context *Display_Context;
 typedef struct display_group *Display_Group;
 typedef struct irregular_context *Irregular_Context;
 
+/* JPE useful for debugging
+#define allocate(a, b) (void *) malloc(b)
+*/
+
+
+
 #endif

@@ -110,7 +110,9 @@ extern int init_shared_memory( Context ctx, void *start, int bytes );
 
 extern int reinit_memory( Context ctx );
 
+#ifndef allocate
 extern void *allocate( Context ctx, int bytes );
+#endif
 
 extern void *allocate_type( Context ctx, int bytes, int type );
 

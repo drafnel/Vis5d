@@ -643,7 +643,7 @@ int free_hslice( Context ctx, int time, int var )
 	 }
 
 #else
-   if (ctx->Variable[var]->HSliceTable[time] && ctx->Variable[var]->HSliceTable[time]->valid) {
+   if (ctx->Variable[var]->HSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
       b1 = ctx->Variable[var]->HSliceTable[time]->num1 * sizeof(int_2) * 3;
@@ -694,7 +694,7 @@ int free_vslice( Context ctx, int time, int var )
 		ctx->Variable[var]->VSliceTable[time]->glList[i]=0;
 	 }
 #else  
-   if (ctx->Variable[var]->VSliceTable[time]->valid) {
+   if ( ctx->Variable[var]->VSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
       if (ctx->Variable[var]->VSliceTable[time]->valid
@@ -965,26 +965,26 @@ void free_all_graphics( Context ctx )
    int set, var, time, ws;
 
    for (var=0;var<ctx->NumVars;var++) {
-      free_param_graphics( ctx, var );
+	  free_param_graphics( ctx, var );
    }
-   for (time=0;time<ctx->dpy_ctx->NumTimes;time++) {
-      /* BUG FIX MJK 8.10.98 */
-      /* set ws<VIS5D_WIND_SLICES instead of ws<=VIS5D_WIND_SLICES */
-      for (ws=0;ws<VIS5D_WIND_SLICES;ws++) {
+	if(ctx->dpy_ctx){
+	  for (time=0;time< ctx->dpy_ctx->NumTimes; time++) {
+		 for (ws=0;ws<VIS5D_WIND_SLICES;ws++) {
          if (ctx->dpy_ctx->Uvarowner[ws] == ctx->context_index){
-            free_hwind( ctx->dpy_ctx, time, ws );
-            free_vwind( ctx->dpy_ctx, time, ws );
-            free_hstream( ctx->dpy_ctx, time, ws );
-            free_vstream( ctx->dpy_ctx, time, ws );
+			  free_hwind( ctx->dpy_ctx, time, ws );
+			  free_vwind( ctx->dpy_ctx, time, ws );
+			  free_hstream( ctx->dpy_ctx, time, ws );
+			  free_vstream( ctx->dpy_ctx, time, ws );
          }
-      }
-   }
-   if (ctx->context_index == ctx->dpy_ctx->TrajUowner){
-      for (set = 0; set < VIS5D_TRAJ_SETS; set++){
+		 }
+	  }
+	  if (ctx->context_index == ctx->dpy_ctx->TrajUowner){
+		 for (set = 0; set < VIS5D_TRAJ_SETS; set++){
          ctx->dpy_ctx->DisplayTraj[set] = 0;
          vis5d_delete_traj_set(ctx->dpy_ctx->dpy_context_index, set);
-      }
-   }
+		 }
+	  }
+	}
 }
 
 void turn_off_and_free_var_graphics( Context ctx, int var)

@@ -1,4 +1,7 @@
 /*
+ * Vis5d+ 
+ * Copyright (C) 2001 James P Edwards
+ *
  * Vis5D system for visualizing five dimensional gridded data sets.
  * Copyright (C) 1990 - 2000 Bill Hibbard, Johan Kellum, Brian Paul,
  * Dave Santek, and Andre Battaiola.
@@ -777,13 +780,26 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
  */
 static void destroy_context( Context ctx )
 {
-  int i;
-
+  int i, j;
+  /*  crashs 
   free_all_graphics( ctx );
-  free_grid_cache( ctx );
+  */
+  for(j=0;j<ctx->NumVars;j++){
+	 deallocate(ctx, ctx->Variable[j]->VSliceRequest,
+					sizeof(vslice_request));
+	 deallocate(ctx, ctx->Variable[j]->HSliceRequest,
+					sizeof(hslice_request));
+	 deallocate(ctx, ctx->Variable[j]->CVSliceRequest,
+					sizeof(vslice_request));
+	 deallocate(ctx, ctx->Variable[j]->CHSliceRequest,
+					sizeof(hslice_request));
+			 
+	 free(ctx->Variable[j]);
+  }
+  if(ctx->Volume)
+	 free_volume(ctx);
 
-  for(i=0;i<ctx->NumVars;i++)
-	 free(ctx->Variable[i]);
+  free_grid_cache( ctx );
 
 #ifdef CAVE
    if (cave_shmem) {
@@ -800,6 +816,7 @@ static void destroy_context( Context ctx )
    if (ctx->mempool) {
       free( ctx->mempool );
    }
+
    free( ctx );
 #endif
 }
@@ -819,6 +836,15 @@ static void destroy_display_context( Display_Context dtx )
   for(i=0;i<GFX_FONT_COUNT;i++)
 	 free_Xgfx(dtx->gfx[i]);
 #endif
+  for(i=0;i<2;i++){
+	 if(dtx->HClipTable[i].boxverts)
+		free(dtx->HClipTable[i].boxverts);
+  }
+  for(i=0;i<4;i++){
+	 if(dtx->VClipTable[i].boxverts)
+		free(dtx->VClipTable[i].boxverts);
+  }
+
 
   if(dtx->topo)
 	 free_topo(&dtx->topo);
@@ -833,7 +859,7 @@ static void destroy_display_context( Display_Context dtx )
 
 
 /*
- * Do one-time initializations which are indepenent of all contexts.
+ * Do one-time initializations which are independent of all contexts.
  */
 int vis5d_initialize( int cave_mode )
 {
@@ -858,6 +884,9 @@ int vis5d_initialize( int cave_mode )
 
    if (cave_mode) {
 #ifdef CAVE
+	  /* is it okay that space is not allocated for dtx_table, grp_table and 
+		  itx_table in cave mode? */
+
       int size = CAVE_MEMORY_SIZE * 1024 * 1024;
       cave_shmem = CAVEUserSharedMemory( size );
       if (!cave_shmem) {
@@ -872,26 +901,13 @@ int vis5d_initialize( int cave_mode )
 #endif
    }
    else {
-      ctx_table = malloc( sizeof(Context *) * VIS5D_MAX_CONTEXTS );
-      dtx_table = malloc( sizeof(Display_Context*) * VIS5D_MAX_DPY_CONTEXTS );
-      grp_table = malloc( sizeof(Display_Group*) * VIS5D_MAX_DPY_CONTEXTS );
+      ctx_table = calloc( VIS5D_MAX_CONTEXTS, sizeof(Context *) );
+      dtx_table = calloc( VIS5D_MAX_DPY_CONTEXTS, sizeof(Display_Context *) );
+      grp_table = calloc( VIS5D_MAX_DPY_CONTEXTS, sizeof(Display_Group *) );
       /* New 5.2 */
-      itx_table = malloc( sizeof(Irregular_Context *) * VIS5D_MAX_CONTEXTS );
-}
+      itx_table = calloc( VIS5D_MAX_CONTEXTS, sizeof(Irregular_Context *) );
+	}
 
-   for (i=0;i<VIS5D_MAX_CONTEXTS;i++) {
-      ctx_table[i] = NULL;
-   }
-   for (i=0;i<VIS5D_MAX_DPY_CONTEXTS;i++) {
-      dtx_table[i] = NULL;
-   }
-   for (i=0;i<VIS5D_MAX_DPY_CONTEXTS;i++) {
-      grp_table[i] = NULL;
-   }
-   /* New 5.2 */
-   for (i=0;i<VIS5D_MAX_ITX_CONTEXTS;i++) {
-      itx_table[i] = NULL;
-   }
    DisplayRows = 1;
    DisplayCols = 1; 
 
@@ -907,14 +923,45 @@ int vis5d_terminate( int close_windows )
 {
    int i;
 
+
+	
    if (close_windows) {
-      for (i=0;i<VIS5D_MAX_DPY_CONTEXTS;i++) {
+	  /*      for (i=0;i<VIS5D_MAX_DPY_CONTEXTS;i++) {
          if (dtx_table[i]) {
             free_graphics( dtx_table[i]);
          }
+			
       }
    }
+	
+	  */	  
+	  if(ctx_table){
+		 for(i=0;i<VIS5D_MAX_CONTEXTS;i++){
+			if(ctx_table[i])
+			  destroy_context(ctx_table[i]);
 
+		 }
+		 free(ctx_table);
+	  }
+	  if(dtx_table){
+		 for(i=0;i<VIS5D_MAX_DPY_CONTEXTS;i++)
+			vis5d_destroy_display_context(i);
+		 free(dtx_table);
+	  }
+	
+	  if(grp_table){
+		 for(i=0;i<VIS5D_MAX_DPY_CONTEXTS;i++)
+			if(grp_table[i])
+			  free(grp_table[i]);
+		 free(grp_table);
+	  }
+	  if(itx_table){
+		 for(i=0;i<VIS5D_MAX_CONTEXTS;i++)
+			if(itx_table[i])
+			  destroy_irregular_context(itx_table[i]);
+		 free(itx_table);
+	  }
+	}
    FREE_LOCK( GfxLock );
    FREE_LOCK( TrajLock );
 
@@ -1321,7 +1368,11 @@ int vis5d_invalidate_hslice(int index, int var, int time) {
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_vslice(int index, int var, int time) {
-  CONTEXT("vis5d_invalidate_isosurface");
+  CONTEXT("vis5d_invalidate_vslice");
+
+  /* TODO JPE - I believe these (each of the invalidate functions
+	  may have the affect of hiding the memory taken by this object 
+	  thus causing a leak */
 
   if(ctx->Variable[var])
 	 if(ctx->Variable[var]->VSliceTable[time])
@@ -1547,6 +1598,8 @@ int vis5d_assign_display_to_data( int index, int display_index)
       }
       remove_ctx_index_from_dtx(ctx->dpy_ctx->dpy_context_index, ctx->context_index);
    }
+	printf("adding dtx to ctx %d %d 0x%x\n",display_index, index, (unsigned int) dtx);
+
    ctx->dpy_ctx = dtx;
 
    add_ctx_index_to_dtx( display_index, index);
@@ -3514,6 +3567,7 @@ int vis5d_init_topo( int index, char *toponame, int highres_flag )
 	if(dtx->topo){
 	  free_topo(&dtx->topo);
 	}	
+
 	dtx->topo = (struct Topo *) calloc(1,sizeof(struct Topo ));
 
 	if(vis5d_verbose & VERBOSE_DISPLAY) 
@@ -3689,7 +3743,9 @@ static void load_topo_and_map( Display_Context dtx )
 
 	if(dtx->topo==NULL){
 	  printf("ERROR: topo not initialized\n");
+
 	}
+
 	if(vis5d_verbose & VERBOSE_DISPLAY) 
 	  printf("in c load_topo_and_map topo=0x%x\n",(unsigned int) dtx->topo); 
 
@@ -6450,8 +6506,7 @@ int vis5d_var_graphics_options(int index, int type, int number, int what, int mo
 	 /* here mode is the GL stipple pattern or get if none of */
     /* we really dont need this restriction to only 5 patterns*/
 	 if(mode == VIS5D_SOLID_LINE || mode == VIS5D_DASHED_LINE 
-		 || mode == VIS5D_DOTTED_LINE || mode ==	VIS5D_DOTDASHED_LINE ||
-		 mode == VIS5D_LONGDASHED_LINE){
+		 || mode == VIS5D_DOTTED_LINE || mode ==	VIS5D_DOTDASHED_LINE){
 		*val = mode;
 	 }
 	 return *val;
@@ -6483,12 +6538,11 @@ int vis5d_var_graphics_options(int index, int type, int number, int what, int mo
   case VIS5D_GET:
 	 break;
   default:
-	 printf("bad mode (%d) in vis5d_enable_graphics\n", mode);
+	 printf("bad mode (%d) in vis5d_var_graphics_options\n", mode);
 	 return VIS5D_BAD_MODE;
   }
   return *val;
 }
-
 
 /*
  * Control what "data"-graphics to display.
@@ -7314,6 +7368,17 @@ int vis5d_get_matrix( int index, float ctm[4][4] )
 {
   DPY_CONTEXT("vis5d_get_matrix")
   mat_copy(ctm, dtx->CTM);
+  return 0;
+}
+
+int vis5d_matrix_mult( int index, float matrix[4][4] )
+{
+  MATRIX r;
+
+  DPY_CONTEXT("vis5d_get_matrix")
+  mat_mul( r, dtx->CTM, matrix);
+  mat_copy(dtx->CTM, r);
+
   return 0;
 }
 
@@ -8401,8 +8466,10 @@ int vis5d_set_vslice( int index, int var, float interval,
    ctx->Variable[var]->VSliceRequest->LowLimit = low;
    ctx->Variable[var]->VSliceRequest->HighLimit = high;
    ctx->Variable[var]->VSliceRequest->R1 = CLAMP( row0, 0.0, ctx->dpy_ctx->Nr-1 );
+   /* JPE: should this be clamped > R1 */
    ctx->Variable[var]->VSliceRequest->R2 = CLAMP( col0, 0.0, ctx->dpy_ctx->Nc-1 );
    ctx->Variable[var]->VSliceRequest->C1 = CLAMP( row1, 0.0, ctx->dpy_ctx->Nr-1 );
+   /* JPE: should this be clamped > C1 */
    ctx->Variable[var]->VSliceRequest->C2 = CLAMP( col1, 0.0, ctx->dpy_ctx->Nc-1 );
    return new_slice_pos(index, VSLICE, var);
 }
@@ -10526,10 +10593,13 @@ int vis5d_set_all_invalid (int index)
 
 			if(ctx->Variable[var]->HSliceTable[time])
 			  ctx->Variable[var]->HSliceTable[time]->valid = 0;
-
-         ctx->Variable[var]->VSliceTable[time]->valid = 0;
-         ctx->Variable[var]->CHSliceTable[time]->valid = 0;
-         ctx->Variable[var]->CVSliceTable[time]->valid = 0;
+			if(ctx->Variable[var]->VSliceTable[time])
+			  ctx->Variable[var]->VSliceTable[time]->valid = 0;
+	  
+			if(ctx->Variable[var]->CHSliceTable[time])
+			  ctx->Variable[var]->CHSliceTable[time]->valid = 0;
+			if(ctx->Variable[var]->CVSliceTable[time])
+			  ctx->Variable[var]->CVSliceTable[time]->valid = 0;
       }
    }
 

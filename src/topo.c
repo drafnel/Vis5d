@@ -367,7 +367,8 @@ int read_topo( struct Topo *topo, char *filename )
       close(f);
       return 0;
    }
-
+	if(topo->TopoData)
+	  free(topo->TopoData);
 
    topo->TopoData = (short *) malloc(topo->Topo_rows * topo->Topo_cols * sizeof(short));
 
@@ -401,10 +402,14 @@ int read_topo( struct Topo *topo, char *filename )
 void free_topo( struct Topo **topoloc )
 {
   struct Topo *topo;
-  
+  int i;
   topo = *topoloc;
 
   /* surely we should free more than this.*/
+  for(i=0;i<MAXTIMES+1;i++)
+	 if(topo->TopoIndexes[i])
+		free(topo->TopoIndexes[i]);
+
    if (topo->TopoData) 
 	  free( topo->TopoData);
 	if(topo->TopoVertex)
@@ -903,7 +908,6 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
 
    /* done with topoheight array */
    free( topoheight );
-	printf("Done with topoheight\n");
 
    /* compute quadmesh normal vectors */
    {

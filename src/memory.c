@@ -538,13 +538,21 @@ int mem_available( Context ctx )
  *         bytes - how many bytes to allocate
  * Return:  address of memory block or NULL if out of memory.
  */
+#ifndef allocate
 void *allocate( Context ctx, int bytes )
 {
+  
    assert( bytes>=0 );
 
    if (ctx->memory_limit==0) {
       /* just malloc */
-      return (void *) malloc( bytes );
+	  /*
+	  void *tmp;
+	  tmp = (void *) malloc( bytes );
+	  printf("allocate 0x%x\n",tmp);
+	  return tmp;
+	  */
+	  return (void *) malloc( bytes );
    }
    else {
       void *addr;
@@ -576,7 +584,7 @@ void *allocate( Context ctx, int bytes )
    }
 }
 
-
+#endif
 
 /*
  * Allocate a block of memory.  If there is not enough memory to satisfy

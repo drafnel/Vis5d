@@ -1,3 +1,22 @@
+/*
+ * Vis5d+/Gtk user interface 
+ * Copyright (C) 2001 James P Edwards
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -254,12 +273,9 @@ void chs_label(v5d_var_info *vinfo)
 				vinfo->chs->pressure);
   }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
 				vinfo->info->vcs==VERT_NONEQUAL_KM){  
-	 float value;
-	 vis5d_gridlevel_to_height(vinfo->v5d_data_context,0,
-										vinfo->varid,vinfo->chs->level,&value);
 	 sprintf(text,"CHS: %s from %g to %g at level %g Km",
 				vinfo->vname,vinfo->chs->min,vinfo->chs->max,
-				value);
+				vinfo->chs->height);
 		
   }else{
 	 sprintf(text,"CHS: %s from %g to %g at level %g",
@@ -282,19 +298,15 @@ void hs_label(v5d_var_info *vinfo)
 {
   gchar text[300];
 
-
   if(vinfo->info->vcs==VERT_NONEQUAL_MB){
 	 sprintf(text,"HS: %s from %g to %g by %g at level %g MB",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
 				vinfo->hs->pressure);
   }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
 				vinfo->info->vcs==VERT_NONEQUAL_KM){  
-	 float value;
-	 vis5d_gridlevel_to_height(vinfo->v5d_data_context,0,
-										vinfo->varid,vinfo->hs->level,&value);
 	 sprintf(text,"HS: %s from %g to %g by %g at level %g Km",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				value);
+				vinfo->hs->height);
 		
   }else{
 	 sprintf(text,"HS: %s from %g to %g by %g at level %g",
@@ -317,7 +329,6 @@ void hs_label(v5d_var_info *vinfo)
 
 void on_level_vscale_value_changed(GtkAdjustment *adj, gpointer user_data)
 {
-  float value;
   gchar val[20];
   v5d_var_info *vinfo;
   hslicecontrols *hs;
@@ -330,18 +341,20 @@ void on_level_vscale_value_changed(GtkAdjustment *adj, gpointer user_data)
 
   hs->level = adj->upper + adj->lower - adj->value ;
 
+  vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,
+										vinfo->varid,hs->level,
+										&(hs->pressure));
+
+  vis5d_gridlevel_to_height(vinfo->v5d_data_context,0,
+									 vinfo->varid,hs->level,&hs->height);
+
   if(vinfo->info->vcs==VERT_NONEQUAL_MB){
-	 vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,
-										  vinfo->varid,hs->level,
-										  &(hs->pressure));
 	 sprintf(val,"%6g MB",hs->pressure);
 
   }else if(vinfo->info->vcs== VERT_EQUAL_KM || 
 			  vinfo->info->vcs==VERT_NONEQUAL_KM){  
 
-	 vis5d_gridlevel_to_height(vinfo->v5d_data_context,0,
-										vinfo->varid,hs->level,&value);
-	 sprintf(val,"%6g Km",value);
+	 sprintf(val,"%6g Km",hs->height);
   }else {
 	 hs->level = adj->upper + adj->lower - adj->value;
 	 sprintf(val,"%8g",hs->level);
@@ -429,6 +442,9 @@ update_hslice_controls(v5d_var_info *vinfo, gint type)
 	 vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,
 										  vinfo->varid,hs->level,
 										  &(hs->pressure));
+	 vis5d_gridlevel_to_height(vinfo->v5d_data_context,0,
+										  vinfo->varid,hs->level,
+										  &(hs->height));
 
 
 	 if(type == CHSLICE){
@@ -550,14 +566,15 @@ on_Hslicebutton_toggled                (GtkToggleButton *togglebutton,
 	 gtk_notebook_set_page(GTK_NOTEBOOK(notebook) ,HSLICE);
   
 	 update_hslice_controls(vinfo, HSLICE);
-
 	 for(time=0;time<vinfo->info->numtimes;time++){
 		vis5d_make_hslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_ON);
+
   }else{
 	 delete_label(vinfo->info, vinfo->hs->label);
+    vinfo->hs->label=NULL;
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_OFF); 
   }
@@ -639,6 +656,7 @@ on_CHslicebutton_toggled               (GtkToggleButton *togglebutton,
 								  vinfo->varid, VIS5D_ON);
   }else{
 	 delete_label(vinfo->info, vinfo->chs->label);
+	 vinfo->chs->label=NULL;
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_CHSLICE,
 								  vinfo->varid, VIS5D_OFF); 
   }
@@ -851,6 +869,7 @@ on_Vslicebutton_toggled                (GtkToggleButton *togglebutton,
   }else{
 	 /*
 	 delete_label(vinfo->info, vinfo->vs->label);
+	 vinfo->vs->label=NULL;
 	 */
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_VSLICE,
 								  vinfo->varid, VIS5D_OFF); 

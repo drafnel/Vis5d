@@ -1,3 +1,22 @@
+/*
+ * Vis5d+/Gtk user interface 
+ * Copyright (C) 2001 James P Edwards
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -18,7 +37,7 @@ enum {
     SYMBOL_MIN,
     SYMBOL_MAX,
     SYMBOL_INT,
-    SYMBOL_LEV,
+    SYMBOL_HEIGHT,
     SYMBOL_STIPPLE,
     SYMBOL_WIDTH,
   SYMBOL_COLOR,
@@ -40,7 +59,7 @@ Symbols symbols[] = {
     { "var", SYMBOL_VAR,  SCOPE_SYMBOL_HSLICE,},
     { "min", SYMBOL_MIN,  SCOPE_SYMBOL_HSLICE,},
     { "max", SYMBOL_MAX,  SCOPE_SYMBOL_HSLICE,},
-    { "level", SYMBOL_LEV,  SCOPE_SYMBOL_HSLICE,},
+    { "height", SYMBOL_HEIGHT,  SCOPE_SYMBOL_HSLICE,},
     { "interval", SYMBOL_INT,  SCOPE_SYMBOL_HSLICE,},
     { "stipple", SYMBOL_STIPPLE, SCOPE_SYMBOL_HSLICE,},
     { "width", SYMBOL_WIDTH, SCOPE_SYMBOL_HSLICE,},
@@ -303,8 +322,8 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 		return token_float(scanner, &onehslice->max);
 	 case SYMBOL_INT:
 		return token_float(scanner, &onehslice->interval);
-	 case SYMBOL_LEV:
-		return token_float(scanner, &onehslice->level);
+	 case SYMBOL_HEIGHT:
+		return token_float(scanner, &onehslice->height);
 	 case SYMBOL_STIPPLE:
 		symbol = token_int(scanner, &tmp);		
 		onehslice->stipple = (gushort) tmp;
@@ -345,7 +364,8 @@ print_hslicecontrols(FILE *fp, hslicecontrols *hslice)
   fprintf(fp,"    var = \"%s\";\n",hslice->var);
   fprintf(fp,"    min = %g;\n",hslice->min);
   fprintf(fp,"    max = %g;\n",hslice->max);
-  fprintf(fp,"    level = %g;\n",hslice->level);
+  fprintf(fp,"    height = %g;\n",hslice->height);
+
   if(hslice->interval){
 	 /* this is a contour isoline slice */
 	 fprintf(fp,"    interval = %g;\n",hslice->interval);

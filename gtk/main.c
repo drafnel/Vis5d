@@ -8,14 +8,43 @@
 #endif
 #include <gtk/gtk.h>
 
+#include <mcheck.h>
+#include <signal.h>
+
 #include "window3D.h"
 #include "support.h"
+
+
+static void
+enable (int sig)
+{
+  mtrace ();
+  signal (SIGUSR1, enable);
+}
+
+static void
+disable (int sig)
+{
+  muntrace ();
+  signal (SIGUSR2, disable);
+}
+
+
+
 
 int
 main (int argc, char *argv[])
 { 
   GtkWidget *window3D;
 
+  /* MALLOC_TRACE for gnu systems */
+
+  signal (SIGUSR1, enable);
+  signal (SIGUSR2, disable);
+
+  /*
+  mtrace ();
+  */
 #ifdef ENABLE_NLS
   bindtextdomain (PACKAGE, VIS5D_LOCALE_DIR);
   textdomain (PACKAGE);
@@ -32,13 +61,15 @@ main (int argc, char *argv[])
 
   add_pixmap_directory (DATA_PREFIX "/pixmaps");
   add_pixmap_directory (VIS5D_SOURCE_DIR "/pixmaps");
-
+  
   window3D = new_window3D(NULL);
 
   /* when we handle command line options we will change this */
   on_open1_activate(NULL, (gpointer) window3D);
-  
+
   gtk_main ();
+
+
   return 0;
 }
 

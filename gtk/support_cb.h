@@ -69,7 +69,7 @@ typedef struct {
 } v5d_info;
 
 typedef struct {
-  gfloat min, max, interval, level, pressure;
+  gfloat min, max, interval, level, height, pressure;
   gdouble color[4];
   gint linewidth;
   gint    stipplefactor;

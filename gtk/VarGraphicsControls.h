@@ -170,3 +170,5 @@ on_hs_color_sample_enterorleave        (GtkWidget       *widget,
 void
 on_Vslicebutton_toggled                (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+void
+update_hslice_controls(v5d_var_info *vinfo, gint type);

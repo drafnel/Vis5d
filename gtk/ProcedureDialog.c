@@ -1,3 +1,22 @@
+/*
+ * Vis5d+/Gtk user interface 
+ * Copyright (C) 2001 James P Edwards
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -7,12 +26,15 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#include "api.h"
 #include "ProcedureDialog.h"
 #include "PD_interface.h"
 #include "support_cb.h"
 #include "support.h"
 #include "procedure.h"
 #include "window3D.h"
+#include "VarGraphicsControls.h"
+
 
 v5d_var_info *vinfo_array_find_var_by_name(GPtrArray *vinfo_array, gchar *name)
 {
@@ -110,25 +132,55 @@ void
 vinfo_toggle_hslice_from_procedure(v5d_var_info *vinfo, hslicecontrols *hs, gint enable)
 {
   GtkWidget *Hslicebutton;
+  gchar *tmp;
   if(vinfo==NULL) {
 	 /* TODO: var was not found by name in dataset - a dialog should be open which
 		 gives the user the choice of selecting from the available variables 
 		 or canceling this operation */
 	 return;
   }
+
   /* the variable selected callback */
   if(enable)
 	 on_variable_activate(NULL, vinfo);
   if(vinfo->VarGraphicsDialog)
 	 Hslicebutton = lookup_widget(vinfo->VarGraphicsDialog,"Hslicebutton");
 
-  if(enable){
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(Hslicebutton), TRUE);
-  }else if(Hslicebutton){
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(Hslicebutton), FALSE);
+
+  if(Hslicebutton){
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(Hslicebutton), enable);
+  }
+  if(! enable ) 
+	 return;
+
+  if(hs->color[0]+hs->color[1]+hs->color[2]+hs->color[3] > 0){
+	 int i;
+	 for(i=0;i<4;i++)
+		vinfo->hs->color[i] = hs->color[i];
+	 
+	 vis5d_set_color( vinfo->info->v5d_display_context, 
+							VIS5D_HSLICE, vinfo->varid,
+							(float) vinfo->hs->color[0], 
+							(float) vinfo->hs->color[1], 
+							(float) vinfo->hs->color[2], 
+							(float) vinfo->hs->color[3] );
   }
   
-
+  if(hs->max > hs->min){
+	 if(hs->interval > 0)
+		vinfo->hs->interval = hs->interval;
+	 if(hs->level > 0)
+		vinfo->hs->level = hs->level;
+	 vinfo->hs->max = hs->max;
+	 vinfo->hs->min = hs->min;
+  }
+  if(hs->height>0){
+	 vinfo->hs->height = hs->height;
+	 vis5d_height_to_gridlevel( vinfo->v5d_data_context,0, vinfo->varid, 
+										 vinfo->hs->height, &vinfo->hs->level);
+  }
+  update_hslice_controls(vinfo, HSLICE);
+  glarea_draw(vinfo->info->GtkGlArea, NULL, NULL);
 }
 
 
@@ -209,6 +261,11 @@ on_ProcedureCtree_key_press_event      (GtkWidget       *widget,
 {
   GtkCTree     *ctree;
   GtkCTreeNode *node, *newnode=NULL;
+
+
+  void *g = malloc(1);
+  printf("g at 0x%x\n",g);
+  free(g);
 
   ctree = GTK_CTREE(widget);
   node = GTK_CTREE_NODE(gtk_object_get_data(GTK_OBJECT(ctree),"SelectedNode"));
@@ -435,6 +492,13 @@ void
 on_openProcedure_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  v5d_info *info;
+  info = (v5d_info *) gtk_object_get_data(
+	      GTK_OBJECT(lookup_widget(GTK_WIDGET(menuitem),"ProcedureDialog")),"v5d_info");
+  
+  /* in window3D.c */
+  on_openprocedure_activate(menuitem,(gpointer) lookup_widget(info->GtkGlArea,"window3D") );
+
 
 }
 

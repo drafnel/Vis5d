@@ -246,9 +246,9 @@ create_ProcedureDialog (void)
   gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "tree_unselect_row",
                       GTK_SIGNAL_FUNC (on_ProcedureCtree_tree_unselect_row),
                       NULL);
-  gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "key_press_event",
-                      GTK_SIGNAL_FUNC (on_ProcedureCtree_key_press_event),
-                      NULL);
+  gtk_signal_connect_after (GTK_OBJECT (ProcedureCtree), "key_press_event",
+                            GTK_SIGNAL_FUNC (on_ProcedureCtree_key_press_event),
+                            NULL);
   gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "tree_expand",
                       GTK_SIGNAL_FUNC (on_ProcedureCtree_tree_expand),
                       NULL);

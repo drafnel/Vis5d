@@ -1,3 +1,22 @@
+/*
+ * Vis5d+/Gtk user interface 
+ * Copyright (C) 2001 James P Edwards
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -31,7 +50,10 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
   GtkWidget *window3D, *delete_frame;
   GList *window3Dlist=NULL;
 
+  printf("create window\n");
   window3D = create_window3D();
+  printf("create window done\n");
+
 
   if(oldwindow3D){
 	 delete_frame = lookup_widget(oldwindow3D,"delete_frame1");
@@ -42,6 +64,8 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
 	 gtk_widget_set_sensitive(delete_frame,TRUE);
 
   }
+  printf("Start the window\n");
+
   window3Dlist = g_list_append(window3Dlist,(gpointer) window3D);
   gtk_object_set_data(GTK_OBJECT(window3D),"window3Dlist",(gpointer) window3Dlist);
 
@@ -51,7 +75,10 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
   gtk_widget_set_sensitive(lookup_widget(window3D,"vars2d"),FALSE);
   gtk_widget_set_sensitive(lookup_widget(window3D,"vars3d"),FALSE);
 
+  printf("Show the window\n");
+
   gtk_widget_show (window3D);
+
   return window3D;
 }
 
@@ -339,7 +366,10 @@ on_openprocedure_activate              (GtkMenuItem     *menuitem,
   
   gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Open Procedure File"));
 
-  window3D=lookup_widget(GTK_WIDGET (menuitem),"window3D");
+  if(user_data)
+	 window3D = GTK_WIDGET(user_data);
+  else
+	 window3D=lookup_widget(GTK_WIDGET (menuitem),"window3D");
    
   gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"window3D" , window3D);
 
@@ -520,8 +550,6 @@ create_glarea (gchar *widget_name, gchar *string1, gchar *string2,
 			GDK_POINTER_MOTION_MASK|
                         GDK_POINTER_MOTION_HINT_MASK);
   */
-
-
 
   return (glarea);
 

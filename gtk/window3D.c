@@ -411,20 +411,18 @@ on_newprocedure_activate               (GtkMenuItem     *menuitem,
 }
 
 void
-on_hslice_activate                     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+on_hslice_activate (GtkMenuItem     *menuitem,
+							 gpointer         user_data)
 {
   GtkWidget *window3D;
   v5d_info *info;
 
   window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
-  
   info = gtk_object_get_data(GTK_OBJECT(window3D),"v5d_info");
-  if(info){
-	 gtk_widget_show(info->HSliceControls);
-  }
-}
+  if(info)
+ 	 gtk_widget_show(info->HSliceControls);
 
+}
 
 void
 on_chslice_activate                    (GtkMenuItem     *menuitem,
@@ -917,8 +915,10 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 
 		vis5d_init_path(DATA_PREFIX);
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_BOX,VIS5D_ON);
-		vis5d_graphics_mode(info->v5d_display_context,VIS5D_CLOCK,VIS5D_OFF);
+		vis5d_graphics_mode(info->v5d_display_context,VIS5D_CLOCK,VIS5D_ON);
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_MAP,VIS5D_ON);
+		vis5d_alpha_mode(info->v5d_display_context,VIS5D_ON );
+		vis5d_set_logo_size(info->v5d_display_context, 0.0);
 
 		vis5d_signal_redraw(info->v5d_display_context,3);
 

@@ -30,8 +30,11 @@ typedef enum {
 
 typedef struct {
   GtkWidget *preview;
+  /* the colors array is always of length one or 256, ncolors refers to 
+	  the number of colors requested by the user not to the size of the array */
   gint ncolors;
   guint *colors;
+  guchar *orig_alpha;
   guchar *buffer;
 } preview_area;
 
@@ -60,14 +63,14 @@ typedef struct {
   int numtimes;
   int vcs;
   int label_count;
+  GtkWidget *HSliceControls;
 
   GList *graph_label_list;
-
-  GtkWidget *HSliceControls;
 
 } v5d_info;
 
 typedef struct {
+
   gfloat min, max, interval, level, pressure;
   gdouble color[4];
   gint linewidth;

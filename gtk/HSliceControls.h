@@ -60,3 +60,12 @@ on_hsspin_changed                      (GtkEditable     *editable,
                                         gpointer         user_data);
 
 void hslicecontrol(v5d_var_info *vinfo);
+
+void
+on_colorcnt_changed                    (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+gboolean
+on_alpha_button_release_event          (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data);

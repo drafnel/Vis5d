@@ -86,6 +86,17 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
   /*
   gtk_widget_show(VarDialog);
   */
+  /* make the menu widgets sensitive */
+  gtk_widget_set_sensitive(lookup_widget(window3D,"options1"),TRUE);
+  /*  gtk_widget_set_sensitive(lookup_widget(window3D,"procedures1"),TRUE); */
+  gtk_widget_set_sensitive(lookup_widget(window3D,"tools1"),TRUE);
+  vis5d_get_dtx_numtimes(info->v5d_display_context, &info->numtimes);
+  if(info->numtimes>1)
+	 gtk_widget_set_sensitive(lookup_widget(window3D,"toolbar1"),TRUE);
+	 
+
+
+
 }
 
 

@@ -35,6 +35,8 @@ void on_level_vscale_value_changed(GtkAdjustment *adj, gpointer user_data)
   v5d_var_info *vinfo;
 
   vinfo = (v5d_var_info *) user_data;
+  if(! (vinfo && vinfo->hc )) return;
+
   vinfo->hc->level = adj->upper + adj->lower - adj->value ;
 
   if(vinfo->info->vcs==VERT_NONEQUAL_MB){
@@ -64,7 +66,7 @@ void hs_label(v5d_var_info *vinfo)
 
   if(COLOR_FILL(vinfo->info->HSliceControls)){
 	 if(vinfo->info->vcs==VERT_NONEQUAL_MB){
-		sprintf(text+4,"CHS: %s from %g to %g at level %g MB",
+		sprintf(text,"CHS: %s from %g to %g at level %g MB",
 				  vinfo->vname,vinfo->hc->min,vinfo->hc->max, 
 				  vinfo->hc->pressure);
 	 }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
@@ -84,7 +86,7 @@ void hs_label(v5d_var_info *vinfo)
 	 }
   }else{
 	 if(vinfo->info->vcs==VERT_NONEQUAL_MB){
-		sprintf(text+4," %s from %g to %g by %g at level %g MB",
+		sprintf(text,"HS: %s from %g to %g by %g at level %g MB",
 				  vinfo->vname,vinfo->hc->min,vinfo->hc->max, vinfo->hc->interval,
 				  vinfo->hc->pressure);
 	 }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
@@ -147,7 +149,9 @@ update_hslice_controls(v5d_var_info *vinfo)
 
 	 vinfo->hc = g_new(hslicecontrols,1);
 	 vinfo->hc->sample= g_new(preview_area,1);
-	 vinfo->hc->sample->buffer=NULL;
+	 vinfo->hc->sample->buffer=NULL;	 
+	 vinfo->hc->sample->orig_alpha=NULL;
+	 vinfo->hc->sample->ncolors=255;
 	 vinfo->hc->onscreen = TRUE;
 	 vinfo->hc->label = NULL;
 	 vinfo->hc->level = last_level;
@@ -674,5 +678,41 @@ void hs_draw_color_sample(v5d_var_info *vinfo, gboolean resize)
 }
 
 
+gboolean
+on_alpha_button_release_event          (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data)
+{
+  GtkWidget *HSliceControls;
+  GtkAdjustment *adj;
+  guchar *alpha;
+  int i;
+  v5d_var_info *vinfo;
+
+  HSliceControls = GTK_WIDGET(user_data);
+
+  vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(HSliceControls),"v5d_var_info");
+  
+  adj = gtk_range_get_adjustment(GTK_RANGE(widget)); 
+  alpha = (guchar *) vinfo->hc->sample->colors;
+  if(vinfo->hc->sample->orig_alpha==NULL) 
+	 {
+		int i;
+		vinfo->hc->sample->orig_alpha = g_new(guchar, 255);
+		for(i=0;i<255;i++)
+		  vinfo->hc->sample->orig_alpha[i] = (guchar) UNPACK_ALPHA(vinfo->hc->sample->colors[i]);
+	 }
+  
+#ifdef WORDS_BIGENDIAN
+  for(i=0;i<255;i++)
+	 alpha[i*4] = (guchar) vinfo->hc->sample->orig_alpha[i]*adj->value;
+#else  
+  for(i=0;i<255;i++)
+	 alpha[i*4+3] = (guchar) vinfo->hc->sample->orig_alpha[i]*adj->value;
+#endif
+  glarea_draw(vinfo->info->GtkGlArea,NULL,NULL);
+
+  return FALSE;
+}
 
 

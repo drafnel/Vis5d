@@ -91,9 +91,9 @@ on_clist1_select_row                   (GtkCList        *clist,
   if(! sample->colors)
 	 return;
 
-
   for(i=0;i<255;i++){
-	 gradient_get_color_at(curr_gradient, (gdouble) i/255.0, &r, &g, &b, &a);
+	 gradient_get_color_at(curr_gradient, (gdouble) i/254., &r, &g, &b, &a);
+
 	 
 	 sample->colors[i] = PACK_COLOR((gint) (r*255.0), (gint) (g*255.0), 
 											  (gint) (b*255.0), (gint) (a*255.0));
@@ -103,13 +103,13 @@ on_clist1_select_row                   (GtkCList        *clist,
 
   if(glarea)
 	 glarea_draw(glarea,NULL,NULL);
-  
 }
+
 
 void gradient_preview_update(preview_area *sample, gboolean resize)
 {
   gint x, y, i, wid, heig, f;
-
+  guchar color[3];
 
   if (! GTK_WIDGET_DRAWABLE (sample->preview))
 	 return;
@@ -124,24 +124,29 @@ void gradient_preview_update(preview_area *sample, gboolean resize)
     }
   
   i = 0;
+  if(sample->ncolors==1)
+	 {
+		color[0] = (guchar) UNPACK_RED(sample->colors[0]);
+		color[1] = (guchar) UNPACK_GREEN(sample->colors[0]);
+		color[2] = (guchar) UNPACK_BLUE(sample->colors[0]);
+	 }
   
   for (y = 0; y < heig; y++)
     {
       i = 0;
       for (x = 0; x < wid; x++)
 		  {
-			 /*
-			 if (colorsel->use_opacity)
+			 int j;
+			 if(sample->ncolors>1 )
 				{
-				  f = 3 * (((x % 32) < 16) ^ ((y % 32) < 16));
-				  f += (x > half) * 6;
+				  f = x*255/wid;
+				  color[0] = (guchar) UNPACK_RED(sample->colors[f]);
+				  color[1] = (guchar) UNPACK_GREEN(sample->colors[f]);
+				  color[2] = (guchar) UNPACK_BLUE(sample->colors[f]);
 				}
-			 else
-			 */
-			 f = x*sample->ncolors/wid;
-			 sample->buffer[i++] = (guchar) UNPACK_RED(sample->colors[f]);
-			 sample->buffer[i++] = (guchar) UNPACK_GREEN(sample->colors[f]);
-			 sample->buffer[i++] = (guchar) UNPACK_BLUE(sample->colors[f]);
+			 for(j=0;j<3;j++)
+				sample->buffer[i++] = color[j];
+
 		  }
 		
       gtk_preview_draw_row (GTK_PREVIEW (sample->preview), sample->buffer, 0, y, wid);

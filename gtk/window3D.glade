@@ -137,6 +137,7 @@
 	  <widget>
 	    <class>GtkMenuItem</class>
 	    <name>options1</name>
+	    <sensitive>False</sensitive>
 	    <label>Options</label>
 	    <right_justify>False</right_justify>
 
@@ -341,6 +342,7 @@
 	  <widget>
 	    <class>GtkMenuItem</class>
 	    <name>procedures1</name>
+	    <sensitive>False</sensitive>
 	    <label>Procedures</label>
 	    <right_justify>False</right_justify>
 
@@ -377,6 +379,7 @@
 	  <widget>
 	    <class>GtkMenuItem</class>
 	    <name>tools1</name>
+	    <sensitive>False</sensitive>
 	    <label>Tools</label>
 	    <right_justify>False</right_justify>
 
@@ -438,6 +441,7 @@
 	<widget>
 	  <class>GtkToolbar</class>
 	  <name>toolbar1</name>
+	  <sensitive>False</sensitive>
 	  <orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
 	  <type>GTK_TOOLBAR_ICONS</type>
 	  <space_size>5</space_size>

@@ -329,30 +329,30 @@ void hs_label(v5d_var_info *vinfo)
 
   if(vinfo->info->vcs==VERT_NONEQUAL_MB){
 	 if(vinfo->maxlevel>1)
-		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g MB %d %d",
+		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g MB %s",
 				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				  vinfo->hs->pressure, day, time);
+				  vinfo->hs->pressure, ctime(&thistime));
 	 else
-		g_snprintf(text,300,"HS: %s from %g to %g by %g %d %d",
+		g_snprintf(text,300,"HS: %s from %g to %g by %g %s",
 				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-					  day, time);
+					  ctime(&thistime));
 
 
   }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
 				vinfo->info->vcs==VERT_NONEQUAL_KM){  
 	 if(vinfo->maxlevel>1)
-		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g Km %d %d",
+		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g Km %s",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				vinfo->hs->height, day, time);
+				vinfo->hs->height, ctime(&thistime));
 	 else
-		g_snprintf(text,300,"HS: %s from %g to %g by %g %d %d",
+		g_snprintf(text,300,"HS: %s from %g to %g by %g %s",
 				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-					  day, time);
+					  ctime(&thistime));
 
   }else{
-	 g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g %d %d",
+	 g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g %s",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				vinfo->hs->level, day, time);
+				vinfo->hs->level, ctime(&thistime));
 	 
   }
   
@@ -604,11 +604,18 @@ on_Hslicebutton_toggled                (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
   GtkWidget *VarGraphicsDialog = GTK_WIDGET(user_data);
-  GtkWidget *notebook;
+  GtkWidget *notebook, *sb[3];
+  gint i;
   v5d_var_info *vinfo;
   gint time;
 
   vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(VarGraphicsDialog),"v5d_var_info");
+
+  sb[0] = lookup_widget(togglebutton,"hsmax");
+  sb[1] = lookup_widget(togglebutton,"hsmin");
+  sb[2] = lookup_widget(togglebutton,"hsinterval");
+  
+
 
   if(gtk_toggle_button_get_active(togglebutton)){
 	 notebook = lookup_widget(VarGraphicsDialog,"notebook3");
@@ -621,12 +628,15 @@ on_Hslicebutton_toggled                (GtkToggleButton *togglebutton,
 	 }
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_ON);
-
+	 for(i=0;i<3;i++)
+		gtk_widget_set_sensitive(sb[i],TRUE);
   }else{
 	 delete_label(vinfo->info, vinfo->hs->label);
     vinfo->hs->label=NULL;
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_OFF); 
+	 for(i=0;i<3;i++)
+		gtk_widget_set_sensitive(sb[i],FALSE);
   }
   
 }
@@ -686,11 +696,14 @@ on_CHslicebutton_toggled               (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
   GtkWidget *VarGraphicsDialog = GTK_WIDGET(user_data);
-  GtkWidget *notebook;
+  GtkWidget *notebook, *sb[2];
   v5d_var_info *vinfo;
-  gint time;
+  gint time, i;;
 
   vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(VarGraphicsDialog),"v5d_var_info");
+
+  sb[0] = lookup_widget(togglebutton,"chsmax");
+  sb[1] = lookup_widget(togglebutton,"chsmin");
 
   if(gtk_toggle_button_get_active(togglebutton)){
 	 notebook = lookup_widget(VarGraphicsDialog,"notebook3");
@@ -704,11 +717,15 @@ on_CHslicebutton_toggled               (GtkToggleButton *togglebutton,
 	 }
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_CHSLICE,
 								  vinfo->varid, VIS5D_ON);
+	 for(i=0;i<3;i++)
+		gtk_widget_set_sensitive(sb[i],TRUE);
   }else{
 	 delete_label(vinfo->info, vinfo->chs->label);
 	 vinfo->chs->label=NULL;
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_CHSLICE,
 								  vinfo->varid, VIS5D_OFF); 
+	 for(i=0;i<3;i++)
+		gtk_widget_set_sensitive(sb[i],FALSE);
   }
   
 	 
@@ -890,44 +907,6 @@ else if(!SampleValuePopup){
 
   return FALSE;
 }
-
-
-void
-on_Vslicebutton_toggled                (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  GtkWidget *VGC = GTK_WIDGET(user_data);
-
-  GtkWidget *notebook;
-  v5d_var_info *vinfo;
-  gint time;
-
-  vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(VGC),"v5d_var_info");
-
-  if(gtk_toggle_button_get_active(togglebutton)){
-	 notebook = lookup_widget(VGC,"notebook3");
-
-	 gtk_notebook_set_page(GTK_NOTEBOOK(notebook) ,VSLICE); 
-	 
-	 update_vslice_controls(vinfo, VSLICE);
-
-	 for(time=0;time<vinfo->numtimes;time++){
-		vis5d_make_vslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
-	 }
-	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_VSLICE,
-								  vinfo->varid, VIS5D_ON);
-	 
-  }else{
-	 /*
-	 delete_label(vinfo->info, vinfo->vs->label);
-	 vinfo->vs->label=NULL;
-	 */
-	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_VSLICE,
-								  vinfo->varid, VIS5D_OFF); 
-  }
-
-}
-
 void
 update_vslice_controls(v5d_var_info *vinfo, gint type)
 {
@@ -968,6 +947,44 @@ update_vslice_controls(v5d_var_info *vinfo, gint type)
   
 
 }
+
+
+void
+on_Vslicebutton_toggled                (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  GtkWidget *VGC = GTK_WIDGET(user_data);
+
+  GtkWidget *notebook;
+  v5d_var_info *vinfo;
+  gint time;
+
+  vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(VGC),"v5d_var_info");
+
+  if(gtk_toggle_button_get_active(togglebutton)){
+	 notebook = lookup_widget(VGC,"notebook3");
+
+	 gtk_notebook_set_page(GTK_NOTEBOOK(notebook) ,VSLICE); 
+	 
+	 update_vslice_controls(vinfo, VSLICE);
+
+	 for(time=0;time<vinfo->numtimes;time++){
+		vis5d_make_vslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
+	 }
+	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_VSLICE,
+								  vinfo->varid, VIS5D_ON);
+	 
+  }else{
+	 /*
+	 delete_label(vinfo->info, vinfo->vs->label);
+	 vinfo->vs->label=NULL;
+	 */
+	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_VSLICE,
+								  vinfo->varid, VIS5D_OFF); 
+  }
+
+}
+
 
 void
 on_vslice_move_toggled                 (GtkToggleButton *togglebutton,

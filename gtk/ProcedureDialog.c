@@ -48,6 +48,8 @@ v5d_var_info *vinfo_array_find_var_by_name(GPtrArray *vinfo_array, gchar *name)
   int i;
   v5d_var_info *vinfo;
 
+  /* BUG?: names are not unique */
+
   for(i=0;i<vinfo_array->len;i++)
 	 {
 		vinfo = (v5d_var_info *) g_ptr_array_index(vinfo_array,i);
@@ -63,6 +65,7 @@ void procedure_ctree_add_image(GtkCTree *ctree,
 										 Image *image)
 {
   gchar *nstr[3];
+  gchar var[12];
   GtkCTreeNode *node;
   gint i, type;
   v5d_var_info *vinfo;
@@ -74,15 +77,16 @@ void procedure_ctree_add_image(GtkCTree *ctree,
 
   node = gtk_ctree_insert_node(ctree,NULL,pnode,nstr,0,NULL,NULL,NULL,NULL,0,0);
   gtk_ctree_node_set_row_data(ctree,node,(gpointer) image);
+
   for(i=0;i<image->item_type->len;i++){
 	 hslicecontrols *hs;
 	 type = g_array_index(image->item_type,gint, i);
 	 nstr[1]=NULL;
+	 nstr[0] = NULL;
 	 switch(type){
 	 case CHSLICE:
 		nstr[1] = g_strdup("CHSlice");
 	 case HSLICE:
-		nstr[0] = NULL;
 		if(nstr[1]==NULL)
 		  nstr[1] = g_strdup("HSlice");
 		hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
@@ -96,6 +100,20 @@ void procedure_ctree_add_image(GtkCTree *ctree,
 		gtk_ctree_node_set_selectable(ctree,
 												gtk_ctree_insert_node(ctree,node,NULL,nstr,0,NULL,NULL,NULL,NULL,1,0),
 												FALSE);
+		break;
+	 case TEXTPLOT:
+		nstr[1] = g_strdup("TextPlot");
+		vinfo = (v5d_var_info *) g_ptr_array_index(image->items,i);
+
+		vis5d_get_itx_var_name(vinfo->v5d_data_context,vinfo->varid, var);
+		nstr[2] = var;
+      
+		g_array_append_val(image->vinfo_array, vinfo);
+		gtk_ctree_node_set_selectable(ctree,
+												gtk_ctree_insert_node(ctree,node,NULL,nstr,0,NULL,NULL,NULL,NULL,1,0),
+												FALSE);
+		break;
+	 default:
 		break;
 	 }
   }
@@ -151,6 +169,31 @@ GtkWidget * new_ProcedureDialog(v5d_info *info, gchar *filename)
   gtk_widget_show(PD);
 
   return PD;
+}
+
+void
+vinfo_toggle_textplot_from_procedure(v5d_var_info *vinfo, textplotcontrols *textplot, gint enable)
+{
+  GtkWidget *window3D, *TextPlotDialog;
+  if(vinfo==NULL) {
+	 return;
+  }
+  if(enable){
+	 window3D = lookup_widget(vinfo->info->GtkGlArea, "window3D");
+	 TextPlotDialog = new_TextPlotDialog(window3D);
+	 gtk_widget_show(TextPlotDialog);
+
+	 vis5d_set_text_plot(vinfo->v5d_data_context,vinfo->varid,textplot->spacing,
+								textplot->fontspace,textplot->fontx,textplot->fonty);
+
+
+  }
+  
+
+
+	 
+  glarea_draw(vinfo->info->GtkGlArea, NULL, NULL);
+
 }
 
 void 
@@ -263,6 +306,7 @@ on_ProcedureCtree_tree_select_row      (GtkCTree        *ctree,
   gint i;
   v5d_var_info *vinfo;
   hslicecontrols *hs;
+  textplotcontrols *textplot;
   gint type;
 
   image = (Image *) gtk_ctree_node_get_row_data(ctree,GTK_CTREE_NODE(node));
@@ -286,6 +330,10 @@ on_ProcedureCtree_tree_select_row      (GtkCTree        *ctree,
 		case HSLICE: 
 		  hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
 		  vinfo_toggle_hslice_from_procedure(vinfo,hs, TRUE);
+		  break;
+		case TEXTPLOT:
+        textplot = (textplotcontrols *) g_ptr_array_index(image->items,i);
+		  vinfo_toggle_textplot_from_procedure(vinfo,textplot, TRUE);
 		  break;
 		default:
 		  printf ("Unrecognized graphic in procedure %d\n",type);
@@ -325,6 +373,9 @@ on_ProcedureCtree_tree_unselect_row    (GtkCTree        *ctree,
 	 case HSLICE: 
 		hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
 		vinfo_toggle_hslice_from_procedure(vinfo,hs, FALSE);
+		break;
+	 case TEXTPLOT:
+		printf ("Got a textplot %d\n",__LINE__);
 		break;
 	 default:
 		printf ("Unrecognized graphic in procedure %d\n",type);
@@ -471,6 +522,9 @@ on_okay_clicked                        (GtkButton       *button,
 		break;
 	 case HSLICE:
 		image = image_add_item(image,(gpointer) vinfo->hs,HSLICE,imagename);
+		break;
+	 case TEXTPLOT:
+		image = image_add_item(image,(gpointer) vinfo , label->gtype,imagename);
 		break;
 	 default:
 		break;

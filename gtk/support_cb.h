@@ -24,7 +24,8 @@ typedef enum {
   VSLICE,
   CVSLICE,
   ISOSURF,
-  VOLUME
+  VOLUME,
+  TEXTPLOT
 } v5d_graph_type;
 
 
@@ -47,6 +48,12 @@ typedef struct {
   gpointer data; 
 } graph_label;
 
+typedef struct {
+  gchar *var;
+  gfloat spacing, fontx, fonty, fontspace;
+  gfloat color[4];
+  graph_label *label;
+} textplotcontrols;
 
 typedef struct {
   gint v5d_display_context;
@@ -119,8 +126,8 @@ typedef struct {
 
   hslicecontrols *hs, *chs;
   vslicecontrols *vs, *cvs;
+  textplotcontrols *textplot;
   int numtimes;
-
 
   GtkWidget *VarGraphicsDialog;
 } v5d_var_info;

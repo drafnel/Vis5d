@@ -18,6 +18,17 @@
 #include "support.h"
 #include "graph_labels.h"
 
+
+char *chomp(char *str)
+{
+  gint cnt;
+  cnt = strlen(str);
+  if(str[cnt-1] == '\n')
+	 str[cnt-1]='\0';
+  return str;
+}
+
+
 void label_position(int dc, int cnt, int *x, int *y)
 {
   gint text_height, height, width;
@@ -56,7 +67,7 @@ graph_label *add_label(v5d_info *info, gchar *str, v5d_graph_type gtype)
   label->data = NULL;
 
   label->labelid = vis5d_make_label(info->v5d_display_context, x,
-												y, str);
+												y, chomp(str));
 
   info->graph_label_list = g_list_append(info->graph_label_list, (gpointer) label);
 
@@ -115,7 +126,6 @@ void update_label(v5d_info *info, graph_label *label, gchar *str)
   gint cnt, x, y;
 
 
-
   vis5d_delete_label(info->v5d_display_context, label->labelid);
   
   cnt = g_list_index(info->graph_label_list, label) + 1;
@@ -123,7 +133,7 @@ void update_label(v5d_info *info, graph_label *label, gchar *str)
   label_position(info->v5d_display_context, cnt, &x, &y);
 
   label->labelid = vis5d_make_label(info->v5d_display_context, x,
-												y, str);
+												y, chomp(str));
 
 }
 
@@ -132,9 +142,11 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
   GList *item;
   graph_label *label=NULL;
   v5d_var_info *vinfo;
-  GtkWidget *widget=NULL;
+  GtkWidget *widget=NULL, *window3D;
 
   item = g_list_first(info->graph_label_list);
+
+  window3D = lookup_widget(info->GtkGlArea, "window3D");
 
   while(item!=NULL){
 	 if(((graph_label *) item->data)->labelid==label_id){
@@ -171,10 +183,33 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
 	 default:
 	 }
 	 break;
+  case TEXTPLOT:
+	 widget = gtk_object_get_data(GTK_OBJECT(window3D),"TextPlotDialog");
+	 switch(button){
+	 case 1:
+		vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_ON);
+	   gtk_widget_show(widget);
+		break;
+	 case 2:
+		/* toggles the graphics but leaves the label in the window */
+		vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_TOGGLE);
+		break;
+	 case 3:
+		/* removes the graphic and label from the display */
+		gtk_widget_hide(widget);
+		vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_OFF);
+		delete_label(info, label);
+		label=NULL;
+      break;
+	 default:
+	 }
+	 break;
+	 
   case VSLICE:
   case CVSLICE:
   case ISOSURF:
   case VOLUME:
+	 
   default:
 	 printf("Dont know what to do in graph_label_button_press\n");
   }

@@ -313,6 +313,7 @@ Contours</label>
 		<widget>
 		  <class>GtkSpinButton</class>
 		  <name>hsmax</name>
+		  <sensitive>False</sensitive>
 		  <can_focus>True</can_focus>
 		  <signal>
 		    <name>activate</name>
@@ -351,6 +352,7 @@ Contours</label>
 		<widget>
 		  <class>GtkSpinButton</class>
 		  <name>hsinterval</name>
+		  <sensitive>False</sensitive>
 		  <can_focus>True</can_focus>
 		  <signal>
 		    <name>changed</name>
@@ -415,6 +417,7 @@ Contours</label>
 		<widget>
 		  <class>GtkSpinButton</class>
 		  <name>hsmin</name>
+		  <sensitive>False</sensitive>
 		  <can_focus>True</can_focus>
 		  <signal>
 		    <name>activate</name>
@@ -879,6 +882,7 @@ Contours</label>
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>chsmin</name>
+      <sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<signal>
 		  <name>activate</name>
@@ -917,6 +921,7 @@ Contours</label>
 	      <widget>
 		<class>GtkSpinButton</class>
 		<name>chsmax</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<signal>
 		  <name>activate</name>

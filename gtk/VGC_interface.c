@@ -315,6 +315,7 @@ create_VarGraphicsControls (void)
   gtk_table_attach (GTK_TABLE (table8), hsmax, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_sensitive (hsmax, FALSE);
   gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (hsmax), TRUE);
 
   hsinterval_adj = gtk_adjustment_new (1, 0, 100, 1, 10, 10);
@@ -327,6 +328,7 @@ create_VarGraphicsControls (void)
   gtk_table_attach (GTK_TABLE (table8), hsinterval, 1, 2, 2, 3,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_sensitive (hsinterval, FALSE);
   gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (hsinterval), TRUE);
 
   label102 = gtk_label_new (_("Interval:"));
@@ -350,6 +352,7 @@ create_VarGraphicsControls (void)
   gtk_table_attach (GTK_TABLE (table8), hsmin, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_sensitive (hsmin, FALSE);
   gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (hsmin), TRUE);
 
   label66 = gtk_label_new (_("Maximum:"));
@@ -590,6 +593,7 @@ create_VarGraphicsControls (void)
   gtk_table_attach (GTK_TABLE (table10), chsmin, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_sensitive (chsmin, FALSE);
   gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (chsmin), TRUE);
 
   chsmax_adj = gtk_adjustment_new (1, -65536, 65536, 1, 10, 10);
@@ -602,6 +606,7 @@ create_VarGraphicsControls (void)
   gtk_table_attach (GTK_TABLE (table10), chsmax, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_sensitive (chsmax, FALSE);
   gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (chsmax), TRUE);
 
   colortable_select = gtk_button_new_with_label (_("Select ColorTable"));

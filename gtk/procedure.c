@@ -25,7 +25,7 @@
 
 #include <glib.h>
 #include "procedure.h"
-
+#include <vis5d+/api.h>
 /* define enumeration values to be returned for specific symbols */
 /* a SCOPE_SYMBOL is one which will change the current parser scope */
 
@@ -43,6 +43,11 @@ enum {
     SYMBOL_COLOR,
   SCOPE_SYMBOL_CHSLICE,
     SYMBOL_COLOR_TABLE,
+  SCOPE_SYMBOL_TEXTPLOT,
+    SYMBOL_SPACING,
+    SYMBOL_FONTX,
+    SYMBOL_FONTY,
+    SYMBOL_FONTSPACE,
   NULL_SYMBOL    /* should always be last - just a pointer to the end*/
 };
 
@@ -72,6 +77,13 @@ Symbols symbols[] = {
     { "max", SYMBOL_MAX,  SCOPE_SYMBOL_CHSLICE,},
     { "height", SYMBOL_HEIGHT,  SCOPE_SYMBOL_CHSLICE,},
     { "color_table", SYMBOL_COLOR_TABLE, SCOPE_SYMBOL_CHSLICE,},
+  { "textplot", SCOPE_SYMBOL_TEXTPLOT, SCOPE_SYMBOL_IMAGE,},
+    { "var", SYMBOL_VAR, SCOPE_SYMBOL_TEXTPLOT,},
+    { "spacing", SYMBOL_SPACING, SCOPE_SYMBOL_TEXTPLOT,},
+    { "fontx", SYMBOL_FONTX, SCOPE_SYMBOL_TEXTPLOT,},
+    { "fonty", SYMBOL_FONTY, SCOPE_SYMBOL_TEXTPLOT,},
+    { "fontspace", SYMBOL_FONTSPACE, SCOPE_SYMBOL_TEXTPLOT,},
+    { "color", SYMBOL_COLOR, SCOPE_SYMBOL_TEXTPLOT,},
   { NULL, 0, 0,},
 };
 
@@ -228,6 +240,39 @@ Image *image_add_item(Image *image, gpointer item, gint itemtype, gchar *imagena
   return image;
 }
 
+static guint
+parse_textplot_symbol(GScanner *scanner, Image *oneimage, guint symbol)
+{
+  float val;
+  gchar var[15];
+
+  textplotcontrols *onetextplot;
+
+  if(g_array_index(oneimage->item_type,gint,oneimage->item_type->len-1)
+	  != TEXTPLOT){
+	 g_print("Expected TEXTPLOT found %d\n",oneimage->item_type->data[oneimage->item_type->len-1]);
+	 return G_TOKEN_SYMBOL;
+  }
+  onetextplot = (textplotcontrols *) g_ptr_array_index(oneimage->items,oneimage->items->len-1);
+
+  switch (symbol){
+  case SYMBOL_VAR:
+	 return token_string(scanner,&onetextplot->var);
+  case SYMBOL_SPACING:
+	 return token_float(scanner, &onetextplot->spacing);
+  case SYMBOL_FONTX:
+	 return token_float(scanner, &onetextplot->fontx);
+  case SYMBOL_FONTY:
+	 return token_float(scanner, &onetextplot->fonty);
+  case SYMBOL_FONTSPACE:
+	 return token_float(scanner, &onetextplot->fontspace);
+  case SYMBOL_COLOR:
+	 return token_float_list(scanner, 4, onetextplot->color);
+  default:
+	 return G_TOKEN_SYMBOL;
+  }
+
+}
 
 static guint
 parse_hslice_symbol(GScanner *scanner, Image *oneimage, guint symbol)
@@ -278,7 +323,6 @@ parse_hslice_symbol(GScanner *scanner, Image *oneimage, guint symbol)
 static guint
 parse_chslice_symbol(GScanner *scanner, Image *oneimage, guint symbol)
 {
-  guint tmp;
   hslicecontrols *onehslice;
   if(g_array_index(oneimage->item_type,gint,oneimage->item_type->len-1)
 	  != CHSLICE){
@@ -311,10 +355,10 @@ static guint
 parse_symbol (GScanner *scanner, GList **ProcedureList)
 {
   guint symbol;
-  guint token;
   Image *oneimage;
   hslicecontrols *onehslice;
-  
+  textplotcontrols *onetextplot;
+
   /* expect a valid symbol */
   g_scanner_get_next_token (scanner);
   symbol = scanner->token;
@@ -371,6 +415,23 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 		}
 		return G_TOKEN_NONE;
 		break;
+	 case SCOPE_SYMBOL_TEXTPLOT:
+		if(scanner->token != '{')
+		  return '{';
+		context[++context_depth] = symbol;
+		g_scanner_set_scope(scanner,context[context_depth]);
+		onetextplot = g_new(textplotcontrols,1);
+		onetextplot->var=NULL;
+		onetextplot->label=NULL;
+		onetextplot->spacing=1.0;
+		onetextplot->fontspace=1.0;
+		onetextplot->fontx=10.;
+		onetextplot->fonty=10.;
+		onetextplot->color[0]=-1.;
+		image_add_item(oneimage, (gpointer) onetextplot, TEXTPLOT, NULL);
+
+		return G_TOKEN_NONE;
+		break;
 	 default:
 		return G_TOKEN_SYMBOL;
 		break;
@@ -389,11 +450,56 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
     oneimage = (Image *) g_list_last(*ProcedureList)->data;
 	 return parse_chslice_symbol(scanner, oneimage, symbol);
 	 break;
+  case SCOPE_SYMBOL_TEXTPLOT:
+	 /* expect '=' */
+	 if(scanner->token != '=')
+		return '=';
+    oneimage = (Image *) g_list_last(*ProcedureList)->data;
+	 return parse_textplot_symbol(scanner, oneimage, symbol);
+	 break;
   default:
 	 /* flag an unrecognized context */
 	 printf("bad context %d\n",symbol);
   }
   return G_TOKEN_NONE;
+}
+
+void 
+print_textplotcontrols(FILE *fp, textplotcontrols *textplot)
+{
+  gchar name[12];
+  gint varid;
+  float spacing, fontx, fonty, fontspace, v5dcolor[4];
+
+  /*
+  vis5d_get_text_plot(vinfo->v5d_data_context,&varid, &spacing,
+							 &fontx, &fonty, &fontspace);
+  if(varid != vinfo->varid){
+	 fprintf(stderr,"Varid does not match in %s line %d\n",__FILE__,__LINE__);
+	 return;
+  }
+  
+  vis5d_get_itx_var_name(vinfo->v5d_data_context,varid, name);
+
+  vis5d_get_color(vinfo->info->v5d_display_context, VIS5D_TEXTPLOT, varid,
+						v5dcolor,v5dcolor+1,v5dcolor+2,v5dcolor+3);
+  */
+
+
+  fprintf(fp,"  textplot {\n");
+  fprintf(fp,"    var = \"%s\";\n",textplot->var);    
+  fprintf(fp,"    spacing = %f;\n",textplot->spacing);
+  fprintf(fp,"    fontx = %f;\n",textplot->fontx);
+  fprintf(fp,"    fonty = %f;\n",textplot->fonty);
+  fprintf(fp,"    fontspace = %f;\n",textplot->fontspace);
+  fprintf(fp,"    color = { %g, %g, %g, %g };\n",
+			 textplot->color[0],
+			 textplot->color[1],
+			 textplot->color[2],
+			 textplot->color[3]);
+  fprintf(fp,"  }\n");
+
+
 }
 
 void 
@@ -453,6 +559,9 @@ print_ProcedureList(GList *ProcedureList,gchar *filename)
 		case CHSLICE:
 		case HSLICE:
 		  print_hslicecontrols(fp, (hslicecontrols *) g_ptr_array_index(items,i));
+		  break;
+		case TEXTPLOT:
+		  print_textplotcontrols(fp, (textplotcontrols *) g_ptr_array_index(items,i));
 		  break;
 		default:
 		  g_print("What is this %d\n",g_array_index(item_types,gint,i));

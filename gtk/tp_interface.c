@@ -42,8 +42,7 @@ create_TextPlotDialog (void)
   GtkWidget *textplot_variables_menu;
   GtkWidget *dialog_action_area1;
   GtkWidget *hbuttonbox1;
-  GtkWidget *tpokay;
-  GtkWidget *tpcancel;
+  GtkWidget *tpclose;
 
   TextPlotDialog = gtk_dialog_new ();
   gtk_widget_set_name (TextPlotDialog, "TextPlotDialog");
@@ -209,23 +208,14 @@ create_TextPlotDialog (void)
   gtk_widget_show (hbuttonbox1);
   gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbuttonbox1, TRUE, TRUE, 0);
 
-  tpokay = gtk_button_new_with_label (_("Okay"));
-  gtk_widget_set_name (tpokay, "tpokay");
-  gtk_widget_ref (tpokay);
-  gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "tpokay", tpokay,
+  tpclose = gtk_button_new_with_label (_("Close"));
+  gtk_widget_set_name (tpclose, "tpclose");
+  gtk_widget_ref (tpclose);
+  gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "tpclose", tpclose,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (tpokay);
-  gtk_container_add (GTK_CONTAINER (hbuttonbox1), tpokay);
-  GTK_WIDGET_SET_FLAGS (tpokay, GTK_CAN_DEFAULT);
-
-  tpcancel = gtk_button_new_with_label (_("Cancel"));
-  gtk_widget_set_name (tpcancel, "tpcancel");
-  gtk_widget_ref (tpcancel);
-  gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "tpcancel", tpcancel,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (tpcancel);
-  gtk_container_add (GTK_CONTAINER (hbuttonbox1), tpcancel);
-  GTK_WIDGET_SET_FLAGS (tpcancel, GTK_CAN_DEFAULT);
+  gtk_widget_show (tpclose);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox1), tpclose);
+  GTK_WIDGET_SET_FLAGS (tpclose, GTK_CAN_DEFAULT);
 
   gtk_signal_connect (GTK_OBJECT (size_sb), "changed",
                       GTK_SIGNAL_FUNC (on_tp_sb_changed),
@@ -242,11 +232,8 @@ create_TextPlotDialog (void)
   gtk_signal_connect (GTK_OBJECT (Color), "clicked",
                       GTK_SIGNAL_FUNC (on_Color_clicked),
                       NULL);
-  gtk_signal_connect (GTK_OBJECT (tpokay), "clicked",
-                      GTK_SIGNAL_FUNC (on_tpokay_clicked),
-                      NULL);
-  gtk_signal_connect (GTK_OBJECT (tpcancel), "clicked",
-                      GTK_SIGNAL_FUNC (on_tpcancel_clicked),
+  gtk_signal_connect (GTK_OBJECT (tpclose), "clicked",
+                      GTK_SIGNAL_FUNC (on_tpclose_clicked),
                       NULL);
 
   return TextPlotDialog;

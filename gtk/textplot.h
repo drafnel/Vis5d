@@ -51,3 +51,7 @@ on_textplot_variables_clicked          (GtkButton       *button,
 void
 on_tp_sb_changed                       (GtkEditable     *editable,
                                         gpointer         user_data);
+
+void
+on_tpclose_clicked                     (GtkButton       *button,
+                                        gpointer         user_data);

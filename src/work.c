@@ -6026,7 +6026,7 @@ static void calc_traj( Display_Context dtx, float row, float col, float lev,
    else {
       len = 0;
    }
-	/* JPE changed from (ribbon & len>0) whose intention is unclear at best */
+   /* JPE changed from (ribbon & len>0) whose intention is unclear at best */
    if (ribbon && (len > 0)) {
       nbytes = 3 * len * sizeof(int_1);
       cnorms = (int_1 *) allocate_type( ctx, nbytes, TRAJXR_TYPE );
@@ -6226,7 +6226,7 @@ static void recolor_topography( Context ctx, int time )
             xyzPRIME_to_grid( ctx, ctxtime, colorvar, x, y, z,
                          &grow, &gcol, &glev );
 
-				/* JPE parentheses grouping in this statement may be suspect */
+	    /* JPE parentheses grouping in this statement may be suspect */
             if ( (((int) grow < 0) || ((int) gcol < 0)) ||
                  (((grow < 0) || (grow > (ctx->Nr-1))) &&
                  ((gcol < 0) || (gcol > (ctx->Nc-1))) &&

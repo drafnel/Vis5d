@@ -656,7 +656,7 @@ static void parse_command( char *command, struct grid_db *db,
       }
       else {
          levels = atoi( token[1] );
-			/*         if (levels>1 && levels<=MAXLEVELS) { JPE: WHY > 1 */
+	 /* if (levels>1 && levels<=MAXLEVELS) { JPE: WHY > 1 */
          if (levels>0 && levels<=MAXLEVELS) {
             MaxNl = levels;
          }

@@ -1497,11 +1497,27 @@ void grid_to_xyzPRIME(Context ctx, int time, int var, int n,
                   float r[], float c[], float l[],
                   float x[], float y[], float z[] )
 {
+  /* JPE
    float rPRIME[MAX_CONV_VERTS], cPRIME[MAX_CONV_VERTS], lPRIME[MAX_CONV_VERTS];
-   grid_to_gridPRIME( ctx, time, var, n, r, c, l,
-                      rPRIME, cPRIME, lPRIME);
-   gridPRIME_to_xyzPRIME(ctx->dpy_ctx, time, var, n, rPRIME,
-                         cPRIME, lPRIME, x, y, z);
+  */
+  float *rPRIME, *cPRIME, *lPRIME;
+  if(n>=MAX_CONV_VERTS){
+	 printf(" N= %d is big/n",n);
+  }
+
+  rPRIME = (float *) malloc(n*sizeof(float));
+  cPRIME = (float *) malloc(n*sizeof(float));
+  lPRIME = (float *) malloc(n*sizeof(float));
+
+  grid_to_gridPRIME( ctx, time, var, n, r, c, l,
+							rPRIME, cPRIME, lPRIME);
+  gridPRIME_to_xyzPRIME(ctx->dpy_ctx, time, var, n, rPRIME,
+								cPRIME, lPRIME, x, y, z);
+
+  free(rPRIME);
+  free(cPRIME);
+  free(lPRIME);
+
 }
 
 
@@ -4152,22 +4168,53 @@ void gridPRIME_to_grid( Context ctx, int time, int var, int n,
                         float rPRIME[], float cPRIME[], float lPRIME[],
                         float r[], float c[], float l[] )
 {
+  /* JPE
    float lat[MAX_CONV_VERTS], lon[MAX_CONV_VERTS], hgt[MAX_CONV_VERTS];
+  */
+  float *lat,*lon, *hgt;
 
-   gridPRIME_to_geo(ctx->dpy_ctx, time, var, n, rPRIME, cPRIME, lPRIME,
+  if(n>=MAX_CONV_VERTS){
+	 printf(" N= %d is big/n",n);
+  }
+
+  lat = (float *) malloc(n*sizeof(float));
+  lon = (float *) malloc(n*sizeof(float));
+  hgt = (float *) malloc(n*sizeof(float));
+  
+  gridPRIME_to_geo(ctx->dpy_ctx, time, var, n, rPRIME, cPRIME, lPRIME,
                     lat, lon, hgt);
-   geo_to_grid( ctx, time, var, n, lat, lon, hgt, r, c, l);
+
+  geo_to_grid( ctx, time, var, n, lat, lon, hgt, r, c, l);
+  free(lat);
+  free(lon);
+  free(hgt);
 }
 
 void grid_to_gridPRIME( Context ctx, int time, int var, int n,
                         float r[], float c[], float l[],
                         float rPRIME[], float cPRIME[], float lPRIME[])
 {
-   float lat[MAX_CONV_VERTS], lon[MAX_CONV_VERTS], hgt[MAX_CONV_VERTS];
+  /* JPE: In fact it appears that n=1 in every case!
+  float lat[MAX_CONV_VERTS], lon[MAX_CONV_VERTS], hgt[MAX_CONV_VERTS];
+  */
 
-   grid_to_geo(ctx, time, var, n, r, c, l, lat, lon, hgt);
-   geo_to_gridPRIME( ctx->dpy_ctx, time, var, n, lat, lon, hgt,
+
+
+  float *lat,*lon, *hgt;
+  if(n>=MAX_CONV_VERTS){
+	 printf(" N= %d is big/n",n);
+  }
+  lat = (float *) malloc(n*sizeof(float));
+  lon = (float *) malloc(n*sizeof(float));
+  hgt = (float *) malloc(n*sizeof(float));
+
+  grid_to_geo(ctx, time, var, n, r, c, l, lat, lon, hgt);
+  geo_to_gridPRIME( ctx->dpy_ctx, time, var, n, lat, lon, hgt,
                      rPRIME, cPRIME, lPRIME);
+
+  free(lat);
+  free(lon);
+  free(hgt);
 }
 
 

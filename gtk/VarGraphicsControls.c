@@ -23,6 +23,7 @@
 
 #include <gtk/gtk.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "api.h"
 #include "support_cb.h"
@@ -132,7 +133,10 @@ void
 on_hsclose_clicked                     (GtkButton       *button,
                                         gpointer         user_data)
 {
-
+  GtkWidget *VGC;
+  VGC = lookup_widget(GTK_WIDGET(button), "VarGraphicsControls");
+  gtk_widget_hide(VGC);
+  
 }
 
 void
@@ -314,31 +318,41 @@ void chs_label(v5d_var_info *vinfo)
 void hs_label(v5d_var_info *vinfo)
 {
   gchar text[300];
+  gint day, time, timestep;
+  time_t thistime;
+
+  vis5d_get_ctx_timestep(vinfo->v5d_data_context, &timestep);
+
+  vis5d_get_ctx_time_stamp(vinfo->v5d_data_context,timestep,&day,&time);
+  
+  thistime = vis5d_time2ctime(day,time);
 
   if(vinfo->info->vcs==VERT_NONEQUAL_MB){
 	 if(vinfo->maxlevel>1)
-		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g MB",
+		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g MB %d %d",
 				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				  vinfo->hs->pressure);
+				  vinfo->hs->pressure, day, time);
 	 else
-		g_snprintf(text,300,"HS: %s from %g to %g by %g",
-				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval);
+		g_snprintf(text,300,"HS: %s from %g to %g by %g %d %d",
+				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
+					  day, time);
 
 
   }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
 				vinfo->info->vcs==VERT_NONEQUAL_KM){  
 	 if(vinfo->maxlevel>1)
-		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g Km",
+		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g Km %d %d",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				vinfo->hs->height);
+				vinfo->hs->height, day, time);
 	 else
-		g_snprintf(text,300,"HS: %s from %g to %g by %g ",
-				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval);
+		g_snprintf(text,300,"HS: %s from %g to %g by %g %d %d",
+				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
+					  day, time);
 
   }else{
-	 g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g",
+	 g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g %d %d",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				vinfo->hs->level);
+				vinfo->hs->level, day, time);
 	 
   }
   

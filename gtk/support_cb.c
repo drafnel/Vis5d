@@ -59,14 +59,9 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
   i = strlen(filename);
  
   if(strncmp(".nc",filename+i-3,3) == 0){
-#ifdef HAVE_LIBNETCDF
 	 printf("loading irregular data\n");
 	 dc = vis5d_load_irregular_v5dfile(info->v5d_display_context,0,filename,"context");
 	 irreg = 1;
-#else
-	 fprintf(stderr, "vis5d+: irregular data not supported without netcdf\n");
-	 dc = VIS5D_FAIL;
-#endif
   }else{
 	 printf("loading regular data\n");
 	 dc = vis5d_load_v5dfile(info->v5d_display_context,0,filename,"context");

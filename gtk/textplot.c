@@ -26,7 +26,6 @@ GtkWidget *new_TextPlotDialog(GtkWidget *window)
 
 }
 
-#ifdef HAVE_LIBNETCDF
 
 void
 on_irreg_variable_activate                   (GtkMenuItem     *menuitem,
@@ -46,8 +45,6 @@ on_irreg_variable_activate                   (GtkMenuItem     *menuitem,
 	 vis5d_make_text_plot( vinfo->v5d_data_context,i, i==vinfo->info->timestep);
 
 }
-
-#endif
 
 
 void TextPlotDialog_add_variable(GtkWidget *TextPlotDialog, v5d_var_info *vinfo)
@@ -104,12 +101,10 @@ on_tp_sb_changed                     (GtkEditable     *editable,
   vis5d_get_itx_timestep(index, &timestep);
   vis5d_get_itx_numtimes(index, &numtimes);
 
-#ifdef HAVE_LIBNETCDF
 
   for(i=0;i<numtimes;i++)
 	 vis5d_make_text_plot( index,i, i==timestep);
 
-#endif
 
   glarea_draw(GtkGlArea, NULL, NULL);
 }

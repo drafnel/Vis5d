@@ -280,90 +280,155 @@ static void flip_layer( float *data, int rows, int cols, float missing_value )
 #undef TEMP
 }
 
+/**************************************************************************/
 
+/*
 
-/* This is a modified version of the gafndt() routine in the GrADS code.
-   Given a GrADS data file template and the current date/time, fills in
-   fnout with the specific file name obtained by filling in the template
-   with the current date/time information.
+  [ The following specification is based on a description by Conrad Poelman,
+    and was implemented by S. G. Johnson without reference to the original
+    GrADS code. ]
+
+We need a function:
+void expand_GrADS_file_template( const char* format, char output[1024],
+  int year, int month, int day, int hour, int minute,
+  int forecastHour, int initialYear, int initialMonth, int initialDay,
+  int initialHour, int initialMinute )
+that takes a format string (e.g. "my-file%y2-%mc-%d2-%h2:%n2.grd") and
+makes the appropriate format string substitutions to produce an output
+string (e.g. "my-file-92-Mar-06-02:15.grd") using the following
+conversions:
+
+%y2   -  2 digit year (last 2 digits)
+%y4   -  4 digit year
+%m1   -  1 or 2 digit month
+%m2   -  2 digit month (leading zero if needed)
+%mc   -  3 character month abbreviation (lower case)
+%mh   -  'a' if in first 15 days of month, and 'b' otherwise
+%mH   -  as %mh, but upper case
+%d1   -  1 or 2 digit day
+%d2   -  2 digit day
+%h1   -  1 or 2 digit hour
+%h2   -  2 digit hour
+%h3   -  3 digit hour (e.g., 120 or 012)
+%f2   -  2 or 3 digit forecast hour
+%f3   -  3 digit forecast hour
+%n2   -  2 digit minute (leading zero if needed)
+%ixx  -  as %xx, but using initial time
+
+This list of conversions was taken from the on-line published GrADS
+documentation, so I presume it's considered "published," unlike the
+source code itself.
+
+If you check it in, you'll find that in Vis5D we don't have a separate
+"initial time" and current time or a separate "forecast hour", so when
+calling the function for now I guess we'll just have to pass the same
+year/month/day/hour/minute for both current and initial time, and pass
+the hour as the "forecast hour" - the GrADS documentation doesn't
+clearly define what the differences are between all the times.
+
 */
-void grads_file_template( char *fn, int yr, int mo, int dy, int hr, int mn,
-                          char fnout[1000] )
+
+#define TEMPLATE_OUTPUT_LEN 1024
+
+void expand_GrADS_file_template(const char* format, 
+				char output[TEMPLATE_OUTPUT_LEN],
+				int year, int month, int day,
+				int hour, int minute,
+				int forecastHour, int initialYear, 
+				int initialMonth, int initialDay,
+				int initialHour, int initialMinute)
 {
-  static char *mons[12] = {"jan","feb","mar","apr","may","jun","jul","aug",
-                           "sep","oct","nov","dec"};
-  char *in = fn;      /* always points to the next character to read. */
-  char *out = fnout;  /* always points to the next character to write. */
+     char buffer[32];
+     int i_in = 0, i_out = 0;
 
-  while (*in) {
-    if (*in=='%') {
-      /* We got a formatting control command. */
+     while (format[i_in] && i_out < TEMPLATE_OUTPUT_LEN-1) {
+	  if (format[i_in] != '%')
+	       output[i_out++] = format[i_in++];
+	  else {
+	       int iY, iM, iD, ih, im, n;
+	       
+	       i_in++;
+	       if (format[i_in] == 'i') {
+		    iY = initialYear; iM = initialMonth; iD = initialDay;
+		    ih = initialHour; im = initialMinute;
+		    ++i_in;
+	       }
+	       else {
+		    iY = year; iM = month; iD = day; ih = hour; im = minute;
+	       }
+	       if (!format[i_in] || !format[i_in+1])
+		    goto error;
 
-      /* Just skip and ignore an 'i' character. */
-      if ( *in == 'i' ) in++;
-      if (*(in+1)=='y' && *(in+2)=='2') {
-        int iv = yr/100;
-        iv = yr - iv*100;
-        sprintf (out,"%02i",iv);
-        out+=2;  in+=3;
-      } else if (*(in+1)=='y' && *(in+2)=='4') {
-        sprintf (out,"%04i",yr);
-        out+=4;  in+=3;
-      } else if (*(in+1)=='m' && *(in+2)=='1') {
-        sprintf (out,"%i",mo);
-        while (*out) out++;
-        in+=3;
-      } else if (*(in+1)=='m' && *(in+2)=='2') {
-        sprintf (out,"%02i",mo);
-        out+=2;  in+=3;
-      } else if (*(in+1)=='m' && *(in+2)=='h') {
-        if (dy < 16) *out='a';
-        else *out = 'b';
-        out+=1;  in+=3;
-      } else if (*(in+1)=='m' && *(in+2)=='H') {
-        if (dy < 16) *out='A';
-        else *out = 'B';
-        out+=1;  in+=3;
-      } else if (*(in+1)=='m' && *(in+2)=='c') {
-        *out = *(mons[mo-1]);
-        *(out+1) = *(mons[mo-1]+1);
-        *(out+2) = *(mons[mo-1]+2);
-        out+=3;  in+=3;
-      } else if (*(in+1)=='d' && *(in+2)=='1') {
-        sprintf (out,"%i",dy);
-        while (*out) out++;
-        in+=3;
-      } else if (*(in+1)=='d' && *(in+2)=='2') {
-        sprintf (out,"%02i",dy);
-        out+=2;  in+=3;
-      } else if (*(in+1)=='h' && *(in+2)=='1') {
-        sprintf (out,"%i",hr);
-        while (*out) out++;
-        in+=3;
-      } else if (*(in+1)=='h' && *(in+2)=='2') {
-        sprintf (out,"%02i",hr);
-        out+=2;  in+=3;
-      } else if (*(in+1)=='h' && *(in+2)=='3') {
-        sprintf (out,"%03i",hr);
-        out+=3;  in+=3;
-      } else if (*(in+1)=='n' && *(in+2)=='2') {
-        sprintf (out,"%02i",mn);
-        out+=2;  in+=3;
-      } else {
-        printf("WARNING: %c%c%c formatting command not supported.\n",
-               in[0], in[1], in[2] );
-        /* Just copy next character. */
-        *out = *in;
-        in++; out++;
-      }
-    } else {
-      /* Just copy next character. */
-      *out = *in;
-      in++; out++;
-    }
-  }
-  *out = '\0';
+	       switch (format[i_in]) {
+		   case 'y': n = iY; break;
+		   case 'm': n = iM; break;
+		   case 'd': n = iD; break;
+		   case 'h': n = ih; break;
+		   case 'f': n = forecastHour; break;
+		   case 'n': n = im; break;
+		   default: goto error;
+	       }
+
+	       switch (format[i_in+1]) {
+		   case '1':
+			sprintf(buffer, "%d", n % 100);
+			break;
+		   case '2':
+			sprintf(buffer, "%02d", n %
+				(format[i_in] == 'f' ? 1000 : 100));
+			break;
+		   case '3':
+			sprintf(buffer, "%03d", n % 1000);
+			break;
+		   case '4':
+			sprintf(buffer, "%04d", n % 10000);
+			break;
+		   case 'h': case 'H':
+			if (format[i_in] == 'm') {
+			     buffer[1] = 0;
+			     if (iD <= 15)
+				  buffer[0] = (format[i_in+1]=='h' ? 'a':'A');
+			     else
+				  buffer[0] = (format[i_in+1]=='h' ? 'b':'B');
+			}
+			else
+			     goto error;
+		   case 'c':
+			if (format[i_in] == 'm') {
+			     const char monthAbbrevs[][4] = {
+				  "jan", "feb", "mar", "apr", "may", "jun",
+				  "jul", "aug", "sep", "oct", "nov", "dec"
+			     };
+			     strcpy(buffer, monthAbbrevs[(iM-1) % 12]);
+			}
+			else
+			     goto error;
+			break;
+		   default:
+			goto error;
+	       }
+	       i_in += 2;
+	       n = strlen(buffer);
+	       if (i_out + n < TEMPLATE_OUTPUT_LEN) {
+		    output[i_out] = 0;
+		    strcat(output, buffer);
+		    i_out += n;
+	       }
+	       else
+		    goto error;
+	  }
+     }
+     output[i_out] = 0;
+
+     return;
+
+ error:
+     fprintf(stderr,"vis5d+: invalid GrADS file template: %s\n", format);
+     exit(EXIT_FAILURE);
 }
+
+/**************************************************************************/
+
 
 
 void julian2mmdd( int inYYYY, int inDDD,
@@ -438,7 +503,7 @@ int get_grads_info( char *name, struct grid_db *db )
    int numtimes, numvars;
    int projection_type = PROJ_LINEAR;
    int use_file_template = 0;
-   char specific_file_name[1000];
+   char specific_file_name[TEMPLATE_OUTPUT_LEN];
 
    /* Initialize args */
    args[0] = args[1] = args[2] = args[3] = args[4] = 0.0f;
@@ -777,7 +842,9 @@ int get_grads_info( char *name, struct grid_db *db )
          julian2mmdd( yr, jday, &mo, &dy );
          hr = timestamp[time] / 10000;
          mn = timestamp[time] / 100 - hr*100;
-         grads_file_template( dset_name, yr,mo,dy,hr,mn, specific_file_name );
+	 expand_GrADS_file_template(dset_name, specific_file_name,
+				    yr, mo, dy, hr, mn,
+				    hr, yr, mo, dy, hr, mn);
 
          if ( strcmp( prev_file_name, specific_file_name ) != 0 ) {
             /* Changing files - reset pos to the beginning of the file */

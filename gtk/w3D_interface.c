@@ -69,14 +69,9 @@ create_window3D (void)
   GtkWidget *variables;
   GtkWidget *variables_menu;
   GtkAccelGroup *variables_menu_accels;
-  GtkWidget *vars2d;
-  GtkWidget *vars2d_menu;
-  GtkAccelGroup *vars2d_menu_accels;
-  GtkWidget *var2d;
-  GtkWidget *vars3d;
-  GtkWidget *vars3d_menu;
-  GtkAccelGroup *vars3d_menu_accels;
-  GtkWidget *var3d;
+  GtkWidget *vars3D;
+  GtkWidget *vars2D;
+  GtkWidget *irregular;
   GtkWidget *toolbar1;
   GtkWidget *tmp_toolbar_icon;
   GtkWidget *button31;
@@ -447,53 +442,29 @@ create_window3D (void)
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (variables), variables_menu);
   variables_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (variables_menu));
 
-  vars2d = gtk_menu_item_new_with_label (_("2D"));
-  gtk_widget_set_name (vars2d, "vars2d");
-  gtk_widget_ref (vars2d);
-  gtk_object_set_data_full (GTK_OBJECT (window3D), "vars2d", vars2d,
+  vars3D = gtk_menu_item_new_with_label (_("3D"));
+  gtk_widget_set_name (vars3D, "vars3D");
+  gtk_widget_ref (vars3D);
+  gtk_object_set_data_full (GTK_OBJECT (window3D), "vars3D", vars3D,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (vars2d);
-  gtk_container_add (GTK_CONTAINER (variables_menu), vars2d);
+  gtk_container_add (GTK_CONTAINER (variables_menu), vars3D);
+  gtk_widget_set_sensitive (vars3D, FALSE);
 
-  vars2d_menu = gtk_menu_new ();
-  gtk_widget_set_name (vars2d_menu, "vars2d_menu");
-  gtk_widget_ref (vars2d_menu);
-  gtk_object_set_data_full (GTK_OBJECT (window3D), "vars2d_menu", vars2d_menu,
+  vars2D = gtk_menu_item_new_with_label (_("2D"));
+  gtk_widget_set_name (vars2D, "vars2D");
+  gtk_widget_ref (vars2D);
+  gtk_object_set_data_full (GTK_OBJECT (window3D), "vars2D", vars2D,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM (vars2d), vars2d_menu);
-  vars2d_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (vars2d_menu));
+  gtk_container_add (GTK_CONTAINER (variables_menu), vars2D);
+  gtk_widget_set_sensitive (vars2D, FALSE);
 
-  var2d = gtk_menu_item_new_with_label (_("var2d"));
-  gtk_widget_set_name (var2d, "var2d");
-  gtk_widget_ref (var2d);
-  gtk_object_set_data_full (GTK_OBJECT (window3D), "var2d", var2d,
+  irregular = gtk_menu_item_new_with_label (_("Irregular"));
+  gtk_widget_set_name (irregular, "irregular");
+  gtk_widget_ref (irregular);
+  gtk_object_set_data_full (GTK_OBJECT (window3D), "irregular", irregular,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (var2d);
-  gtk_container_add (GTK_CONTAINER (vars2d_menu), var2d);
-
-  vars3d = gtk_menu_item_new_with_label (_("3D"));
-  gtk_widget_set_name (vars3d, "vars3d");
-  gtk_widget_ref (vars3d);
-  gtk_object_set_data_full (GTK_OBJECT (window3D), "vars3d", vars3d,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (vars3d);
-  gtk_container_add (GTK_CONTAINER (variables_menu), vars3d);
-
-  vars3d_menu = gtk_menu_new ();
-  gtk_widget_set_name (vars3d_menu, "vars3d_menu");
-  gtk_widget_ref (vars3d_menu);
-  gtk_object_set_data_full (GTK_OBJECT (window3D), "vars3d_menu", vars3d_menu,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM (vars3d), vars3d_menu);
-  vars3d_menu_accels = gtk_menu_ensure_uline_accel_group (GTK_MENU (vars3d_menu));
-
-  var3d = gtk_menu_item_new_with_label (_("var3d"));
-  gtk_widget_set_name (var3d, "var3d");
-  gtk_widget_ref (var3d);
-  gtk_object_set_data_full (GTK_OBJECT (window3D), "var3d", var3d,
-                            (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (var3d);
-  gtk_container_add (GTK_CONTAINER (vars3d_menu), var3d);
+  gtk_container_add (GTK_CONTAINER (variables_menu), irregular);
+  gtk_widget_set_sensitive (irregular, FALSE);
 
   toolbar1 = gtk_toolbar_new (GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_ICONS);
   gtk_widget_set_name (toolbar1, "toolbar1");
@@ -712,11 +683,14 @@ create_window3D (void)
   gtk_signal_connect (GTK_OBJECT (newprocedure), "activate",
                       GTK_SIGNAL_FUNC (on_newprocedure_activate),
                       NULL);
-  gtk_signal_connect (GTK_OBJECT (var2d), "activate",
-                      GTK_SIGNAL_FUNC (on_variable_activate),
+  gtk_signal_connect (GTK_OBJECT (vars3D), "activate",
+                      GTK_SIGNAL_FUNC (on_vars3D_activate),
                       NULL);
-  gtk_signal_connect (GTK_OBJECT (var3d), "activate",
-                      GTK_SIGNAL_FUNC (on_variable_activate),
+  gtk_signal_connect (GTK_OBJECT (vars2D), "activate",
+                      GTK_SIGNAL_FUNC (on_vars2D_activate),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (irregular), "activate",
+                      GTK_SIGNAL_FUNC (on_irregular_activate),
                       NULL);
   gtk_signal_connect (GTK_OBJECT (button31), "clicked",
                       GTK_SIGNAL_FUNC (on_Arrow_clicked),

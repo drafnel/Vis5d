@@ -144,3 +144,19 @@ on_change_animate_speed                (GtkButton       *button,
 void
 on_append1_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+void
+on_vars3d_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_vars2D_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_irregular_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_vars3D_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

@@ -90,7 +90,7 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 		float vertargs[MAXVERTARGS];
 		vis5d_get_dtx_vertical(info->v5d_display_context, &(info->vcs), vertargs);
 	 }
-  
+
 	 for(i=0;i < numvars; i++){
 		vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
 	 
@@ -103,10 +103,10 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 		vinfo->maxlevel = vis5d_get_levels(dc, i);
 		vinfo->VarGraphicsDialog=NULL;
 		vis5d_get_ctx_numtimes(dc, &vinfo->numtimes);
-
-		g_ptr_array_add(info->vinfo_array,(gpointer) vinfo);
-
 		variable_menu_add_variable(window3D, vinfo);
+		
+		g_ptr_array_add(info->vinfo_array,(gpointer) vinfo);
+		
 	 }
   }else{
 	 vis5d_get_itx_numvars(dc,&numvars);

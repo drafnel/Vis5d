@@ -389,50 +389,44 @@
 
 	      <widget>
 		<class>GtkMenuItem</class>
-		<name>vars2d</name>
-		<label>2D</label>
+		<name>vars3D</name>
+		<visible>False</visible>
+		<sensitive>False</sensitive>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_vars3D_activate</handler>
+		  <last_modification_time>Wed, 21 Nov 2001 10:19:50 GMT</last_modification_time>
+		</signal>
+		<label>3D</label>
 		<right_justify>False</right_justify>
-
-		<widget>
-		  <class>GtkMenu</class>
-		  <name>vars2d_menu</name>
-
-		  <widget>
-		    <class>GtkMenuItem</class>
-		    <name>var2d</name>
-		    <signal>
-		      <name>activate</name>
-		      <handler>on_variable_activate</handler>
-		      <last_modification_time>Thu, 30 Aug 2001 14:10:39 GMT</last_modification_time>
-		    </signal>
-		    <label>var2d</label>
-		    <right_justify>False</right_justify>
-		  </widget>
-		</widget>
 	      </widget>
 
 	      <widget>
 		<class>GtkMenuItem</class>
-		<name>vars3d</name>
-		<label>3D</label>
+		<name>vars2D</name>
+		<visible>False</visible>
+		<sensitive>False</sensitive>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_vars2D_activate</handler>
+		  <last_modification_time>Tue, 20 Nov 2001 11:42:51 GMT</last_modification_time>
+		</signal>
+		<label>2D</label>
 		<right_justify>False</right_justify>
+	      </widget>
 
-		<widget>
-		  <class>GtkMenu</class>
-		  <name>vars3d_menu</name>
-
-		  <widget>
-		    <class>GtkMenuItem</class>
-		    <name>var3d</name>
-		    <signal>
-		      <name>activate</name>
-		      <handler>on_variable_activate</handler>
-		      <last_modification_time>Thu, 30 Aug 2001 14:10:39 GMT</last_modification_time>
-		    </signal>
-		    <label>var3d</label>
-		    <right_justify>False</right_justify>
-		  </widget>
-		</widget>
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>irregular</name>
+		<visible>False</visible>
+		<sensitive>False</sensitive>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_irregular_activate</handler>
+		  <last_modification_time>Tue, 20 Nov 2001 11:43:10 GMT</last_modification_time>
+		</signal>
+		<label>Irregular</label>
+		<right_justify>False</right_justify>
 	      </widget>
 	    </widget>
 	  </widget>

@@ -76,9 +76,6 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
   if(oldwindow3D)
 	 gtk_object_set_data(GTK_OBJECT(oldwindow3D),"window3Dlist",(gpointer) window3Dlist);
 	 
-  gtk_widget_set_sensitive(lookup_widget(window3D,"vars2d"),FALSE);
-  gtk_widget_set_sensitive(lookup_widget(window3D,"vars3d"),FALSE);
-
   printf("Show the window\n");
 
   gtk_widget_show (window3D);
@@ -983,12 +980,32 @@ on_window_3d1_activate                 (GtkMenuItem     *menuitem,
 }
 
 void
+on_irreg_variable_activate                   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  gint i;
+  v5d_var_info *vinfo = (v5d_var_info *) user_data;
+  
+
+  if(GTK_CHECK_MENU_ITEM(menuitem)->active ){
+	 vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_ON);
+	 vis5d_set_text_plot( vinfo->v5d_data_context, vinfo->varid, 1.,10.,10.,1.);
+	 for(i=0;i<vinfo->numtimes;i++)
+		vis5d_make_text_plot( vinfo->v5d_data_context,i, i==vinfo->info->timestep);
+	 printf("on irreg data\n");
+  }else{
+	 vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_OFF);
+	 printf("off irreg data\n");
+  }
+
+
+}
+void
 on_variable_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   /* JPE This function is a callback for the variable menuitem
      it may also be called from ProcedureDialog in which case menuitem==NULL 
-	  As of this time menuitem is not used, be careful if you use it.
   */
 
   v5d_var_info *vinfo = (v5d_var_info *) user_data;
@@ -1031,22 +1048,34 @@ on_variable_activate                   (GtkMenuItem     *menuitem,
 }
 
 
-void
-on_about1_activate                     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
+GtkWidget *create_variables_menu(GtkWidget *window3D, GtkWidget *parent, gchar *name)
 {
+  GtkWidget *variables_menu;
 
+  variables_menu = gtk_menu_new ();
+
+  gtk_widget_set_name (variables_menu, name);
+  gtk_widget_ref (variables_menu);
+  gtk_object_set_data_full (GTK_OBJECT (window3D), name, variables_menu,
+									 (GtkDestroyNotify) gtk_widget_unref);
+
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (parent), variables_menu);
+
+  gtk_widget_show(GTK_WIDGET(variables_menu));
+  return variables_menu;
 }
+
 
 void
 variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
 {
-  GtkWidget *variables_menu, *variable, *tearoff, *parent_menu;
+  GtkWidget *variables_menu, *variable, *tearoff, *parent_item,
+	 *parent_menu, *menu;
   gpointer tmp;
   int ctxcnt;
-  const char *menus[]={ "vars2d_menu", "vars3d_menu"};
-  const char *vars[] ={ "vars2d", "vars3d"};
-  const char *var[] ={ "var2d", "var3d"};
+  const char *menus[]={ "vars2D_menu", "vars3D_menu","irregular_menu"};
+  const char *vars[] ={ "vars2D", "vars3D","irregular"};
+
   char parent_menu_name[20];  
   char tearoffname[18];
   typedef enum {V2D, V3D, VIRREG} vtype;
@@ -1063,69 +1092,48 @@ variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
     myvtype = V3D;
     break;
   }
-
+  /* Do I need this 
   vis5d_get_num_of_data_sets_in_display(vinfo->info->v5d_display_context, ctxcnt);
+  */
+  variables_menu = gtk_object_get_data(GTK_OBJECT(window3D),menus[myvtype]);
   
-  variables_menu = lookup_widget(window3D,menus[myvtype]);
-  parent_menu = variables_menu;
-
-  gtk_widget_set_sensitive(lookup_widget(window3D,vars[myvtype]),TRUE);
-
-  g_snprintf(tearoffname,18,"tearoff_%d.%d",ctxcnt, myvtype);
-
-  tmp = gtk_object_get_data(GTK_OBJECT(window3D),tearoffname);
-
-  if(tmp)
-	 tearoff = GTK_WIDGET(tmp);
-  else{
-	 variable = lookup_widget(window3D,var[myvtype]);
-	 if(variable){
-		gtk_widget_destroy(variable);  
-		gtk_object_remove_data(GTK_OBJECT(window3D),var[myvtype]);
-
-	 }else{
-		if(myvtype == VIRREG)
-		  vis5d_get_itx_name(vinfo->v5d_data_context,parent_menu_name);
-		else
-		  vis5d_get_ctx_name(vinfo->v5d_data_context,parent_menu_name);
-
-		parent_menu = lookup_widget(window3D,parent_menu_name); 
-		if(! parent_menu){
-		  parent_menu = gtk_menu_new();
-		  gtk_widget_set_name(parent_menu, parent_menu_name);
-		  gtk_widget_ref(parent_menu);
-		  gtk_object_set_data_full (GTK_OBJECT (window3D),parent_menu_name , 
-											 parent_menu, (GtkDestroyNotify) gtk_widget_unref);
-		  /*
-		  gtk_menu_item_set_submenu (GTK_MENU_ITEM (parent_menu), file1_menu);
-		  */
-		}
-		
+  if(!variables_menu){
+	 menu = lookup_widget(window3D,vars[myvtype]);
+	 if(!menu){
+		printf("ERROR: this widget should be here %s\n",vars[myvtype]);
+		exit(-1);
 	 }
+	 gtk_widget_set_sensitive(menu,TRUE);
+	 variables_menu = create_variables_menu(window3D,menu,menus[myvtype]);
+	 gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu), variables_menu);
 
-	 tearoff =  gtk_tearoff_menu_item_new();
+    tearoff =  gtk_tearoff_menu_item_new();
 	 gtk_widget_ref(tearoff);
 	 gtk_widget_show(tearoff);
+	 gtk_container_add (GTK_CONTAINER (variables_menu), tearoff);
 
-	 gtk_container_add (GTK_CONTAINER (parent_menu), tearoff);
-	 
-	 gtk_object_set_data_full(GTK_OBJECT(window3D), tearoffname, 
-									  tearoff, (GtkDestroyNotify) gtk_widget_unref);
-		
+	 gtk_widget_show(menu);
+  }else{
+	 variables_menu = GTK_WIDGET(variables_menu);
   }
+
   
+  if(myvtype == VIRREG){
+	 variable = gtk_check_menu_item_new_with_label (vinfo->vname);
+	 gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM (variable), TRUE);
+	 gtk_signal_connect (GTK_OBJECT (variable), "activate",
+								GTK_SIGNAL_FUNC (on_irreg_variable_activate),
+								(gpointer) vinfo);
+  }else{
+	 variable = gtk_menu_item_new_with_label (vinfo->vname);
+	 gtk_signal_connect (GTK_OBJECT (variable), "activate",
+								GTK_SIGNAL_FUNC (on_variable_activate),
+								(gpointer) vinfo);
+  }
 
-  /* get rid of the glade generated place holder and add tearoff */
-  /* glade cannot handle tearoffs at this time                   */
-
-  variable = gtk_menu_item_new_with_label (vinfo->vname);
   gtk_widget_ref (variable);
   gtk_widget_show (variable);
-  gtk_container_add (GTK_CONTAINER (parent_menu), variable);
-
-  gtk_signal_connect (GTK_OBJECT (variable), "activate",
-                      GTK_SIGNAL_FUNC (on_variable_activate),
-                      (gpointer) vinfo);
+  gtk_container_add (GTK_CONTAINER (variables_menu), variable);
 
 }
 
@@ -1159,7 +1167,30 @@ on_change_animate_speed                (GtkButton       *button,
 
 
 void
-on_append1_activate                    (GtkMenuItem     *menuitem,
+on_vars2D_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_irregular_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_vars3D_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+void
+on_about1_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 

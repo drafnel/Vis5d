@@ -1,3 +1,163 @@
+2000-09-09  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/AUTHORS: Added Axel Reimann.
+
+	* /cvsroot/vis5d/vis5d/doc/Makefile.am,
+	/cvsroot/vis5d/vis5d/doc/chap1.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap10.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap2.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap3.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap4.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap6.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap7.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap8.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap9.sgml,
+	/cvsroot/vis5d/vis5d/doc/vis5d.sgml: many updates
+
+2000-09-08  reimann  <reimann@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/doc/chap1.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap2.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap3.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap4.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap5.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap6.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap7.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap8.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap9.sgml: added cross references;
+	corrected crosslinks
+
+	* /cvsroot/vis5d/vis5d/doc/chap2.sgml: added indentation
+
+2000-09-08  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/doc/Makefile.am: added index.html
+
+2000-09-07  reimann  <reimann@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/doc/chap1.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap2.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap3.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap4.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap5.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap6.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap7.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap8.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap9.sgml,
+	/cvsroot/vis5d/vis5d/doc/vis5d.sgml: changed to book format
+	corrected links added even more tags
+
+2000-09-07  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/doc/Makefile.am: use db2x docbook scripts
+
+	* /cvsroot/vis5d/vis5d/doc/Makefile.am,
+	/cvsroot/vis5d/vis5d/Makefile.am,
+	/cvsroot/vis5d/vis5d/configure.in: Added Makefile for DocBook
+	manual.
+
+	* /cvsroot/vis5d/vis5d/README: re-added tiny README, as required
+	to be GNU-ly correct
+
+	* /cvsroot/vis5d/vis5d/README: deleted
+
+	* /cvsroot/vis5d/vis5d/doc/v5d_doc.sgml,
+	/cvsroot/vis5d/vis5d/doc/vis5d.sgml: renamed
+
+2000-09-06  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/doc/chap1.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap2.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap3.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap4.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap5.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap6.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap7.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap8.sgml,
+	/cvsroot/vis5d/vis5d/doc/chap9.sgml,
+	/cvsroot/vis5d/vis5d/doc/v5d_doc.sgml: added DocBook manual from
+	Axel Reimann
+
+2000-08-31  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/src/script.c: fix from mainline tree
+
+2000-08-29  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c: added 8/29 fix from
+	mainline tree
+
+	* /cvsroot/vis5d/vis5d/lui5/newbutton.c: Fixed bug reported by
+	Axel Reimann, triggered by:
+
+	open hole.v5d, press DISPLAY, press Options, press Done, press
+	Return to Vis5d.
+
+	Problem was that ButtonSetState was being called on temp_button,
+	which was NULL because vertsys == 0 (sigh).
+
+2000-08-26  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/NEWS, /cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/sounding.c: fixed another bug in -wdpy,
+	this time with the sounding window
+
+	* /cvsroot/vis5d/vis5d/NEWS, /cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/src/api.c: fixed crashing bug with -wdpy
+
+2000-08-24  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/NEWS, /cvsroot/vis5d/vis5d/configure.in:
+	updated
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/gui.c: fixed font loading bug if sounding
+	font is not available
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c: removed DONOTUSE code
+
+	* /cvsroot/vis5d/vis5d/NEWS, /cvsroot/vis5d/vis5d/README,
+	/cvsroot/vis5d/vis5d/configure.in: noted threads bugfix, and fixed
+	installation of data files
+
+	* /cvsroot/vis5d/vis5d/src/contour.c,
+	/cvsroot/vis5d/vis5d/src/work.c: fixed contour stack overflow bug
+
+2000-08-06  stevengj  <stevengj@gil-galad>
+
+	* /cvsroot/vis5d/vis5d/import/Makefile.am,
+	/cvsroot/vis5d/vis5d/util/Makefile.am: fix so that it works if we
+	build in a directory other than the source dir
+
+	* /cvsroot/vis5d/vis5d/NEWS: Updated.
+
+	* /cvsroot/vis5d/vis5d/util/fromxwd.c,
+	/cvsroot/vis5d/vis5d/util/main.c,
+	/cvsroot/vis5d/vis5d/import/proj.c,
+	/cvsroot/vis5d/vis5d/lui5/buttonmatrix.c,
+	/cvsroot/vis5d/vis5d/lui5/event.c,
+	/cvsroot/vis5d/vis5d/lui5/label.c,
+	/cvsroot/vis5d/vis5d/lui5/lui.c, /cvsroot/vis5d/vis5d/lui5/lui.h,
+	/cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/displaywidget.c,
+	/cvsroot/vis5d/vis5d/src/file.c,
+	/cvsroot/vis5d/vis5d/src/graphics.h,
+	/cvsroot/vis5d/vis5d/src/grid.c, /cvsroot/vis5d/vis5d/src/grid.h,
+	/cvsroot/vis5d/vis5d/src/gui.c, /cvsroot/vis5d/vis5d/src/igrid.c,
+	/cvsroot/vis5d/vis5d/src/imemory.c,
+	/cvsroot/vis5d/vis5d/src/main.c,
+	/cvsroot/vis5d/vis5d/src/memory.c,
+	/cvsroot/vis5d/vis5d/src/proj_i.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/script.c,
+	/cvsroot/vis5d/vis5d/src/soundingGUI.c,
+	/cvsroot/vis5d/vis5d/src/user_data.c,
+	/cvsroot/vis5d/vis5d/src/v5d.c, /cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/volume.h,
+	/cvsroot/vis5d/vis5d/src/work.c, /cvsroot/vis5d/vis5d/src/work.h:
+	got rid of some more compiler warnings
+
 2000-08-06  stevengj  <stevengj@alum.mit.edu>
 
 	* /cvsroot/vis5d/vis5d/src/gui.c: fixed bug for hidden colorbar

@@ -2,9 +2,19 @@ Summary of changes for new releases of Vis5d+:
 
 Vis5d+ 1.0.2
 
+  * Converted the manual to DocBook format, thanks to a contribution by
+    Axel Reimann.  From this, many other formats may be generated; HTML
+    and PDF versions are included (in the doc/ subdirectory).
+
   * Fixed bugs where the -wdpy option (to put the controls on a separate
     display) caused Vis5d to crash.  Thanks to David Nunes for the bug
     report.  (Fixes submitted to mainline tree also.)
+
+  * Fixed bug where options window could cause a crash, reported by
+    Axel Reimann.  (Submitted to mainline tree also.)
+
+  * Merged recent bug-fixes from mainline tree.  (Increase scripting
+    limits and fixed missing data display in sounding tool.)
 
 Vis5d+ 1.0.1
 

@@ -870,6 +870,7 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
             if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
                if (ctx->Variable[var]->SurfTable[time]->colors) {
 #ifdef USE_GLLISTS
+					  printf("Should be drawing something here\n");
 #else					  
                   draw_colored_isosurface(
                                    ctx->Variable[var]->SurfTable[time]->numindex,
@@ -892,7 +893,10 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
 						 mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
 						 glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
 						 set_transparency( UNPACK_ALPHA(color) );
+						 glPushMatrix();
+						 glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 						 glCallList(ctx->Variable[var]->SurfTable[time]->glList);
+						 glPopMatrix();
 					  }
 #else
                   draw_isosurface( ctx->Variable[var]->SurfTable[time]->numindex,
@@ -1327,20 +1331,21 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
             }
             if (lock) {
                recent( ctx, CHSLICE, var );
+					if(!tf){
+#ifdef USE_GLLISTS
+					  glPushMatrix();
+					  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+					  glCallList( ctx->Variable[var]->CHSliceTable[time]->glList );
+					  glPopMatrix();
 
-               alpha = get_alpha( dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-                                  255 );
-
-               if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
-                  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
-                                    ctx->Variable[var]->CHSliceTable[time]->columns,
-                                    (void *)ctx->Variable[var]->CHSliceTable[time]->verts,
-                                    ctx->Variable[var]->CHSliceTable[time]->color_indexes,
-                                    dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-                                     -1 );
-                                 /* ctx->ColorTable[VIS5D_CHSLICE_CT]->Colors[var], alpha ); WLH 15 Aug 97 */
-               }
-
+#else
+					  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
+												  ctx->Variable[var]->CHSliceTable[time]->columns,
+												  (void *)ctx->Variable[var]->CHSliceTable[time]->verts,
+												  ctx->Variable[var]->CHSliceTable[time]->color_indexes,
+												  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],-1);
+#endif
+					}
                done_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
             }
 
@@ -1387,16 +1392,20 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
          }
          if (lock) {
             recent( ctx, CVSLICE, var );
-
-            alpha = get_alpha( dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var], 255 );
-            if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
+            if ( !tf) {
+#ifdef USE_GLLISTS
+				  glPushMatrix();
+				  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+				  glCallList( ctx->Variable[var]->CVSliceTable[time]->glList );
+				  glPopMatrix();				  
+#else
                draw_color_quadmesh( ctx->Variable[var]->CVSliceTable[time]->rows,
                                     ctx->Variable[var]->CVSliceTable[time]->columns,
                                     (void *)ctx->Variable[var]->CVSliceTable[time]->verts,
                                     ctx->Variable[var]->CVSliceTable[time]->color_indexes,
                                     dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
                                     -1 );
-                                 /* ctx->ColorTable[VIS5D_CVSLICE_CT]->Colors[var], alpha ); WLH 15 Aug 97 */
+#endif
             }
             done_read_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
          }

@@ -449,7 +449,8 @@ static int save_vslice_pos( Context ctx, FILE *f )
 static int save_chslices( Context ctx, FILE *f )
 {
    int it, iv;
-
+#ifdef USE_GLLISTS
+#else
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
          if (ctx->Variable[iv]->CHSliceTable[it]->valid) {
@@ -468,6 +469,7 @@ static int save_chslices( Context ctx, FILE *f )
          }
       }
    }
+#endif
    return 0;
 }
 
@@ -477,6 +479,8 @@ static int save_chslice_colors( Context ctx, FILE *f )
 {
    int iv, size;
 
+#ifdef USE_GLLISTS
+#else
    /* save horizontal color slice colors */
    for (iv=0;iv<ctx->NumVars;iv++) {
       begin_block( f, TAG_CHSLICE_COLORS );
@@ -490,6 +494,7 @@ static int save_chslice_colors( Context ctx, FILE *f )
 */
       end_block(f);
    }
+#endif
    return 0;
 }
 
@@ -513,6 +518,9 @@ static int save_cvslices( Context ctx, FILE *f )
 {
    int iv, it;
 
+#ifdef USE_GLLISTS
+#else	
+
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
          if (ctx->Variable[iv]->CVSliceTable[it]->valid) {
@@ -534,6 +542,7 @@ static int save_cvslices( Context ctx, FILE *f )
          }
       }
    }
+#endif
    return 0;
 }
 #ifdef LEAVEOUT
@@ -1300,6 +1309,8 @@ static void restore_vslice( Context ctx, FILE *f, int maxparm,
 static void restore_chslice( Context ctx, FILE *f, int maxparm,
                              int blocklength )
 {
+#ifdef USE_GLLISTS
+#else
    int iv, it, num;
    Display_Context dtx;
 
@@ -1329,10 +1340,8 @@ static void restore_chslice( Context ctx, FILE *f, int maxparm,
    ctx->Variable[iv]->CHSliceTable[it]->valid = 1;
    ctx->Variable[iv]->CHSliceRequest->Level = ctx->Variable[iv]->CHSliceTable[it]->level;
 
-/* YO     new_hslice_pos( dtx, ctx->Variable[iv]->CHSliceTable[it]->level,*/
-/* YO                     &ctx->Variable[iv]->CHSliceRequest->Z, &ctx->Variable[iv]->CHSliceRequest->Hgt);*/
-
    done_read_lock( &ctx->Variable[iv]->CHSliceTable[it]->lock );
+#endif
    return;
 }
 
@@ -1343,6 +1352,8 @@ static void restore_chslice( Context ctx, FILE *f, int maxparm,
 static void restore_cvslice( Context ctx, FILE *f, int maxparm,
                              int blocklength )
 {
+#ifdef USE_GLLISTS
+#else
    int iv, it, num;
 
    fread( &iv, INT_SIZE, 1, f );
@@ -1384,6 +1395,7 @@ static void restore_cvslice( Context ctx, FILE *f, int maxparm,
                    &ctx->Variable[iv]->CVSliceRequest->Lat2, &ctx->Variable[iv]->CVSliceRequest->Lon2 );
 
    done_read_lock( &ctx->Variable[iv]->CVSliceTable[it]->lock );
+#endif
    return;
 }
 

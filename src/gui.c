@@ -2844,6 +2844,7 @@ int show_colorbar_window( int dindex, int vindex, int graphic, int var )
 
       cb_dindex              = dindex;
       cb_chvindex[cb_dindex] = vindex;
+
       cb_chvar[cb_dindex]    = var;
       cb_chvvar[cb_dindex]   = vvar;
       LUI_ColorBarSetSize( gtx->CHSliceColorbar, winatts.width,
@@ -7831,10 +7832,13 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
    int vindex;
    float *p;
    GuiContext gtx;
+
    
    gtx = get_gui_gtx(index);
    cb_dindex = index;
    vindex = cb_vindex[cb_dindex];
+
+
    if (cb_graphic[cb_dindex]==VIS5D_TOPO) {
       if (action==LUI_RGB_RESET) {
          /* user changed table with mouse */
@@ -7854,6 +7858,7 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
    /* MJK 12.04.98 begin */
    else if ((cb == gtx->CHSliceColorbar) && (cb_chvar[cb_dindex] >= 0)) {
       vindex = cb_chvindex[cb_dindex];
+
       if (action==LUI_RGB_RESET) {
          unsigned int *table;
          vis5d_get_color_table_params (index, VIS5D_CHSLICE, vindex,
@@ -7903,6 +7908,17 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
       else {
          return 0;
       }
+#ifdef USE_GLLISTS
+		{
+		  int curtime, numtimes, times;
+		  vis5d_get_ctx_numtimes( vindex, &numtimes );
+		  vis5d_get_ctx_timestep( vindex,  &curtime);
+		  for ( times = 0; times < numtimes; times++){
+			 vis5d_invalidate_chslice(vindex,cb_chvvar[cb_dindex] , curtime); 
+			 vis5d_make_chslice( vindex, times, cb_chvvar[cb_dindex] , times==curtime);
+		  }
+		}
+#endif
       vis5d_signal_redraw( index, 1 );
       /* BUG FIX MJK 8.8.98 */
       /* added this function */
@@ -7970,11 +7986,22 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
          copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
       }
       else if (action==LUI_ALPHA_CHANGE) {
-         vis5d_signal_redraw( index, 1 );
          /* BUG FIX MJK 8.8.98 */
          /* added this function */
          copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
       }
+#ifdef USE_GLLISTS
+		{
+		  int curtime, numtimes, times;
+		  vis5d_get_ctx_numtimes( vindex, &numtimes );
+		  vis5d_get_ctx_timestep( vindex,  &curtime);
+		  for ( times = 0; times < numtimes; times++){
+			 vis5d_invalidate_cvslice(vindex,cb_vvar[cb_dindex] , curtime); 
+			 vis5d_make_cvslice( vindex, times, cb_vvar[cb_dindex] , times==curtime);
+		  }
+		}
+#endif
+		vis5d_signal_redraw( index, 1 );
    }
    else if (cb_graphic[cb_dindex]==VIS5D_VOLUME) {
       if (action==LUI_RGB_RESET) {

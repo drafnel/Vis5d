@@ -705,6 +705,8 @@ extern int text_width( XFontStruct *font, char *str );
 
 
 /* JPE generate list functions */
+void generate_color_quadmesh( int rows, int columns, int_2 verts[][3],
+										uint_1 color_indexes[], unsigned int color_table[], GLuint *list);
 
 
 void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list);
@@ -716,6 +718,8 @@ void generate_isosurfaces(int n, uint_4 *index,int_2 verts[][3],int_1 norms[][3]
 void generate_isosurfaces(int n, uint_2 *index,int_2 verts[][3],int_1 norms[][3],GLuint *list );
 #endif
 void set_transparency( int alpha );
+
+
 
 #endif
 

@@ -362,7 +362,7 @@ static void calc_isosurface( Context ctx, int time, int var,
       wait_write_lock( &ctx->Variable[var]->SurfTable[time]->lock );
 #ifdef USE_GLLISTS
 		if(numverts>0)
-		  generate_isosurface(numverts,index,cverts,cnorms,&ctx->Variable[var]->SurfTable[time]->glList );
+		  generate_isosurface(numindexes,index,cverts,cnorms,&ctx->Variable[var]->SurfTable[time]->glList );
 		ctx->Variable[var]->SurfTable[time]->isolevel = iso_level;
 		ctx->Variable[var]->SurfTable[time]->valid = 1;																			
 #else
@@ -2614,6 +2614,7 @@ static void calc_chslice( Context ctx, int time, int var,
 	}
 
    dtx = ctx->dpy_ctx;
+#ifndef USE_GLLISTS
    if (ctx->Nl[var]==1) {
       wait_write_lock( &slice->lock );
       if (slice->valid && !ctx->dpy_ctx->CurvedBox) {
@@ -2634,7 +2635,7 @@ static void calc_chslice( Context ctx, int time, int var,
       }
       done_write_lock( &slice->lock );
    }
-
+#endif
 
    /* get the 3-D grid */
    grid = get_grid( ctx, time, var );
@@ -2728,8 +2729,12 @@ static void calc_chslice( Context ctx, int time, int var,
       /* simple calculation */
       int i;
       for (i=0;i<slice_rows*slice_cols;i++) {
-		  int index = (slicedata[i]-low) * scale;
-		  indexes[i] = (index < 0) ? 255 : ((index > 255) ? 255: index);
+		  if (IS_MISSING(slicedata[i]))
+			 indexes[i]=255;
+		  else{
+			 int index = (slicedata[i]-ctx->Variable[var]->MinVal) * scale;
+			 indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
+		  }
       }
    }
    else {
@@ -2744,15 +2749,12 @@ static void calc_chslice( Context ctx, int time, int var,
          for (col=0; col<slice_cols; col++) {
             int src_col = col * colscale;
             float val = slicedata[ src_row * dtx->Nc + src_col ];
-            if (IS_MISSING(val) ||
-                val < ctx->Variable[var]->MinVal ||
-                val > ctx->Variable[var]->MaxVal)
-              indexes[i] = 255;
-            else{
-               /* MJK 12.04.98 */
-               int index = (val-minval) * scale;
-               indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
-            }
+				if (IS_MISSING(val))
+				  indexes[i]=255;
+				else{
+				  int index = (val-ctx->Variable[var]->MinVal) * scale;
+				  indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
+				}
             i++;
          }
       }
@@ -2769,6 +2771,18 @@ static void calc_chslice( Context ctx, int time, int var,
 
    wait_write_lock( &slice->lock );
 
+#ifdef USE_GLLISTS
+   /* store new slice */
+   slice->level = level;
+   slice->valid = 1;
+	generate_color_quadmesh(slice_rows, slice_cols, cverts, indexes, 
+									dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
+									&slice->glList);
+	deallocate(ctx, cverts, 3*sizeof(int_2)*slice_rows*slice_cols);
+	deallocate(ctx, indexes, sizeof(uint_1)*slice_rows*slice_cols);
+
+#else
+
    /* deallocate existing slice, if any */
    free_chslice( ctx, time, var );
 
@@ -2779,7 +2793,7 @@ static void calc_chslice( Context ctx, int time, int var,
    slice->verts = cverts;
    slice->color_indexes = indexes;
    slice->valid = 1;
-
+#endif
    done_write_lock( &slice->lock );
 
    if (time==ctx->dpy_ctx->CurTime) {
@@ -2916,15 +2930,12 @@ static void calc_cvslice( Context ctx, int time, int var,
    else
       scale = 254.0 / (ctx->Variable[var]->MaxVal-ctx->Variable[var]->MinVal);
    for (i=0;i<rows*cols;i++) {
-      if (IS_MISSING(slice[i]) ||
-          slice[i] < ctx->Variable[var]->MinVal ||
-          slice[i] > ctx->Variable[var]->MaxVal)
-         indexes[i] = 255;
-      else{
-         /* MJK 12.04.98 */
-         int index = (slice[i]-ctx->Variable[var]->MinVal) * scale;
-         indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
-      }
+	  if (IS_MISSING(slice[i]))
+		 indexes[i]=255;
+	  else{
+		 int index = (slice[i]-ctx->Variable[var]->MinVal) * scale;
+		 indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
+	  }
    }
 
 
@@ -2951,6 +2962,19 @@ static void calc_cvslice( Context ctx, int time, int var,
 
    wait_write_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
 
+#ifdef USE_GLLISTS
+   /* store new slice */
+   ctx->Variable[var]->CVSliceTable[time]->r1 = r1;
+   ctx->Variable[var]->CVSliceTable[time]->c1 = c1;
+   ctx->Variable[var]->CVSliceTable[time]->r2 = r2;
+   ctx->Variable[var]->CVSliceTable[time]->c2 = c2;
+   ctx->Variable[var]->CVSliceTable[time]->valid = 1;
+	generate_color_quadmesh(rows, cols, cverts, indexes, 
+									dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
+									&ctx->Variable[var]->CVSliceTable[time]->glList);
+	deallocate(ctx, cverts, 3*sizeof(int_2)*rows*cols);
+	deallocate(ctx, indexes, sizeof(uint_1)*rows*cols);
+#else
    /* deallocate existing slice, if any */
    free_cvslice( ctx, time, var );
 
@@ -2964,7 +2988,7 @@ static void calc_cvslice( Context ctx, int time, int var,
    ctx->Variable[var]->CVSliceTable[time]->color_indexes = indexes;
    ctx->Variable[var]->CVSliceTable[time]->verts = cverts;
    ctx->Variable[var]->CVSliceTable[time]->valid = 1;
-
+#endif
    done_write_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
 
    if (time==ctx->dpy_ctx->CurTime) {

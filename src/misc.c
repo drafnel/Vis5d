@@ -657,7 +657,8 @@ int free_chslice( Context ctx, int time, int var )
 {
   if(! (ctx->Variable[var] && ctx->Variable[var]->CHSliceTable[time]))
 	 return 0;
-
+#ifdef USE_GLLISTS
+#else
    if (ctx->Variable[var]->CHSliceTable[time]->valid) {
       int nrnc, b1, b2;
       nrnc = ctx->Variable[var]->CHSliceTable[time]->rows
@@ -669,9 +670,11 @@ int free_chslice( Context ctx, int time, int var )
       ctx->Variable[var]->CHSliceTable[time]->valid = 0;
       return b1 + b2;
    }
-   else {
-      return 0;
-   }
+   else 
+#endif
+	  {
+		 return 0;
+	  }
 }
 
 
@@ -681,7 +684,8 @@ int free_cvslice( Context ctx, int time, int var )
 {
   if(! (ctx->Variable[var] && ctx->Variable[var]->CVSliceTable[time]))
 	 return 0;
-
+#ifdef USE_GLLISTS
+#else
    if (ctx->Variable[var]->CVSliceTable[time]->valid) {
       int nrnc, b1, b2;
       nrnc = ctx->Variable[var]->CVSliceTable[time]->rows
@@ -693,7 +697,9 @@ int free_cvslice( Context ctx, int time, int var )
       ctx->Variable[var]->CVSliceTable[time]->valid = 0;
       return b1 + b2;
    }
-   else {
+   else 
+#endif
+	  {
       return 0;
    }
 }

@@ -336,12 +336,16 @@ struct vslice {
 
 /* Info about colored horizontal slices */
 struct chslice {
-   int     lock;
-   int     valid;           /* valid/initialized slice flag */
-   float   level;           /* position of slice in grid levels */
-   int     rows, columns;   /* size of quadmesh */
-   int_2   *verts;          /* array [rows*columns][3] of int_2 vertices */
-   uint_1  *color_indexes;  /* quadmesh vertex color indexes */
+  int     lock;
+  int     valid;           /* valid/initialized slice flag */
+  float   level;           /* position of slice in grid levels */
+#ifdef USE_GLLISTS
+  GLuint   glList;
+#else
+  int     rows, columns;   /* size of quadmesh */
+  int_2   *verts;          /* array [rows*columns][3] of int_2 vertices */
+  uint_1  *color_indexes;  /* quadmesh vertex color indexes */
+#endif
 };
 
 
@@ -351,10 +355,14 @@ struct cvslice {
    int     valid;             /* valid/initialized slice flag */
    float   r1, c1;            /* 1st corner position in [0,Nr-1],[0,Nc-1] */
    float   r2, c2;            /* 2nd corner position in [0,Nr-1],[0,Nc-1] */
+   float   mark[2][3];        /* tiny marker at midpoint of top edge */
+#ifdef USE_GLLISTS
+  GLuint   glList;
+#else
    int     rows, columns;     /* size of quadmesh */
    int_2   *verts;            /* array [rows*columns][3] of int_2 vertices */
    uint_1  *color_indexes;    /* quadmesh vertex color indexes */
-   float   mark[2][3];        /* tiny marker at midpoint of top edge */
+#endif
 };
 
 /* tiny struct for the clipping planes */

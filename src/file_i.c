@@ -66,16 +66,17 @@ static int determine_file_format( char *name )
    /* Open the file */
    f = fopen( name, "r" );
    if (!f) {
-      return FILE_UNKNOWN;
+	  printf("ERROR: Could not fine or open file %s\n",name);
+	  return FILE_UNKNOWN;
    }
 
    /* Read first 200 bytes of file */
    n = fread( head, 1, 200, f );
    fclose(f);
-   if (n!=200) {
-      return FILE_UNKNOWN;
-   }
 
+	if (n<8){
+	  return FILE_UNKNOWN;
+	}
 
    /*
     * If filename is 8 characters long and starts with "GR3D" then
@@ -117,7 +118,7 @@ static int determine_file_format( char *name )
     * An EPA MM4 file has one of two specific 8-character strings starting
     * at the 17th byte of the file...
     */
-   if (   memcmp( head+16, "MMOUT   ", 8 )==0
+   if (n>25 &&   memcmp( head+16, "MMOUT   ", 8 )==0
        || memcmp( head+16, "ZIGGY   ", 8 )==0) {
       return FILE_EPA;
    }
@@ -135,7 +136,7 @@ static int determine_file_format( char *name )
       }
    }
 #endif
-   if (   memcmp(head+144,"AX    69NSPEC   ",16)==0
+   if (n>161 &&   memcmp(head+144,"AX    69NSPEC   ",16)==0
        || memcmp(head+144,"AX    35NSPEC   ",16)==0
        || memcmp(head+144,"15IMAX    35NSPE",16)==0
        || memcmp(head+144," 6IMAX    35NSPE",16)==0) {
@@ -163,7 +164,7 @@ static int determine_file_format( char *name )
    /*
     * A GrADS control file starts with "DSET"
     */
-   if (strncasecmp(head,"DSET",4)==0) {
+   if (strncasecmp((const char *) head,"DSET",4)==0) {
       return FILE_GRADS;
    }
 

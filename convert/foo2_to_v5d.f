@@ -45,6 +45,7 @@ C  OF THESE VARIABLES.
       integer numtimes
       integer numvars
       character*10 varname(MAXVARS)
+      character*20 varunit(MAXVARS)
       integer dates(MAXTIMES)
       integer times(MAXTIMES)
       integer compressmode
@@ -107,10 +108,11 @@ c     Create the v5d file.
          call exit(1)
       endif
 
-C  YOU MAY CALL v5dsetlowlev OR v5dsetunits HERE.  SEE README FILE.
+C  YOU MAY CALL v5dsetlowlev OR v5dsetunits HERE.  SEE THE DOCUMENTATION.
 
       maxnl = nl(1)
       do i=1,numvars
+C        call v5dsetunits(i,varunit(i))
          if (nl(i) .gt. maxnl) then
             maxnl = nl(i)
          endif

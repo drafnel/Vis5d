@@ -1727,7 +1727,7 @@ static void draw_clock( Display_Context dtx, unsigned int c )
    short pp[CLOCK_SEGMENTS+1][2];
    float ang, delta;
    float clk_size, clk_margin, clk_radius, clk_center_x, clk_center_y;
-   char str[12];
+   char str[15];
    int i, time_str_width;
    int stime, stimeold, dtime, dtimeold;
 
@@ -1791,18 +1791,15 @@ static void draw_clock( Display_Context dtx, unsigned int c )
    time_str_width = text_width (str);
 
    if (dtx->JulianDate) {
-     sprintf( str, "%05d", v5dDaysToYYDDD( dtimeold ));
+     sprintf( str, "%7d", v5dDaysToYYDDD( dtimeold ));
    }
    else {
-     int iy, im, id, days, mon;
-     days = dtimeold;
+     int iyyddd, iy, im, id, mon;
 
-     /* next two lines from from v5dDaysToYYDDD */
-     iy = (4 * days) / 1461;
-     id = days - (365 * iy + (iy - 1) / 4);
-     if (iy > 99) iy -= 100; /* MJK 5.11.99 */
-
-     im = (iy % 4) == 0 ? 12 : 0;
+     iyyddd = v5dDaysToYYDDD( dtimeold );
+     iy = iyyddd / 1000;
+     id = iyyddd - (iy * 1000);
+     im = ((iy % 4) == 0 && ((iy % 100) != 0 || (iy % 400) == 0)) ? 12 : 0;
      for (i=im; i<im+12; i++) {
        if (id <= dds[i]) {
          mon = i-im;

@@ -251,7 +251,8 @@ static int copy_string( char *dst, const char *src, int maxlen )
 
 
 /*
- * Convert a date from YYDDD format to days since Jan 1, 1900.
+ * Convert a date from YYDDD format to days since Dec 31, 1899,
+ * which was Sunday, so it's easy to calculate a weekday.
  */
 int v5dYYDDDtoDays( int yyddd )
 {
@@ -259,8 +260,9 @@ int v5dYYDDDtoDays( int yyddd )
 
    iy = yyddd / 1000;
    id = yyddd - 1000*iy;
-   if (iy < 50) iy += 100; /* WLH 31 July 96 << 31 Dec 99 */
-   idays = 365*iy + (iy-1)/4 + id;
+   if (iy >= 1900)
+     iy -= 1900;
+   idays = 365*iy + (iy-1)/4 - (iy-1)/100 + (iy+299)/400 + id;
 
    return idays;
 }
@@ -283,18 +285,40 @@ int v5dHHMMSStoSeconds( int hhmmss )
 
 
 /*
- * Convert a day since Jan 1, 1900 to YYDDD format.
+ * Convert a day since Dec 31, 1899 to YYDDD format.
  */
 int v5dDaysToYYDDD( int days )
 {
    int iy, id, iyyddd;
+   int leaps;
 
-   iy = (4*days)/1461;
-   id = days-(365*iy+(iy-1)/4);
-   if (iy > 99) iy = iy - 100; /* WLH 31 July 96 << 31 Dec 99 */
-   /* iy = iy + 1900; is the right way to fix this, but requires
-      changing all places where dates are printed - procrastinate */
-   iyyddd = iy*1000+id;
+   /*
+     Julian day starts from 1, it is easier to calculate from 0
+   */
+   days--;
+
+   /*
+     Every 400 years is a leap year.
+     400 years have 97 leap years.
+     We start at 1900, so add 300 years first.
+     300 years have 72 leap years.
+   */
+   leaps = (days+(300*365+72))/(400*365+97);
+
+   /*
+     Every 100 years is not a leap year.
+     100 years have 24 leap years.
+   */
+   leaps -= (days-leaps)/(365*100+24);
+
+   /*
+     4 years have 1 leap year.
+    */
+   leaps += (days-leaps)/(365*4+1);
+
+   iy = (days-leaps) / 365;
+   id = days-leaps-365*iy + 1;
+   iyyddd = (iy+1900)*1000+id;
 
    return iyyddd;
 }
@@ -370,10 +394,10 @@ void v5dPrintStruct( const v5dstruct *v )
    printf("\n");
 
    printf("NumTimes = %d\n", v->NumTimes );
-   printf("Step    Date(YYDDD)    Time(HH:MM:SS)   Day\n");
+   printf("Step    Date(YYYYDDD)    Time(HH:MM:SS)   Day\n");
    for (time=0;time<v->NumTimes;time++) {
       int i = v->TimeStamp[time];
-      printf("%3d        %05d       %5d:%02d:%02d     %s\n",
+      printf("%3d        %7d       %5d:%02d:%02d     %s\n",
              time+1,
              v->DateStamp[time],
              i/10000, (i/100)%100, i%100,
@@ -1079,7 +1103,7 @@ int v5dVerifyStruct( const v5dstruct *v )
       int date1 = v5dYYDDDtoDays( v->DateStamp[i] );
       int time0 = v5dHHMMSStoSeconds( v->TimeStamp[i-1] );
       int time1 = v5dHHMMSStoSeconds( v->TimeStamp[i] );
-      if (time1<=time0 && date1<=date0) {
+      if (date1<date0 || (time1<=time0 && date1==date0)) {
          printf("Timestamp for step %d must be later than step %d\n", i, i-1);
          invalid = 1;
       }
@@ -3088,7 +3112,10 @@ int F77_FUNC(v5dsetlowlev,V5DSETLOWLEV)
 int F77_FUNC(v5dsetunits,V5DSETUNITS)
           ( int *var, char *name )
 {
-   return v5dSetUnits( *var, name );
+   char buf[20];
+   copy_string( buf, name, 20 );
+
+   return v5dSetUnits( *var, buf );
 }
 
 
@@ -3141,4 +3168,65 @@ int F77_FUNC(v5dmcfile,V5DMCFILE)
 int F77_FUNC(v5dclose,V5DCLOSE)()
 {
    return v5dClose();
+}
+
+
+/*
+ * Open a pre-existing v5d file for appending.
+ */
+int F77_FUNC(v5dupdate,V5DUPDATE)
+         ( const char *name )
+{
+   char filename[100];
+
+   /* copy name to filename and remove trailing spaces if any */
+   copy_string( filename, name, 100 );
+   Simple = v5dNewStruct();
+   if (!Simple)
+      return 0;
+   if (!v5dUpdateFile ( filename, Simple ))
+      return 0;
+   return 1;
+}
+
+
+/*
+ * Update the timestep count and the vector defining timesteps.
+ * This is useful for incremental output from fortran model code.
+ * Each timestep can be appended to the v5d file independently.
+ */
+int F77_FUNC(v5dupdatetimes,V5DUPDATETIMES)
+          ( const int *numtimes,
+            const int timestamp[], const int datestamp[] )
+{
+   int time;
+
+   if (!Simple) {
+      printf("Error: must call v5dupdate before v5dupdatetimes\n");
+      return 0;
+   }
+   /*
+    * Check for uninitialized arguments
+    */
+   if (*numtimes < 1) {
+      printf("Error: v5dupdatetimes: numtimes invalid: %d\n", *numtimes);
+      return 0;
+   }
+
+   for (time = 0; time < *numtimes; time++) {
+      if (timestamp[time] < 0) {
+         printf("Error: v5dupdatetimes: times(%d) invalid: %d\n", time+1,timestamp[time]);
+         return 0;
+      }
+      if (datestamp[time] < 0) {
+         printf("Error: v5dupdatetimes: dates(%d) invalid: %d\n", time+1,datestamp[time]);
+         return 0;
+      }
+   }
+   Simple->NumTimes = *numtimes;
+   for (time = 0; time < *numtimes; time++) {
+      Simple->TimeStamp[time] = timestamp[time];
+      Simple->DateStamp[time] = datestamp[time];
+   }
+   return 1;
 }

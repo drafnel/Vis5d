@@ -1,5 +1,22 @@
 Summary of changes for each release of Vis5d+:
 
+  * Patch submitted by 
+       Jaakko Hyvätti <Jaakko.Hyvatti@foreca.com>
+    - Year 2000 problem (you can now optionally specify year with 4 digits)
+    ..now gets the weekday right.
+    - Year 2100 problem: it is not a leap year.
+    - Timestamp comparison was wrong, it would accept date1 < date0
+      if time1 > time0.
+
+    In the fortran callable V5DSETUNITS units were not stripped of trailing
+    white space.  Maybe you can comment on if this is a good fix.
+
+    I added fortran-callable functions V5DUPDATE and V5DUPDATETIMES,
+    as the functionality was available in C also.  I have not tested those
+    though.  My idea is to incrementally append to a v5d file as the
+    model run creating the data advances, so I can check the early results
+    as soon as they are available..
+
 Vis5d+ 1.1
 
   * Fixed non-working --with-memory configure option, thanks to Andrew Woolf.

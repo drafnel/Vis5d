@@ -279,7 +279,7 @@ void LUI_ButtonColor( LUI_NEWBUTTON *b, double red, double green, double blue )
  */
 void LUI_ButtonSetState( LUI_NEWBUTTON *b, int state )
 {
-   if (b->toggle) {
+   if (b && b->toggle) {
       b->state = state;
       draw_button( b );
    }

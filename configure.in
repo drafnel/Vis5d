@@ -34,6 +34,11 @@ AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
 
+AC_CHECK_PROG(JADE, jade, jade, ../missing jade)
+AC_CHECK_PROG(JADETEX, jadetex, jadetex, ../missing jadetex)
+AC_CHECK_PROG(PDFJADETEX, pdfjadetex, pdfjadetex, ../missing pdfjadetex)
+AC_CHECK_PROG(DVIPS, dvips, dvips, ../missing dvips)
+
 # check how to transform the name of the installed program:
 AC_ARG_PROGRAM
 
@@ -413,4 +418,4 @@ AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 AC_SUBST(OPT_LIBMAIN)
 
-AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile import/Makefile)
+AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile import/Makefile doc/Makefile)

@@ -600,6 +600,8 @@ extern void draw_wind_lines( int nvectors,
 
 
 
+void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuint fontbase );
+
 /*
  * Draw a set of disjoint lines whose vertices are scaled 2-byte ints.
  * Input:  n - number of vertices, not lines
@@ -708,7 +710,8 @@ extern void draw_text( int xpos, int ypos, char *str );
 /*
  * Return the width of a text string in pixels.
  */
-extern int text_width( char *str );
+
+extern int text_width( XFontStruct *font, char *str );
 
 
 

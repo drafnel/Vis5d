@@ -245,6 +245,17 @@ extern "C" {
 #define MAXALPHA 6
 #define MAX_TABLE 1000
 
+  /* JPE: adding a new font to this list *should* do most of the work
+	  of adding support for that new font!
+  */
+typedef enum{
+	 CONTOUR_LABEL_FONT=0,
+		WINDOW_3D_FONT,
+		SOUND_FONT,
+		GFX_FONT_COUNT 
+} Fontlist;
+
+
 /* MJK 11.19.98 */
 extern int off_screen_rendering;
 
@@ -685,7 +696,9 @@ extern int vis5d_color_table_set_alpha( float params[], float alpha );
 
 
 extern int vis5d_alpha_mode( int index, int mode );
-
+#ifdef HAVE_OPENGL
+extern int vis5d_set_font(int index, char *fontname, int size, Fontlist which);
+#endif
 extern int vis5d_font(  int index, char *fontname, int size );
 
 extern int vis5d_soundfont( int index, char *fontname );
@@ -696,8 +709,12 @@ extern int vis5d_get_font( int index, char *fontname, int *size);
 int vis5d_resize_contour_font( int index, int factorx, int factory);
 
 
-/* WLH 8 Oct 98 */
-extern int vis5d_get_font_height( int index, int *height);
+extern int vis5d_get_font_height( int index, int *height 
+#ifdef USE_SYSTEM_FONTS
+		,Fontlist which							
+#endif
+                                 );
+
 
 extern int vis5d_linewidth( int index, float width );
 

@@ -70,16 +70,19 @@ typedef unsigned int   uint_4;    /* 4-byte unsigned integer */
 #  define V5D_MAXSTRLEN 1000
 #endif
 
-#define ISOSURF        0
-#define HSLICE         1
-#define VSLICE         2
-#define CHSLICE        3
-#define CVSLICE        4
-#define HWIND          6
-#define VWIND          7
-#define TRAJ           8
-#define HSTREAM        9
-#define VSTREAM       10
+typedef enum
+{
+  ISOSURF,
+  HSLICE,
+  VSLICE,
+  CHSLICE,
+  CVSLICE,
+  HWIND,
+  VWIND,
+  TRAJ,
+  HSTREAM,
+  VSTREAM
+} plottypes;
 
 
 #define MAXTRAJ 10000    /* May be increased */
@@ -243,6 +246,10 @@ struct hslice {
    int_2  *verts3;           /* array [num3][3] of int_2 vertices */
    float  *boxverts;         /* array of vertices for bounding rectangle */
    int    numboxverts;       /* number of vertices in boxverts array */
+
+#ifdef USE_SYSTEM_FONTS
+  char *labels;
+#endif
 };
 
 
@@ -263,7 +270,13 @@ struct vslice {
    int_2  *verts3;           /* array [num3][3] of int_2 vertices */
    float  *boxverts;         /* array of vertices for bounding rectangle */
    int    numboxverts;       /* number of vertices in boxverts array */
+#ifdef USE_SYSTEM_FONTS
+  char *labels;
+#endif
 };
+
+
+
 
 
 /* Info about colored horizontal slices */
@@ -525,19 +538,28 @@ struct ColorTable{
    float Params[MAXVARS*VIS5D_MAX_CONTEXTS+1][10];
 };  
 
+#ifdef HAVE_OPENGL
+typedef struct {
+  char *FontName;          /* Name of font */
+  int FontHeight;
+  int FontDescent;
+  XFontStruct *font;
+
+  GLuint fontbase;
+  int refcount;
+} Xgfx;
+#endif
 
 struct display_context {
    int dpy_context_index;           /*index if this display context*/
    int group_index;                   /* index of group it belongs to, or zero if not */
 
 #ifdef HAVE_OPENGL
-   GLdouble ModelMat[16], ProjMat[16];  /* ModelView and Projection matrices */
-   struct {
-      GLXContext gl_ctx;
-      XFontStruct *font;
-      GLuint fontbase;
-   } gfx;
+  GLXContext gl_ctx;
+  GLdouble ModelMat[16], ProjMat[16];  /* ModelView and Projection matrices */
+  Xgfx *gfx[GFX_FONT_COUNT];
 #endif
+
 #ifdef HAVE_SGI_GL
    Matrix ModelMat, ProjMat;
    struct {
@@ -886,10 +908,13 @@ struct display_context {
    int ContFontFactorX;          /* increase/decrease contour font by this in X dir */
    int ContFontFactorY;          /* increase/decrease contour font by this in Y dir*/
 
+#ifndef HAVE_OPENGL
    char FontName[100];          /* Name of font */
    int FontHeight;              /* Height of font in pixels */
    int FontDescent;             /* Pixels from top to baseline */
    char SoundFontName[100];     /* Name of sounding window font */
+#endif
+
    int AlphaBlend;              /* Do alpha blended transparency? */
    int DepthCue;                /* Do depth cueing? */
    int Perspective;

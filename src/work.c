@@ -1908,6 +1908,7 @@ static void calc_hslice( Context ctx, int time, int var,
    int max_cont_verts;
 
    dtx = ctx->dpy_ctx;
+
    /* MJK 12.04.98 */
    if ((ctx->Nl[var]==1) && (!ctx->DisplaySfcHSlice[var])) {
       wait_write_lock( &slice->lock );
@@ -2036,11 +2037,19 @@ static void calc_hslice( Context ctx, int time, int var,
      base = low;
 
    /* call contouring routine */
+	if(slice->labels)
+	  free(slice->labels);
+	slice->labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+
    contour_ok =
      contour( ctx, slicedata, dtx->Nr, dtx->Nc, interval, low, high, base,
 	      vr1, vc1, max_cont_verts, &num1,
 	      vr2, vc2, max_cont_verts/2, &num2,
-	      vr3, vc3, max_cont_verts/2, &num3);
+	      vr3, vc3, max_cont_verts/2, &num3
+#ifdef USE_SYSTEM_FONTS
+				  , slice->labels
+#endif
+				  );
 
    /* done with grid and slice */
    deallocate( ctx, slicedata, -1 );
@@ -2115,9 +2124,6 @@ static void calc_hslice( Context ctx, int time, int var,
    if (ctx->DisplaySfcHSlice[var]){
       num3 = fit_vecs_to_topo (ctx, num3, max_cont_verts/2, vr3, vc3, vl);
    }
-
-
-
 
    if (num3) {
       bytes = 3*num3*sizeof(int_2);
@@ -2304,11 +2310,17 @@ static void calc_vslice( Context ctx, int time, int var,
    else
      base = low;
    /* call contouring routine */
-   contour_ok =
-	contour( ctx, slice, rows, cols, interval, low, high, base,
+	if(ctx->VSliceTable[var][time].labels)
+	  free(ctx->VSliceTable[var][time].labels);
+	ctx->VSliceTable[var][time].labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+   contour_ok =	contour( ctx, slice, rows, cols, interval, low, high, base,
 		 vr1, vc1, max_cont_verts, &num1,
 		 vr2, vc2, max_cont_verts/2, &num2,
-		 vr3, vc3, max_cont_verts/2, &num3);
+		 vr3, vc3, max_cont_verts/2, &num3
+#ifdef USE_SYSTEM_FONTS
+									,ctx->VSliceTable[var][time].labels							
+#endif
+									);
 
    deallocate( ctx, slice, -1 );
    release_grid( ctx, time, var, grid );
@@ -6348,9 +6360,10 @@ int do_one_task( int threadnum )
 #endif /* HAVE_LIBNETCDF */
       case TASK_HSLICE:
          /* calculate a horizontal contour line slice. */
-         calc_hslice( ctx, time, var, ctx->HSliceInterval[var],
-                      ctx->HSliceLowLimit[var], ctx->HSliceHighLimit[var],
-                      ctx->HSliceLevel[var], threadnum );
+		  
+		  calc_hslice( ctx, time, var, ctx->HSliceInterval[var],
+							ctx->HSliceLowLimit[var], ctx->HSliceHighLimit[var],
+							ctx->HSliceLevel[var], threadnum );
          break;
       case TASK_VSLICE:
          /* calculate a horizontal contour line slice. */

@@ -316,6 +316,8 @@ void plot_string( char *str, float startx, float starty, float startz,
    cx = startx;  cy = starty;  cz = startz;
    len = strlen(str);
 
+	
+
    if (rjustify) {
       /* draw right justified text */
       for (i=len-1; i>=0; i--) {
@@ -720,7 +722,7 @@ static void print_cursor_position( Display_Context dtx, int it )
    if (ix < 1) ix = 1;
    fmt[5] = (ix + 4) + '0';
    sprintf (str, fmt, "XXX", x, "xx");
-   ix = dtx->WinWidth - (text_width (str));
+   ix = dtx->WinWidth - (text_width (dtx->gfx[WINDOW_3D_FONT]->font,str));
 
    if (dtx->CoordFlag) {
       /* display cursor position in grid coordinates */
@@ -729,15 +731,15 @@ static void print_cursor_position( Display_Context dtx, int it )
                              &row, &col, &lev);
 
       sprintf( str, "Row: %g", row+1.0 );
-      draw_text( ix, (dtx->FontHeight+VSPACE), str );
+      draw_text( ix, (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
 
       sprintf( str, "Col: %g", col+1.0 );
-      draw_text( ix, 2*(dtx->FontHeight+VSPACE), str );
+      draw_text( ix, 2*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
 
       if (!dtx->DisplaySound)
       {
          sprintf( str, "Lev: %g", lev+1.0 );
-         draw_text( ix, 3*(dtx->FontHeight+VSPACE), str );
+         draw_text( ix, 3*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
       }
 
    }
@@ -748,10 +750,10 @@ static void print_cursor_position( Display_Context dtx, int it )
       if (dtx->Projection == PROJ_GENERIC)
       {
          sprintf (str, fmt, "Row", lat, "");
-         draw_text( ix, (dtx->FontHeight+VSPACE), str );
+         draw_text( ix, (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
 
          sprintf (str, fmt, "Col", lon, "");
-         draw_text( ix, 2*(dtx->FontHeight+VSPACE), str );
+         draw_text( ix, 2*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
       }
       else
       {
@@ -761,14 +763,14 @@ static void print_cursor_position( Display_Context dtx, int it )
          hemi[0] = 'N';
          if (lat < 0.0) lat = -lat, hemi[0] = 'S';
          sprintf (str, fmt, "Lat", lat, hemi);
-         draw_text( ix, (dtx->FontHeight+VSPACE), str );
+         draw_text( ix, (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
 
          hemi[0] = 'W';
          if (lon < 0.0) lon = -lon, hemi[0] = 'E';
 /*MiB*/  if (lon > 180.) lon = -360. + lon, hemi[0] = 'W';
 /*MiB*/  if (lon < 0.0) lon = -lon, hemi[0] = 'E';
          sprintf (str, fmt, "Lon", lon, hemi);
-         draw_text( ix, 2*(dtx->FontHeight+VSPACE), str );
+         draw_text( ix, 2*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
       }
 
       if (!dtx->DisplaySound)
@@ -777,7 +779,7 @@ static void print_cursor_position( Display_Context dtx, int it )
             sprintf (str, fmt, "Hgt", VERTPRIME(hgt), "mb");
          else
             sprintf (str, fmt, "Hgt", hgt, "km");
-         draw_text( ix, 3*(dtx->FontHeight+VSPACE), str );
+         draw_text( ix, 3*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
       }
    }
    /* end MJK 12.01.98 */
@@ -1011,15 +1013,29 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
             draw_disjoint_lines( ctx->HSliceTable[var][time].num1,
                                  (void *) ctx->HSliceTable[var][time].verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE] );
-            
             if (labels) {
-               /* draw contour labels */
+#ifdef USE_SYSTEM_FONTS
+
+               /* draw hidden contour lines */
+               draw_disjoint_lines( ctx->HSliceTable[var][time].num2,
+                                    (void *)ctx->HSliceTable[var][time].verts2,
+                                    ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
+                                    var][HSLICE] );
+
+				  plot_strings( ctx->HSliceTable[var][time].num3, 
+									 ctx->HSliceTable[var][time].labels,
+									 ctx->HSliceTable[var][time].verts3,
+									 ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE],
+									 ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
+#else
                draw_disjoint_lines( ctx->HSliceTable[var][time].num3,
                                     (void *)ctx->HSliceTable[var][time].verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS
                                     +var][HSLICE] );
+#endif
             }
             else {
+
                /* draw hidden contour lines */
                draw_disjoint_lines( ctx->HSliceTable[var][time].num2,
                                     (void *)ctx->HSliceTable[var][time].verts2,
@@ -1098,11 +1114,24 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
                                  var][VSLICE] );
 
             if (labels) {
+#ifdef USE_SYSTEM_FONTS
+               /* draw hidden contour lines */
+               draw_disjoint_lines( ctx->VSliceTable[var][time].num2,
+                                    (void*) ctx->VSliceTable[var][time].verts2,
+                                    ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
+                                    var][VSLICE] );
+					plot_strings( ctx->VSliceTable[var][time].num3,
+									  ctx->VSliceTable[var][time].labels,
+									  (void*) ctx->VSliceTable[var][time].verts3,
+									  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE],
+									  ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
+#else
                /* draw contour labels */
                draw_disjoint_lines( ctx->VSliceTable[var][time].num3,
                                     (void*) ctx->VSliceTable[var][time].verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] );
+#endif
             }
             else {
                /* draw hidden contour lines */
@@ -1731,7 +1760,7 @@ static void draw_clock( Display_Context dtx, unsigned int c )
    int i, time_str_width;
    int stime, stimeold, dtime, dtimeold;
 
-   clk_size     = 4*(dtx->FontHeight+VSPACE);
+   clk_size     = 4*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE);
    clk_margin   = clk_size / 16.0;
    clk_radius   = (clk_size / 2.0) - clk_margin;
    clk_center_x = clk_size / 2.0;
@@ -1787,8 +1816,8 @@ static void draw_clock( Display_Context dtx, unsigned int c )
    stimeold = stime;
    i = stimeold;
    sprintf( str, "%02d:%02d:%02d", i/3600, (i/60)%60, i%60 );
-   draw_text( clk_size, dtx->FontHeight+VSPACE, str );
-   time_str_width = text_width (str);
+   draw_text( clk_size, dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE, str );
+   time_str_width = text_width ( dtx->gfx[WINDOW_3D_FONT]->font, str);
 
    if (dtx->JulianDate) {
      sprintf( str, "%7d", v5dDaysToYYDDD( dtimeold ));
@@ -1809,21 +1838,21 @@ static void draw_clock( Display_Context dtx, unsigned int c )
      }
      sprintf(str, "%02d %s %02d", id, month[mon], iy);
    }
-   draw_text( clk_size, 2*(dtx->FontHeight+VSPACE), str );
+   draw_text( clk_size, 2*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
 
    sprintf( str, "%d of %d", dtx->CurTime+1, dtx->NumTimes );
-   draw_text( clk_size, 3*(dtx->FontHeight+VSPACE), str );
+   draw_text( clk_size, 3*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
 
    if (dtx->NumTimes == 1 ||
        ((dtx->Elapsed[dtx->NumTimes-1] - dtx->Elapsed[0])
          / (dtx->NumTimes - 1)) < 48*3600 ) {
      /* Print day of week */
-     draw_text( clk_size, 4*(dtx->FontHeight+VSPACE),
+     draw_text( clk_size, 4*(dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE),
                 day[ (dtimeold+0) % 7 ] );
    }
    if (dtx->group_index > 0){
       sprintf( str, "   Group %d", dtx->group_index);
-      draw_text( (clk_size + time_str_width), (dtx->FontHeight+VSPACE), str );
+      draw_text( (clk_size + time_str_width), (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE), str );
    }
 }
 /* MJK 12.02.98 end */
@@ -1893,7 +1922,7 @@ static void print_info( Display_Context dtx )
    else
       sprintf(str, "Pending: %d", size );
 
-   draw_text( 10, dtx->WinHeight - dtx->FontHeight, str );
+   draw_text( 10, dtx->WinHeight - dtx->gfx[WINDOW_3D_FONT]->FontHeight, str );
 }
 
 
@@ -1916,7 +1945,7 @@ static void draw_probe( Display_Context dtx )
       x = -1;
       for (yo = 0; yo < dtx->numofctxs; yo++){
          for (var=0;var<dtx->ctxpointerarray[yo]->NumVars; var++) {
-            int w = text_width( dtx->ctxpointerarray[yo]->VarName[var] );
+            int w = text_width(dtx->gfx[WINDOW_3D_FONT]->font, dtx->ctxpointerarray[yo]->VarName[var] );
             int l = strlen( dtx->ctxpointerarray[yo]->VarName[var] );
             if (w < 1) w = 11 * l;
             if (w>x)
@@ -1932,7 +1961,7 @@ static void draw_probe( Display_Context dtx )
    x = dtx->probe_text_width;
 
    /* Draw from bottom of window upward */
-   y = dtx->WinHeight - dtx->FontHeight;
+   y = dtx->WinHeight - dtx->gfx[WINDOW_3D_FONT]->FontHeight;
    for (yo = 0; yo < dtx->numofctxs; yo++){
       Context ctx;
       int ipvar, npvar, lpvar;
@@ -2008,7 +2037,7 @@ static void draw_probe( Display_Context dtx )
             else
               sprintf( str, " = %.3g %s", val, ctx->Units[var] );
             draw_text( x+10, y, str );
-            y -= (dtx->FontHeight+VSPACE);
+            y -= (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE);
          }
       }
    }
@@ -2164,7 +2193,7 @@ XSync( GfxDpy, 0 );
       float value;
 
       ticky = ybot - tick * (legend_height-1) / (NUM_TICKS-1);
-      texty = ybot - tick * (legend_height-dtx->FontHeight+dtx->FontDescent)
+      texty = ybot - tick * (legend_height-dtx->gfx[WINDOW_3D_FONT]->FontHeight+dtx->gfx[WINDOW_3D_FONT]->FontDescent)
               / (NUM_TICKS-1);
       value = colorctx->MinVal[var] + (colorctx->MaxVal[var]-colorctx->MinVal[var])*tick/4.0;
 
@@ -2174,17 +2203,17 @@ XSync( GfxDpy, 0 );
       sprintf(scrap, format, value);
       draw_text( xleft + legend_width + TICK_LENGTH + 2, texty, scrap );
 XSync( GfxDpy, 0 );
-      if (text_width(scrap) > textwidth)
-         textwidth = text_width(scrap);
+      if (text_width(dtx->gfx[WINDOW_3D_FONT]->font,scrap) > textwidth)
+         textwidth = text_width(dtx->gfx[WINDOW_3D_FONT]->font,scrap);
    }
 
    /* Print name of physical variable above legend */
    if (colorctx->Units[var][0]) {
       sprintf( scrap, "%s (%s)", colorctx->VarName[var], colorctx->Units[var] );
-      draw_text( xleft, ybot - legend_height - dtx->FontDescent-2, scrap );
+      draw_text( xleft, ybot - legend_height - dtx->gfx[WINDOW_3D_FONT]->FontDescent-2, scrap );
    }
    else {
-      draw_text( xleft, ybot - legend_height - dtx->FontDescent-2,
+      draw_text( xleft, ybot - legend_height - dtx->gfx[WINDOW_3D_FONT]->FontDescent-2,
                  colorctx->VarName[var]);
    }
 
@@ -2193,7 +2222,7 @@ XSync( GfxDpy, 0 );
      return legend_width + TICK_LENGTH + 5 + textwidth + legend_space;
    }
    else {
-     return legend_height + 5 + dtx->FontHeight + legend_space;
+     return legend_height + 5 + dtx->gfx[WINDOW_3D_FONT]->FontHeight + legend_space;
    }
 }
 
@@ -2223,17 +2252,17 @@ static void draw_color_legends( Display_Context dtx )
    }
    else if (dtx->LegendPosition == VIS5D_TOP) {
      left = 200+dtx->LegendMarginX;
-     bottom  = dtx->LegendSize + 5 + dtx->FontHeight + 25 + dtx->LegendMarginY;
+     bottom  = dtx->LegendSize + 5 + dtx->gfx[WINDOW_3D_FONT]->FontHeight + 25 + dtx->LegendMarginY;
      vert = 0;
    }
    else if (dtx->LegendPosition == VIS5D_RIGHT) {
-     left = dtx->WinWidth - ((35 * dtx->LegendSize) / 128) - 5 * dtx->FontHeight+dtx->LegendMarginX;
-     bottom  = dtx->LegendSize + 5 + dtx->FontHeight + 50 + dtx->LegendMarginY;
+     left = dtx->WinWidth - ((35 * dtx->LegendSize) / 128) - 5 * dtx->gfx[WINDOW_3D_FONT]->FontHeight+dtx->LegendMarginX;
+     bottom  = dtx->LegendSize + 5 + dtx->gfx[WINDOW_3D_FONT]->FontHeight + 50 + dtx->LegendMarginY;
      vert = 1;
    }
    else if (dtx->LegendPosition == VIS5D_LEFT) {
      left = 20+dtx->LegendMarginX;
-     bottom  = dtx->LegendSize + 5 + dtx->FontHeight + 100 + dtx->LegendMarginY;
+     bottom  = dtx->LegendSize + 5 + dtx->gfx[WINDOW_3D_FONT]->FontHeight + 100 + dtx->LegendMarginY;
      vert = 1;
    }
    else {

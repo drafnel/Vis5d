@@ -106,23 +106,29 @@ int find_best_visual( Display *dpy, int scr, int *depth, Visual **visual,
    if (XMatchVisualInfo( dpy, scr, 24, TrueColor, &visinfo)) {
       *depth = 24;
       *visual = visinfo.visual;
+		printf("Setting visual to 24 bit truecolor with ");
       if (*visual==DefaultVisual(dpy,scr) && DefaultDepth(dpy,scr)==24) {
          *cmap = DefaultColormap(dpy,scr);
+			printf("default color map\n");
       }
       else {
          *cmap = XCreateColormap( dpy, root, *visual, AllocNone );
+			printf("locally defined color map\n");
       }
    }
    else if (XMatchVisualInfo( dpy, scr, 8, PseudoColor, &visinfo)) {
       *depth = 8;
       *visual = visinfo.visual;
+		printf("Setting visual to 8 bit PsuedoColor with ");
       if (visinfo.visual==DefaultVisual(dpy,scr) && DefaultDepth(dpy,scr)==8
           && MaxCmapsOfScreen(screen)==1) {
          /* share the root colormap */
          *cmap = DefaultColormap( dpy, scr );
+			printf("default color map\n");
       }
       else {
          *cmap = XCreateColormap( dpy, root, *visual, AllocNone );
+			printf("locally defined color map\n");
       }
    }
    else {
@@ -130,6 +136,7 @@ int find_best_visual( Display *dpy, int scr, int *depth, Visual **visual,
       *depth = DefaultDepth( dpy, scr );
       *visual = DefaultVisual( dpy, scr );
       *cmap = DefaultColormap( dpy, scr );
+		printf("Using default visual with depth %d\n",*depth);
    }
 
    if (*depth<8) {

@@ -41,7 +41,11 @@ extern int contour( Context ctx, float g[], int nr, int nc,
                     float base,
                     float vx1[], float vy1[],  int maxv1, int *numv1,
                     float vx2[], float vy2[],  int maxv2, int *numv2,
-                    float vx3[], float vy3[],  int maxv3, int *numv3 );
+                    float vx3[], float vy3[],  int maxv3, int *numv3
+#ifdef USE_SYSTEM_FONTS
+						  ,char *labels
+#endif
+						  );
 
 
 #endif

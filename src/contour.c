@@ -661,7 +661,11 @@ int contour( Context ctx, float g[], int nr, int nc,
              float base,
              float vx1[], float vy1[],  int maxv1, int *numv1,
              float vx2[], float vy2[],  int maxv2, int *numv2,
-             float vx3[], float vy3[],  int maxv3, int *numv3 )
+             float vx3[], float vy3[],  int maxv3, int *numv3
+#ifdef USE_SYSTEM_FONTS
+				 ,char *labels
+#endif
+				 )
 {
    register int ir, ic;
    int nrm, ncm, idash;
@@ -675,6 +679,7 @@ int contour( Context ctx, float g[], int nr, int nc,
    int nump, ip;
    register int numv;
    char *mark;
+	int domark;
 
    /* MJK 12.10.98 */
    char         lbl_str[10], lbl_fmt[40];
@@ -699,12 +704,12 @@ int contour( Context ctx, float g[], int nr, int nc,
 
    use_resize = 0;
    ffex = ffey = 0;
-
+#ifndef USE_SYTEM_FONTS
    if (ctx->dpy_ctx->ContFontFactorX != 0 ||
        ctx->dpy_ctx->ContFontFactorY != 0){
       use_resize = 1;
    }
-
+#endif
 
    /* initialize vertex counts */
    *numv1 = *numv2 = *numv3 = 0;
@@ -760,8 +765,8 @@ int contour( Context ctx, float g[], int nr, int nc,
    lrr = 1+(nr-2)/8;
    lcc = 1+(nc-2)/8;
 
-   /* MJK 12.10.98 */
    sprintf (lbl_str, "%f", interval);
+
    lbl_len = strlen (lbl_str);
    while (lbl_str[--lbl_len] == '0') if (lbl_len == 0) break;
    lbl_dot = 0;
@@ -774,11 +779,6 @@ int contour( Context ctx, float g[], int nr, int nc,
       }
    }
    sprintf (lbl_fmt, "%%.%df", lbl_dot);
-
-
-
-
-
 
    /* allocate mark array */
    mark = (char *) allocate( ctx, nr * nc * sizeof(char) );
@@ -794,12 +794,7 @@ int contour( Context ctx, float g[], int nr, int nc,
    for (ic=0;ic<nc;ic++) {
       for (ir=0;ir<lr;ir++) {
          MARK(ir,ic) = 1;
-/* WLH 12 Nov 98
-         MARK(nr-ir-2,ic) = 1;
-*/
-         /* WLH 12 Nov 98 */
          MARK(nr-1-ir,ic) = 1;
-
       }
    }
 
@@ -807,25 +802,14 @@ int contour( Context ctx, float g[], int nr, int nc,
    for (ir=0;ir<nr;ir++) {
       for (ic=0;ic<lc;ic++) {
          MARK(ir,ic) = 1;
-/* WLH 12 Nov 98
-         MARK(ir,nc-ic-2) = 1;
-*/
-         /* WLH 12 Nov 98 */
          MARK(ir,nc-1-ic) = 1;
-
       }
    }
-/*
-   for (ir=0;ir<nr;ir++) {
-      for (ic=0;ic<nc;ic++) {
-         printf("%d ", (int) MARK(ir,ic) );
-      }
-      printf("\n");
-   }
-*/
 
    numv = nump = 0;
+
    /* compute contours */
+
    for (ir=0; ir<nrm && numv<maxtemp-8 && nump<2*maxtemp; ir++) {
       xx = xd*ir+XMIN;
       for (ic=0; ic<ncm && numv<maxtemp-8 && nump<2*maxtemp; ic++) {
@@ -851,12 +835,10 @@ int contour( Context ctx, float g[], int nr, int nc,
          /* find average, min, and max of 4 corner values */
          gv = (ga+gb+gc+gd)/4.0;
 
-         /*gn = MIN4(ga,gb,gc,gd);*/
          tmp1 = MIN2( ga, gb );
          tmp2 = MIN2( gc, gd );
          gn = MIN2( tmp1, tmp2 );
 
-         /*gx = MAX4(ga,gb,gc,gd);*/
          tmp1 = MAX2( ga, gb );
          tmp2 = MAX2( gc, gd );
          gx = MAX2( tmp1, tmp2 );
@@ -864,18 +846,12 @@ int contour( Context ctx, float g[], int nr, int nc,
 
          /* compute clow and chi, low and high contour values in the box */
 
-         /* old method: */
-         /* clow = interval*(NINT(gn/interval)-1);*/
-/*         clow = base + interval*(NINT((gn-base)/interval)-1);*/
          tmp1 = (gn-base) / interval;
          clow = base + interval * (NINT(tmp1)-1);
          while (clow<gn) {
             clow += interval;
          }
 
-         /* old method: */
-         /*chi = interval*(NINT(gx/interval)+1);*/
-/*         chi = base + interval*(NINT((gx-base)/interval)+1);*/
          tmp1 = (gx-base) / interval;
          chi = base + interval * (NINT(tmp1)+1);
          while (chi>gx) {
@@ -883,7 +859,6 @@ int contour( Context ctx, float g[], int nr, int nc,
          }
 
          /* how many contour lines in the box: */
-/*         numc = 1+NINT((chi-clow)/interval);*/
          tmp1 = (chi-clow) / interval;
          numc = 1+NINT(tmp1);
 
@@ -922,30 +897,25 @@ int contour( Context ctx, float g[], int nr, int nc,
                mc = kc+2*lcc+lc-1;
                mr = kr+2*lrr+lr-1;
                /* OK here */
-               for (jc=kc;jc<=mc;jc++) {
-                  if (jc >= 0 && jc < nc) {
-                     for (jr=kr;jr<=mr;jr++) {
-                        if (jr >= 0 && jr < nr) {
-                           if (MARK(jr,jc) != 2) {
-                              MARK(jr,jc) = 1;
-                           }
-                        }
-                     }
-                  }
-               }
-
+					/*  JPE: This controls the density of plot labels */
+					for (jc=MAX2(kc,0);jc<MIN2(mc+1,nc);jc++){
+					  for(jr=MAX2(kr,0);jr<MIN2(mr+1,nr);jr++){
+						 if (MARK(jr,jc) != 2) {
+							MARK(jr,jc) = 1;
+						 }
+					  }
+					}
+					
                /* BOX TO HOLD LABEL */
                kc = ic-lc2;
                kr = ir-lr2;
                mc = kc+lc-1;
                mr = kr+lr-1;
                
-               /* MJK 12.10.98 */
+					/* JPE - we've already done this - why again? */
                sprintf (lbl_str, lbl_fmt, gg);
                lbl_len = strlen (lbl_str);
 
-
-               /* MJK 2.22.99 */
                if (lbl_len+ffex >= 1){
                   lbl_len += ffex;
                }
@@ -953,48 +923,39 @@ int contour( Context ctx, float g[], int nr, int nc,
                if (((lbl_dot) || (gg < 0.0)) && (lbl_len > 2)) lbl_len--;
                kc = ic - (lbl_len / 2);
                mc = kc + lbl_len - 1;
-
-
-
-
-               for (jc=kc;jc<=mc;jc++) {
-                  if (jc >= 0 && jc < nc) {
-                     for (jr=kr;jr<=mr;jr++) {
-                        if (jr >= 0 && jr < nr) {
-                           MARK(jr,jc) = 2;
-                        }
-                     }
-                  }
-               }
+					for(jc=MAX2(0,kc);jc<MIN2(mc+1,nc);jc++){
+					  for(jr=MAX2(kr,0);jr<MIN2(mr+1,nr);jr++){
+						 MARK(jr,jc) = 2;
+					  }
+					}
 
                xk = xd*kr+XMIN;
                yk = yd*kc+YMIN;
                xm = xd*(mr+1.0)+XMIN;
                ym = yd*(mc+1.0)+YMIN;
-               /* old method:  VALUE=CLOW+INTERVAL*FLOAT((NUMC-1)/2)*/
+
                value = gg;
 
                if (*numv3 < maxv3) {
                   /* if there's room in the array, plot the label */
-                  /* MJK 12.10.98 */
                   if (use_resize){
                      *numv3 += plot_label_wierd( lbl_str, xk, yk, xm, ym,
                                         vx3+(*numv3), vy3+(*numv3) );
                   }
                   else{
-                     *numv3 += plot_label( lbl_str, xk, yk, xm, ym,
-                                        vx3+(*numv3), vy3+(*numv3) );
+#ifdef USE_SYSTEM_FONTS
+						  if(lbl_str){
+							 domark=1;
+						  }
+#else
+						  *numv3 += plot_label( lbl_str, xk, yk, xm, ym,
+												vx3+(*numv3), vy3+(*numv3) );
+#endif
+						  
                   }
-/*
-                  int n;
-                  n = plotdigits( value, xk, yk, xm, ym,
-                                  vx3+(*numv3), vy3+(*numv3) );
-                  *numv3 = *numv3 + n;
-*/
-
                }
-            }
-
+            } /*MATCHES: if(MARK(ic,jc)==0) */
+				
             switch (ii) {
                case 1:
                   gba = gb-ga;
@@ -1160,7 +1121,22 @@ int contour( Context ctx, float g[], int nr, int nc,
                vx[numv-1] = (vxa+3.0*vxb) * 0.25;
                vy[numv-1] = (vya+3.0*vyb) * 0.25;
             }
-
+#ifdef USE_SYSTEM_FONTS
+				if(MARK(ir,ic)==2){
+				  if(domark){
+					 lbl_len=strlen(lbl_str);
+					 sprintf(labels,"%s\0",lbl_str);
+					 labels+=lbl_len+1;
+					 vx3[(*numv3)]= (vx[numv-2]<vx[numv-1]) ?
+						vx[numv-2] + 0.5 *(vx[numv-1]-vx[numv-2]) :
+						vx[numv-1] + 0.5 *(vx[numv-2]-vx[numv-1]) ;
+					 vy3[(*numv3)++]= (vy[numv-2]<vy[numv-1]) ?
+						vy[numv-2] + 0.2*(vy[numv-1]-vy[numv-2]) :
+						vy[numv-1] + 0.2*(vy[numv-2]-vy[numv-1]) ;
+					 domark=0;
+				  }
+				}
+#endif
          }  /* for il */    /* NOTE:  gg incremented in for statement */
 
       }  /* for ic */

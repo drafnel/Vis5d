@@ -4129,10 +4129,21 @@ static int cmd_get_font_height( ClientData client_data, Tcl_Interp *interp,
 {
    int result;
    int height;
+
+#ifdef USE_SYSTEM_FONTS
+   if (!arg_check( interp, "vis5d_get_font_height", argc, 2,2 )) {
+	  fprintf(stderr,"JPE: I've broken this - you now need to pass in\n");
+	  fprintf(stderr,"the Fontlist item for which you want the height. \n");
+	  return TCL_ERROR;
+   }	
+
+   result = vis5d_get_font_height( atoi(argv[1]), &height,  atoi(argv[2]));
+#else
    if (!arg_check( interp, "vis5d_get_font_height", argc, 1,1 )) {
       return TCL_ERROR;
    }
    result = vis5d_get_font_height( atoi(argv[1]), &height );
+#endif
    sprintf(interp->result,"%d", height);
    return error_check( interp, "vis5d_get_font_height", result );
 }

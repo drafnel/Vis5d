@@ -461,25 +461,57 @@ static Context new_context( void )
    return ctx;
 }
 
+#ifdef HAVE_OPENGL
+Xgfx *new_Xgfx(Xgfx *gfx)
+{
+  Xgfx *gfxnew;
+
+  if(gfx){
+	 gfx->refcount++;
+	 return(gfx);
+  }
+  gfxnew = (Xgfx *) calloc(1,sizeof(Xgfx));
+  gfxnew->refcount = 1;
+  return(gfxnew);
+}
+
+/* The Xgfx structure is only freed when the refcount reachs 0 */
+void free_Xgfx( Xgfx *gfx)
+{
+  if(gfx){
+	 if(--(gfx->refcount)<=0){
+		if(gfx->FontName){
+		  free(gfx->FontName);
+		}
+		free(gfx);
+	 }
+  }
+}
+#endif
 
 /*
  * Allocate a new display context, initialize to default values.
  */
 static Display_Context new_display_context( void )
 {
-   Display_Context dtx;
-   /* this calloc call eats up time! */
-
-   dtx = (Display_Context) calloc( 1, sizeof(struct display_context) );
-   if (dtx) {
-	  int i;
-	  /* This could probably be deferred */
-	  for(i=0;i< VIS5D_COLORTABLES;i++){
-		 dtx->ColorTable[i] = (struct ColorTable *) malloc(sizeof(struct ColorTable));
-	  }
-	  init_display_context( dtx, 1);
-   }
-   return dtx;
+  int i;
+  Display_Context dtx;
+  /* this calloc call eats up time! */
+  
+  dtx = (Display_Context) calloc( 1, sizeof(struct display_context) );
+  if (dtx) {
+	 /* This could probably be deferred */
+	 for(i=0;i< VIS5D_COLORTABLES;i++){
+		dtx->ColorTable[i] = (struct ColorTable *) malloc(sizeof(struct ColorTable));
+	 }
+#ifdef HAVE_OPENGL
+	 dtx->gfx[0] = new_Xgfx(NULL);
+	 for(i=1;i<GFX_FONT_COUNT;i++)
+		dtx->gfx[i]=new_Xgfx(dtx->gfx[0]);
+#endif
+	 init_display_context( dtx, 1);
+  }
+  return dtx;
 }
 
 /*
@@ -637,15 +669,22 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
    dtx->PointerX = dtx->PointerY = -1;
    dtx->FirstArea = -1;
 
+	/* JPE 08.05.01 Why is this FontHeight = 20 here?  I've changed the
+		structure significantly, please check the cvs record and contact
+		me if there is a problem. */
 
-   /* MJK 12.02.98 */
+
+#ifdef HAVE_OPENGL
+	dtx->gfx[SOUND_FONT] = strdup(DEFAULT_SOUNDFONTNAME);
+	dtx->gfx[WINDOW_3D_FONT]->FontHeight = 20;
+#else
 #  ifndef PEX
    dtx->FontHeight = 20;
 #  endif
-
-
-   dtx->FontName[0] = 0;
+	*/
    strcpy(dtx->SoundFontName, DEFAULT_SOUNDFONTNAME);
+#endif
+
    dtx->LineWidth = 1.0;
    dtx->DepthCue = 1;
 
@@ -756,14 +795,22 @@ static void destroy_context( Context ctx )
 #endif
 }
 
+
+
 static void destroy_display_context( Display_Context dtx )
 {
   int i;
-  
+
   for(i=0;i<VIS5D_COLORTABLES;i++){
 	 if(dtx->ColorTable[i])
 		free(dtx->ColorTable[i]);
   }
+
+#ifdef HAVE_OPENGL
+  for(i=0;i<GFX_FONT_COUNT;i++)
+	 free_Xgfx(dtx->gfx[i]);
+#endif
+
   if(dtx->topo)
 	 free_topo(&dtx->topo);
   free( dtx );
@@ -3936,9 +3983,10 @@ int vis5d_init_data_end( int index )
 
 
    /*** Miscellaneous ***/
-   if (ctx->dpy_ctx->FontName[0]) { 
+
+   if (ctx->dpy_ctx->gfx[WINDOW_3D_FONT]->FontName) { 
       /* use non-default font */
-      set_3d_font(  ctx->dpy_ctx, ctx->dpy_ctx->FontName, ctx->dpy_ctx->FontHeight );
+      set_3d_font(  ctx->dpy_ctx, ctx->dpy_ctx->gfx[WINDOW_3D_FONT]->FontName, ctx->dpy_ctx->gfx[WINDOW_3D_FONT]->FontHeight );
    }
  
    for (yo=0; yo < ctx->NumVars; yo++){
@@ -4158,10 +4206,6 @@ int vis5d_open_gridfile( int index, char *name, int read_flag )
 
 
          /*** Miscellaneous ***/
-         if (ctx->dpy_ctx->FontName[0]) {
-            /* use non-default font */
-/*            set_3d_font(  ctx->dpy_ctx, ctx->dpy_ctx->FontName ); */
-         }
 
          for (yo=0; yo < ctx->NumVars; yo++){
             ctx->RealMinVal[yo] = ctx->MinVal[yo];
@@ -4381,7 +4425,7 @@ int vis5d_set_dtx_timestep( int index, int time )
    Irregular_Context itx;
    DPY_CONTEXT("vis5d_set_dtx_timestep")
 
-   dtx->CurTime = time;
+	dtx->CurTime = time;
    vis5d_set_probe_on_traj( index, dtx->CurTime);
    for (yo=0; yo < dtx->numofctxs+dtx->numofitxs; yo++){
       if (dtx->TimeStep[time].ownertype[yo] == REGULAR_TYPE){
@@ -6000,9 +6044,13 @@ int vis5d_signal_redraw( int index, int count )
 /* Signal that a redraw is requested */
 {
    DPY_CONTEXT("vis5d_signal_redraw")
+	  /* JPE: Tell me why we need data in order to draw the frame 
    if (dtx->numofctxs + dtx->numofitxs >= 1){
+	  */
       dtx->Redraw = count;
+	/*
    }
+	*/
    return 0;
 }
 
@@ -6074,8 +6122,11 @@ int vis5d_draw_frame( int index, int animflag )
 /* MJK 3.6.99 */
 	    /*   JPE: For what reason must we have data before we can render a map?
 				if (howmany >= 1){ */
+
 	render_everything( dtx, animflag );
+
 	 	/*   } */
+
    dtx->Redraw = 0;
    return 0;
 }
@@ -6996,8 +7047,23 @@ int vis5d_alpha_mode( int index, int mode )
    transparency_mode( dtx, mode );
    return 0;
 }
+#ifdef HAVE_OPENGL
+int vis5d_set_font(int index, char *fontname, int size, Fontlist which)
+{
+  Xgfx *gfx;
+  int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx);
+  DPY_CONTEXT("vis5d_set_font");
+  
+  gfx = dtx->gfx[which];
+  if(dtx->gfx[which]){
+	 free_Xgfx(dtx->gfx[which]);
+  }
+  dtx->gfx[which]=new_Xgfx(NULL);
+  set_opengl_font(fontname, dtx->GfxWindow, dtx->gl_ctx, dtx->gfx[which]);
 
-
+  return 0;
+}
+#endif
 /*
  * Specify the font to use in the 3-D window.
  * Input:  index - the context number
@@ -7014,12 +7080,21 @@ int vis5d_font(  int index, char *fontname, int size )
 int vis5d_soundfont( int index, char *fontname )
 {
    DPY_CONTEXT("vis5d_soundfont");
+	
+#ifdef HAVE_OPENGL
+	if( fontname ){
+	  vis5d_set_font(index, fontname, 0, SOUND_FONT);
+	}else{
+	  vis5d_set_font(index, DEFAULT_SOUNDFONTNAME, 0, SOUND_FONT);
+	}
+#else
    if (fontname[0]==0){
       strcpy( dtx->SoundFontName, DEFAULT_SOUNDFONTNAME);
    }
    else{
       strcpy( dtx->SoundFontName, fontname);
    }
+#endif
    return 0;
 }
 
@@ -7042,12 +7117,22 @@ int vis5d_resize_contour_font( int index, int factorx, int factory)
    return 0;
 }
 
-
-/* WLH 8 Oct 98 */
-int vis5d_get_font_height( int index, int *height)
+int vis5d_get_font_height( int index, int *height 
+#ifdef USE_SYSTEM_FONTS
+		,Fontlist which							
+#endif
+)
 {
    DPY_CONTEXT("vis5d_get_font");
+#ifdef HAVE_OPENGL
+#  ifdef USE_SYSTEM_FONTS
+	*height = dtx->gfx[which]->FontHeight;
+#  else
+	*height = dtx->gfx[WINDOW_3D_FONT]->FontHeight;
+#  endif
+#else
    *height = dtx->FontHeight;
+#endif
 
    return 0;
 }
@@ -8887,13 +8972,22 @@ static struct label *alloc_label( Display_Context dtx )
 }
 
 
-static void compute_label_bounds( Display_Context dtx, struct label *lab )
+static void compute_label_bounds( Display_Context dtx, Fontlist which, struct label *lab )
 {
    set_current_window( dtx );
+#ifdef HAVE_OPENGL
+   lab->x1 = lab->x;
+   lab->y1 = lab->y + 
+	  dtx->gfx[which]->FontDescent - 
+	  dtx->gfx[which]->FontHeight;
+   lab->x2 = lab->x + text_width( dtx->gfx[which]->font, lab->text );
+   lab->y2 = lab->y + dtx->gfx[which]->FontDescent;
+#else
    lab->x1 = lab->x;
    lab->y1 = lab->y + dtx->FontDescent - dtx->FontHeight;
    lab->x2 = lab->x + text_width( lab->text );
    lab->y2 = lab->y + dtx->FontDescent;
+#endif
 }
 
 
@@ -8912,7 +9006,8 @@ int vis5d_make_label( int index, int x, int y, char *text )
       l->x = x;
       l->y = y;
       l->state = 0;
-      compute_label_bounds( dtx, l );
+		
+      compute_label_bounds( dtx, WINDOW_3D_FONT, l );
       return l->id;
    }
    return VIS5D_OUT_OF_MEMORY;
@@ -8936,7 +9031,7 @@ int vis5d_new_label( int index, int x, int y, int *label_id )
       l->y = y;
       l->state = 1;
       *label_id = l->id;
-      compute_label_bounds( dtx, l );
+      compute_label_bounds( dtx, WINDOW_3D_FONT, l );
       return 0;
    }
    return VIS5D_OUT_OF_MEMORY;
@@ -8985,7 +9080,7 @@ int vis5d_edit_label( int index, char chr )
          lab->len++;
          lab->text[lab->len] = 0;
       }
-      compute_label_bounds( dtx, lab );
+      compute_label_bounds( dtx, WINDOW_3D_FONT, lab );
    }
    return 0;
 }
@@ -9025,7 +9120,7 @@ int vis5d_move_label( int index, int label_id, int x, int y )
       if (lab->id==label_id) {
          lab->x = x;
          lab->y = y;
-         compute_label_bounds( dtx, lab );
+         compute_label_bounds( dtx, WINDOW_3D_FONT, lab );
          return 0;
       }
    }
@@ -10891,6 +10986,7 @@ int vis5d_destroy_irregular_data_context( int index )
    return 0;
 }
 
+
 int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context)
 {
   XWindowAttributes window_attributes;
@@ -10901,7 +10997,9 @@ int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context)
 
   ScrWidth = DisplayWidth( GfxDpy, GfxScr );
   ScrHeight = DisplayHeight( GfxDpy, GfxScr );
+
   find_best_visual( GfxDpy, GfxScr, &GfxDepth, &GfxVisual, &GfxColormap );
+
   BigWindow = bw;
   BigWinWidth = window_attributes.width;
   BigWinHeight = window_attributes.height; 

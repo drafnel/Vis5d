@@ -88,6 +88,7 @@ static GLuint stipple[3][32];
 static Display_Context current_dtx = NULL;
 
 #define DEFAULT_FONT "10x20"
+
 struct Biggfx{
       GLXContext gl_ctx;
       XFontStruct *font;
@@ -154,9 +155,9 @@ void terminate_graphics( void )
  */
 void free_graphics( Display_Context dtx )
 {
-   if (dtx->gfx.gl_ctx) {
-      glXDestroyContext( GfxDpy, dtx->gfx.gl_ctx );
-      dtx->gfx.gl_ctx = 0;
+   if (dtx->gl_ctx) {
+      glXDestroyContext( GfxDpy, dtx->gl_ctx );
+      dtx->gl_ctx = 0;
    }
    if (dtx->GfxWindow) {
       XDestroyWindow( GfxDpy, dtx->GfxWindow );
@@ -378,9 +379,10 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
    XVisualInfo *visualinfo;
    unsigned long mask;
 
+
    if (!BigWindow){
       printf("no BigWindow \n");
-      exit(0);
+	   exit(0); 
    }
 
    /* MJK 11.19.98 */
@@ -400,14 +402,14 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
 
    /* Create the GL/X context. */
 
-   if (dtx->gfx.gl_ctx){
-      glXDestroyContext( GfxDpy, dtx->gfx.gl_ctx);
+   if (dtx->gl_ctx){
+      glXDestroyContext( GfxDpy, dtx->gl_ctx);
    }
-   dtx->gfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, True );
-   if (!dtx->gfx.gl_ctx) {
+   dtx->gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, True );
+   if (!dtx->gl_ctx) {
       /* try (indirect context) */ 
-      dtx->gfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, False );
-      if (!dtx->gfx.gl_ctx) {
+      dtx->gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, False );
+      if (!dtx->gl_ctx) {
         printf("Error: glXCreateContext failed!\n");
         exit(0);
       }
@@ -462,7 +464,7 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       dtx->WinHeight = height;
       dtx->WinWidth  = width;
       yomap = glXCreateGLXPixmap( GfxDpy, visualinfo, dtx->GfxPixmap);
-      glXMakeCurrent( GfxDpy, yomap, dtx->gfx.gl_ctx );
+      glXMakeCurrent( GfxDpy, yomap, dtx->gl_ctx );
    }
 
 
@@ -485,7 +487,7 @@ int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int h
    /* MJK 11.19.98 */
    if (!off_screen_rendering){
       if (dtx->GfxWindow ){
-         if (!glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx )) {
+         if (!glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gl_ctx )) {
             printf("Error: glXMakeCurrent failed!\n");
             exit(0);
          }
@@ -531,19 +533,8 @@ int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int h
 
    glViewport( 0, 0, dtx->WinWidth, dtx->WinHeight ); 
 
-   if (dtx->FontName[0]==0) {
-      strcpy( dtx->FontName, DEFAULT_FONT );
-   }
-   dtx->gfx.font = XLoadQueryFont( GfxDpy, dtx->FontName );
-   if (!dtx->gfx.font) {
-      fprintf( stderr, "Unable to load font: %s\n", dtx->FontName );
-      return 0;
-   }
-   dtx->gfx.fontbase = glGenLists( dtx->gfx.font->max_char_or_byte2 );
-   glXUseXFont( dtx->gfx.font->fid, 0,
-               dtx->gfx.font->max_char_or_byte2, dtx->gfx.fontbase );
-   dtx->FontHeight = dtx->gfx.font->ascent + dtx->gfx.font->descent;
-   dtx->FontDescent = dtx->gfx.font->descent;
+   set_3d_font(dtx, DEFAULT_FONT,0);
+
    if (prevctx && prevdraw){
       if (!glXMakeCurrent( GfxDpy, prevdraw, prevctx )) {
          printf("Error: glXMakeCurrent failed!\n");
@@ -579,35 +570,22 @@ int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
       find_best_visual( GfxDpy, GfxScr, &GfxDepth, &GfxVisual, &GfxColormap );
    }
 
-   dtx->gfx.gl_ctx = glctx;
+   dtx->gl_ctx = glctx;
    dtx->GfxWindow = window;
 
 
    /* Bind the GLX context to the window (make this window the current one) */
-	/*   glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx ); 
+	/*   glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gl_ctx ); 
 	 JPE replaced with: */
    set_current_window( dtx );
 
    /* Setup the font */
    if (xfont) {
-      dtx->gfx.font = xfont;
-   }
-   else {
-      /* load font now */
-      if (dtx->FontName[0]==0) {
-        strcpy( dtx->FontName, DEFAULT_FONT );
-      }
-      dtx->gfx.font = XLoadQueryFont( GfxDpy, dtx->FontName );
-      if (!dtx->gfx.font) {
-        fprintf( stderr, "Unable to load font: %s\n", dtx->FontName );
-        return 0;
-      }
-   }
-   dtx->gfx.fontbase = glGenLists( dtx->gfx.font->max_char_or_byte2 );
-   glXUseXFont( dtx->gfx.font->fid, 0,
-               dtx->gfx.font->max_char_or_byte2, dtx->gfx.fontbase );
-   dtx->FontHeight = dtx->gfx.font->ascent + dtx->gfx.font->descent;
-   dtx->FontDescent = dtx->gfx.font->descent;
+      dtx->gfx[WINDOW_3D_FONT]->font = xfont;
+		set_3d_font(dtx,NULL,0);
+   }else{
+	  set_3d_font(dtx,DEFAULT_FONT,0);
+	}
 
    check_gl_error("use_opengl_window");
 
@@ -624,7 +602,7 @@ int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
 /*
 #define SET_GFX_DISPLAY_CONTEXT( c )                           \       
    if (c!=current_dtx) {                                       \       
-      glXMakeCurrent( GfxDpy, c->GfxWindow, c->gfx.gl_ctx );   \
+      glXMakeCurrent( GfxDpy, c->GfxWindow, c->gfx->gl_ctx );   \
       current_dtx = c;                                         \       
    }
     
@@ -640,11 +618,11 @@ void set_current_window( Display_Context dtx )
       /* MJK 11.19.98 */
       if (dtx->GfxPixmap){
          if (off_screen_rendering){
-            glXMakeCurrent( GfxDpy, dtx->GfxPixmap, dtx->gfx.gl_ctx );
+            glXMakeCurrent( GfxDpy, dtx->GfxPixmap, dtx->gl_ctx );
          }
       }
       else if (dtx->GfxWindow) {
-         glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx );
+         glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gl_ctx );
        }
       current_dtx = dtx;
    }
@@ -658,6 +636,42 @@ void finish_rendering( void )
    /* used for PEX */
 }
 
+/* Specify a font to use in an OpenGL window */
+
+int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx)
+{
+  glXMakeCurrent( GfxDpy, GfxWindow, gl_ctx);
+
+  /* JPE: if name is NULL it is assumed that the gfx structure is already
+	  valid (as called from use_opengl_window) */ 
+	  
+  if(name){
+
+	 gfx->FontName = strdup(name);
+	 if(gfx->FontName == NULL){
+		printf("ERROR allocating FontName \n");
+	 }
+	 if (gfx->font && gfx->fontbase && gfx->font->max_char_or_byte2){
+      glDeleteLists(gfx->fontbase, gfx->font->max_char_or_byte2);
+	 } 
+	 gfx->font = XLoadQueryFont( GfxDpy, gfx->FontName );
+  }
+
+  if (!gfx->font) {
+	 fprintf( stderr, "Unable to load font: %s\n", gfx->FontName );
+	 return 0;
+  }
+
+  gfx->fontbase = glGenLists( gfx->font->max_char_or_byte2 );
+
+  glXUseXFont( gfx->font->fid, 0,
+               gfx->font->max_char_or_byte2, gfx->fontbase );
+  gfx->FontHeight = gfx->font->ascent + gfx->font->descent;
+  gfx->FontDescent = gfx->font->descent;
+  check_gl_error("set_opengl_font");
+  return 0;
+}  
+
 
 /*
  * Specify the font to use in the 3-D window.  Must be called before
@@ -665,32 +679,17 @@ void finish_rendering( void )
  */
 int set_3d_font(  Display_Context dtx, char *name, int size )
 {
-   strcpy( dtx->FontName, name );
-   if (dtx->FontName[0]==0) {
-      strcpy( dtx->FontName, DEFAULT_FONT );
-   }
-   glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx);
-   if (dtx->gfx.font && dtx->gfx.fontbase && dtx->gfx.font->max_char_or_byte2){
-      glDeleteLists(dtx->gfx.fontbase, dtx->gfx.font->max_char_or_byte2);
-   } 
-   dtx->gfx.font = XLoadQueryFont( GfxDpy, dtx->FontName );
-   if (!dtx->gfx.font) {
-      fprintf( stderr, "Unable to load font: %s\n", dtx->FontName );
-      return 0;
-   }
-   dtx->gfx.fontbase = glGenLists( dtx->gfx.font->max_char_or_byte2 );
-   glXUseXFont( dtx->gfx.font->fid, 0,
-               dtx->gfx.font->max_char_or_byte2, dtx->gfx.fontbase );
-   dtx->FontHeight = dtx->gfx.font->ascent + dtx->gfx.font->descent;
-   dtx->FontDescent = dtx->gfx.font->descent;
 
-   check_gl_error("set_3d_font");
-   return 0;
+  set_opengl_font(name, dtx->GfxWindow, dtx->gl_ctx, dtx->gfx[WINDOW_3D_FONT]);
+
+
+  check_gl_error("set_3d_font");
+  return 0;
 }
 
 int get_3d_font( Display_Context dtx, char *name, int *size)
 {
-   strcpy( name, dtx->FontName);
+   strcpy( name, dtx->gfx[WINDOW_3D_FONT]->FontName);
    return 0;
 }
 
@@ -743,7 +742,7 @@ void resize_BIG_window( int width, int height )
 {
    glXMakeCurrent( GfxDpy, BigWindow, biggfx.gl_ctx);
    glViewport( 0, 0, width, height );
-   glXMakeCurrent( GfxDpy, current_dtx->GfxWindow, current_dtx->gfx.gl_ctx );
+   glXMakeCurrent( GfxDpy, current_dtx->GfxWindow, current_dtx->gl_ctx );
    check_gl_error("resize_BIG_window");
 }
    
@@ -1980,6 +1979,41 @@ void draw_wind_lines( int nvectors, int_2 verts[][3], unsigned int color )
 }
 
 
+void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuint fontbase )
+{
+  int i;
+  int len;
+  int_2 box[4][3];
+  /* TODO: How to make the area behind the string opaque? */
+
+  glColor4ubv( (GLubyte *) &color );
+  glPushMatrix();
+  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+  glPushAttrib(GL_LIST_BIT);
+  
+  glListBase(fontbase);
+
+  for(i=0;i<n;i++){
+	 len = strlen(str);
+	 /*
+	 int width = text_width(font, str[i]);
+	 box[0] = verts[i];
+	 box[1] = 
+	 glBegin(GL_QUADS);
+	 glVertex3sv()
+					 glEnd();
+	 */
+	 glRasterPos3sv(verts[i]);
+	 glCallLists(len, GL_UNSIGNED_BYTE, (GLubyte *) str);
+	 str+=(len+1);
+  }
+  glPopAttrib();
+  glPopMatrix();
+}
+
+
+
+
 void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
 {
    int i;
@@ -1990,15 +2024,11 @@ void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
    glShadeModel( GL_FLAT );
    glDisable( GL_DITHER );
 	if(vis5d_verbose & VERBOSE_OPENGL) printf("draw_disjoint_lines %d\n",n);
+
    GLBEGINNOTE glBegin( GL_LINES );
-	/*   
-      no need to step by two!
-      for (i=0;i<n;i+=2 ) {
-      glVertex3sv( verts[i] );
-      glVertex3sv( verts[i+1] );
-		}   */
 	for(i=0;i<n;i++) glVertex3sv(verts[i]);
    glEnd();
+
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
    glPopMatrix();
@@ -2299,7 +2329,8 @@ void draw_text( int xpos, int ypos, char *str )
    int len = strlen(str);
 
    glRasterPos2i( xpos, current_dtx->WinHeight-ypos );
-   glListBase( current_dtx->gfx.fontbase );
+   glListBase( current_dtx->gfx[WINDOW_3D_FONT]->fontbase );
+	
    glCallLists( len, GL_UNSIGNED_BYTE, str );
 
    check_gl_error("draw_text");
@@ -2307,12 +2338,12 @@ void draw_text( int xpos, int ypos, char *str )
 
 
 
-int text_width( char *str )
+int text_width(  XFontStruct *font, char *str)
 {
    int dir, ascent, descent;
    XCharStruct overall;
 
-   XTextExtents( current_dtx->gfx.font, str, strlen(str),
+   XTextExtents( font, str, strlen(str),
                  &dir, &ascent, &descent, &overall);
    return overall.width;
 }

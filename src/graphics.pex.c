@@ -2895,9 +2895,13 @@ void draw_text( int xpos, int ypos, char *str )
         PEXSetGlobalTransform(GfxDpy, Renderer, PEXOCRender, InvertYMatrix);
 }
 
+/* JPE: If you have a problem with the XFontStruct here then you are
+	one of the few still using the pex interface, please contact me if
+	you are of the opinion that it is viable to continue vis5d+ support
+	for this graphics system.  JimEdwards@altavista.com
+*/
 
-
-int text_width( char *str )
+int text_width( XFontStruct *font, char *str )
 {
     PEXStringData strings[1];
     PEXTextExtent *extents;

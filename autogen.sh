@@ -155,7 +155,11 @@ GLADE=1
 }
 if test "$GLADE" = 1; then
 	 echo Running glade -w vis5d+.glade ...
-	 glade -w vis5d+.glade
+	 glade -w gtk/gradients/gradients.glade
+	 glade -w gtk/hslicecontrols.glade
+	 glade -w gtk/window3D.glade
+	 glade -w gtk/vis5d+.glade
+	 cd ../
 fi
 }
 

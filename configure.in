@@ -48,7 +48,7 @@ AM_PATH_GTK(1.2.9, ,
 ALL_LINGUAS=""
 AM_GNU_GETTEXT
 INTLDIR=intl
-GTK_DIRS="gtk po"
+GTK_DIRS="gtk/gradients gtk po"
 else
 INTLDIR=
 GTK_DIRS=
@@ -461,5 +461,5 @@ fi
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
-AC_CONFIG_FILES([gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile ])
+AC_CONFIG_FILES([gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile ])
 AC_OUTPUT

@@ -426,4 +426,4 @@ fi
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
-AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile import/Makefile doc/Makefile)
+AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile doc/Makefile)

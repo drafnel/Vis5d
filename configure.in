@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.40 $)
+AC_REVISION($Revision: 1.41 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -56,14 +56,9 @@ AC_CHECK_HEADERS(libintl.h,[], enable_nls="no")
 AM_GNU_GETTEXT(use-libtool, need-ngettext)
 GTK_DIRS=
 if test "$usegtk" = "yes"; then
-
-AM_PATH_GTK(1.2.9, GTK_DIRS="gtk ",
+	AM_PATH_GTK(1.2.9, GTK_DIRS="gtk ",
             [AC_MSG_ERROR([Cannot find GTK: Is gtk-config in path?])])
-
-AM_PATH_GTKGL()
- 
-
-
+	AM_PATH_GTKGL
 fi
 AC_SUBST(GTK_DIRS)
 

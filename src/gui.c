@@ -367,8 +367,6 @@ GuiContext create_gui_context( int index )
 
   gtx = gtx_table[index] = (GuiContext) calloc(1, sizeof(struct gui_context));
   if (gtx) {
-    /* init */
-    memset( gtx, 0, sizeof(struct gui_context) );
     gtx->context_index = index;
   }
   return gtx;
@@ -3619,12 +3617,12 @@ void show_widgets( int index )
    gtx->perspec_button->state = vis5d_graphics_mode(index, VIS5D_PERSPECTIVE,VIS5D_GET);
    gtx->legendsBUTTON->state = vis5d_graphics_mode(index, VIS5D_LEGENDS, VIS5D_GET);
 
-   {
+	if(gtx->stereoBUTTON){
 	  int value;
-	  
 	  vis5d_stereo_get(index,&value);
 	  gtx->stereoBUTTON->state = value;
-   }
+	}
+
 
 
    /* MJK 12.04.98 begin */

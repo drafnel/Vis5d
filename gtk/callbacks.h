@@ -1,5 +1,21 @@
 #include <gtk/gtk.h>
 
+typedef enum {
+  HSLICE=0,
+  CHSLICE,
+  VSLICE,
+  CVSLICE,
+  ISOSURF,
+  VOLUME
+} v5d_graph_type;
+
+typedef struct {
+  int labelid;
+  v5d_graph_type gtype;
+  gpointer data; 
+} graph_label;
+
+
 typedef struct {
   gint v5d_display_context;
 
@@ -16,6 +32,9 @@ typedef struct {
   int timestep;
   int numtimes;
   int vcs;
+  int label_count;
+
+  GList *graph_label_list;
 
   GtkWidget *HSliceControls;
 
@@ -27,6 +46,9 @@ typedef struct {
   gint linewidth;
   gint    stipplefactor;
   gushort stipple;
+  gboolean onscreen;
+  graph_label *label;
+
   GtkWidget *level_value;  /* the vertical level label */
 } hslicecontrols;
 
@@ -35,6 +57,7 @@ typedef struct {
   gint varid;
   v5d_info *info;
   gint maxlevel;
+  gchar vname[10];
   hslicecontrols *hc;
 } v5d_var_info;
 
@@ -554,3 +577,6 @@ on_hsclose_clicked                     (GtkButton       *button,
 void
 on_hs_color_changed                    (GtkColorSelection *colorselection,
                                         gpointer         user_data);
+
+void hslicecontrol(v5d_var_info *vinfo);
+void hslice_toggle(v5d_var_info *vinfo);

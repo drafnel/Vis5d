@@ -18,7 +18,8 @@ libv5dgtk_la_SOURCES = support.c support.h \
                        fileselection.c fontselectiondialog.c \
                        colorselectiondialog.c \
 	                    procedure.c procedure.h \
-                       VarDialog.c HSliceControls.c 
+                       VarDialog.c HSliceControls.c \
+	                    graph_labels.c
 
 libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 

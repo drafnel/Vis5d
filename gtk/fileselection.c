@@ -33,7 +33,7 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 {
   gint dc;
   gint numvars, i;
-  gchar vname[10];
+  
   v5d_var_info *vinfo;
   v5d_info *info;
   GtkWidget *VarDialog;
@@ -78,10 +78,10 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 	 vinfo->varid=i;
 	 vinfo->v5d_data_context=dc;
 	 vinfo->info = info;
-	 vis5d_get_ctx_var_name(dc,i,vname);
+	 vis5d_get_ctx_var_name(dc,i,vinfo->vname);
 	 vinfo->maxlevel = vis5d_get_levels(dc, i);
 
-	 variable_ctree_add_var(hs_ctree, vname, vinfo);
+	 variable_ctree_add_var(hs_ctree, vinfo->vname, vinfo);
 	 
     /*
 	 add_variable_toolbar(VarDialog , vinfo);

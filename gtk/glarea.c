@@ -16,6 +16,7 @@
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
+#include "graph_labels.h"
 
 gboolean vis5d_initialized=FALSE;
 
@@ -143,12 +144,19 @@ gboolean glarea_button_release (GtkWidget* widget, GdkEventButton* event
 
 gboolean glarea_button_press (GtkWidget* widget, GdkEventButton* event, 
 										gpointer         user_data) {
-  /*
+  v5d_info *info;
+  int label_id;
   int x = event->x;
   int y = event->y;
-  */
-  if (event->button == 1) {
 
+  info = (v5d_info*)gtk_object_get_data(GTK_OBJECT(lookup_widget(widget,"window3D")),"v5d_info");
+
+  if(vis5d_find_label(info->v5d_display_context, &x, &y, &label_id)==0){
+	 graph_label_button_press(info, label_id, event->button);
+	 return TRUE;
+  }
+
+  if (event->button == 1) {
     /* Mouse button 1 was engaged */
     return TRUE;
   }
@@ -408,6 +416,7 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 	 
 	 info = (v5d_info *) g_malloc(sizeof(v5d_info));
 
+	 info->graph_label_list=NULL;
 	 info->beginx = 0;
 	 info->beginy = 0;
 	 info->animate=0;

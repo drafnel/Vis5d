@@ -1257,7 +1257,9 @@ struct vis5d_context {
 
    /*** External function info from analysis.c ****/
    int ExtFuncErrorFlag;
+#ifdef SEMAPHORE
    SEMAPHORE ExtFuncDoneSem;
+#endif
    int ExtFuncSocket[MAX_THREADS];
    float ProbeRow, ProbeCol, ProbeLev;
 

@@ -495,18 +495,16 @@ on_volume_activate                     (GtkMenuItem     *menuitem,
 
 
 void
-on_set_view_top1_activate              (GtkMenuItem     *menuitem,
+on_setview_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  GtkLabel *label;
+  gchar *label_str;
+
+  label = GTK_LABEL(GTK_BIN(menuitem)->child);
+  gtk_label_get(label, &label_str);
+
+  printf("here %s\n",label_str);
 
 }
-
-
-void
-on_set_view_south1_activate            (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
 

@@ -47,9 +47,14 @@ typedef struct {
   gint    stipplefactor;
   gushort stipple;
   gboolean onscreen;
+
   graph_label *label;
 
   GtkWidget *level_value;  /* the vertical level label */
+
+  guchar *sample_buf;
+  GdkGC *sample_gc;
+
 } hslicecontrols;
 
 typedef struct {
@@ -580,3 +585,55 @@ on_hs_color_changed                    (GtkColorSelection *colorselection,
 
 void hslicecontrol(v5d_var_info *vinfo);
 void hslice_toggle(v5d_var_info *vinfo);
+
+void
+on_colorselect_clicked                 (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_colorselectok_clicked               (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_colorselectcancel_clicked           (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_ColorSelectionOk_clicked            (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_ColorSelectionCancel_clicked        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_top1_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_south1_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_hslice_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_vslice_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_setview_activate                    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_hsstyle_toggled                     (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_colortable_select_clicked           (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_colorselect_clicked                 (GtkButton       *button,
+                                        gpointer         user_data);

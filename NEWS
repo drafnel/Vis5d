@@ -13,7 +13,7 @@ Vis5d+ 1.0.2
   * Fixed bug where options window could cause a crash, reported by
     Axel Reimann.  (Submitted to mainline tree also.)
 
-  * Merged recent bug-fixes from mainline tree.  (Increase scripting
+  * Merged recent bug fixes from mainline tree.  (Increased scripting
     limits and fixed missing data display in sounding tool.)
 
 Vis5d+ 1.0.1

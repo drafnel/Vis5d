@@ -351,7 +351,10 @@ int read_topo( struct Topo *topo, char *filename )
    read_int4( f, &(topo->Topo_rows) );
    read_int4( f, &(topo->Topo_cols) );
 
-   if (strcmp(id,"TOPO")==0) {
+   if (strncmp(id,"TOPO2",5)==0) {
+      /* OK */
+   }
+   else if (strncmp(id,"TOPO",4)==0) {
       /* OLD STYLE: bounds given as ints, convert to floats */
       int *p;
       p = (int *) &(topo->Topo_westlon);  topo->Topo_westlon = (float) *p / 100.0;
@@ -359,11 +362,8 @@ int read_topo( struct Topo *topo, char *filename )
       p = (int *) &(topo->Topo_northlat); topo->Topo_northlat = (float) *p / 100.0;
       p = (int *) &(topo->Topo_southlat); topo->Topo_southlat = (float) *p / 100.0;
    }
-   else if (strcmp(id,"TOPO2")==0) {
-      /* OK */
-   }
    else {
-      printf("%s is not a TOPO file\n", filename);
+      printf("%s is not a TOPO file >%s<\n", filename,id);
       close(f);
       return 0;
    }

@@ -1337,7 +1337,6 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
 					  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
 					  glCallList( ctx->Variable[var]->CHSliceTable[time]->glList );
 					  glPopMatrix();
-
 #else
 					  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
 												  ctx->Variable[var]->CHSliceTable[time]->columns,

@@ -1812,19 +1812,15 @@ void generate_color_quadmesh( int rows, int columns, int_2 verts[][3],
                           uint_1 color_indexes[], unsigned int color_table[], GLuint *list)
 {
    register int i, j, base1, base2;
-   unsigned int *color_row1;
-   unsigned int *color_row2;
-   unsigned int *row1ptr, *row2ptr, *tmp;
-
-
-	color_row1 = (unsigned int *) malloc(columns*sizeof(unsigned int));
-	color_row2 = (unsigned int *) malloc(columns*sizeof(unsigned int));
 
 	if(*list<=0){
 	  *list = glGenLists(1);
 	  if(*list==0)
 		 check_gl_error("generate_disjoint_lines");
 	}
+	glEnableClientState(GL_COLOR_ARRAY);
+	glColorPointer(4,GL_UNSIGNED_BYTE,0,(GLvoid *) color_table);
+
 	glNewList(*list, GL_COMPILE);
 	/* variable alpha in the mesh */
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -1833,44 +1829,26 @@ void generate_color_quadmesh( int rows, int columns, int_2 verts[][3],
 	glEnable( GL_ALPHA_TEST );
 
    /* get first row of colors */
-
-   for (j=0;j<columns;j++) {
-      color_row1[j] = color_table[color_indexes[j]];
-   }
-   row1ptr = color_row1;
-   row2ptr = color_row2;
-
    /* render mesh as a sequence of quad strips */
    for (i=0;i<rows-1;i++) {
-      base1 = i * columns;
-      base2 = (i+1) * columns;
-      /* second row of colors */
-      for (j=0;j<columns;j++) {
-         row2ptr[j] = color_table[color_indexes[base2+j]];
-      }
-      GLBEGINNOTE glBegin( GL_QUAD_STRIP );
-      for (j=0;j<columns;j++) {
-        glColor4ubv( (GLubyte *) (row1ptr+j) );
-        glVertex3sv( verts[base1+j] );
-        glColor4ubv( (GLubyte *) (row2ptr+j) );
-        glVertex3sv( verts[base2+j] );
-      }
-      glEnd();
-      /* swap row1ptr and row2ptr */
-		
-      tmp = row1ptr;
-      row1ptr = row2ptr;
-      row2ptr = tmp;
-		
+	  base1 = i * columns;
+	  base2 = (i+1) * columns;
+	  GLBEGINNOTE glBegin( GL_QUAD_STRIP );
+	  for (j=0;j<columns;j++) {
+		 glArrayElement(color_indexes[base1+j]);
+		 glVertex3sv( verts[base1+j] );
+		 glArrayElement(color_indexes[base2+j]);
+		 glVertex3sv( verts[base2+j] );
+	  }
+	  glEnd();
    }
 
    glDisable( GL_BLEND );
    glDisable( GL_POLYGON_STIPPLE );
    glDisable( GL_ALPHA_TEST );
 	glEndList();
+	glDisableClientState(GL_COLOR_ARRAY);
    check_gl_error("draw_color_quadmesh");
-	free(color_row1);
-	free(color_row2);
 }
 void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
                           uint_1 color_indexes[], unsigned int color_table[], int alpha)

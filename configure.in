@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.35 $)
+AC_REVISION($Revision: 1.36 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(vis5d+, 1.2.0)
 
@@ -397,8 +397,7 @@ if test "$with_mixkit" != "no"; then
 		;;
 	esac
 fi
-echo "mixkit $ac_cv_header_mixkit_mixio_h"
-AM_CONDITIONAL(MIXKIT,test $ac_cv_header_mixkit_mixio_h = "yes")
+AM_CONDITIONAL(MIXKIT,test "x$ac_cv_header_mixkit_mixio_h" = "xyes")
 
 ##########################################################################
 # Find MCIDAS

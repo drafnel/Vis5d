@@ -1142,13 +1142,15 @@ int allocate_computed_variable( Context ctx, char *name )
    int newvar;
 
    for (newvar=0;newvar<MAXVARS;newvar++) {
-      if (ctx->Variable[newvar]->VarType==0)
-         break;
+	  if(ctx->Variable[newvar]==NULL)
+		 break;
    }
    if (newvar==MAXVARS) {
       /* no space for a new variable */
       return -1;
    }
+	ctx->Variable[newvar] = (vis5d_variable *) calloc(1,sizeof(vis5d_variable));
+
 
    ctx->Variable[newvar]->VarType = VIS5D_EXPRESSION;
    ctx->Variable[newvar]->CloneTable = newvar;

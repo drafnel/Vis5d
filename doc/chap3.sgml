@@ -58,7 +58,7 @@ If your data is in <ulink
 url="http://hdf.ncsa.uiuc.edu/HDF5/">HDF5</ulink> format, you may find
 the <command>h5tov5d</command> conversion program useful; it is
 available as part of the free <ulink
-url="http://ab-initio.mit.edu/mpb/hdf.html#h5utils">h5utils</ulink>
+url="http://ab-initio.mit.edu/h5utils/">h5utils</ulink>
 package.
 </para>
 <para>

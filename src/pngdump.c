@@ -92,11 +92,11 @@ void png_dump(Display	*dpy,
      /******************* create and write png file ***********/
 
      /* Create and initialize the png_struct with the desired error
-      * handler * functions.  If you want to use the default stderr and
-      * longjump method, * you can supply NULL for the last three
-      * parameters.  We also check that * the library version is
-      * compatible with the one used at compile time, * in case we are
-      * using dynamically linked libraries.  REQUIRED. */
+        handler functions.  If you want to use the default stderr and
+        longjump method, you can supply NULL for the last three
+        parameters.  We also check that the library version is
+        compatible with the one used at compile time, in case we are
+        using dynamically linked libraries.  REQUIRED. */
      png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,NULL);
      CHECK(png_ptr, "png_create_write_struct failed");
 
@@ -104,8 +104,8 @@ void png_dump(Display	*dpy,
      info_ptr = png_create_info_struct(png_ptr);
      CHECK(info_ptr, "png_create_info_struct failed");
 
-     /* Set error handling.  REQUIRED if you aren't supplying your own *
-      * error hadnling functions in the png_create_write_struct() call. */
+     /* Set error handling.  REQUIRED if you aren't supplying your own 
+        error handling functions in the png_create_write_struct() call. */
      if (setjmp(png_jmpbuf(png_ptr))) {
 	  /* If we get here, we had a problem writing the file */
 	  die("error writing png file");

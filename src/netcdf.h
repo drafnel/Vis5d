@@ -30,7 +30,7 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-/* "$Id: netcdf.h,v 1.1 2000/08/05 19:27:10 stevengj Exp $" */
+/* "$Id: netcdf.h,v 1.1.1.1 2000/08/05 19:27:10 stevengj Exp $" */
 
 #ifndef _NETCDF_
 #define _NETCDF_

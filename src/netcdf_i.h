@@ -42,7 +42,7 @@
  * Unidata, to assist in its use, correction, modification, or enhancement.
  *
  */
-/* "$Id: netcdf_i.h,v 1.1 2000/08/05 19:27:10 stevengj Exp $" */
+/* "$Id: netcdf_i.h,v 1.1.1.1 2000/08/05 19:27:10 stevengj Exp $" */
 
 #ifndef _NETCDF_
 #define _NETCDF_

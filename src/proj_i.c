@@ -751,12 +751,13 @@ int level_to_height( float level, float *height, struct vcs *vcs,
       case VERT_UNEQUAL_MB:   /* Unequally spaced mb */
       case VERT_UNEQUAL_KM:   /* Unequally spaced km */
          {
-            int ilevel;
+            int ilevel, ilevel_next;
             float alpha;
-            ilevel = (int) level;
+            ilevel = ((int) level < vcs->Nl) ? ((int) level) : (vcs->Nl-1);
+            ilevel_next = (ilevel+1 < vcs->Nl) ? (ilevel+1) : (vcs->Nl-1);
             alpha = level - ilevel;
             *height = vcs->Args[ilevel] * (1.0-alpha)
-                      + vcs->Args[ilevel+1] * alpha;
+                      + vcs->Args[ilevel_next] * alpha;
          }
          break;
       case VERT_EPA:
@@ -771,7 +772,8 @@ int level_to_height( float level, float *height, struct vcs *vcs,
 #undef Sigma
          break;
       default:  /* error */
-         ;
+         printf("Error in level_to_height, can't handle vcs kind %d\n",
+                vcs->Kind);
    }
 
    return 1;
@@ -823,7 +825,8 @@ int height_to_level( float height, float *level, struct vcs *vcs,
          }
          break;
       default:  /* error */
-         printf("Error in height_to_level\n");
+         printf("Error in height_to_level, can't handle vcs kind %d\n",
+                vcs->Kind);
    }
 
    /* boundary checks: */

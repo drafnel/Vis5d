@@ -37,6 +37,16 @@ extern char *str_dup( char *s );
 
 extern void print_min_max( float *data, int n );
 
+/* Case-insensitive versions of strcmp and strncmp are available on
+   UNIX, on windows the same routines are called _stricmp and _strnicmp.
+   "You say strncasecmp. I say _strnicmp. Let's call the whole thing off!"
+   An autoconf guru should handle this in config.h via the configure script
+   instead of here... I haven't tested this on Win32...
+*/
+#ifdef WIN32
+#define strcasecmp( sz1, sz2 ) _stricmp ( sz1, sz2 )
+#define strncasecmp( sz1, sz2, size ) _strnicmp ( sz1, sz2, size )
+#endif
 
 #endif
 

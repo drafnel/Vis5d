@@ -10736,10 +10736,10 @@ int vis5d_assign_display_to_irregular_data( int index, int display_index)
    return 1;
 }
 
-#ifdef HAVE_LIBNETCDF
 
 int vis5d_alloc_irregular_data_context( void )
 {
+#ifdef HAVE_LIBNETCDF
    int i;
 
    for (i=0;i<VIS5D_MAX_CONTEXTS;i++) {
@@ -10749,10 +10749,15 @@ int vis5d_alloc_irregular_data_context( void )
    }
 
    return VIS5D_FAIL;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif
 }
 
 
 int vis5d_load_irregular_v5dfile( int dindex, int mbs, char *filename, char *ctxname ){
+#ifdef HAVE_LIBNETCDF
    Irregular_Context itx;
    int i, index;
    int dnumber;
@@ -10830,9 +10835,12 @@ int vis5d_load_irregular_v5dfile( int dindex, int mbs, char *filename, char *ctx
    */
 
    return index;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif /* HAVE_LIBNETCDF */
 }
 
-#endif /* HAVE_LIBNETCDF */
 
 int vis5d_get_num_of_itxs_in_display( int index, int *number, int numarray[])
 {
@@ -10863,18 +10871,23 @@ int vis5d_get_num_of_data_sets_in_display( int index, int *number)
    return 0;
 }
 
-#ifdef HAVE_LIBNETCDF
 
 int vis5d_init_irregular_memory( int index, int mbs )
 {
+#ifdef HAVE_LIBNETCDF
    IRG_CONTEXT("vis5d_init_irregular_memory");
    itx->MegaBytes = mbs;
    return 0;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif
 }
 
 
 int vis5d_initialize_irregular_stuff( int index)
 {
+#ifdef HAVE_LIBNETCDF
    Irregular_Context itx;
    int chowmany, cwhichones[VIS5D_MAX_CONTEXTS], cyo, ind;
    DPY_CONTEXT("vis5d_initialize_irregular_stuff")
@@ -10890,10 +10903,15 @@ int vis5d_initialize_irregular_stuff( int index)
    }
 
    return 0;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif
 }
 
 int vis5d_init_irregular_data_end( int index )
 {
+#ifdef HAVE_LIBNETCDF
 
    int memsize;
    float ratio;
@@ -10998,10 +11016,15 @@ int vis5d_init_irregular_data_end( int index )
    }
 #endif
    return 1;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif
 }
 
 int vis5d_open_recordfile( int index, char *name, char *itxname, int read_flag )
 {
+#ifdef HAVE_LIBNETCDF
    IRG_CONTEXT("vis5d_open_recordfile");
 
 
@@ -11011,9 +11034,12 @@ int vis5d_open_recordfile( int index, char *name, char *itxname, int read_flag )
    }
    strcpy( itx->ItxName, itxname);
    return 1;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif /* HAVE_LIBNETCDF */
 }
 
-#endif /* HAVE_LIBNETCDF */
 
 int vis5d_get_itx_numtimes( int index, int *numtimes )
 {
@@ -11103,36 +11129,51 @@ int vis5d_get_text_plot( int index, int *var, float *spacing,
    return 0;
 }
 
-#ifdef HAVE_LIBNETCDF
 int vis5d_make_text_plot( int index, int time, int urgent)
 {
+#ifdef HAVE_LIBNETCDF
    IRG_CONTEXT("vis5d_make_text_plot");
 
    if (itx->TextPlotVar >= 0){
       request_text_plot( itx, time, itx->TextPlotVar, urgent);
    }
    return 0;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif
 }
 
 int vis5d_invalidate_text_plot( int index, int time)
 {
+#ifdef HAVE_LIBNETCDF
    IRG_CONTEXT("vis5d_invalidate_text_plot");
    
    free_textplot( itx, time);
    itx->TextPlotTable[time].valid = 0;
    return 0;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif
 }
 
 int vis5d_get_textplot_color_status( int index, int var, int *status)
 {
+#ifdef HAVE_LIBNETCDF
    IRG_CONTEXT("vis5d_get_textplot_color_status");
 
    *status = itx->Variable[var]->TextPlotColorStatus;
    return 0;
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
+#endif
 }
 
 int vis5d_set_textplot_color_status( int index, int var, int status)
 {
+#ifdef HAVE_LIBNETCDF
    int i;
    IRG_CONTEXT("vis5d_set_textplot_color_status");
 
@@ -11144,8 +11185,11 @@ int vis5d_set_textplot_color_status( int index, int var, int status)
       itx->Variable[var]->TextPlotColorStatus = status;
    }
    return 0;
-}
+#else
+	fprintf(stderr, "vis5d+: API function is inoperative without netcdf\n");
+	return -1;
 #endif /* HAVE_LIBNETCDF */
+}
 
 int vis5d_get_itx_var_range( int index, int var, float *min, float *max )
 {

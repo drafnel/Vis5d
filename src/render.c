@@ -318,8 +318,6 @@ void plot_string( char *str, float startx, float starty, float startz,
    cx = startx;  cy = starty;  cz = startz;
    len = strlen(str);
 
-	
-
    if (rjustify) {
       /* draw right justified text */
       for (i=len-1; i>=0; i--) {

@@ -49,7 +49,7 @@
 #ifdef VIS5D_MAX_MEM /* from config.h, via configure --with-memory=MB */
 #  define MBS VIS5D_MAX_MEM
 #else
-#  define MBS 32
+#  define MBS 0
 #endif
 
 

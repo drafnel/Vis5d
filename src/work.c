@@ -6548,7 +6548,7 @@ void set_hslice_pos(Context ctx, int var, float level)
 													  dtx->LowLev, level, 1 );
 		}
 
-		for(i=0;i<dtx->Nr*dtx->Nl;i++){
+		for(i=0;i<dtx->Nr*dtx->Nc;i++){
 		  ctx->HSliceLowLimit[var] = (slicedata[i]<ctx->HSliceLowLimit[var]) ?
 			 slicedata[i]: ctx->HSliceLowLimit[var];
 		  ctx->HSliceHighLimit[var] = (slicedata[i]>ctx->HSliceHighLimit[var]) ?

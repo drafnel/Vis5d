@@ -97,13 +97,9 @@ void check_gl_error( char *where )
 {
    GLenum error;
 
-	/*printf("OpenGL near %s\n",where);  */
-   while (1) {
-      error = glGetError();
-      if (error==GL_NO_ERROR) {
-         break;
-      }
-      printf("OpenGL error near Vis5d routine %s: %s\n", where, gluErrorString( error ) );
+   while ((error = glGetError()) != GL_NO_ERROR) {
+      fprintf(stderr, "vis5d: OpenGL error near %s: %s\n",
+	      where, gluErrorString( error ) );
    }
 }
 

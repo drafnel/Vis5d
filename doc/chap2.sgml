@@ -223,89 +223,112 @@ basic way to run configure is by:
 	  but there are several optional arguments that you may want
 to pass it:
 </para>
-<para>
-<parameter>--prefix=<option>dir</option></parameter>
-</para>
+<variablelist>
+<title>Optional Arguments</title>
+<varlistentry>
+<term><parameter>--prefix=<option>dir</option></parameter></term>
+<listitem>
 <para>
 	  By default, Vis5D will be set up to install (when you run
-'make install' below) under /usr/local on your system.  That is, the
-programs will be installed in /usr/local/bin, etcetera. This argument
-allows you to install to a different place.  For example, if you don't
-have root access you may want to install to your home directory by
-using: 
+'make install' below) under 
+<filename>/usr/local</filename> on your system.  That is, the
+programs will be installed in <filename>/usr/local/bin</filename>, 
+etcetera. This argument allows you to install to a different place.  
+For example, if you don't have root access you may want to install 
+to your home directory by using: 
 </para>
 <para>
 <parameter>--prefix=<option>$HOME/Vis5D</option></parameter>
 </para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--with-netcdf=<option>lib</option></parameter></term>
+<listitem>
 <para>
-<parameter>--with-netcdf=<option>lib</option></parameter>
-</para>
-<para>
-	  This allows you to specify the location (< lib >) of the
-libnetcdf.a file.  You don't need to do this if you copied libnetcdf.a
+	  This allows you to specify the location 
+(<filename>lib</filename>) of the <filename>libnetcdf.a</filename> file.
+You don't need to do this if you copied <filename>libnetcdf.a</filename>
 to the Vis5D directory or if you installed it to a standard system
 location.  Contrariwise, 
 <parameter>--without-netcdf</parameter> forces Vis5D to 
 <emphasis>not</emphasis> use NetCDF even if it could find the library.
 </para>
-<para>
-<parameter>--enable-threads</parameter>
-</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--enable-threads</parameter></term>
+<listitem>
 <para>
 	  Turn on multi-threading mode in Vis5d (if a threads library
 is found); should enhance responsiveness, even on single-CPU systems.
 </para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--with-memory=<option>MB</option></parameter></term>
+<listitem>
 <para>
-<parameter>--with-memory=<option>MB</option></parameter>
-</para>
-<para>
-	  Set the maximum amount of memory to use 
-<option> MB </option> megabytes
+Set the maximum amount of memory to use <option> MB </option> megabytes
 (defaults to 32).  Vis5d normally uses a bounded amount of memory to
 avoid swapping.  When the limit is reached, the least-recently viewed
 graphics will be deallocated.  If <option> MB </option> 
-is set to 0, there will be no
-memory limit and Vis5d will never deallocate graphics.
+is set to 0, there will be no memory limit and Vis5d will never 
+deallocate graphics.
 </para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--with-mesa</parameter></term>
+<listitem>
 <para>
-<parameter>--with-mesa</parameter>
-</para>
-<para>
-	  Force the use of Mesa even if a "real" OpenGL library is
-available. This just means it looks for libMesaGL libraries, etcetera,
-before libGL instead of afterwards.  This option isn't useful with
-recent versions of Mesa, which install as 
+Force the use of Mesa even if a "real" OpenGL library is
+available. This just means it looks for 
+<filename>libMesaGL</filename> libraries, etcetera,
+before <filename>libGL</filename> instead of afterwards.  
+This option isn't useful with recent versions of Mesa, which install as 
 <filename>libGL</filename>, etcetera.
 </para>
-<para>
-<parameter>--with-mcidas=<option>lib</option></parameter>
-</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--with-mcidas=<option>lib</option></parameter></term>
+<listitem>
 <para>
 	  Specify the location of a McIDAS library file, an optional
 (proprietary) library that Vis5D can use.  (Vis5D comes with an older
 McIDAS library binary for IRIX, which will be used if it works with
 your system.)
 </para>
-<para>
-<parameter>--disable-fortran</parameter>
-</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--disable-fortran</parameter></term>
+<listitem>
 <para>
 	  Don't compile any of the Fortran utility programs, etcetera,
 even if there is a Fortran compiler on your system (it will normally
 be used automatically).  You can use this if your Fortran compiler
 gives you troubles when compiling Vis5D.
 </para>
-<para>
-<parameter>--disable-shared</parameter>
-</para>
-<para>
-<parameter>--disable-static</parameter>
-</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--disable-shared</parameter></term>
+<listitem><para></para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><parameter>--disable-static</parameter></term>
+<listitem>
 <para>
 	  Disable creation of the shared (.so) and static (.a)
 libaries, respectively.  Don't disable both, as the Vis5D program
 requires a library to link to!
 </para>
+</listitem>
+</varlistentry>
+</variablelist>
 <para>
 	  You can also set one or more environment variables before
 running configure, to help it find libraries and otherwise control its
@@ -321,8 +344,9 @@ environment variables are:
 <para><symbol>CC:</symbol> the name of the C compiler</para>
 </listitem>
 <listitem>
-<para><symbol>CPPFLAGS:</symbol> -I< dir > flags to tell the C
-		compiler where to look for header files</para>
+<para><symbol>CPPFLAGS:</symbol> 
+ <parameter>-I <option>dir</option></parameter> flags to tell the C
+ compiler where to look for header files</para>
 </listitem>
 <listitem>
 <para><symbol>CFLAGS:</symbol> C compiler flags</para>
@@ -334,8 +358,9 @@ environment variables are:
 <para><symbol>FFLAGS:</symbol> Fortran compiler flags</para>
 </listitem>
 <listitem>
-<para><symbol>LDFLAGS:</symbol> linker flags (e.g. -L< dir > to look
-		for libraries in < dir >)</para>
+<para><symbol>LDFLAGS:</symbol> linker flags 
+(e.g. <parameter>-L <option>dir</option></parameter> to look
+		for libraries in <filename>dir</filename>)</para>
 </listitem>
 </itemizedlist>
 </para>
@@ -344,7 +369,8 @@ environment variables are:
 libraries installed in nonstandard locations, in which case you will
 use the CPPFLAGS and LDFLAGS environment variables.  For example,
 consider the case in 2.2.1 where you installed the Mesa library in
-~/Mesa.  You would then tell configure where to find the Mesa
+<filename>~/Mesa</filename>.  
+You would then tell configure where to find the Mesa
 libraries and header files with:
 <programlisting>
 <command><prompt>%</prompt> setenv CPPFLAGS "-I$HOME/Mesa/include"</command>

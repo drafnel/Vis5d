@@ -23,6 +23,7 @@ html: $(SGML_SRC)
 	rm -rf html
 	$(DB2HTML) vis5d.sgml
 	mv vis5d html
+	cd html && ln -s book1.html index.html
 
 vis5d.dvi: $(SGML_SRC)
 	$(DB2DVI) vis5d.sgml

@@ -1377,8 +1377,9 @@ main( int argc, char *argv[] )
             if (sscanf (argv[i+1], "%f", &topo_base_lev[filepointer]) == 1) i++;
          }
       }
-
-
+		else if (strcmp(argv[i],"-debug")==0){
+        vis5d_set_verbose_level(VERBOSE_ALL);
+      }
       else if (argv[i][0]!='-' ) {
          v5dfile[gopointer] = argv[i];
          gopointer++;
@@ -1495,17 +1496,6 @@ main( int argc, char *argv[] )
 
 
 
-         /* MJK 12.02.98 */
-         in_the_init_stage = 1;
-         vis5d_set_topo_base (dindex, topo_base[dindex], topo_base_lev[dindex]);
-         in_the_init_stage = 0;
-         /* MJK 4.27.99 
-         if (path[dindex] == NULL) path[dindex] = getenv ("VIS5D_PATH");
-         if (path[dindex] != NULL) vis5d_init_path (dindex, path[dindex]);
-         */
-
-
-
 
          if (vis5d_open_gridfile( index, v5dfile[dindex], preload[dindex] )<0) {
             vis5d_terminate(1);
@@ -1531,10 +1521,14 @@ main( int argc, char *argv[] )
          if (texture[dindex]) {
             vis5d_init_texture( dindex, texture[dindex] );
          }
-			/* JPE
+			/* JPE 
          vis5d_init_topo_and_map_ctx( dindex, toponame[dindex], hirestopo[dindex]);
 			*/
 			vis5d_init_topo( dindex, toponame[dindex], hirestopo[dindex]);
+         /* MJK 12.02.98 */
+         in_the_init_stage = 1;
+         vis5d_set_topo_base (dindex, topo_base[dindex], topo_base_lev[dindex]);
+         in_the_init_stage = 0;
 
          vis5d_init_display_values ( index, -1, dindex );
 

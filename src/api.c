@@ -159,7 +159,7 @@
 #  define RADIUS     6371.23
 #endif
 
-int vis5d_verbose=0;
+unsigned int vis5d_verbose=0;
 
 /* initial xformation matrix */
 static MATRIX init_ctm = { 1.0, 0.0, 0.0, 0.0,
@@ -469,9 +469,15 @@ static Display_Context new_display_context( void )
 {
    Display_Context dtx;
    /* this calloc call eats up time! */
+
    dtx = (Display_Context) calloc( 1, sizeof(struct display_context) );
    if (dtx) {
-      init_display_context( dtx, 1);
+	  int i;
+	  /* This could probably be deferred */
+	  for(i=0;i< VIS5D_COLORTABLES;i++){
+		 dtx->ColorTable[i] = (struct ColorTable *) malloc(sizeof(struct ColorTable));
+	  }
+	  init_display_context( dtx, 1);
    }
    return dtx;
 }
@@ -542,10 +548,12 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
 
  
    /* initialize everything to zero for starters */
+   /* this shouldn't be done since the structure contains pointers?
    if (!dtx->GfxWindow){
       memset( dtx, 0, sizeof(struct display_context) );
    }
-    
+	*/
+
    dtx->VolRender = 1; /* until proven otherwise */
    dtx->UserProjection = -1;
    dtx->UserVerticalSystem = -1;
@@ -794,7 +802,15 @@ static void destroy_context( Context ctx )
 
 static void destroy_display_context( Display_Context dtx )
 {
-   free( dtx );
+  int i;
+  
+  for(i=0;i<VIS5D_COLORTABLES;i++){
+	 if(dtx->ColorTable[i])
+		free(dtx->ColorTable[i]);
+  }
+  if(dtx->topo)
+	 free(dtx->topo);
+  free( dtx );
 }
 
 
@@ -3251,7 +3267,9 @@ int vis5d_init_opengl_window( int index, Display *dpy, Window window,
   }
   if((dtx=dtx_table[index])==NULL){
 	 newdtx=1;
-    dtx_table[index] = (Display_Context) calloc( 1, sizeof(struct display_context) );    
+	 /*    dtx_table[index] = (Display_Context) calloc( 1, sizeof(struct display_context) );    
+	  */
+    dtx_table[index] = new_display_context();
 	 dtx = dtx_table[index];
     dtx->UserProjection=-1; /* not initialized elsewhere */
     dtx->LineWidth = 1;
@@ -3473,11 +3491,14 @@ int vis5d_init_topo( int index, char *toponame, int highres_flag )
    else{
       dtx = vis5d_get_dtx( index );
    }
+
    if(dtx->topo==NULL){
 	  dtx->topo = (struct Topo *) calloc(1,sizeof(struct Topo ));
+	  
 	}else{
 	  printf("WARNING: vis5d_init_topo topo already initialized\n");
 	}
+	if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c vis5d_init_topo Topo=0x%x\n",dtx->topo); 
    dtx->topo->DisplayTopoBase = 0;
    dtx->topo->TopoBaseLev     = 0.0;
 
@@ -3644,34 +3665,36 @@ int vis5d_init_vertical( int index, int vertical, float *vertargs )
 
 static void load_topo_and_map( Display_Context dtx )
 {
-   char name[1000];
+   char name[400];
+
+	if(dtx->topo==NULL){
+	  printf("ERROR: topo not initialized\n");
+	}
+	if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c load_topo_and_map topo=0x%x\n",dtx->topo); 
 
    /*** Load topography ***/
-   /* MJK 4.27.99 
-   if (dtx->Path[0]) {
-   */
    if (Vis5dDataPath[0]) {
-   /* MJK 4.27.99    
-      strcpy( name, dtx->Path );
-   */      
       /* SGJ 7/3/00: don't prepend path if TopoName is already absolute: */
       if (dtx->topo->TopoName[0] != '/') {
-	   strcpy( name, Vis5dDataPath );
-	   strcat( name, dtx->topo->TopoName );
+		  strcpy( name, Vis5dDataPath );
+		  strcat( name, dtx->topo->TopoName );
       }
       else
-	   strcpy( name, dtx->topo->TopoName );
+		  strcpy( name, dtx->topo->TopoName );
    }
    else {
       strcpy( name, dtx->topo->TopoName );
    }
 
+	if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c load_topo_and_map %s\n",name);
    if (name[0]) {
       dtx->topo->TopoFlag = init_topo( dtx, name, dtx->TextureFlag, dtx->topo->HiResTopo );
    }
    else {
       dtx->topo->TopoFlag = 0;
    }
+	if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c load_topo_and_map %s %d\n",name,dtx->topo->TopoFlag); 
+   
 
    /*** Load texture, areas, or image sequence ***/
    init_image(dtx);
@@ -5746,12 +5769,14 @@ vis5d_get_topo_range( int index, float *MinTopoHgt, float *MaxTopoHgt )
 
 int vis5d_reset_topo_colors( int index )
 {
-   DPY_CONTEXT("vis5d_reset_topo_colors")
-
-   init_topo_color_table( dtx->topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
-   dtx->topo->MinTopoHgt, dtx->topo->MaxTopoHgt );
-   dtx->Redraw = 1;
-   return 0;
+  DPY_CONTEXT("vis5d_reset_topo_colors");
+  if(dtx->ColorTable[VIS5D_TOPO_CT]==NULL){
+	 dtx->ColorTable[VIS5D_TOPO_CT] = (struct ColorTable *) calloc(1,sizeof(struct ColorTable));
+  }
+  init_topo_color_table( dtx->ColorTable[VIS5D_TOPO_CT]->Colors[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
+								 dtx->topo->MinTopoHgt, dtx->topo->MaxTopoHgt );
+  dtx->Redraw = 1;
+  return 0;
 }
 
 
@@ -6037,6 +6062,7 @@ int vis5d_signal_redraw( int index, int count )
 int vis5d_set_verbose_level(int level)
 {
   vis5d_verbose = level;
+  printf("vis5d_verbose level %d\n",level);
   return vis5d_verbose;
 }
 
@@ -6668,6 +6694,16 @@ int vis5d_set_cursor_color( int index, int traj_set )
 }
 
 
+int get_color_table_address_internal(struct ColorTable *CT, int offset, unsigned int **colors)
+{
+  if(CT == NULL){
+	 printf("ERROR: Color Table not assigned in vis5d_get_color_table_params\n");
+	 return -1;
+  }
+
+  *colors = CT->Colors[offset];
+  return 0;
+}
 
 
 /*
@@ -6684,32 +6720,32 @@ int vis5d_get_color_table_address( int index, int type, int varowner, int number
 {
   DPY_CONTEXT("vis5d_get_color_table_address")
 
-  switch (type) {
+	 switch (type) {
     case VIS5D_ISOSURF:
-      *colors = dtx->IsoColors[varowner*MAXVARS+number];
+		return get_color_table_address_internal(dtx->ColorTable[VIS5D_ISOSURF_CT],varowner*MAXVARS+number,colors);
       break;
     case VIS5D_CHSLICE:
-      *colors = dtx->CHSliceColors[varowner*MAXVARS+number];
+		return get_color_table_address_internal(dtx->ColorTable[VIS5D_CHSLICE_CT],varowner*MAXVARS+number,colors);
       break;
     case VIS5D_CVSLICE:
-      *colors = dtx->CVSliceColors[varowner*MAXVARS+number];
+		return get_color_table_address_internal(dtx->ColorTable[VIS5D_CVSLICE_CT],varowner*MAXVARS+number,colors);
       break;
     case VIS5D_VOLUME:
-      *colors = dtx->VolumeColors[varowner*MAXVARS+number];
+		return get_color_table_address_internal(dtx->ColorTable[VIS5D_VOLUME_CT],varowner*MAXVARS+number,colors);
       break;
     case VIS5D_TOPO:
       if (number<0) {
-         *colors = dtx->topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS];
+		  return get_color_table_address_internal(dtx->ColorTable[VIS5D_TOPO_CT],MAXVARS*VIS5D_MAX_CONTEXTS,colors);
       }
       else {
-         *colors = dtx->topo->TopoColorTable[varowner*MAXVARS+number];
+		  return get_color_table_address_internal(dtx->ColorTable[VIS5D_TOPO_CT],varowner*MAXVARS+number,colors);
       }
       break;
     case VIS5D_TRAJ:
-      *colors = dtx->TrajColors[varowner*MAXVARS+number];
+		return get_color_table_address_internal(dtx->ColorTable[VIS5D_TRAJ_CT],varowner*MAXVARS+number,colors);
       break;
     case VIS5D_TEXTPLOT:
-      *colors = dtx->TextPlotColors[varowner*MAXVARS+number];
+		return get_color_table_address_internal(dtx->ColorTable[VIS5D_TEXTPLOT_CT],varowner*MAXVARS+number,colors);
       break;
     default:
       return VIS5D_BAD_CONSTANT;
@@ -6717,7 +6753,16 @@ int vis5d_get_color_table_address( int index, int type, int varowner, int number
   return 0;
 }
 
+int get_color_table_params_internal(struct ColorTable *CT, int offset, float **params)
+{
+  if(CT == NULL){
+	 printf("ERROR: Color Table not assigned in vis5d_get_color_table_params\n");
+	 return -1;
+  }
 
+  *params = CT->Params[offset];
+  return 0;
+}
 
 /*
  * Return the parameters which describe a color table curve.
@@ -6732,38 +6777,37 @@ int vis5d_get_color_table_params( int index, int graphic, int varowner, int var,
 {
    DPY_CONTEXT("vis5d_get_color_table_params")
 
-   switch (graphic) {
-      case VIS5D_ISOSURF:
-         *params = dtx->IsoColorParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_CHSLICE:
-         *params = dtx->CHSliceParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_CVSLICE:
-         *params = dtx->CVSliceParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_VOLUME:
-         *params = dtx->VolumeColorParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_TRAJ:
-         *params = dtx->TrajColorParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_TOPO:
-         if (var<0) {
-            *params = dtx->topo->TopoColorParams[MAXVARS];
-         }
-         else {
-            *params = dtx->topo->TopoColorParams[varowner*MAXVARS+var];
-         }
-         break;
-      case VIS5D_TEXTPLOT:
-        *params = dtx->TextPlotColorParams[varowner*MAXVARS+var];
-         break;
-      default:
-         return VIS5D_FAIL;
-   }
-
-   return 0;
+	  switch (graphic) {
+	  case VIS5D_ISOSURF:
+		 return get_color_table_params_internal(dtx->ColorTable[VIS5D_ISOSURF_CT],varowner*MAXVARS+var,params);
+		 break;
+	  case VIS5D_CHSLICE:
+		 return get_color_table_params_internal(dtx->ColorTable[VIS5D_CHSLICE_CT],varowner*MAXVARS+var,params);
+		 break;
+	  case VIS5D_CVSLICE:
+		 return get_color_table_params_internal(dtx->ColorTable[VIS5D_CVSLICE_CT],varowner*MAXVARS+var,params);
+		 break;
+	  case VIS5D_VOLUME:
+		 return get_color_table_params_internal(dtx->ColorTable[VIS5D_VOLUME_CT],varowner*MAXVARS+var,params);
+		 break;
+	  case VIS5D_TRAJ:
+		 return get_color_table_params_internal(dtx->ColorTable[VIS5D_TRAJ_CT],varowner*MAXVARS+var,params);
+		 break;
+	  case VIS5D_TOPO:
+		 if (var<0) {
+			return get_color_table_params_internal(dtx->ColorTable[VIS5D_TOPO_CT],MAXVARS,params);
+		 }
+		 else {
+			return get_color_table_params_internal(dtx->ColorTable[VIS5D_TOPO_CT],varowner*MAXVARS+var,params);
+		 }
+		 break;
+	  case VIS5D_TEXTPLOT:
+		 return get_color_table_params_internal(dtx->ColorTable[VIS5D_TEXTPLOT_CT],varowner*MAXVARS+var,params);
+		 break;
+	  default:
+		 return VIS5D_FAIL;
+	  }
+	/* Should never get here */
 }
 
 int vis5d_load_color_table( int index, int graphic, int varowner, int var,
@@ -6812,6 +6856,12 @@ int vis5d_load_color_table( int index, int graphic, int varowner, int var,
    return 0;
 }
 
+float *set_color_table_params_internal(struct ColorTable **CT,int offset){
+  if(*CT==NULL){
+	 *CT = (struct ColorTable *) calloc(1,sizeof(struct ColorTable));
+  }
+  return( (*CT)->Params[offset]);
+}
 
 /*
  * Set the parameters which describe a color table curve, and use them
@@ -6824,46 +6874,46 @@ int vis5d_load_color_table( int index, int graphic, int varowner, int var,
  */
 int vis5d_set_color_table_params( int index, int graphic, int varowner, int var, float params[] )
 {
-   float *p;
-   int i;
-   unsigned int *table;
-   DPY_CONTEXT("vis5d_set_color_table_params")
+  float *p;
+  int i;
+  unsigned int *table;
+  DPY_CONTEXT("vis5d_set_color_table_params")
 
-   switch (graphic) {
-      case VIS5D_ISOSURF:
-         p = dtx->IsoColorParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_CHSLICE:
-         p = dtx->CHSliceParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_CVSLICE:
-         p = dtx->CVSliceParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_VOLUME:
-         p = dtx->VolumeColorParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_TRAJ:
-         p = dtx->TrajColorParams[varowner*MAXVARS+var];
-         break;
-      case VIS5D_TOPO:
-         if (var<0) {
-            p = dtx->topo->TopoColorParams[MAXVARS];
-         }
-         else {
-            p = dtx->topo->TopoColorParams[varowner*MAXVARS+var];
-         }
-         break;
-      default:
-         return VIS5D_FAIL;
-   }
+	 switch (graphic) {
+	 case VIS5D_ISOSURF:
+		p = set_color_table_params_internal(&(dtx->ColorTable[VIS5D_ISOSURF_CT]),varowner*MAXVARS+var);
+		break;
+	 case VIS5D_CHSLICE:
+		p = set_color_table_params_internal(&(dtx->ColorTable[VIS5D_CHSLICE_CT]),varowner*MAXVARS+var);
+		break;
+	 case VIS5D_CVSLICE:
+		p = set_color_table_params_internal(&(dtx->ColorTable[VIS5D_CVSLICE_CT]),varowner*MAXVARS+var);
+		break;
+	 case VIS5D_VOLUME:
+		p = set_color_table_params_internal(&(dtx->ColorTable[VIS5D_VOLUME_CT]),varowner*MAXVARS+var);
+		break;
+	 case VIS5D_TRAJ:
+		p = set_color_table_params_internal(&(dtx->ColorTable[VIS5D_TRAJ_CT]),varowner*MAXVARS+var);
+		break;
+	 case VIS5D_TOPO:
+		if (var<0) {
+		  p = set_color_table_params_internal(&(dtx->ColorTable[VIS5D_TOPO_CT]),MAXVARS);
+		}
+		else {
+		  p = set_color_table_params_internal(&(dtx->ColorTable[VIS5D_TOPO_CT]),varowner*MAXVARS+var);
+		}
+		break;
+	 default:
+		return VIS5D_FAIL;
+	 }
+  
+  for (i=0;i<7;i++) {
+	 p[i] = params[i];
+  }
 
-   for (i=0;i<7;i++) {
-      p[i] = params[i];
-   }
-
-   vis5d_get_color_table_address( index, graphic, varowner, var, &table );
-   vis5d_color_table_recompute( table, 256, p, 1, 1 );
-   return 0;
+  vis5d_get_color_table_address( index, graphic, varowner, var, &table );
+  vis5d_color_table_recompute( table, 256, p, 1, 1 );
+  return 0;
 }
 
 

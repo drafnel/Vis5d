@@ -513,11 +513,13 @@ struct Topo{
   uint_1 *TopoIndexes[MAXTIMES+1];  /* Maps topo heights or data */
   /* values to color table indexes */
    float MinTopoHgt, MaxTopoHgt;        /* Min and max heights visible */
-   unsigned int TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS+1][256];
-   float TopoColorParams[MAXVARS*VIS5D_MAX_CONTEXTS+1][10];
-
 };
 
+struct ColorTable{
+   unsigned int Colors[MAXVARS*VIS5D_MAX_CONTEXTS+1][256];
+   /*** colorbar parameters for sine, cosine curves ***/
+   float Params[MAXVARS*VIS5D_MAX_CONTEXTS+1][10];
+};  
 
 
 struct display_context {
@@ -612,25 +614,7 @@ struct display_context {
 /*       You are looking at the display_context struct right now                     */
 /*************************************************************************************/
 /*************************************************************************************/
-
-
-
-
-   unsigned int IsoColors[MAXVARS*VIS5D_MAX_CONTEXTS][256]; /* isosurface color tables */
-   unsigned int CHSliceColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];  /* data value --> color LUT */
-   unsigned int CVSliceColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];  /* data value --> color LUT */
-   unsigned int VolumeColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];    /* data value --> color LUT */
-   unsigned int TrajColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];  /*trajectory color tables */
-   unsigned int TextPlotColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];
-
-   /*** colorbar parameters for sine, cosine curves ***/
-   float CHSliceParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
-   float CVSliceParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
-   float IsoColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
-   float VolumeColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
-   float TrajColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
-
-   float TextPlotColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
+  struct ColorTable *ColorTable[VIS5D_COLORTABLES];
 
    /*** 3-D bounding box ***/
    float Xmin, Xmax;                     /* West, East */

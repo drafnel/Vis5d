@@ -344,20 +344,20 @@ int read_topo( struct Topo *topo, char *filename )
 
    /* Read topo file header */
    read_bytes( f, id, 40 );
-   read_float4( f, &topo->Topo_westlon );
-   read_float4( f, &topo->Topo_eastlon );
-   read_float4( f, &topo->Topo_northlat );
-   read_float4( f, &topo->Topo_southlat );
-   read_int4( f, &topo->Topo_rows );
-   read_int4( f, &topo->Topo_cols );
+   read_float4( f, &(topo->Topo_westlon) );
+   read_float4( f, &(topo->Topo_eastlon) );
+   read_float4( f, &(topo->Topo_northlat) );
+   read_float4( f, &(topo->Topo_southlat) );
+   read_int4( f, &(topo->Topo_rows) );
+   read_int4( f, &(topo->Topo_cols) );
 
    if (strcmp(id,"TOPO")==0) {
       /* OLD STYLE: bounds given as ints, convert to floats */
       int *p;
-      p = (int *) &topo->Topo_westlon;  topo->Topo_westlon = (float) *p / 100.0;
-      p = (int *) &topo->Topo_eastlon;  topo->Topo_eastlon = (float) *p / 100.0;
-      p = (int *) &topo->Topo_northlat; topo->Topo_northlat = (float) *p / 100.0;
-      p = (int *) &topo->Topo_southlat; topo->Topo_southlat = (float) *p / 100.0;
+      p = (int *) &(topo->Topo_westlon);  topo->Topo_westlon = (float) *p / 100.0;
+      p = (int *) &(topo->Topo_eastlon);  topo->Topo_eastlon = (float) *p / 100.0;
+      p = (int *) &(topo->Topo_northlat); topo->Topo_northlat = (float) *p / 100.0;
+      p = (int *) &(topo->Topo_southlat); topo->Topo_southlat = (float) *p / 100.0;
    }
    else if (strcmp(id,"TOPO2")==0) {
       /* OK */
@@ -367,6 +367,7 @@ int read_topo( struct Topo *topo, char *filename )
       close(f);
       return 0;
    }
+
 
    topo->TopoData = (short *) malloc(topo->Topo_rows * topo->Topo_cols * sizeof(short));
 
@@ -382,13 +383,13 @@ int read_topo( struct Topo *topo, char *filename )
    n = topo->Topo_rows * topo->Topo_cols;
    if (read_int2_array( f, topo->TopoData, n) < n) {
 	  printf("ERROR: could not read data file or premature end of file\n");
-      free( topo->TopoData);
-      topo->TopoData = NULL;
-      close(f);
-      return 0;
+	  free( topo->TopoData);
+	  topo->TopoData = NULL;
+	  close(f);
+	  return 0;
    }
 
-   close(f);
+	close(f);
    return 1;
 }
 
@@ -404,6 +405,7 @@ void free_topo( struct Topo *topo )
       free( topo->TopoData);
       topo->TopoData = NULL;
    }
+
 }
 
 
@@ -671,13 +673,12 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
 		  return -1;
 		}
 
-
       r = sqrt( (float) maxverts
                       / ((dtx->Xmax - dtx->Xmin)*(dtx->Ymax - dtx->Ymin)) );
       qc = (int) (r * (dtx->Xmax - dtx->Xmin) + 0.5);
       qr = (int) (r * (dtx->Ymax - dtx->Ymin) + 0.5);
-
    }
+
    /* allocate space for topography vertex and color arrays */
    if (topo->TopoVertex){
       free(topo->TopoVertex);
@@ -703,6 +704,7 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
    topo->TopoFlatVertex = (float *) malloc( qr*qc*3*sizeof(float) );
    topoheight = (float *) malloc( qr*qc*sizeof(float) );
    /* topoheight = (float *) allocate( dtx, qr*qc*sizeof(float) ); */
+
    indexes = malloc( qr*qc*1*sizeof(uint_1) );
    topo->TopoIndexes[MAXTIMES] = indexes;
 
@@ -782,6 +784,7 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
          yy -= dy;
          texture_t += delta_t;
       }
+	
 
    }
    else {
@@ -860,23 +863,23 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
 
    /* Compute topography color table indexes. */
    for (i=0;i<qr*qc;i++) {
-      float hgt = topoheight[i];
-      if (indexes[i]!=255) {   /* if not water */
-         if (topo->MinTopoHgt==topo->MaxTopoHgt) {
-            indexes[i] = 0;
-         }
-         else {
-            int index;
-            index = (int) ( (hgt-topo->MinTopoHgt)
-                           / (topo->MaxTopoHgt-topo->MinTopoHgt) * 254.0 );
-            indexes[i] = CLAMP( index, 0, 254 );
-         }
-      }
+	  float hgt = topoheight[i];
+	  if (indexes[i]!=255) {   /* if not water */
+		 if (topo->MinTopoHgt==topo->MaxTopoHgt) {
+			indexes[i] = 0;
+		 }
+		 else {
+			int index;
+			index = (int) ( (hgt-topo->MinTopoHgt)
+								 / (topo->MaxTopoHgt-topo->MinTopoHgt) * 254.0 );
+			indexes[i] = CLAMP( index, 0, 254 );
+		 }
+	  }
    }
 
    /* done with topoheight array */
    free( topoheight );
-   /* deallocate( dtx, topoheight, qr*qc*sizeof(float) ); */
+	printf("Done with topoheight\n");
 
    /* compute quadmesh normal vectors */
    {
@@ -959,7 +962,10 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
    topo->qrows = qr;
 
    /* Define the initial quadmesh vertex colors */
-   init_topo_color_table( topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
+	if(dtx->ColorTable[VIS5D_TOPO_CT]==NULL){
+	  dtx->ColorTable[VIS5D_TOPO_CT] = (struct ColorTable *) calloc(1,sizeof(struct ColorTable));
+	}
+   init_topo_color_table( dtx->ColorTable[VIS5D_TOPO_CT]->Colors[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
                           topo->MinTopoHgt, topo->MaxTopoHgt );
    topo->TopoColorVar = -1;
 
@@ -1036,11 +1042,11 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
          if (topo->TopoColorVar<0) {
             int yo;
 
-            color_table = topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS];
+            color_table = dtx->ColorTable[VIS5D_TOPO_CT]->Colors[MAXVARS*VIS5D_MAX_CONTEXTS];
             indexes = topo->TopoIndexes[MAXTIMES];
          }
          else {
-            color_table = topo->TopoColorTable[ topo->TopoColorVarOwner * MAXVARS + topo->TopoColorVar ];
+            color_table = dtx->ColorTable[VIS5D_TOPO_CT]->Colors[ topo->TopoColorVarOwner * MAXVARS + topo->TopoColorVar ];
             indexes = topo->TopoIndexes[time];
             if (!indexes) {
                indexes = topo->TopoIndexes[MAXTIMES];

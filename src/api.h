@@ -80,7 +80,10 @@ extern "C" {
 #define VERBOSE_REDRAW           8
 #define VERBOSE_OPENGL          16
 #define VERBOSE_RENDER          32
-#define VERBOSE_ALL            2147483648
+#define VERBOSE_ALL             63
+
+  enum colortables {VIS5D_ISOSURF_CT,VIS5D_CHSLICE_CT,VIS5D_CVSLICE_CT,VIS5D_VOLUME_CT,
+						  VIS5D_TOPO_CT,  VIS5D_TRAJ_CT, VIS5D_TEXTPLOT_CT, VIS5D_COLORTABLES};
 
 /*** Constants ***/
 #define VIS5D_ISOSURF           0

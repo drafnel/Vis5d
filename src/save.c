@@ -268,7 +268,7 @@ static int save_iso_colors( Context ctx, FILE *f )
    for (iv=0;iv<ctx->NumVars;iv++) {
       begin_block( f, TAG_ISO_COLOR_TABLE );
       FWRITE( &iv, INT_SIZE, 1, f );
-      FWRITE( &ctx->dpy_ctx->IsoColors[iv], UINT_SIZE, 256, f );
+      FWRITE( &ctx->dpy_ctx->ColorTable[VIS5D_ISOSURF_CT]->Colors[iv], UINT_SIZE, 256, f );
       end_block(f);
    }
    return 0;
@@ -474,7 +474,7 @@ static int save_chslice_colors( Context ctx, FILE *f )
       FWRITE( &ctx->dpy_ctx->Color[iv][CHSLICE], UINT_SIZE, 1, f );
       FWRITE( &size, INT_SIZE, 1, f );
 /*Y0
-      FWRITE( ctx->CHSliceColors[iv], UINT_SIZE, size, f );
+      FWRITE( ctx->ColorTable[VIS5D_CHSLICE_CT]->Colors[iv], UINT_SIZE, size, f );
 */
       end_block(f);
    }
@@ -540,7 +540,7 @@ static int save_cvslice_colors( Context ctx, FILE *f )
       FWRITE( &ctx->dpy_ctx->Color[iv][CVSLICE], UINT_SIZE, 1, f );
 
       FWRITE( &size, INT_SIZE, 1, f );
-      FWRITE( ctx->CVSliceColors[iv], UINT_SIZE, size, f );
+      FWRITE( ctx->ColorTable[VIS5D_CVSLICE_CT]->Colors[iv], UINT_SIZE, size, f );
 */      end_block(f);
    }
    return 0;
@@ -814,7 +814,7 @@ static int save_volume_colors( Context ctx, FILE *f )
       /* CHSLICE colors */
       FWRITE( &iv, INT_SIZE, 1, f );  /* parm */
       FWRITE( &size, INT_SIZE, 1, f );
-/* YO      FWRITE( ctx->VolumeColors[iv], UINT_SIZE, size, f );
+/* YO      FWRITE( ctx->ColorTable[VIS5D_VOLUME_CT]->Colors[iv], UINT_SIZE, size, f );
    */   end_block(f);
    }
    return 0;
@@ -977,7 +977,7 @@ save_labels( ctx, f, TAG_LABEL );
 */
    /* always save topography color table */
    begin_block( f, TAG_TOPO_COLORS );
-/*   FWRITE( ctx->TopoColorTable, UINT_SIZE, 256, f );  YO */
+/*   FWRITE( ctx->Topo_CT->Colors, UINT_SIZE, 256, f );  YO */
    end_block( f );
 
    /* unlock graphics */
@@ -1699,7 +1699,7 @@ int restore( Context ctx, char *savefile )
                skip( f, blocklength-INT_SIZE );
             else
 
-               fread( &ctx->IsoColors[var], UINT_SIZE, 256, f );
+               fread( &ctx->ColorTable[VIS5D_ISOSURF_CT]->Colors[var], UINT_SIZE, 256, f );
 */
          } break;
 
@@ -1807,7 +1807,7 @@ int restore( Context ctx, char *savefile )
 */
                fread( &size, INT_SIZE, 1, f );
 /*YO
-               fread( ctx->CHSliceColors[var], UINT_SIZE, size, f );
+               fread( ctx->ColorTable[VIS5D_CHSLICE_CT]->Colors[var], UINT_SIZE, size, f );
 */
             }
          } break;
@@ -1840,7 +1840,7 @@ int restore( Context ctx, char *savefile )
 */
                fread( &size, INT_SIZE, 1, f );
 /*YO
-               fread( ctx->CVSliceColors[var], UINT_SIZE, size, f );
+               fread( ctx->ColorTable[VIS5D_CVSLICE_CT]->Colors[var], UINT_SIZE, size, f );
 */
             }
          } break;
@@ -2000,7 +2000,7 @@ int restore( Context ctx, char *savefile )
 
          case TAG_TOPO_COLORS:
 /*YO
-            fread( ctx->TopoColorTable, UINT_SIZE, 256, f );
+            fread( ctx->Topo_CT->Colors, UINT_SIZE, 256, f );
 */
             break;
         
@@ -2013,7 +2013,7 @@ int restore( Context ctx, char *savefile )
             else {
                fread( &size, INT_SIZE, 1, f );
 /*YO
-               fread( ctx->VolumeColors[var], UINT_SIZE, size, f );
+               fread( ctx->ColorTable[VIS5D_VOLUME_CT]->Colors[var], UINT_SIZE, size, f );
 */
             }
          } break;

@@ -789,7 +789,7 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
             if (ctx->SurfTable[var][time].colors) {
                alpha = UNPACK_ALPHA( dtx->Color[ctx->context_index*MAXVARS+
                                      var][ISOSURF] ); 
-               /* alpha = get_alpha( ctx->IsoColors[colorvar], 255 ); WLH 16 Aug 97 */
+               /* alpha = get_alpha( ctx->ColorTable[VIS5D_ISOSURF_CT]->Colors[colorvar], 255 ); WLH 16 Aug 97 */
             }
             else {
                alpha = UNPACK_ALPHA( dtx->Color[ctx->context_index*MAXVARS+
@@ -803,7 +803,7 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
                                    (void *) ctx->SurfTable[var][time].verts,
                                    (void *) ctx->SurfTable[var][time].norms,
                                    (void *) ctx->SurfTable[var][time].colors,
-                                   dtx->IsoColors[cvowner*MAXVARS+colorvar],
+                                   dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[cvowner*MAXVARS+colorvar],
                                    alpha );
                }
                else {
@@ -912,7 +912,7 @@ static void render_textplots( Irregular_Context itx, int time)
          draw_colored_disjoint_lines(itx->TextPlotTable[time].numverts,
                                (void *) itx->TextPlotTable[time].verts,
                                (void *) itx->TextPlotTable[time].colors,
-                               itx->dpy_ctx->TextPlotColors[itx->context_index*
+                               itx->dpy_ctx->ColorTable[VIS5D_TEXTPLOT_CT]->Colors[itx->context_index*
                                MAXVARS+var]);
       }
       else{
@@ -1147,7 +1147,7 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
             if (lock) {
                recent( ctx, CHSLICE, var );
 
-               alpha = get_alpha( dtx->CHSliceColors[ctx->context_index*MAXVARS+var],
+               alpha = get_alpha( dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
                                   255 );
 
                if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
@@ -1155,9 +1155,9 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
                                     ctx->CHSliceTable[var][time].columns,
                                     (void *)ctx->CHSliceTable[var][time].verts,
                                     ctx->CHSliceTable[var][time].color_indexes,
-                                    dtx->CHSliceColors[ctx->context_index*MAXVARS+var],
+                                    dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
                                      -1 );
-                                 /* ctx->CHSliceColors[var], alpha ); WLH 15 Aug 97 */
+                                 /* ctx->ColorTable[VIS5D_CHSLICE_CT]->Colors[var], alpha ); WLH 15 Aug 97 */
                }
 
                done_read_lock( &ctx->CHSliceTable[var][time].lock );
@@ -1207,15 +1207,15 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
          if (lock) {
             recent( ctx, CVSLICE, var );
 
-            alpha = get_alpha( dtx->CVSliceColors[ctx->context_index*MAXVARS+var], 255 );
+            alpha = get_alpha( dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var], 255 );
             if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
                draw_color_quadmesh( ctx->CVSliceTable[var][time].rows,
                                     ctx->CVSliceTable[var][time].columns,
                                     (void *)ctx->CVSliceTable[var][time].verts,
                                     ctx->CVSliceTable[var][time].color_indexes,
-                                    dtx->CVSliceColors[ctx->context_index*MAXVARS+var],
+                                    dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
                                     -1 );
-                                 /* ctx->CVSliceColors[var], alpha ); WLH 15 Aug 97 */
+                                 /* ctx->ColorTable[VIS5D_CVSLICE_CT]->Colors[var], alpha ); WLH 15 Aug 97 */
             }
             done_read_lock( &ctx->CVSliceTable[var][time].lock );
          }
@@ -1609,7 +1609,7 @@ static void render_trajectories( Context ctx, int it, int tf )
                      draw_colored_polylines( len,
                                      (void *) (t->verts + start*3),
                                      (void*)(t->colors + start),
-                                     dtx->TrajColors[t->colorvarowner*MAXVARS+
+                                     dtx->ColorTable[VIS5D_TRAJ_CT]->Colors[t->colorvarowner*MAXVARS+
                                      colorvar]);
                   }
                   else {
@@ -1628,7 +1628,7 @@ static void render_trajectories( Context ctx, int it, int tf )
                                        (void*)(t->verts + start*3),
                                        (void*)(t->norms + start*3),
                                        (void*)(t->colors + start),
-                                       dtx->TrajColors[t->colorvarowner*MAXVARS+
+                                       dtx->ColorTable[VIS5D_TRAJ_CT]->Colors[t->colorvarowner*MAXVARS+
                                        colorvar], alpha );
                   }
                   else {
@@ -2004,22 +2004,22 @@ int draw_legend( Context ctx, int varowner, int var, int type, int xleft, int yb
 
    switch(type) {
       case VIS5D_ISOSURF:
-         lut = dtx->IsoColors[varowner*MAXVARS+var];
+         lut = dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[varowner*MAXVARS+var];
          break;
       case VIS5D_CHSLICE:
-         lut = dtx->CHSliceColors[varowner*MAXVARS+var];
+         lut = dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[varowner*MAXVARS+var];
          break;
       case VIS5D_CVSLICE:
-         lut = dtx->CVSliceColors[varowner*MAXVARS+var];
+         lut = dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[varowner*MAXVARS+var];
          break;
       case VIS5D_TRAJ:
-         lut = dtx->TrajColors[varowner*MAXVARS+var];
+         lut = dtx->ColorTable[VIS5D_TRAJ_CT]->Colors[varowner*MAXVARS+var];
          break;
       case VIS5D_VOLUME:
-         lut = dtx->VolumeColors[varowner*MAXVARS+var];
+         lut = dtx->ColorTable[VIS5D_VOLUME_CT]->Colors[varowner*MAXVARS+var];
          break;
       case VIS5D_TOPO:
-         lut = dtx->topo->TopoColorTable[varowner*MAXVARS+var];
+         lut = dtx->ColorTable[VIS5D_TOPO_CT]->Colors[varowner*MAXVARS+var];
          break;
       default:
          /* this should never happen */
@@ -2556,7 +2556,7 @@ void render_3d_only( Display_Context dtx, int animflag )
          
          if (check_for_valid_time(ctx, dtx->CurTime)){                     
             draw_volume( ctx, ctx->CurTime, dtx->CurrentVolume,
-                      dtx->VolumeColors[ctx->context_index*MAXVARS+
+                      dtx->ColorTable[VIS5D_VOLUME_CT]->Colors[ctx->context_index*MAXVARS+
                        dtx->CurrentVolume] );
          }
       }

@@ -73,6 +73,15 @@ extern "C" {
 #define VIS5D_OUT_OF_MEMORY     -8
 
 
+  /*** Verbose Levels ***/
+#define VERBOSE_DATA             1
+#define VERBOSE_DISPLAY          2
+#define VERBOSE_IRREGULAR        4
+#define VERBOSE_REDRAW           8
+#define VERBOSE_OPENGL          16
+#define VERBOSE_RENDER          32
+#define VERBOSE_ALL            2147483648
+
 /*** Constants ***/
 #define VIS5D_ISOSURF           0
 #define VIS5D_HSLICE            1 
@@ -1168,6 +1177,8 @@ extern int vis5d_enable_irregular_graphics( int index, int type, int mode );
 extern int vis5d_destroy_irregular_data_context( int index );
 
 extern int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context);
+
+extern int vis5d_set_verbose_level(int level);
 
 #ifdef __cplusplus
 }                               /* extern "C" */

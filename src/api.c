@@ -159,6 +159,7 @@
 #  define RADIUS     6371.23
 #endif
 
+int vis5d_verbose=0;
 
 /* initial xformation matrix */
 static MATRIX init_ctm = { 1.0, 0.0, 0.0, 0.0,
@@ -198,6 +199,7 @@ static int init_display_context( Display_Context dtx, int initXwindow);
 static void init_display_group (Display_Group grp );
 static void initialize_stuff( Context ctx );
 int init_var_clrtable( int dindex, int vindex, int var );
+static float Sign( float x );
 
 /**************************************************/
 /*                  New 5.2 stuff                 */
@@ -223,6 +225,10 @@ void debugstuff(void)
 {
    printf("hello, is anybody outthere?\n"); 
 }
+
+
+
+
 /*
  * This macro used at the beginning of each function which takes a
  * context index.  It translates the context index to a context pointer
@@ -230,7 +236,7 @@ void debugstuff(void)
  */
 #define CONTEXT( msg ) \
   Context ctx; \
-  /*printf("in c %s\n",msg);*/ \
+  if(vis5d_verbose & VERBOSE_DATA) printf("in c %s\n",msg); \
   if (index<0 || index>=VIS5D_MAX_CONTEXTS || (ctx = ctx_table[index])==NULL) { \
     debugstuff(); \
     printf("bad context in %s %d 0x%x\n", msg,index,ctx); \
@@ -239,7 +245,7 @@ void debugstuff(void)
 
 #define DPY_CONTEXT( msg ) \
   Display_Context dtx; \
-  /*printf("in c %s\n",msg);*/ \
+  if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c %s\n",msg); \
   if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS || (dtx = dtx_table[index])==NULL) { \
     printf("bad display_context in %s %d 0x%x\n", msg, index, dtx); \
     debugstuff(); \
@@ -248,7 +254,7 @@ void debugstuff(void)
 
 #define IRG_CONTEXT( msg ) \
   Irregular_Context itx; \
-  /*printf("in c %s\n",msg);*/ \
+  if(vis5d_verbose & VERBOSE_IRREGULAR) printf("in c %s\n",msg); \
   if (index<0 || index>=VIS5D_MAX_CONTEXTS || (itx = itx_table[index])==NULL) { \
     debugstuff(); \
     printf("bad irregular context in %s %d 0x%x\n", msg,index,itx); \
@@ -1991,9 +1997,6 @@ int vis5d_init_begin( int index, int dindex )
    Display_Context dtx;
    static int first_time = 1;
 
-   /*printf("sizeof(vis5d_context)=%d\n", sizeof(struct vis5d_context) );*/
-	printf("init_begin %d %x\n",dindex,dtx_table[dindex]);
-
    if (first_time){
       init_var_links();
    }
@@ -2033,8 +2036,6 @@ int vis5d_init_begin( int index, int dindex )
       /* create a display context too! */
       /* if it's not already created though.. */
       dtx = vis5d_get_dtx(dindex);
-
-      printf("init_context done %x %d\n",dtx,dindex);
 
       if (!dtx){
          dtx = dtx_table[dindex] = new_display_context();
@@ -2164,6 +2165,9 @@ int vis5d_init_window( char *title, int x, int y,
    }
 }
 
+
+
+
 int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
                int nr, int nc, const int nl[],
                const char varname[MAXVARS][10],
@@ -2175,6 +2179,9 @@ int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
                const float vert_args[] )
 {
   Context ctx; 
+  int i, yo;
+  float lat1,lat2;
+
   /*printf("in c %s\n",msg);*/ 
   if (index<0 || index>=VIS5D_MAX_CONTEXTS) { 
     debugstuff(); 
@@ -2193,6 +2200,129 @@ int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
 							 compressmode,projection,proj_args,vertical,vert_args);
 
 
+  
+   ctx->VerticalSystem = ctx->G.VerticalSystem;
+
+   if (ctx->G.VerticalSystem == VERT_GENERIC ||
+       ctx->G.VerticalSystem == VERT_EQUAL_KM){
+      ctx->BottomBound = ctx->G.VertArgs[0];
+      ctx->LevInc = ctx->G.VertArgs[1];
+      ctx->TopBound = ctx->BottomBound + ctx->LevInc * (ctx->MaxNl-1);
+      for (i=0;i<ctx->MaxNl;i++) {
+         ctx->Height[i] = ctx->BottomBound + i * ctx->LevInc;
+      }
+      if (ctx->LogFlag) {
+        ctx->Ptop = ctx->LogScale * exp( ctx->TopBound / ctx->LogExp );
+        ctx->Pbot = ctx->LogScale * exp( ctx->BottomBound / ctx->LogExp );
+      }
+   }
+   else if (ctx->G.VerticalSystem == VERT_NONEQUAL_KM ||
+            ctx->G.VerticalSystem == VERT_NONEQUAL_MB){
+      ctx->BottomBound = ctx->G.VertArgs[0];
+      for (yo = 0; yo < MAXLEVELS; yo++){
+         ctx->Height[yo] = ctx->G.VertArgs[yo];
+      }
+      ctx->TopBound = ctx->Height[ctx->MaxNl-1];
+      if (ctx->G.VerticalSystem == VERT_NONEQUAL_KM){
+         ctx->Ptop = ctx->LogScale * exp( ctx->Height[ctx->MaxNl-1] / ctx->LogExp );
+         ctx->Pbot = ctx->LogScale * exp( ctx->Height[0] / ctx->LogExp );
+      }
+      else if (ctx->G.VerticalSystem == VERT_NONEQUAL_MB){
+         ctx->Ptop = height_to_pressure(ctx->Height[ctx->MaxNl-1]);
+         ctx->Pbot = height_to_pressure(ctx->Height[0]);
+      }
+   }
+
+   ctx->Projection = ctx->G.Projection;
+   if (ctx->G.Projection == PROJ_GENERIC ||
+       ctx->G.Projection == PROJ_LINEAR  ||
+       ctx->G.Projection == PROJ_CYLINDRICAL ||
+       ctx->G.Projection == PROJ_SPHERICAL){
+      ctx->NorthBound = ctx->G.ProjArgs[0];
+      ctx->WestBound = ctx->G.ProjArgs[1];
+      ctx->RowInc = ctx->G.ProjArgs[2];
+      ctx->ColInc = ctx->G.ProjArgs[3];
+      ctx->SouthBound = ctx->NorthBound - ctx->RowInc * (ctx->Nr-1);
+      ctx->EastBound = ctx->WestBound - ctx->ColInc * (ctx->Nc-1);
+      if (ctx->G.Projection == PROJ_CYLINDRICAL){
+         if (REVERSE_POLES==-1.0){
+            ctx->CylinderScale = 1.0 / (-1.0*(-90.0-ctx->NorthBound));
+         }
+         else{
+            ctx->CylinderScale = 1.0 / (90.0-ctx->SouthBound);
+         }
+      }
+   }
+   else if (ctx->G.Projection == PROJ_MERCATOR ){
+      ctx->CentralLat = ctx->G.ProjArgs[0];
+      ctx->CentralLon = ctx->G.ProjArgs[1];
+      ctx->RowIncKm = ctx->G.ProjArgs[2];
+      ctx->ColIncKm = ctx->G.ProjArgs[3];
+   }
+   else if (ctx->G.Projection == PROJ_LAMBERT ){
+      ctx->Lat1 = ctx->G.ProjArgs[0]; 
+      ctx->Lat2 = ctx->G.ProjArgs[1];
+      ctx->PoleRow = ctx->G.ProjArgs[2];
+      ctx->PoleCol = ctx->G.ProjArgs[3];
+      ctx->CentralLon = ctx->G.ProjArgs[4];
+      ctx->ColInc = ctx->G.ProjArgs[5];
+      if (ctx->Lat1==ctx->Lat2) {
+         /* polar stereographic? */
+         if (ctx->Lat1>0.0) {
+            lat1 = (90.0 - ctx->Lat1) * DEG2RAD;
+         }
+         else {
+            lat1 = (90.0 + ctx->Lat1) * DEG2RAD;
+         }
+         ctx->Cone = cos( lat1 );
+         ctx->Hemisphere = 1.0;
+      }
+      else {
+         /* general Lambert conformal */
+         float a, b;
+         if (Sign(ctx->Lat1) != Sign(ctx->Lat2)) {
+            printf("Error: standard latitudes must have the same sign.\n");
+            return 0;
+         }
+         if (ctx->Lat1<ctx->Lat2) {
+            printf("Error: Lat1 must be >= ctx->Lat2\n");
+            return 0;
+         }
+         ctx->Hemisphere = 1.0;
+         lat1 = (90.0 - ctx->Lat1) * DEG2RAD;
+         lat2 = (90.0 - ctx->Lat2) * DEG2RAD;
+         a = log(sin(lat1)) - log(sin(lat2));
+         b = log( tan(lat1/2.0) ) - log( tan(lat2/2.0) );
+         ctx->Cone = a / b;
+      }
+
+      /* Cone is in [-1,1] */
+      ctx->ConeFactor = RADIUS * sin(lat1)
+                       / (ctx->ColInc * ctx->Cone
+                          * pow(tan(lat1/2.0), ctx->Cone) );
+   }
+   else if (ctx->G.Projection == PROJ_STEREO ){
+      ctx->CentralLat = ctx->G.ProjArgs[0];
+      ctx->CentralLon = ctx->G.ProjArgs[1];
+      ctx->CentralRow = ctx->G.ProjArgs[2];
+      ctx->CentralCol = ctx->G.ProjArgs[3];
+      ctx->ColInc = ctx->G.ProjArgs[4];
+      ctx->CosCentralLat = cos( ctx->CentralLat * DEG2RAD );
+      ctx->SinCentralLat = sin( ctx->CentralLat * DEG2RAD );
+      ctx->StereoScale = (2.0 * RADIUS / ctx->ColInc);
+      ctx->InvScale = 1.0 / ctx->StereoScale;
+   }
+   else if (ctx->G.Projection == PROJ_ROTATED){
+      ctx->NorthBound = ctx->G.ProjArgs[0];
+      ctx->WestBound = ctx->G.ProjArgs[1];
+      ctx->RowInc = ctx->G.ProjArgs[2];
+      ctx->ColInc = ctx->G.ProjArgs[3];
+      ctx->CentralLat = ctx->G.ProjArgs[4];
+      ctx->CentralLon = ctx->G.ProjArgs[5];
+      ctx->Rotation = ctx->G.ProjArgs[6];
+      ctx->SouthBound = ctx->NorthBound - ctx->RowInc * (ctx->Nr-1);
+      ctx->EastBound = ctx->WestBound - ctx->ColInc * (ctx->Nc-1);
+   }
 
 
   return set_ctx_from_internalv5d(ctx);
@@ -3698,6 +3828,10 @@ int vis5d_init_data_end( int index )
    /* New 5.2 */
    CONTEXT("vis5d_init_data_end");
 
+   if(ctx->dpy_ctx==NULL){
+	  fprintf(stderr,"You must assign a Display context to the data before calling vis5d_init_data_end\n");
+	  return( VIS5D_BAD_CONTEXT );
+	}
 
 /*  | MJK 11.19.98 |  */
    if (off_screen_rendering){
@@ -3756,6 +3890,7 @@ int vis5d_init_data_end( int index )
    /* Read some or all of the grid data into main memory now.  If we */
    /* have enough memory, the whole file will be loaded.  Otherwise, */
    /* an arbitrary set of grids will be loaded. */
+
    if (ctx->PreloadCache) {
       preload_cache(ctx);
    }
@@ -3778,9 +3913,11 @@ int vis5d_init_data_end( int index )
       if (!setup_ctx_dtx_projection( ctx )) {
          return VIS5D_FAIL;
       }
+
       if (!setup_ctx_dtx_vertical_system( ctx )) {
          return VIS5D_FAIL;
       }
+
       init_trajPRIME(ctx->dpy_ctx);
 
       make_box( ctx->dpy_ctx, ctx->dpy_ctx->Ax, ctx->dpy_ctx->Ay, ctx->dpy_ctx->Az );
@@ -4498,7 +4635,6 @@ int vis5d_get_ctx_numvars( int index, int *numvars )
    else{
       *numvars = 0;
    }
-   printf("numvars=%d\n",*numvars);
 
    return 0;
 }
@@ -5889,10 +6025,25 @@ int vis5d_signal_redraw( int index, int count )
    return 0;
 }
 
+int vis5d_set_verbose_level(int level)
+{
+  vis5d_verbose = level;
+  return vis5d_verbose;
+}
+
 
 int vis5d_check_redraw( int index, int *redraw )
 {
-  DPY_CONTEXT("vis5d_check_redraw"); 
+  /*  DPY_CONTEXT("vis5d_check_redraw"); */
+
+  Display_Context dtx; 
+
+  if(vis5d_verbose & VERBOSE_REDRAW) printf("in c vis5d_check_redraw\n");
+  if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS || (dtx = dtx_table[index])==NULL) { 
+    printf("bad display_context in vis5d_check_redraw %d 0x%x\n",  index, dtx); 
+    debugstuff(); 
+    return VIS5D_BAD_CONTEXT; 
+  }
 
    *redraw = dtx->Redraw;
    return 0;
@@ -6938,6 +7089,9 @@ int vis5d_get_matrix( int index, float ctm[4][4] )
 }
 
 
+
+
+
 /*
  * Set the view to either North, South, East, West, Top, or Bottom.
  * Input:  view - one of VIS5D_NORTH, VIS5D_SOUTH, .. VIS5D_BOTTOM
@@ -7940,18 +8094,21 @@ int vis5d_set_hslice( int index, int var, float interval,
    if (var<0 || var>=ctx->NumVars) {
       return VIS5D_BAD_VAR_NUMBER;
    }
-   if (ctx->dpy_ctx->Nl==1) {
+
+   /* why do we need this if statement ? */
+	/*   if (ctx->dpy_ctx->Nl==1) { */
       maxlev = ctx->dpy_ctx->MaxNl-1;
-   }
+		/*   }
    else {
       maxlev = ctx->dpy_ctx->MaxNl-1;
-   }
+		}*/
    if (level<0.0) {
       level = 0.0;
    }
    else if (level>maxlev) {
       level = maxlev;
    }
+
    ctx->HSliceInterval[var] = interval;
    ctx->HSliceLowLimit[var] = low;
    ctx->HSliceHighLimit[var] = high;
@@ -9170,35 +9327,6 @@ int vis5d_save_window( char *filename, int format )
 #endif
 
    return VIS5D_FAIL;
-}
-
-int vis5d_save_snd_window( int index, char *filename, int format )
-{
-   int back;
-   DPY_CONTEXT("vis5d_save_snd_window")
-
-   back = dtx->DisplaySound;
-
-   dtx->DisplaySound = 1;
-   if (filename[0]==0) {
-      /* no filename! */
-      return VIS5D_FAIL;
-   }
-   vis5d_map_sndwindow( index );
-   vis5d_draw_sounding_only( index, 1);
-   vis5d_draw_sounding_only( index, 1);
-
-   if (save_snd_window( dtx, filename, format )){
-      return 0;
-   }
-   else {
-      return VIS5D_FAIL;
-   }
-   dtx->DisplaySound = back;
-   if (!dtx->DisplaySound){
-      vis5d_unmap_sndwindow( index );
-   }
-   return 0;
 }
 
 int vis5d_save_to_v5dfile( int index, char *filename)

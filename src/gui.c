@@ -11945,4 +11945,37 @@ int vis5d_unmap_sndwindow( int index )
    return 0;
 }
 
+int vis5d_save_snd_window( int index, char *filename, int format )
+{
+   int back;
+
+	Display_Context dtx;
+
+	dtx = vis5d_get_dtx(index);
+
+   back = dtx->DisplaySound;
+
+   dtx->DisplaySound = 1;
+   if (filename[0]==0) {
+      /* no filename! */
+      return VIS5D_FAIL;
+   }
+   vis5d_map_sndwindow( index );
+   vis5d_draw_sounding_only( index, 1);
+   vis5d_draw_sounding_only( index, 1);
+
+   if (save_snd_window( dtx, filename, format )){
+      return 0;
+   }
+   else {
+      return VIS5D_FAIL;
+   }
+   dtx->DisplaySound = back;
+   if (!dtx->DisplaySound){
+      vis5d_unmap_sndwindow( index );
+   }
+   return 0;
+}
+
+
 /* MJK 12.10.98 end - moved from api.c 09.27.00 JPE*/

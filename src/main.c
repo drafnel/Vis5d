@@ -1388,6 +1388,11 @@ main( int argc, char *argv[] )
       }
    }
 
+	/*
+   vis5d_set_verbose_level(16);
+	*/
+
+
    /* MJK 11.19.98 */         
 #ifdef HAVE_OPENGL
    if (off_screen_rendering && script == NULL){

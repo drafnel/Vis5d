@@ -54,6 +54,7 @@
 #include "xdump.h"
 
 
+extern int vis5d_verbose;
 /*
  * Private OpenGL variables:
  */
@@ -65,7 +66,7 @@ static int pretty_flag = 0;
 #define TMP_XWD "tmp.xwd"
 #define TMP_RGB "tmp.rgb"
 
-#define GLBEGINNOTE  /*printf("calling glbegin at line %d\n",__LINE__);*/
+#define GLBEGINNOTE  if(vis5d_verbose & VERBOSE_OPENGL) printf("calling glbegin at line %d\n",__LINE__);
 
 /* Accumulation buffer antialiasing */
 /* JPE: Not used anywhere - tell me if I am wrong: jedwards@inmet.gov.br
@@ -1983,11 +1984,15 @@ void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
    glShadeModel( GL_FLAT );
    glDisable( GL_DITHER );
+	if(vis5d_verbose & VERBOSE_OPENGL) printf("draw_disjoint_lines %d\n",n);
    GLBEGINNOTE glBegin( GL_LINES );
-   for (i=0;i<n;i+=2 ) {
+	/*   
+      no need to step by two!
+      for (i=0;i<n;i+=2 ) {
       glVertex3sv( verts[i] );
       glVertex3sv( verts[i+1] );
-   }
+		}   */
+	for(i=0;i<n;i++) glVertex3sv(verts[i]);
    glEnd();
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );

@@ -659,7 +659,6 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
       /* use same topography resolution as grid resolution */
       qc = dtx->Topo_cols;
       qr = dtx->Topo_rows;
-		printf("one way %d %d\n",qr,qc);
    }
    else {
       int maxverts = hi_res ? HI_RES_VERTS : LO_RES_VERTS;

@@ -310,10 +310,12 @@ int set_ctx_from_internalv5d(Context ctx)
    for (var=0;var<ctx->NumVars;var++) {
       ctx->Nl[var] = ctx->G.Nl[var];
       ctx->LowLev[var] = ctx->G.LowLev[var];
+
       if (ctx->Nl[var]+ctx->LowLev[var]>ctx->MaxNl) {
          ctx->MaxNl = ctx->Nl[var]+ctx->LowLev[var];
          ctx->MaxNlVar = var;
       }
+
       strncpy( ctx->VarName[var], ctx->G.VarName[var], 8 );
       strncpy( ctx->Units[var], ctx->G.Units[var], 19 );
       ctx->MinVal[var] = ctx->G.MinVal[var];
@@ -460,7 +462,9 @@ int init_grid_cache( Context ctx, int maxbytes, float *ratio )
       printf("Error: out of memory.  Couldn't allocate cache table.\n");
       return 0;
    }
-
+	/*
+   printf("allocated %d bytes for GridCache\n",ctx->MaxCachedGrids* sizeof(struct cache_rec) );
+	*/
    ctx->CacheClock = 1;
 
    /* Initialize tables */
@@ -474,6 +478,9 @@ int init_grid_cache( Context ctx, int maxbytes, float *ratio )
       ctx->GridCache[i].Timestep = 0;
       ctx->GridCache[i].Var = 0;
    }
+	/*
+   printf("allocated %d for GridCache Data\n",ctx->MaxCachedGrids*gridsize);
+	*/
    for (it=0;it<ctx->NumTimes;it++) {
       for (iv=0;iv<MAXVARS;iv++) {
          ctx->GridTable[it][iv].CachePos = -1;

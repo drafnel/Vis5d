@@ -1699,8 +1699,6 @@ static int read_v5d_header( v5dstruct *v )
          case TAG_NUMVARS:
             assert( length==4 );
             read_int4( f, &v->NumVars );
-
-				printf("v5d numvars = %d\n",v->NumVars);
             break;
          case TAG_VARNAME:
             assert( length==14 );   /* 1 int + 10 char */
@@ -2656,7 +2654,8 @@ int v5dCreateStruct(v5dstruct *v, int numtimes, int numvars,
    v->VerticalSystem = vertical;
    if (vertical == 3) {
      /* convert pressures to heights */
-     for (i=0; i<MAXVERTARGS; i++) {
+	  /*JPE removed - overkill     for (i=0; i<MAXVERTARGS; i++) { */
+     for (i=0; i< maxnl; i++) {
        if (vert_args[i] > 0.000001) {
          v->VertArgs[i] = pressure_to_height(vert_args[i]);
        }

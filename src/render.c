@@ -57,7 +57,7 @@
 #include "volume.h"
 #include "v5d.h"
 
-
+extern int vis5d_verbose;
 
 #define MAX(A,B)  ( (A) > (B) ? (A) : (B) )
 #define MIN(A,B)  ( (A) < (B) ? (A) : (B) )
@@ -229,7 +229,7 @@ char *return_var_plus_index( char *varname, int index )
    char* whole;
 
    char num[40];
-   int length;
+
 
    /* WLH 20 Oct 98 */
    whole = (char *) malloc(40);
@@ -827,7 +827,7 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
 
 static void render_hclips( Display_Context dtx, int animflag)
 {
-   int i, lock;
+  int i;
    for (i = 0; i < 2; i++){
       if (dtx->HClipTable[i].highlight == 1){
          set_color( PACK_COLOR(100,25,240,255));
@@ -854,7 +854,7 @@ static void render_hclips( Display_Context dtx, int animflag)
 
 static void render_vclips( Display_Context dtx, int animflag)
 {
-   int i, lock;   
+   int i;
    for (i = 0; i < 4; i++){
       if (dtx->VClipTable[i].highlight == 1){
          set_color( PACK_COLOR(100,25,240,255));
@@ -905,7 +905,6 @@ static void render_textplots( Irregular_Context itx, int time)
 {
    int var;
    float a, b, c, d;
-   static int do_once = 0;
 
    vis5d_get_text_plot(itx->context_index, &var, &a, &b, &c, &d);
    if (itx->DisplayTextPlot && itx->TextPlotTable[time].valid){
@@ -934,6 +933,8 @@ static void render_textplots( Irregular_Context itx, int time)
 static void render_hslices( Context ctx, int time, int labels, int animflag )
 {
    int var, lock;
+
+   if(vis5d_verbose & VERBOSE_RENDER) printf("render_hslices %d %d %d\n",time,labels,animflag);
 
    for (var=0;var<ctx->NumVars;var++) {
       if (ctx->DisplayHSlice[var] && ctx->HSliceTable[var][time].valid) {
@@ -981,7 +982,7 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
          /* MJK 12.01.98 */
          if (!ctx->DisplaySfcHSlice[var]){
             if (ctx->dpy_ctx->DisplayBox && !ctx->dpy_ctx->CurvedBox) {
-               float l, z, h;
+				  float l, z;
                l =  ctx->HSliceLevel[var];
                z = height_to_zPRIME( ctx->dpy_ctx, ctx->HSliceHgt[var]);   
                clipping_off();
@@ -1005,7 +1006,7 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
 static void render_vslices( Context ctx, int time, int labels, int animflag )
 {
    int var, lock;
-   float r1, r2, c1, c2, l, x1, x2,y1,y2,z1,z2,hgt1,hgt2;
+   float x1, x2,y1,y2,z1,z2;
    float r1p, r2p, c1p, c2p, lp;
 
    for (var=0;var<ctx->NumVars;var++) {
@@ -1189,7 +1190,7 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
 static void render_cvslices( Context ctx, int time, int tf, int animflag )
 {
    int var, alpha, lock;
-   float r1, r2, c1, c2, l, x1, x2,y1,y2,z1,z2,hgt1,hgt2;
+   float x1, x2,y1,y2,z1,z2;
    float r1p, r2p, c1p, c2p, lp;
    Display_Context dtx;
 
@@ -1366,7 +1367,7 @@ static void render_vwind_slices( Context ctx, int time, int animflag )
 {
    int w, lock;
    Display_Context dtx;
-   float r1, r2, c1, c2, l, x1, x2,y1,y2,z1,z2,hgt1,hgt2;
+   float x1, x2,y1,y2,z1,z2;
    float r1p, r2p, c1p, c2p, lp;
 
    dtx = ctx->dpy_ctx;
@@ -1669,7 +1670,7 @@ static void draw_clock( Display_Context dtx, unsigned int c )
    float clk_size, clk_margin, clk_radius, clk_center_x, clk_center_y;
    char str[12];
    int i, time_str_width;
-   int yo, stime, stimeold, dtime, dtimeold, spandex;
+   int stime, stimeold, dtime, dtimeold;
 
    clk_size     = 4*(dtx->FontHeight+VSPACE);
    clk_margin   = clk_size / 16.0;
@@ -1734,7 +1735,7 @@ static void draw_clock( Display_Context dtx, unsigned int c )
      sprintf( str, "%05d", v5dDaysToYYDDD( dtimeold ));
    }
    else {
-     int iy, im, id, days, day, mon;
+     int iy, im, id, days, mon;
      days = dtimeold;
 
      /* next two lines from from v5dDaysToYYDDD */
@@ -1971,10 +1972,8 @@ static void draw_probe( Display_Context dtx )
  */
 int draw_legend( Context ctx, int varowner, int var, int type, int xleft, int ybot )
 {
-   int   y, yoffset,
-         width,
+   int   y, 
          lutindex,
-         tickspacing,
          textwidth;
    int tick;
    short cline[2][2];
@@ -2085,8 +2084,6 @@ int draw_legend( Context ctx, int varowner, int var, int type, int xleft, int yb
    /* Draw values and tick marks on the right hand side of the legend */
    textwidth = 0;
 
-   tickspacing = 4*legend_height/(dtx->FontHeight);
-
    /* Make sure we have a tick at the top of the legend @@ */
 
    cline[0][0] += TICK_LENGTH + legend_width;
@@ -2150,12 +2147,11 @@ static void draw_color_legends( Display_Context dtx )
    int left;      /* Left x position of current legend */
    int bottom;    /* Bottom y position of current legend */ 
    int inc, vert;
-   int vindex, dindex;
+   int vindex;
    int ctxnum, cvar, cvowner;
    Context ctx;
 
-   
-   dindex = dtx->dpy_context_index;
+
    if (dtx->LegendPosition == VIS5D_BOTTOM) {
      left = 50+dtx->LegendMarginX;
      bottom  = dtx->WinHeight - 20 + dtx->LegendMarginY;
@@ -2327,7 +2323,7 @@ static void draw_user_2d_graphics( Display_Context dtx )
  */
 void render_3d_only( Display_Context dtx, int animflag )
 {
-   int yo, spandex, ctime, labels, i;
+   int yo,  labels, i;
    Context ctx;
    Irregular_Context itx;
 
@@ -2395,13 +2391,11 @@ void render_3d_only( Display_Context dtx, int animflag )
       clipping_on();
 
       for (yo = 0; yo < dtx->numofitxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          itx = dtx->itxpointerarray[yo];
          render_textplots( itx, itx->CurTime);
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){
             render_hslices( ctx, ctx->CurTime, labels, animflag );
@@ -2409,7 +2403,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){
             render_vslices( ctx, ctx->CurTime, labels, animflag );
@@ -2417,7 +2410,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){
             render_hwind_slices( ctx, ctx->CurTime, animflag );
@@ -2425,7 +2417,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){         
             render_vwind_slices( ctx, ctx->CurTime, animflag );
@@ -2433,7 +2424,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
       
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo]; 
          if (check_for_valid_time(ctx, dtx->CurTime)){         
             render_hstream_slices( ctx, ctx->CurTime, animflag );
@@ -2441,7 +2431,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
       
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo]; 
          if (check_for_valid_time(ctx, dtx->CurTime)){         
             render_vstream_slices( ctx, ctx->CurTime, animflag );
@@ -2492,7 +2481,6 @@ void render_3d_only( Display_Context dtx, int animflag )
 
 
       for (yo= 0; yo < dtx->numofctxs; yo++){      
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];      
          ctx = dtx->ctxpointerarray[yo];       
          if (check_for_valid_time(ctx, dtx->CurTime)){
             render_trajectories( ctx, ctx->CurTime, 1);
@@ -2500,7 +2488,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }     
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){
             render_isosurfaces( ctx, dtx->CurTime, ctx->CurTime, 1, animflag );
@@ -2508,7 +2495,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){
             render_chslices( ctx, ctx->CurTime, 1, animflag );
@@ -2516,7 +2502,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){
             render_cvslices( ctx, ctx->CurTime, 1, animflag );
@@ -2530,7 +2515,6 @@ void render_3d_only( Display_Context dtx, int animflag )
 
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_trajectories( ctx, ctx->CurTime, 0);
@@ -2538,7 +2522,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_isosurfaces( ctx, dtx->CurTime, ctx->CurTime, 0, animflag );
@@ -2546,7 +2529,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_chslices( ctx, ctx->CurTime, 0, animflag );
@@ -2554,7 +2536,6 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
 
       for (yo= 0; yo < dtx->numofctxs; yo++){
-         spandex = dtx->TimeStep[dtx->CurTime].owners[yo];
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_cvslices( ctx, ctx->CurTime, 0, animflag );
@@ -2674,7 +2655,6 @@ void render_sounding_only( Display_Context dtx, int pixmapflag )
  */
 void render_everything( Display_Context dtx, int animflag )
 {
- static int num = 0;   
 
    if (get_frame(dtx, dtx->CurTime)) {
       return;

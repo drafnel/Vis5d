@@ -3,7 +3,7 @@
 #  Currently the vis5d gtk interface is built locally but not installed
 #
 
-INCLUDES = -I./gradients \
+INCLUDES = -I$(top_srcdir)/gtk/gradients \
 	-I$(top_srcdir)/intl \
 	@GTK_CFLAGS@
 

@@ -1377,7 +1377,7 @@ main( int argc, char *argv[] )
         verylarge[filepointer] = atoi(argv[i+1]);
         i++;
       }
- #ifdef	HAVE_MIXKIT
+#ifdef	HAVE_MIXKIT
 		else if (strcmp(argv[i],"-vstride")==0 && i+1<argc) {
 		  vstride[filepointer] = atoi( argv[i+1] );
 		  if (vstride[filepointer] < 1) vstride[filepointer] = 1;

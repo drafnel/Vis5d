@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.31 $)
+AC_REVISION($Revision: 1.32 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(vis5d+, 1.2.0)
 
@@ -44,6 +44,10 @@ dnl
 dnl Because of autogen.sh pickiness, lines inside the if cannot be indented
 dnl
 ALL_LINGUAS="pt_BR es"
+#
+# we need libintl.h to use NLS
+#
+AC_CHECK_HEADERS(libintl.h, , enable_nls="no" )
 AM_GNU_GETTEXT(use-libtool, need-ngettext)
 GTK_DIRS=
 if test "$usegtk" = "yes"; then

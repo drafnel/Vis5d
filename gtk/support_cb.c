@@ -7,7 +7,6 @@
 
 #include "api.h"
 #include "window3D.h"
-#include "HSC_interface.h"
 #include "support_cb.h"
 #include "interface.h"
 #include "support.h"

@@ -1992,8 +1992,18 @@ static void calc_hslice( Context ctx, int time, int var,
                                dtx->LowLev, levelPRIME, 1 );
    }
    
-   if (!slicedata)
+   if (!slicedata) {
+      release_grid( ctx, time, var, grid );
       return;
+   }
+
+   if ( interval == 0.0 ) {
+      printf(" Warning: Interval between contour lines is 0! Cannot draw.\n");
+      printf("          (Perhaps hslice has no valid values or values are constant.)\n");
+      deallocate( ctx, slicedata, -1 );
+      release_grid( ctx, time, var, grid );
+      return;
+   }
 
    /* compute an upper bound on the number of vertices that contour() 
       can return: */
@@ -2245,8 +2255,18 @@ static void calc_vslice( Context ctx, int time, int var,
                                    r1,c1,r2,c2, rows, cols, 1 );
    }
    
-   if (!slice)
+   if (!slice) {
+      release_grid( ctx, time, var, grid );
       return;
+   }
+
+   if ( interval == 0.0 ) {
+      printf(" Warning: Interval between contour lines is 0! Cannot draw.\n");
+      printf("          (Perhaps vslice has no valid values or values are constant.)\n");
+      deallocate( ctx, slice, -1 );
+      release_grid( ctx, time, var, grid );
+      return;
+   }
 
    /* compute an upper bound on the number of vertices that contour() 
       can return: */

@@ -1,16 +1,10 @@
 # eventually, build shared libraries too, once I figure out what files
 # would go into it.
 
-if VIS5DPLUS
-IMPORT_SRC_ADD = main_i.c ui_i.c
-else
-PRG = vis5d
-LIBGUI = libvis5dgui.a
-LIBLUI5 = ../lui5/liblui.a
-endif
 
-bin_PROGRAMS = $(PRG) v5dimport
-noinst_LIBRARIES = $(LIBGUI)
+
+bin_PROGRAMS = vis5d v5dimport
+noinst_LIBRARIES = libvis5dgui.a
 
 
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
@@ -30,7 +24,7 @@ IMPORT_SRC = analyze_i.c file_i.c grid_i.c \
          misc_i.c output_i.c proj_i.c projlist_i.c read_epa_i.c \
         read_gr3d_i.c read_grid_i.c read_grads_i.c read_uwvis_i.c read_v5d_i.c\
         resample_i.c select_i.c tokenize_i.c \
-         iapi.c file.c irregular_v5d.c $(IMPORT_SRC_ADD)
+         iapi.c file.c irregular_v5d.c 
 
 
 # when are these not used?
@@ -49,6 +43,8 @@ GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
           soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c  igui.c pipe.c \
           imain.c main_i.c ui_i.c
 libvis5dgui_a_SOURCES = $(GUI_SRC) 
+LIBLUI5 = ../lui5/liblui.a
+LIBGUI  = libvis5dgui.a
 
 vis5d_SOURCES = main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files

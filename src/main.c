@@ -1394,7 +1394,7 @@ main( int argc, char *argv[] )
          }
       }
 		else if (strcmp(argv[i],"-debug")==0){
-        vis5d_set_verbose_level(VERBOSE_ALL);
+        vis5d_set_verbose_level(32);
       }
       else if (argv[i][0]!='-' ) {
          v5dfile[gopointer] = argv[i];

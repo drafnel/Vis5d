@@ -1,0 +1,215 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2001-07-25 11:04-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: ENCODING\n"
+
+#: src.gtk/interface.c:28
+msgid "Select File"
+msgstr ""
+
+#: src.gtk/interface.c:86
+msgid "Vis5D+"
+msgstr ""
+
+#: src.gtk/interface.c:111
+msgid "_File"
+msgstr ""
+
+#: src.gtk/interface.c:129
+msgid "_Open"
+msgstr ""
+
+#: src.gtk/interface.c:148
+msgid "E_xit"
+msgstr ""
+
+#: src.gtk/interface.c:157
+msgid "Options"
+msgstr ""
+
+#: src.gtk/interface.c:171
+msgid "Map"
+msgstr ""
+
+#: src.gtk/interface.c:180
+msgid "Box"
+msgstr ""
+
+#: src.gtk/interface.c:189
+msgid "Clock"
+msgstr ""
+
+#: src.gtk/interface.c:197
+msgid "Topo"
+msgstr ""
+
+#: src.gtk/interface.c:213
+msgid "Preferences"
+msgstr ""
+
+#: src.gtk/interface.c:255
+msgid "label46"
+msgstr ""
+
+#: src.gtk/interface.c:357
+msgid "Vis5d+ Graphics"
+msgstr ""
+
+#: src.gtk/interface.c:395
+msgid "Latitude Slice"
+msgstr ""
+
+#: src.gtk/interface.c:403
+msgid "Longitude Slice"
+msgstr ""
+
+#: src.gtk/interface.c:425
+msgid "Value:"
+msgstr ""
+
+#: src.gtk/interface.c:441
+msgid "Units"
+msgstr ""
+
+#: src.gtk/interface.c:449
+msgid "Snap to Grid"
+msgstr ""
+
+#: src.gtk/interface.c:456
+msgid "Orientation"
+msgstr ""
+
+#: src.gtk/interface.c:470
+msgid "Contour Values\n"
+msgstr ""
+
+#: src.gtk/interface.c:484
+msgid "Minimum"
+msgstr ""
+
+#: src.gtk/interface.c:495
+msgid "Maximum"
+msgstr ""
+
+#: src.gtk/interface.c:506
+msgid "Interval"
+msgstr ""
+
+#: src.gtk/interface.c:558
+msgid "Reset to Defaults"
+msgstr ""
+
+#: src.gtk/interface.c:565
+msgid "Values"
+msgstr ""
+
+#: src.gtk/interface.c:580 src.gtk/interface.c:616
+msgid "Colors"
+msgstr ""
+
+#: src.gtk/interface.c:588
+msgid "Shaded"
+msgstr ""
+
+#: src.gtk/interface.c:602
+msgid "Select Color"
+msgstr ""
+
+#: src.gtk/interface.c:609
+msgid "Select Color Table"
+msgstr ""
+
+#: src.gtk/interface.c:623
+msgid "Horizontal Contour"
+msgstr ""
+
+#: src.gtk/interface.c:634
+msgid "Vertical Contour"
+msgstr ""
+
+#: src.gtk/interface.c:645
+msgid "IsoSurface"
+msgstr ""
+
+#: src.gtk/interface.c:656
+msgid "Volume"
+msgstr ""
+
+#: src.gtk/interface.c:705
+msgid "Vis5d+ Preferences"
+msgstr ""
+
+#: src.gtk/interface.c:746
+msgid "MAP FILE:"
+msgstr ""
+
+#: src.gtk/interface.c:757
+msgid "TOPO FILE:"
+msgstr ""
+
+#: src.gtk/interface.c:768 src.gtk/interface.c:777
+msgid "Browse"
+msgstr ""
+
+#: src.gtk/interface.c:786
+msgid "Map and Topo"
+msgstr ""
+
+#: src.gtk/interface.c:797
+msgid "label34"
+msgstr ""
+
+#: src.gtk/interface.c:808
+msgid "label35"
+msgstr ""
+
+#: src.gtk/interface.c:822
+msgid "Okay"
+msgstr ""
+
+#: src.gtk/interface.c:830
+msgid "Cancel"
+msgstr ""
+
+#: src.gtk/interface.c:865
+msgid "Variables"
+msgstr ""
+
+#: src.gtk/interface.c:893
+msgid "label38"
+msgstr ""
+
+#: src.gtk/callbacks.c:58
+msgid "Open Data File"
+msgstr ""
+
+#: src.gtk/callbacks.c:938
+#, c-format
+msgid "Open %s File"
+msgstr ""
+
+#: src.gtk/callbacks.c:1034
+#, c-format
+msgid "Contours of %s from %4.4g to %4.4g by %4.4g at %4.4g MB"
+msgstr ""
+
+#: src.gtk/support.c:121
+#, c-format
+msgid "Couldn't find pixmap file: %s"
+msgstr ""
+
+#: src.gtk/support.c:130
+#, c-format
+msgid "Error loading pixmap file: %s"
+msgstr ""

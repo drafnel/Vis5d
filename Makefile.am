@@ -1,4 +1,4 @@
-SUBDIRS = lui5 src util doc
+SUBDIRS = lui5 src util doc po intl gtk
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts userfuncs
 
 #

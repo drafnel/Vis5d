@@ -1,9 +1,11 @@
 AC_INIT
 AC_PREREQ(2.52)
 AC_CONFIG_SRCDIR([src/v5d.c])
-AM_INIT_AUTOMAKE(vis5d+, 1.1.1a1)
+AM_INIT_AUTOMAKE(vis5d+, 1.1.1a2)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
+
+AC_ARG_ENABLE(gtk, [  --enable-gtk            compile gtk user interface (NEW)], usegtk=$enableval, usegtk=no)
 
 ##########################################################################
 AC_ARG_ENABLE(debug, [  --enable-debug          compile for debugging], ok=$enableval, ok=no)
@@ -35,6 +37,40 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
+
+if test "$usegtk" = "yes"; then
+  AM_PATH_GTK(1.2.9, ,
+            AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
+
+  dnl Add the languages which your application supports here.
+  ALL_LINGUAS=""
+  AM_GNU_GETTEXT
+
+  GTK_DIRS="po intl gtk"
+else
+  GTK_DIRS=
+fi
+AC_SUBST(GTK_DIRS)
+dnl Set VIS5D_LOCALE_DIR in config.h.
+if test "x${prefix}" = "xNONE"; then
+  AC_DEFINE_UNQUOTED(VIS5D_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale",[directory containing message catalogs])
+else
+  AC_DEFINE_UNQUOTED(VIS5D_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
+fi
+
+dnl Set VIS5D_SOURCE_DIR in config.h.
+packagesrcdir=`cd $srcdir && pwd`
+AC_DEFINE_UNQUOTED(VIS5D_SOURCE_DIR, "${packagesrcdir}",[where the source was built])
+
+dnl Use -Wall if we have gcc.
+changequote(,)dnl
+if test "x$GCC" = "xyes"; then
+  case " $CFLAGS " in
+  *[\ \	]-Wall[\ \	]*) ;;
+  *) CFLAGS="$CFLAGS -Wall" ;;
+  esac
+fi
+changequote([,])dnl
 
 AC_CHECK_PROG(DB2HTML, db2html, db2html, ../missing db2html)
 AC_CHECK_PROG(DB2DVI, db2dvi, db2dvi, ../missing db2dvi)
@@ -422,11 +458,11 @@ AC_SUBST(OPT_UTILS)
 
 dnl
 dnl These lines cause the Makefile.am in the src.vis5d
-dnl directory to realize that it is part of the old lui5 distribution
-dnl rather than the new gtk distribution 
+dnl directory to realize the new gtk distribution 
+dnl rather than the old lui5 one
 dnl
-
-VIS5DPLUS=
-AM_CONDITIONAL(VIS5DPLUS, test -n "$VIS5DPLUS" )
-AC_CONFIG_FILES([Makefile src/Makefile lui5/Makefile util/Makefile doc/Makefile])
+if test "$usegtk" = "yes"; then
+AC_CONFIG_FILES([gtk/Makefile po/Makefile intl/Makefile])
+fi
+AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile ])
 AC_OUTPUT

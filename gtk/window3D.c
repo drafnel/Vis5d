@@ -65,7 +65,7 @@ on_open1_activate                      (GtkMenuItem     *menuitem,
   }else{
 	 window3D=lookup_widget(GTK_WIDGET (menuitem),"window3D");
   }
-
+  
   gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"window3D" , window3D);
 
   gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" , "data");

@@ -339,19 +339,11 @@ int close_ppm_file(void)
    /* tranfer data from dataR, dataG, dataB */
    /* to file                               */
    /*****************************************/
-#ifndef WORDS_BIGENDIAN
-   for (i=0; i<big_x * big_y; i++){
-      fputc(dataB[i], f);
-      fputc(dataG[i], f);
-      fputc(dataR[i], f);
-   }
-#else 
    for (i=0; i<big_x * big_y; i++){
       fputc(dataR[i], f);
       fputc(dataG[i], f);
       fputc(dataB[i], f);
    }
-#endif
    fputc(EOF, f);
    if (fclose(f)==EOF){
       printf("Could not close output ppm file\n");

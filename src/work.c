@@ -2037,9 +2037,11 @@ static void calc_hslice( Context ctx, int time, int var,
      base = low;
 
    /* call contouring routine */
+#ifdef USE_SYSTEM_FONTS
 	if(slice->labels)
 	  free(slice->labels);
 	slice->labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+#endif
 
    contour_ok =
      contour( ctx, slicedata, dtx->Nr, dtx->Nc, interval, low, high, base,
@@ -2310,9 +2312,12 @@ static void calc_vslice( Context ctx, int time, int var,
    else
      base = low;
    /* call contouring routine */
+#ifdef USE_SYSTEM_FONTS
 	if(ctx->VSliceTable[var][time].labels)
 	  free(ctx->VSliceTable[var][time].labels);
 	ctx->VSliceTable[var][time].labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+#endif
+
    contour_ok =	contour( ctx, slice, rows, cols, interval, low, high, base,
 		 vr1, vc1, max_cont_verts, &num1,
 		 vr2, vc2, max_cont_verts/2, &num2,

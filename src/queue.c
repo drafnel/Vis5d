@@ -42,6 +42,7 @@
 #include "sync.h"
 #include "work.h"
 #include "memory.h"
+#include "graphics.h"
 
 #define QSIZE 3000
 

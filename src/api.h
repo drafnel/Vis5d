@@ -143,6 +143,7 @@ extern "C" {
 #define VIS5D_PROBE_ON_TRAJ    540
 #define VIS5D_TEXTURE_COLORS   550
 #define VIS5D_FILL_STYLE       560
+#define VIS5D_LINE_STIPPLE     570
 
 
 /* These are the defines used in the function
@@ -185,6 +186,13 @@ extern "C" {
 #define BACK     5
 #define FRONT    6
 
+typedef enum{
+	 VIS5D_SOLID_LINE=65535,
+		VIS5D_DOTTED_LINE=43690,
+		VIS5D_DASHED_LINE=30583,
+		VIS5D_DOTDASHED_LINE=43519,
+		VIS5D_LONGDASHED_LINE=16191
+} stipplepatterns;
 
 /* Variable types: */
 #define VIS5D_REGULAR         90
@@ -731,6 +739,8 @@ extern int vis5d_get_linewidth( int index, float *width );
 
 extern int vis5d_gl_setup( int index, long win_id,
                                   int width, int height );
+
+
 
 
 

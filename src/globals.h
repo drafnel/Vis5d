@@ -259,7 +259,7 @@ struct hslice {
   float  highlimit;         /* highest level to contour */
   float  level;             /* position of slice in grid levels */
 #ifdef USE_GLLISTS
-  GLuint glList[4]; /* 0=contour lines 1=hidden contour lines 2=labels 4=box */
+  GLuint glList[4];  /*(4 lists here) 0=contour lines 1=hidden contour lines 2=labels 3=box */
 #else
   int    num1;              /* number of line segment vertices */
   int_2  *verts1;           /* array [num1][3] of int_2 vertices */
@@ -285,6 +285,7 @@ typedef struct {
   float Hgt;
   int fillstyle;
   int textureflag;  /* use texture objects for color ? */
+  int stipple;
 #ifdef USE_GLLISTS
   GLuint textureobject;
 #endif
@@ -308,6 +309,7 @@ typedef struct {
   float Lon2;
   int textureflag; /* use texture objects for color ? */
   int fillstyle;
+  int stipple;
 #ifdef USE_GLLISTS
   GLuint textureobject;
 #endif
@@ -1003,7 +1005,11 @@ struct display_context {
    int DisplayMap;       /* display map? */
    int DisplayTexture;   /* display texture images? */
    int CoordFlag;        /* coordinate display units:  0=geographic, 1=grid */
-   int DisplayBox;       /* Display 3-D box? */
+#ifdef USE_GLLISTS
+   GLuint DisplayBox;       /* Display 3-D box? */
+#else
+  int DisplayBox;
+#endif
    int DisplayClock;     /* Display clock? */
    int PrettyFlag;       /* 'Pretty' rendering mode? */
    int DisplayInfo;      /* Display information? */
@@ -1216,6 +1222,11 @@ struct vis5d_context {
    int WindLow;           /* Max of LowLev[Uvar], LowLev[Vvar], LowLev[Wvar] */
    int NumTimes;                /* Number of time steps */
    int NumVars;                 /* Number of variables */
+
+
+  GLuint DataGridList;
+
+
 
   vis5d_variable *Variable[MAXVARS];
 

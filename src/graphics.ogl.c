@@ -348,7 +348,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       glFogi( GL_FOG_MODE, GL_LINEAR );
       glFogfv( GL_FOG_COLOR, fog_color );
    }
-	scalelist = glGenLists(1);
+	scalelist = v5d_glGenLists(1);
 	glNewList(scalelist,GL_COMPILE);
 	glPushMatrix();
    glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
@@ -671,7 +671,7 @@ int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx)
 	 return 0;
   }
 
-  gfx->fontbase = glGenLists( gfx->font->max_char_or_byte2 );
+  gfx->fontbase = v5d_glGenLists( gfx->font->max_char_or_byte2 );
 
   glXUseXFont( gfx->font->fid, 0,
                gfx->font->max_char_or_byte2, gfx->fontbase );
@@ -1595,7 +1595,7 @@ void generate_isosurface( int n,
   int i;
 
   if(*list<=0){
-	 *list = glGenLists(1);
+	 *list = v5d_glGenLists(1);
 	 if(*list==0)
 		check_gl_error("generate_isosurface");
   }
@@ -1643,7 +1643,7 @@ void draw_isosurface( int n,
 	  set_transparency( UNPACK_ALPHA(color) );
 	}else{
 	  if(*list<=0){
-		 *list = glGenLists(1);
+		 *list = v5d_glGenLists(1);
 		 if(*list==0)
 			check_gl_error("draw_color_quadmesh");
 	  }
@@ -1858,13 +1858,16 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
   register int i, j, base1, base2;
   if(list!=NULL){
 	if(list[0]<=0){
-	  list[0] = glGenLists(1);
+	  list[0] = v5d_glGenLists(1);
 	  if(list[0]==0)
 		 check_gl_error("draw_color_quadmesh");
 	}
 	glNewList(list[0], listtype);
 	
   }
+
+  printf("textureflag = %d\n",texture_method);							  									  
+
   if(texture_method){
 	 glBindTexture(GL_TEXTURE_1D, list[1] );
 
@@ -2053,11 +2056,14 @@ void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list)
 
 
   if(*list<=0){
-	 *list = glGenLists(1);
+	 *list = v5d_glGenLists(1);
 	 if(*list==0)
 		check_gl_error("generate_disjoint_lines");
   }
   glNewList(*list,GL_COMPILE);
+  glPushMatrix();
+  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+
   glPushAttrib(GL_LIST_BIT);
   for(i=0;i<n;i++){
 	 len = strlen(str);
@@ -2066,6 +2072,7 @@ void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list)
 	 str+=(len+1);
   }
   glPopAttrib();
+  glPopMatrix();
   glEndList();
 }	 
   
@@ -2078,9 +2085,8 @@ void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuin
   /* TODO: How to make the area behind the string opaque? */
 
   glColor4ubv( (GLubyte *) &color );
-  	glPushMatrix();
-   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-	
+  glPushMatrix();
+  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
   
   glPushAttrib(GL_LIST_BIT);
   
@@ -2088,14 +2094,6 @@ void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuin
 
   for(i=0;i<n;i++){
 	 len = strlen(str);
-	 /*
-	 int width = text_width(font, str[i]);
-	 box[0] = verts[i];
-	 box[1] = 
-	 glBegin(GL_QUADS);
-	 glVertex3sv()
-					 glEnd();
-	 */
 	 glRasterPos3sv(verts[i]);
 	 glCallLists(len, GL_UNSIGNED_BYTE, (GLubyte *) str);
 	 str+=(len+1);
@@ -2109,7 +2107,7 @@ void generate_disjoint_lines(int n, int_2 verts[][3], GLuint *list )
   int i;
 
   if(*list<=0){
-	 *list = glGenLists(1);
+	 *list = v5d_glGenLists(1);
 	 if(*list==0)
 		check_gl_error("generate_disjoint_lines");
   }
@@ -2133,7 +2131,7 @@ void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color,
 	  glColor4ubv( (GLubyte *) &color );
    }else{
 	  if(*list<=0){
-		 *list = glGenLists(1);
+		 *list = v5d_glGenLists(1);
 		 if(*list==0)
 			check_gl_error("generate_disjoint_lines");
 	  }
@@ -2273,7 +2271,7 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
 
   
     /* Make Sounding_cursor vertical line */
-      sounding_cursor = glGenLists(1);
+      sounding_cursor = v5d_glGenLists(1);
       glNewList( sounding_cursor, GL_COMPILE );
       glLineWidth(3.0); 
       GLBEGINNOTE glBegin( GL_LINES );
@@ -2291,7 +2289,7 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
  
 
     /* Make line-segment cursor object */
-      line_cursor = glGenLists(1);
+      line_cursor = v5d_glGenLists(1);
       glNewList( line_cursor, GL_COMPILE );
       GLBEGINNOTE glBegin( GL_LINES );
       glVertex3f( -0.05, 0.0, 0.0 );
@@ -2304,7 +2302,7 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
       glEndList();
 
    /* Makt polygona cursor object */
-      polygon_cursor = glGenLists(1);
+      polygon_cursor = v5d_glGenLists(1);
       glNewList( polygon_cursor, GL_COMPILE );
       GLBEGINNOTE glBegin( GL_QUADS );
       /* X axis */
@@ -2359,13 +2357,31 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
 
 }
 
+GLuint v5d_glGenLists(GLsizei  cnt)
+{
+  GLuint listbase;
+  /* do not allow a list value of 1 - in this way we can signal 
+	  that a graphic is requested but has not been drawn */
+
+  listbase = glGenLists(cnt);
+  if(listbase == 1){
+	 listbase = glGenLists(cnt);
+	 glDeleteLists(1,cnt);
+  }
+  if(listbase==0){
+	 check_gl_error("v5d_glGenLists");
+  }
+  return listbase;
+
+}
+
 
 void generate_polyline( int n, float vert[][3], GLuint *list )
 {
    register int i;
 
 	if(*list<=0){
-	  *list = glGenLists(1);
+	  *list = v5d_glGenLists(1);
 	  if(*list==0)
 		 check_gl_error("generate_polyline");
 	}

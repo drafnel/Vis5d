@@ -1037,6 +1037,10 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
          }
          if (lock) {
             recent( ctx, HSLICE, var );
+				if(ctx->Variable[var]->HSliceRequest->stipple!=VIS5D_SOLID_LINE){
+				  glEnable(GL_LINE_STIPPLE);
+				  glLineStipple(1, (GLushort) ctx->Variable[var]->HSliceRequest->stipple);
+				}
 #ifdef USE_GLLISTS
 			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE]) );
 				glCallList(ctx->Variable[var]->HSliceTable[time]->glList[0]);
@@ -1053,6 +1057,7 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
 #  ifdef USE_GLLISTS
 				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[1]);
 
+				  glDisable(GL_LINE_STIPPLE);
 				  glListBase(ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase);
 				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[2]);
 
@@ -1064,11 +1069,12 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
                                     var][HSLICE], NULL, 0 );
 
 
-				  plot_strings( ctx->Variable[var]->HSliceTable[time]->num3, 
-									 ctx->Variable[var]->HSliceTable[time]->labels,
-									 ctx->Variable[var]->HSliceTable[time]->verts3,
-									 ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE],
-									 ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
+					glDisable(GL_LINE_STIPPLE);
+					plot_strings( ctx->Variable[var]->HSliceTable[time]->num3, 
+									  ctx->Variable[var]->HSliceTable[time]->labels,
+									  ctx->Variable[var]->HSliceTable[time]->verts3,
+									  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE],
+									  ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
 #  endif
 #else
 #  ifdef USE_GLLISTS
@@ -1097,6 +1103,7 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
             }
 
             /* draw the bounding box */
+				glDisable(GL_LINE_STIPPLE);
             /* MJK 12.01.98 */
             if (!ctx->DisplaySfcHSlice[var]){
 #ifdef USE_GLLISTS				  
@@ -1164,10 +1171,6 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
             recent( ctx, VSLICE, var );
 #ifdef USE_GLLISTS
 			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE]) );
-				glPushMatrix();
-				glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-				glShadeModel( GL_FLAT );
-				glDisable( GL_DITHER );
 				glCallList(ctx->Variable[var]->VSliceTable[time]->glList[0]);
 #else				
             /* draw main contour lines */
@@ -1221,9 +1224,6 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
 #endif
             }
 #ifdef USE_GLLISTS			
-			glShadeModel( GL_SMOOTH );
-			glEnable( GL_DITHER );
-			glPopMatrix();
 			glCallList(ctx->Variable[var]->VSliceTable[time]->glList[3]);
 #else
             /* draw the bounding box */
@@ -1325,7 +1325,6 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
 					  if(ctx->Variable[var]->CHSliceRequest->textureflag)
 						 color_quadmesh_texture_object(ctx->Variable[var]->CHSliceTable[time]->glList+1,
 																 (GLubyte *)dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
-												  									  
 					  glPolygonMode(GL_FRONT_AND_BACK, ctx->Variable[var]->CHSliceRequest->fillstyle);
 					  glCallList( ctx->Variable[var]->CHSliceTable[time]->glList[0] );
 					  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2505,8 +2504,6 @@ static void draw_user_2d_graphics( Display_Context dtx )
 }
 
 
-
-
 /*
  * Only draw the 3-D elements of the scene.  No matrix, viewport, etc
  * operations are done here.  This function is useful for the CAVE
@@ -2581,6 +2578,8 @@ void render_3d_only( Display_Context dtx, int animflag )
       }
       /* MJK 12.02.98 end */
 
+		
+
       clipping_on();
 
       for (yo = 0; yo < dtx->numofitxs; yo++){
@@ -2591,42 +2590,17 @@ void render_3d_only( Display_Context dtx, int animflag )
       for (yo= 0; yo < dtx->numofctxs; yo++){
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){
-            render_hslices( ctx, ctx->CurTime, labels, animflag );
-         }
-      }
+			  render_hslices( ctx, ctx->CurTime, labels, animflag );
 
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){
-            render_vslices( ctx, ctx->CurTime, labels, animflag );
-         }   
-      }
+			  render_vslices( ctx, ctx->CurTime, labels, animflag );
 
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){
-            render_hwind_slices( ctx, ctx->CurTime, animflag );
-         }   
-      }
+			  render_hwind_slices( ctx, ctx->CurTime, animflag );
 
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){         
-            render_vwind_slices( ctx, ctx->CurTime, animflag );
-         }   
-      }
-      
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo]; 
-         if (check_for_valid_time(ctx, dtx->CurTime)){         
-            render_hstream_slices( ctx, ctx->CurTime, animflag );
-         }   
-      }
-      
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo]; 
-         if (check_for_valid_time(ctx, dtx->CurTime)){         
-            render_vstream_slices( ctx, ctx->CurTime, animflag );
+			  render_vwind_slices( ctx, ctx->CurTime, animflag );
+
+			  render_hstream_slices( ctx, ctx->CurTime, animflag );
+				
+			  render_vstream_slices( ctx, ctx->CurTime, animflag );
          }   
       }
 
@@ -2676,27 +2650,17 @@ void render_3d_only( Display_Context dtx, int animflag )
       for (yo= 0; yo < dtx->numofctxs; yo++){      
          ctx = dtx->ctxpointerarray[yo];       
          if (check_for_valid_time(ctx, dtx->CurTime)){
+			  
+			  if(ctx->DataGridList){
+				 glCallList(ctx->DataGridList);
+			  }
+			  
             render_trajectories( ctx, ctx->CurTime, 1);
-         }
-      }     
 
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){
             render_isosurfaces( ctx, dtx->CurTime, ctx->CurTime, 1, animflag );
-         }      
-      }
 
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){
             render_chslices( ctx, ctx->CurTime, 1, animflag );
-         }      
-      }
 
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){
             render_cvslices( ctx, ctx->CurTime, 1, animflag );
          }      
       }
@@ -2711,31 +2675,13 @@ void render_3d_only( Display_Context dtx, int animflag )
          ctx = dtx->ctxpointerarray[yo];
          if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_trajectories( ctx, ctx->CurTime, 0);
-         }            
-      }
-
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_isosurfaces( ctx, dtx->CurTime, ctx->CurTime, 0, animflag );
-         }            
-      }
-
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_chslices( ctx, ctx->CurTime, 0, animflag );
-         }            
-      }
-
-      for (yo= 0; yo < dtx->numofctxs; yo++){
-         ctx = dtx->ctxpointerarray[yo];
-         if (check_for_valid_time(ctx, dtx->CurTime)){            
             render_cvslices( ctx, ctx->CurTime, 0, animflag );
          }            
       }
 
-      if (dtx->CurrentVolume!=-1){
+      if (dtx->VolumeFlag==1 && dtx->CurrentVolume!=-1){
          ctx = dtx->ctxpointerarray[return_ctx_index_pos(dtx,
                                     dtx->CurrentVolumeOwner)];
          
@@ -2864,13 +2810,25 @@ void render_everything( Display_Context dtx, int animflag )
 
 /* WLH 3 July 2000 */
    if (dtx->DisplayBox){
-      int i;
-      for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
-         start_aa_pass(i);
-         draw_box(dtx, dtx->CurTime);
-         /* draw_tick_marks( dtx ); */
-         end_aa_pass(i);
-      }
+      int i, listflag=0;
+#ifdef USE_GLLISTS
+		if(! glIsList(dtx->DisplayBox)){
+		  dtx->DisplayBox = v5d_glGenLists(1);
+		  glNewList(dtx->DisplayBox,GL_COMPILE_AND_EXECUTE);
+		  listflag=1;
+#endif
+		  for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
+			 start_aa_pass(i);
+			 draw_box(dtx, dtx->CurTime); 
+			 /* draw_tick_marks( dtx ); */
+			 end_aa_pass(i);
+		  }
+#ifdef USE_GLLISTS
+		  glEndList();
+		}
+		else
+		  glCallList(dtx->DisplayBox);
+#endif
    }
 
    clipping_on();
@@ -2879,17 +2837,7 @@ void render_everything( Display_Context dtx, int animflag )
    /*** Draw box now, but first disable clipping planes ***/
    clipping_off();
 
-/* WLH 3 July 2000
-   if (dtx->DisplayBox){
-      int i;
-      for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
-         start_aa_pass(i);
-         draw_box(dtx, dtx->CurTime);
-         draw_tick_marks( dtx );
-         end_aa_pass(i);
-      }
-   }
-*/
+
    if (dtx->DisplayClips){
       render_vclips( dtx, animflag );
       render_hclips( dtx, animflag );

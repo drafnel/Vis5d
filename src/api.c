@@ -352,8 +352,10 @@ static void init_context( Context ctx )
    int i;
 
    /* initialize everything to zero for starters */
-   memset( ctx, 0, sizeof(struct vis5d_context) );
+   /* JPE: TODO it looks like the ctx is allocated with calloc and then this memset is called
+		we are initializing twice to 0 - look into avoiding this */
 
+   memset( ctx, 0, sizeof(struct vis5d_context) );
 
    ctx->UserProjection = -1;
    ctx->UserVerticalSystem = -1;
@@ -613,7 +615,7 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
       dtx->TrajColorVar[i] = -1;
       dtx->TrajColorVarOwner[i] = -1;
    }
-   dtx->DisplayBox = 1;
+   dtx->DisplayBox = VIS5D_ON;
    dtx->DisplayClock = 1;
    dtx->DisplayCursor = 0;
    dtx->DisplayTraj[0] = 1;
@@ -1798,6 +1800,7 @@ int vis5d_load_v5dfile( int dindex, int mbs, char *filename, char *ctxname )
    for (yo=0; yo<ctx->NumVars; yo++){
       init_var_clrtable(dindex, ctx->context_index, yo);
    }
+
    return ctx->context_index;
 }    
 
@@ -6094,9 +6097,7 @@ int vis5d_draw_frame( int index, int animflag )
    DPY_CONTEXT("vis5d_draw_frame");
 
    vis5d_get_num_of_data_sets_in_display( index, &howmany);
-/*
-   if (howmany >= 1){
-*/
+
    dtx = vis5d_get_dtx( index );
 
    set_current_window( dtx );
@@ -6115,13 +6116,8 @@ int vis5d_draw_frame( int index, int animflag )
 
    clear_3d_window(); 
 #endif
-/* MJK 3.6.99 */
-	    /*   JPE: For what reason must we have data before we can render a map?
-				if (howmany >= 1){ */
 
 	render_everything( dtx, animflag );
-
-	 	/*   } */
 
    dtx->Redraw = 0;
    return 0;
@@ -6131,6 +6127,7 @@ int vis5d_draw_frame( int index, int animflag )
 int vis5d_draw_3d_only( int index, int animflag )
 {
    DPY_CONTEXT("vis5d_draw_3d_only");
+
    render_3d_only( dtx, animflag );
    dtx->Redraw = 0;
    return 0;
@@ -6219,9 +6216,12 @@ int vis5d_set_pointer( int index, int x, int y )
  */
 int vis5d_graphics_mode( int index, int what, int mode )
 {
-   int *val;
-   DPY_CONTEXT("vis5d_graphics_mode")
+  int *val;
+  DPY_CONTEXT("vis5d_graphics_mode");
 
+  if(glIsList(1)){
+	 printf("This was a really dumb way to do it - try again joe\n");
+  }
   switch(what) {
     case VIS5D_BOX:
       val = &dtx->DisplayBox;
@@ -6333,20 +6333,23 @@ int vis5d_graphics_mode( int index, int what, int mode )
       if (*val != 0) {
         dtx->Redraw = 1;
         vis5d_invalidate_dtx_frames(index);
+#ifdef USE_GLLISTS 
+		  if( glIsList(*val)){
+			 glDeleteLists((GLuint ) *val, 1);
+		  }
+#endif
       }
       *val = 0;
       break;
     case VIS5D_ON:
-      if (*val != 1) {
+		if(*val == 0) {
         dtx->Redraw = 1;
         vis5d_invalidate_dtx_frames(index);
+		  *val = 1;
       }
-      *val = 1;
       break;
     case VIS5D_TOGGLE:
-      *val = *val ? 0 : 1;
-      dtx->Redraw = 1;
-      vis5d_invalidate_dtx_frames(index);
+		vis5d_graphics_mode( index, what, (*val == 0));
       break;
     case VIS5D_GET:
       break;
@@ -6354,8 +6357,8 @@ int vis5d_graphics_mode( int index, int what, int mode )
       printf("bad mode (%d) in vis5d_graphics_mode\n", mode);
       return VIS5D_BAD_MODE;
   }
-
-  return *val;
+  /* allows any value other than 0 is true */
+  return (*val!=0);
 }
 
 
@@ -6415,6 +6418,26 @@ int vis5d_var_graphics_options(int index, int type, int number, int what, int mo
 	 }
 	 return *val;
 	 break;
+  case VIS5D_LINE_STIPPLE:
+	 switch(type){
+	 case VIS5D_HSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->HSliceRequest)
+		  val = &ctx->Variable[number]->HSliceRequest->stipple;
+		break;
+	 case VIS5D_VSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->VSliceRequest)
+		  val = &ctx->Variable[number]->VSliceRequest->stipple;
+		break;
+	 }
+	 /* here mode is the GL stipple pattern or get if none of */
+    /* we really dont need this restriction to only 5 patterns*/
+	 if(mode == VIS5D_SOLID_LINE || mode == VIS5D_DASHED_LINE 
+		 || mode == VIS5D_DOTTED_LINE || mode ==	VIS5D_DOTDASHED_LINE ||
+		 mode == VIS5D_LONGDASHED_LINE){
+		*val = mode;
+	 }
+	 return *val;
+	 break;
   default:
 	 fprintf(stderr, " Bad option combination in vis5d_var_graphics_options %d %d\n",type, what);
 	 break;
@@ -6465,6 +6488,7 @@ int vis5d_enable_graphics( int index, int type, int number, int mode )
   int *val;
   CONTEXT("vis5d_enable_graphics");
 
+
   switch(type) {
     case VIS5D_ISOSURF:
       val = &ctx->DisplaySurf[number];
@@ -6482,18 +6506,25 @@ int vis5d_enable_graphics( int index, int type, int number, int mode )
       val = &ctx->DisplayCVSlice[number];
       break;
     case VIS5D_VOLUME:
+		/* JPE using a number < -1 here has the effect of toggling the
+			volume rendering without otherwise affecting the current volume.
+			In gui.c this is applied to turn volume graphics off when the mouse
+			is pressed and turn them on again when it is released */
       switch (mode) {
         case VIS5D_OFF:
+			 ctx->dpy_ctx->VolumeFlag=0;
           if (number == ctx->dpy_ctx->CurrentVolume &&
               ctx->context_index == ctx->dpy_ctx->CurrentVolumeOwner) {
             ctx->dpy_ctx->CurrentVolume = -1;
             ctx->dpy_ctx->CurrentVolumeOwner = -1;
             ctx->dpy_ctx->Redraw = 1;
             vis5d_invalidate_dtx_frames(index);
-          }
+				}
+
           break;
         case VIS5D_ON:
-          if (number != ctx->dpy_ctx->CurrentVolume && 
+			 ctx->dpy_ctx->VolumeFlag=1;
+          if (number>=0 && number != ctx->dpy_ctx->CurrentVolume && 
               ctx->context_index != ctx->dpy_ctx->CurrentVolumeOwner) {
             ctx->dpy_ctx->CurrentVolume = number;
             ctx->dpy_ctx->CurrentVolumeOwner = ctx->context_index;
@@ -6580,7 +6611,7 @@ int vis5d_get_volume( int index, int *CurrentVolumeOwner, int *CurrentVolume )
    DPY_CONTEXT("vis5d_get_volume")
    *CurrentVolumeOwner = dtx->CurrentVolumeOwner;
    *CurrentVolume = dtx->CurrentVolume;
-   return 0;
+   return dtx->VolumeFlag;
 }
 
 

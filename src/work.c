@@ -2582,7 +2582,76 @@ static void calc_vslice( Context ctx, int time, int var,
    free(vl3);
 }
 
+void
+calc_data_grid( Context ctx, int style)
+{
+  int i, j, k;
+  GLushort xyz[3];
+  float ix, jx, kx;
 
+  printf("In calc_data_grid\n");
+  
+  glNewList(ctx->DataGridList, GL_COMPILE);
+
+  glColor4f(1.,1.,1.,1.);
+  glPointSize(3.);
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+  for(k=0;k<ctx->MaxNl;k++){
+	 kx = (float ) k;
+	 for(j=0;j<ctx->Nc;j++){
+		jx = (float) j;
+		if(style == 0){
+		  glBegin(GL_LINE_STRIP);
+		}else{
+		  glBegin(GL_POINTS);
+		}
+		for(i=0;i<ctx->Nr;i++){
+		  ix = (float) i;
+		  
+		  grid_to_compXYZ(ctx, 0, 0, 1, &ix, &jx, &kx, &xyz);
+		  glVertex3sv( xyz );
+		}
+  glEnd();
+
+	 }
+	 if(style == 0){
+		for(i=0;i<ctx->Nr;i++){
+		  ix = (float) i;
+		  glBegin(GL_LINE_STRIP);
+		  
+		  for(j=0;j<ctx->Nc;j++){
+			 jx = (float) j;
+			 grid_to_compXYZ(ctx, 0, 0, 1, &ix, &jx, &kx, &xyz);
+			 glVertex3sv( xyz );
+		  }
+		  glEnd();
+		  
+		}
+	 }
+  }
+  if(style == 0){
+	 for(j=0;j<ctx->Nc;j++){
+		jx = (float) j;
+		for(i=0;i<ctx->Nr;i++){
+		  ix = (float) i;
+		  glBegin(GL_LINE_STRIP);
+		  for(k=0;k<ctx->MaxNl;k++){
+			 kx = (float ) k;
+			 grid_to_compXYZ(ctx, 0, 0, 1, &ix, &jx, &kx, &xyz);
+			 glVertex3sv( xyz );
+		  }
+		  glEnd();
+		  
+		}
+	 }
+	 
+  }
+
+  glPopMatrix();
+  glEndList();
+}
 
 
 /*** calc_chslice *****************************************************
@@ -2590,7 +2659,7 @@ static void calc_vslice( Context ctx, int time, int var,
    Input:  time - the time step.
            var - which variable.
 			  low,high - min and max values to show, values outside these
-                      limits are plotted in transparent black 
+                      limits are plotted as endpoint values
           
            level - position of slice in [0..Nl-1].
            threadnum - thread ID
@@ -2777,9 +2846,10 @@ static void calc_chslice( Context ctx, int time, int var,
    /* store new slice */
    slice->level = level;
    slice->valid = 1;
+	printf("texture = %d\n",ctx->Variable[var]->CHSliceRequest->textureflag);
 	draw_color_quadmesh(slice_rows, slice_cols, cverts, indexes, 
 							  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-							  ctx->Variable[var]->HSliceRequest->textureflag,	slice->glList, GL_COMPILE);
+							  ctx->Variable[var]->CHSliceRequest->textureflag,	slice->glList, GL_COMPILE);
 	deallocate(ctx, cverts, 3*sizeof(int_2)*slice_rows*slice_cols);
 	deallocate(ctx, indexes, sizeof(uint_1)*slice_rows*slice_cols);
 
@@ -2971,9 +3041,10 @@ static void calc_cvslice( Context ctx, int time, int var,
    ctx->Variable[var]->CVSliceTable[time]->r2 = r2;
    ctx->Variable[var]->CVSliceTable[time]->c2 = c2;
    ctx->Variable[var]->CVSliceTable[time]->valid = 1;
+
 	draw_color_quadmesh(rows, cols, cverts, indexes, 
 							  dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-							  ctx->Variable[var]->VSliceRequest->textureflag,ctx->Variable[var]->CVSliceTable[time]->glList,GL_COMPILE);
+							  ctx->Variable[var]->CVSliceRequest->textureflag,ctx->Variable[var]->CVSliceTable[time]->glList,GL_COMPILE);
 	deallocate(ctx, cverts, 3*sizeof(int_2)*rows*cols);
 	deallocate(ctx, indexes, sizeof(uint_1)*rows*cols);
 #else

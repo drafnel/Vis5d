@@ -267,6 +267,7 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->HSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
 	}
 
+	ctx->Variable[var]->HSliceRequest->stipple=VIS5D_SOLID_LINE;
    ctx->Variable[var]->HSliceRequest->Level = l;
    new_hslice_pos( ctx, ctx->Variable[var]->HSliceRequest->Level, &ctx->Variable[var]->HSliceRequest->Z,
                    &ctx->Variable[var]->HSliceRequest->Hgt );
@@ -285,6 +286,7 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->CHSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
 	  ctx->Variable[var]->CHSliceRequest->fillstyle = GL_FILL;
 	  ctx->Variable[var]->CHSliceRequest->textureflag=0;
+	  ctx->Variable[var]->CHSliceRequest->textureobject=0;
 	}
    ctx->Variable[var]->CHSliceRequest->Level = l;
 
@@ -294,6 +296,7 @@ void init_graphics_pos( Context ctx, int var )
 	if(! ctx->Variable[var]->VSliceRequest){
 	  ctx->Variable[var]->VSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
 	}
+	ctx->Variable[var]->VSliceRequest->stipple=VIS5D_SOLID_LINE;
 
    ctx->Variable[var]->VSliceRequest->R1 = (float) (dtx->Nr-1) / 2.0;
    ctx->Variable[var]->VSliceRequest->R2 = 0.0;
@@ -320,6 +323,7 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->CVSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
 	  ctx->Variable[var]->CVSliceRequest->fillstyle = GL_FILL;
 	  ctx->Variable[var]->CVSliceRequest->textureflag=0;
+	  ctx->Variable[var]->CVSliceRequest->textureobject=0;
 	}
 
    ctx->Variable[var]->CVSliceRequest->R1 = ctx->Variable[var]->VSliceRequest->R1;
@@ -432,7 +436,62 @@ void del_traj_group( Display_Context dtx, int g )
 int free_isosurface( Context ctx, int time, int var )
 {
 #ifdef USE_GLLISTS
-  printf("incomplete code in free_isosurface\n");
+   Display_Context dtx;
+   int ctime, ftime, t, total;
+   
+   dtx = ctx->dpy_ctx;
+   total = 0;
+   if (!ctx->SameIsoColorVarOwner[var]){
+      ftime = dtx->TimeStep[time].ownerstimestep[return_ctx_index_pos(dtx,
+                                  ctx->context_index)];
+      for(t=0; t < dtx->NumTimes; t++){
+         ctime = dtx->TimeStep[t].ownerstimestep[return_ctx_index_pos(dtx,
+                                                 ctx->context_index)];
+         if ( ctime==ftime){
+            if (ctx->Variable[var]->SurfTable[time]->valid) {
+               int b4;
+               /* colors */
+               if (ctx->Variable[var]->SurfTable[time]->colors) {
+                  b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->colors, b4 );
+                  ctx->Variable[var]->SurfTable[time]->colors = NULL;
+               }
+               else {
+                  b4 = 0;
+               }
+               ctx->Variable[var]->SurfTable[time]->valid = 0;
+               total += b4;
+            }
+         }
+      }
+      return total;
+   }
+   
+   else{
+
+      if (ctx->Variable[var] && 
+			 ctx->Variable[var]->SurfTable[time] && 
+			 ctx->Variable[var]->SurfTable[time]->valid) {
+         int b1, b2, b3, b4;
+         /* colors */
+         if (ctx->Variable[var]->SurfTable[time]->colors) {
+            b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
+            deallocate( ctx, ctx->Variable[var]->SurfTable[time]->colors, b4 );
+            ctx->Variable[var]->SurfTable[time]->colors = NULL;
+         }
+         else {
+            b4 = 0;
+         }
+         ctx->Variable[var]->SurfTable[time]->valid = 0;
+         return b4;
+      }
+      else 
+		  {
+         return 0;
+      }
+   }
+  
+
 #else
    Display_Context dtx;
    int ctime, ftime, t, total;

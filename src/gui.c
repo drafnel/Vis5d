@@ -8737,6 +8737,11 @@ static int gfx_window_event( int index, XEvent *ev )
       vis5d_get_matrix(index, gtx->ctm);
       vis5d_get_camera( index, &perspec, &frontclip, &zoom );
 
+		/* JPE: volume is turned off during motion */
+		/* has no effect if volume is not already set */
+		vis5d_enable_graphics(index, VIS5D_VOLUME, -2, VIS5D_OFF);
+
+
       if (ev->xbutton.button==Button1 && !gtx->p2 && !gtx->p3) {
          gtx->p1 = 1;
       }
@@ -8815,6 +8820,10 @@ static int gfx_window_event( int index, XEvent *ev )
       else if (ev->xbutton.button == Button3) {
          gtx->p3 = 0;
       }
+		/* JPE: volume is turned off during motion */
+		/* has no effect if volume is not already set */
+		vis5d_enable_graphics(index, VIS5D_VOLUME, -2, VIS5D_ON);
+
       vis5d_signal_redraw(index, 1);
    } /* if ev->type==ButtonRelease */
       

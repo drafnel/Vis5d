@@ -8095,13 +8095,7 @@ int vis5d_set_hslice( int index, int var, float interval,
       return VIS5D_BAD_VAR_NUMBER;
    }
 
-   /* why do we need this if statement ? */
-	/*   if (ctx->dpy_ctx->Nl==1) { */
-      maxlev = ctx->dpy_ctx->MaxNl-1;
-		/*   }
-   else {
-      maxlev = ctx->dpy_ctx->MaxNl-1;
-		}*/
+   maxlev = ctx->dpy_ctx->MaxNl-1;
    if (level<0.0) {
       level = 0.0;
    }

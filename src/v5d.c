@@ -2654,7 +2654,6 @@ int v5dCreateStruct(v5dstruct *v, int numtimes, int numvars,
    v->VerticalSystem = vertical;
    if (vertical == 3) {
      /* convert pressures to heights */
-	  /*JPE removed - overkill     for (i=0; i<MAXVERTARGS; i++) { */
      for (i=0; i< maxnl; i++) {
        if (vert_args[i] > 0.000001) {
          v->VertArgs[i] = pressure_to_height(vert_args[i]);

@@ -462,9 +462,6 @@ int init_grid_cache( Context ctx, int maxbytes, float *ratio )
       printf("Error: out of memory.  Couldn't allocate cache table.\n");
       return 0;
    }
-	/*
-   printf("allocated %d bytes for GridCache\n",ctx->MaxCachedGrids* sizeof(struct cache_rec) );
-	*/
    ctx->CacheClock = 1;
 
    /* Initialize tables */
@@ -478,9 +475,6 @@ int init_grid_cache( Context ctx, int maxbytes, float *ratio )
       ctx->GridCache[i].Timestep = 0;
       ctx->GridCache[i].Var = 0;
    }
-	/*
-   printf("allocated %d for GridCache Data\n",ctx->MaxCachedGrids*gridsize);
-	*/
    for (it=0;it<ctx->NumTimes;it++) {
       for (iv=0;iv<MAXVARS;iv++) {
          ctx->GridTable[it][iv].CachePos = -1;

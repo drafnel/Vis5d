@@ -3044,7 +3044,8 @@ int vis5d_map_sndwindow( int index)
 
    XSynchronize(SndDpy, 1);
    if (dtx->Sound.SoundCtrlWindow){
-      XMapWindow( SndDpy, dtx->Sound.SoundCtrlWindow);
+      extern Display *GuiDpy;
+      XMapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
    }
    XMapWindow( SndDpy, dtx->Sound.soundwin);
    XSynchronize(SndDpy, 0);
@@ -3056,11 +3057,10 @@ int vis5d_unmap_sndwindow( int index )
    DPY_CONTEXT("vis5d_map_sndwindow");
 
    if (dtx->Sound.SoundCtrlWindow){
-      XUnmapWindow( SndDpy, dtx->Sound.SoundCtrlWindow);
+      extern Display *GuiDpy;
+      XUnmapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
    }
-   else{
-      XMapWindow( SndDpy, dtx->Sound.soundwin);
-   }
+   XUnmapWindow( SndDpy, dtx->Sound.soundwin);
    return 0;
 }
 /* MJK 12.10.98 end */

@@ -651,11 +651,6 @@ int make_soundGFX_window( Display_Context dtx, char *title, int xpos, int ypos,
    }
    do_pixmap_art(dtx);
 
-   /* MJK 12.15.98 */
-    if (dtx->Sound.SoundCtrlWindow != 0){
-      XMapWindow(SndDpy, dtx->Sound.soundwin);
-   }
-
    return 1;
 }
 

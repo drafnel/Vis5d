@@ -142,36 +142,6 @@
 
 	      <widget>
 		<class>GtkMenuItem</class>
-		<name>separator5</name>
-		<right_justify>False</right_justify>
-	      </widget>
-
-	      <widget>
-		<class>GtkMenuItem</class>
-		<name>open_profile</name>
-		<signal>
-		  <name>activate</name>
-		  <handler>on_open_profile_activate</handler>
-		  <last_modification_time>Tue, 31 Jul 2001 12:28:41 GMT</last_modification_time>
-		</signal>
-		<label>Open Profile...</label>
-		<right_justify>False</right_justify>
-	      </widget>
-
-	      <widget>
-		<class>GtkMenuItem</class>
-		<name>new_profile</name>
-		<signal>
-		  <name>activate</name>
-		  <handler>on_new_profile_activate</handler>
-		  <last_modification_time>Tue, 31 Jul 2001 12:28:41 GMT</last_modification_time>
-		</signal>
-		<label>New Profile...</label>
-		<right_justify>False</right_justify>
-	      </widget>
-
-	      <widget>
-		<class>GtkMenuItem</class>
 		<name>separator2</name>
 		<right_justify>False</right_justify>
 	      </widget>
@@ -364,6 +334,42 @@
 	      </widget>
 	    </widget>
 	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>procedures1</name>
+	    <label>Procedures</label>
+	    <right_justify>False</right_justify>
+
+	    <widget>
+	      <class>GtkMenu</class>
+	      <name>procedures1_menu</name>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>openprocedure</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_openprocedure_activate</handler>
+		  <last_modification_time>Tue, 07 Aug 2001 14:32:08 GMT</last_modification_time>
+		</signal>
+		<label>Open</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>newprocedure</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_newprocedure_activate</handler>
+		  <last_modification_time>Tue, 07 Aug 2001 14:32:08 GMT</last_modification_time>
+		</signal>
+		<label>New</label>
+		<right_justify>False</right_justify>
+	      </widget>
+	    </widget>
+	  </widget>
 	</widget>
 
 	<widget>
@@ -495,6 +501,7 @@
 	<class>Custom</class>
 	<child_name>GnomeDock:contents</child_name>
 	<name>GtkGlArea</name>
+	<height>400</height>
 	<signal>
 	  <name>button_release_event</name>
 	  <handler>glarea_button_release</handler>
@@ -537,7 +544,7 @@
 
       <widget>
 	<class>GtkScrolledWindow</class>
-	<name>scrolledwindow2</name>
+	<name>scrolledwindow1</name>
 	<hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
 	<vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
 	<hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
@@ -548,20 +555,30 @@
 	</child>
 
 	<widget>
-	  <class>GtkCList</class>
-	  <name>Graphs_CList</name>
+	  <class>GtkCTree</class>
+	  <name>VariableCTree</name>
 	  <can_focus>True</can_focus>
+	  <signal>
+	    <name>tree_select_row</name>
+	    <handler>on_VariableCTree_tree_select_row</handler>
+	    <last_modification_time>Fri, 20 Jul 2001 16:05:08 GMT</last_modification_time>
+	  </signal>
+	  <signal>
+	    <name>tree_unselect_row</name>
+	    <handler>on_VariableCTree_tree_unselect_row</handler>
+	    <last_modification_time>Fri, 20 Jul 2001 16:05:20 GMT</last_modification_time>
+	  </signal>
 	  <columns>1</columns>
 	  <column_widths>80</column_widths>
-	  <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	  <selection_mode>GTK_SELECTION_MULTIPLE</selection_mode>
 	  <show_titles>False</show_titles>
 	  <shadow_type>GTK_SHADOW_IN</shadow_type>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <child_name>CList:title</child_name>
-	    <name>label39</name>
-	    <label>label39</label>
+	    <child_name>CTree:title</child_name>
+	    <name>label38</name>
+	    <label>label38</label>
 	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
 	    <xalign>0.5</xalign>
@@ -575,75 +592,6 @@
 
     <widget>
       <class>Placeholder</class>
-    </widget>
-  </widget>
-</widget>
-
-<widget>
-  <class>GtkWindow</class>
-  <name>VarSelectionDialog</name>
-  <title>Variables</title>
-  <type>GTK_WINDOW_DIALOG</type>
-  <position>GTK_WIN_POS_NONE</position>
-  <modal>False</modal>
-  <default_width>300</default_width>
-  <default_height>200</default_height>
-  <allow_shrink>False</allow_shrink>
-  <allow_grow>True</allow_grow>
-  <auto_shrink>False</auto_shrink>
-
-  <widget>
-    <class>GtkVBox</class>
-    <name>vbox18</name>
-    <homogeneous>False</homogeneous>
-    <spacing>0</spacing>
-
-    <widget>
-      <class>GtkScrolledWindow</class>
-      <name>scrolledwindow1</name>
-      <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
-      <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
-      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-      <child>
-	<padding>0</padding>
-	<expand>True</expand>
-	<fill>True</fill>
-      </child>
-
-      <widget>
-	<class>GtkCTree</class>
-	<name>VariableCTree</name>
-	<can_focus>True</can_focus>
-	<signal>
-	  <name>tree_select_row</name>
-	  <handler>on_VariableCTree_tree_select_row</handler>
-	  <last_modification_time>Fri, 20 Jul 2001 16:05:08 GMT</last_modification_time>
-	</signal>
-	<signal>
-	  <name>tree_unselect_row</name>
-	  <handler>on_VariableCTree_tree_unselect_row</handler>
-	  <last_modification_time>Fri, 20 Jul 2001 16:05:20 GMT</last_modification_time>
-	</signal>
-	<columns>1</columns>
-	<column_widths>80</column_widths>
-	<selection_mode>GTK_SELECTION_MULTIPLE</selection_mode>
-	<show_titles>False</show_titles>
-	<shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CTree:title</child_name>
-	  <name>label38</name>
-	  <label>label38</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	</widget>
-      </widget>
     </widget>
   </widget>
 </widget>
@@ -760,6 +708,274 @@
     </signal>
     <label>Cancel</label>
     <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkWindow</class>
+  <name>HsliceControls</name>
+  <title>HSlice Controls</title>
+  <type>GTK_WINDOW_DIALOG</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+
+  <widget>
+    <class>GtkVBox</class>
+    <name>HSliceControls</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+
+    <widget>
+      <class>GtkLabel</class>
+      <name>label39</name>
+      <label>Horizontal Contour Controls</label>
+      <justify>GTK_JUSTIFY_CENTER</justify>
+      <wrap>False</wrap>
+      <xalign>0.5</xalign>
+      <yalign>0.5</yalign>
+      <xpad>0</xpad>
+      <ypad>0</ypad>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>False</fill>
+      </child>
+    </widget>
+
+    <widget>
+      <class>GtkHBox</class>
+      <name>hbox15</name>
+      <homogeneous>False</homogeneous>
+      <spacing>0</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label40</name>
+	<label>Minimum:</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xpad>10</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkSpinButton</class>
+	<name>hsmin_spinbutton</name>
+	<can_focus>True</can_focus>
+	<climb_rate>1</climb_rate>
+	<digits>3</digits>
+	<numeric>True</numeric>
+	<update_policy>GTK_UPDATE_ALWAYS</update_policy>
+	<snap>False</snap>
+	<wrap>False</wrap>
+	<value>1</value>
+	<lower>0</lower>
+	<upper>100</upper>
+	<step>1</step>
+	<page>10</page>
+	<page_size>10</page_size>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label41</name>
+	<label>Maximum:</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xpad>10</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkSpinButton</class>
+	<name>hsmax_spinbutton</name>
+	<can_focus>True</can_focus>
+	<climb_rate>1</climb_rate>
+	<digits>3</digits>
+	<numeric>True</numeric>
+	<update_policy>GTK_UPDATE_ALWAYS</update_policy>
+	<snap>False</snap>
+	<wrap>False</wrap>
+	<value>1</value>
+	<lower>0</lower>
+	<upper>100</upper>
+	<step>1</step>
+	<page>10</page>
+	<page_size>10</page_size>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label42</name>
+	<label>Interval:</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xpad>10</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkSpinButton</class>
+	<name>hsint_spinbutton</name>
+	<can_focus>True</can_focus>
+	<climb_rate>1</climb_rate>
+	<digits>3</digits>
+	<numeric>True</numeric>
+	<update_policy>GTK_UPDATE_ALWAYS</update_policy>
+	<snap>False</snap>
+	<wrap>False</wrap>
+	<value>1</value>
+	<lower>0</lower>
+	<upper>100</upper>
+	<step>1</step>
+	<page>10</page>
+	<page_size>10</page_size>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkHBox</class>
+      <name>hbox17</name>
+      <homogeneous>False</homogeneous>
+      <spacing>0</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label43</name>
+	<label>Level:</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xpad>10</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkSpinButton</class>
+	<name>hslevel_spinbutton</name>
+	<can_focus>True</can_focus>
+	<climb_rate>1</climb_rate>
+	<digits>0</digits>
+	<numeric>True</numeric>
+	<update_policy>GTK_UPDATE_ALWAYS</update_policy>
+	<snap>False</snap>
+	<wrap>False</wrap>
+	<value>1</value>
+	<lower>0</lower>
+	<upper>100</upper>
+	<step>1</step>
+	<page>10</page>
+	<page_size>10</page_size>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label44</name>
+	<label>LineWidth:</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xpad>10</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkOptionMenu</class>
+	<name>optionmenu1</name>
+	<can_focus>True</can_focus>
+	<items>1
+2
+3
+4
+5
+</items>
+	<initial_choice>1</initial_choice>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button36</name>
+	<can_focus>True</can_focus>
+	<label>Color</label>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+    </widget>
   </widget>
 </widget>
 

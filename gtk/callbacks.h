@@ -27,7 +27,12 @@ typedef struct {
   gint clistrow;
 } v5d_var_info;
 
-
+typedef enum {
+  DATA_FILE,
+  PROCEDURE_FILE,
+  TOPO_FILE,
+  MAP_FILE
+} openwhatfile;
 
 GtkWidget *new_window3D(GtkWidget *oldwindow3D);
 
@@ -427,4 +432,12 @@ on_fontselectionbutton_clicked         (GtkButton       *button,
 
 void
 on_save_options1_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_openprocedure_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_newprocedure_activate               (GtkMenuItem     *menuitem,
                                         gpointer         user_data);

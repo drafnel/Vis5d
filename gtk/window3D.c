@@ -68,7 +68,7 @@ on_open1_activate                      (GtkMenuItem     *menuitem,
   
   gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"window3D" , window3D);
 
-  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" , "data");
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" , GINT_TO_POINTER(DATA_FILE));
 
   gtk_widget_show (FileSelectionDialog);
 
@@ -79,19 +79,30 @@ void
 on_exit1_activate                      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  GtkWidget *window3D;
+  GList *window3Dlist, *item;
+  v5d_info *info;
 
-  v5d_info *info = (v5d_info*)gtk_object_get_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(menuitem),"window3D")),"v5d_info");
-
-  if(info->timeout_id){
-	 gtk_timeout_remove(info->timeout_id);
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  window3Dlist = g_list_first((GList *) gtk_object_get_data(GTK_OBJECT(window3D),"window3Dlist"));
+  item = window3Dlist;
+  while(item!=NULL){
+	 info = (v5d_info*)gtk_object_get_data(GTK_OBJECT(item->data),"v5d_info");
+	 if(info->timeout_id){
+		gtk_timeout_remove(info->timeout_id);
+	 }
+	 vis5d_destroy_display_context(info->v5d_display_context);
+	 
+	 free(info);
+	 gtk_widget_destroy(GTK_WIDGET(item->data));
+	 item = g_list_next(item);
   }
-  free(info);
 
+  g_list_free(window3Dlist);
   vis5d_terminate(1);
   gtk_main_quit();
 
 }
-
 void
 on_delete_frame1_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -126,8 +137,6 @@ on_delete_frame1_activate              (GtkMenuItem     *menuitem,
 	 gtk_object_set_data(GTK_OBJECT(item->data),"window3Dlist",window3Dlist);
 	 item = item->next;
   }
-  
-
 }
 
 void
@@ -141,21 +150,6 @@ on_open_in_new_frame1_activate         (GtkMenuItem     *menuitem,
 
 }
 
-
-void
-on_open_profile_activate               (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
-
-void
-on_new_profile_activate                (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
 
 void on_option_toggle(GtkMenuItem *menuitem,gpointer user_data, int v5dwhat)
 {
@@ -316,6 +310,75 @@ GdkColor *vis5d_color_to_gdk(GtkWidget *widget, float red, float green, float bl
   return color;
 }
 
+void
+update_hslice_controls(GtkWidget *HSliceControls, float min, float max, float interval, float level)
+{
+  if(! GTK_WIDGET_VISIBLE(HSliceControls))
+	 gtk_widget_show(HSliceControls);
+  if(! GTK_WIDGET_SENSITIVE(HSliceControls))
+	 gtk_widget_set_sensitive(HSliceControls,TRUE);
+
+  
+
+  
+
+}
+
+void
+show_hslice(GtkCTree *ctree, GList*node, v5d_var_info *vinfo)
+{
+  int times, numtimes,curtime;
+  float interval, low, high, level, pressure;
+  gchar labelstring[80];
+  gchar *listentry[1];
+  gchar varname[10];
+  GtkCList *clist;
+  GdkColor *gcolor;
+  GList *newnode;
+  gchar *nstr[1];
+  float alpha, red, green, blue;
+  GtkWidget *HSliceControls;
+
+  vis5d_get_ctx_numtimes( vinfo->v5d_data_context, &numtimes );
+  vis5d_get_ctx_timestep( vinfo->v5d_data_context,  &curtime);
+  for ( times = 0; times < numtimes; times++){
+	 vis5d_make_hslice( vinfo->v5d_data_context, times, vinfo->varid, times==curtime);
+  }
+  vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,0,0,0);
+  
+  vis5d_get_hslice(vinfo->v5d_data_context,vinfo->varid, &interval, &low, &high, &level);
+  
+  vis5d_get_ctx_var_name(vinfo->v5d_data_context,vinfo->varid,varname);
+  
+  vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,vinfo->varid,level,&pressure);
+  
+  g_snprintf(labelstring,80,_("HSlice from %4.4g to %4.4g by %4.4g at %4.4g MB"),
+				 low,high,interval,pressure);
+  
+
+
+  vis5d_get_color( vinfo->v5d_data_context, VIS5D_HSLICE, vinfo->varid,
+						 &red,&green,&blue,&alpha);
+  
+  gcolor = vis5d_color_to_gdk(GTK_WIDGET(ctree), red,green,blue);
+
+  if(GTK_CTREE_ROW(node)->is_leaf){
+	 gtk_ctree_set_node_info(ctree,node,varname,0,NULL,NULL,NULL,NULL,FALSE,TRUE);
+  }
+  nstr[0] = labelstring;
+  newnode = gtk_ctree_insert_node(ctree,node,NULL,nstr,0,NULL,NULL,NULL,NULL,1,0);
+
+  gtk_ctree_node_set_foreground(ctree,newnode,gcolor);
+
+  vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
+								vinfo->varid, VIS5D_ON);
+
+  HSliceControls = create_HsliceControls();
+  
+  update_hslice_controls(HSliceControls, low, high, interval, pressure);
+
+
+}
 
 
 void
@@ -327,59 +390,11 @@ on_VariableCTree_tree_select_row       (GtkCTree        *ctree,
   v5d_var_info *vinfo;
   
   vinfo = (v5d_var_info *) gtk_ctree_node_get_row_data(ctree,GTK_CTREE_NODE(node));
-  /*
-  if(vinfo->VarGraphicsDialog == NULL){
-	 vinfo->VarGraphicsDialog = create_VarGraphicsDialog();
+
+
+  if(GTK_CTREE_ROW(node)->is_leaf){
+	 show_hslice(ctree,node,vinfo);
   }
-  gtk_widget_show(vinfo->VarGraphicsDialog);
-  */
-
-
-  {/* to be moved */
-	 int times, numtimes,curtime;
-	 float interval, low, high, level, pressure;
-	 gchar labelstring[80];
-    gchar *listentry[1];
-	 gchar varname[10];
-	 GtkCList *clist;
-	 GdkColor *gcolor;
-	 float alpha, red, green, blue;
-
-	 vis5d_get_ctx_numtimes( vinfo->v5d_data_context, &numtimes );
-	 vis5d_get_ctx_timestep( vinfo->v5d_data_context,  &curtime);
-	 for ( times = 0; times < numtimes; times++){
-		vis5d_make_hslice( vinfo->v5d_data_context, times, vinfo->varid, times==curtime);
-	 }
-	 vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,0,0,0);
-
-	 vis5d_get_hslice(vinfo->v5d_data_context,vinfo->varid, &interval, &low, &high, &level);
-
-	 vis5d_get_ctx_var_name(vinfo->v5d_data_context,vinfo->varid,varname);
-
-	 vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,vinfo->varid,level,&pressure);
-
-	 g_snprintf(labelstring,80,_("Contours of %s from %4.4g to %4.4g by %4.4g at %4.4g MB"),
-				 varname,low,high,interval,pressure);
-
-	 clist = GTK_CLIST(lookup_widget(vinfo->info->GtkGlArea,"Graphs_CList"));
-
-	 listentry[0]=labelstring;
-
-    vinfo->clistrow = gtk_clist_append(clist,listentry);
-
-	 
-	 vis5d_get_color( vinfo->v5d_data_context, VIS5D_HSLICE, vinfo->varid,
-							&red,&green,&blue,&alpha);
-
-	 gcolor = vis5d_color_to_gdk(GTK_WIDGET(clist), red,green,blue);
-
-	 gtk_clist_set_foreground(clist,vinfo->clistrow,gcolor);
-	 
-
-	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
-								  vinfo->varid, VIS5D_ON);
-  }
-
 }
 
 
@@ -399,6 +414,105 @@ on_VariableCTree_tree_unselect_row     (GtkCTree        *ctree,
 
 void
 on_save_options1_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+void
+on_openprocedure_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  GtkWidget *window3D;
+
+  if(FileSelectionDialog == NULL)
+	 FileSelectionDialog = create_fileselection1();
+
+  /* This is the only window that should accept input */
+  gtk_grab_add(FileSelectionDialog);
+  
+  gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Open Procedure File"));
+
+  window3D=lookup_widget(GTK_WIDGET (menuitem),"window3D");
+   
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"window3D" , window3D);
+
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" , GINT_TO_POINTER(PROCEDURE_FILE));
+
+  gtk_widget_show (FileSelectionDialog);
+
+  gtk_window_set_transient_for(GTK_WINDOW(FileSelectionDialog),GTK_WINDOW( window3D));
+ 
+
+}
+
+void
+on_topography1_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  char v5dstr[V5D_MAXSTRLEN];
+  GtkWidget *window3D;
+  v5d_info *info;
+
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  if(!window3D) return;
+  info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(window3D), "v5d_info");
+  if(!info) return;
+
+  if(FileSelectionDialog == NULL)
+	 FileSelectionDialog = create_fileselection1();
+
+  gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Select Topography File"));
+  gtk_grab_add(FileSelectionDialog);
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" ,GINT_TO_POINTER(TOPO_FILE));
+  
+  vis5d_get_topo(info->v5d_display_context , (char *) v5dstr);
+  if(v5dstr[0]=='/'){
+	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),v5dstr);
+  }else{
+	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),DATA_PREFIX );
+  }
+  gtk_widget_show (FileSelectionDialog);
+  gtk_grab_add(FileSelectionDialog);
+  gtk_window_set_transient_for(GTK_WINDOW(FileSelectionDialog),GTK_WINDOW(window3D));
+}
+
+
+void
+on_map2_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  char v5dstr[V5D_MAXSTRLEN];
+  GtkWidget *window3D;
+  v5d_info *info;
+
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  if(!window3D) return;
+  info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(window3D), "v5d_info");
+  if(!info) return;
+
+  if(FileSelectionDialog == NULL)
+	 FileSelectionDialog = create_fileselection1();
+
+  gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Select Map File"));
+  gtk_grab_add(FileSelectionDialog);
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" ,GINT_TO_POINTER(MAP_FILE));
+
+  vis5d_get_map(info->v5d_display_context , (char *) v5dstr);
+  if(v5dstr[0]=='/'){
+	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),v5dstr);
+  }else{
+	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),DATA_PREFIX );
+  }  
+ 
+  gtk_widget_show (FileSelectionDialog);
+  gtk_grab_add(FileSelectionDialog);
+  gtk_window_set_transient_for(GTK_WINDOW(FileSelectionDialog),GTK_WINDOW(window3D));
+}
+
+
+void
+on_newprocedure_activate               (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 

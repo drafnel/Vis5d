@@ -16,7 +16,8 @@ libv5dgtk_la_SOURCES = support.c support.h \
 	                    callbacks.h \
                        window3D.c  glarea.c \
                        fileselection.c fontselectiondialog.c \
-                       colorselectiondialog.c
+                       colorselectiondialog.c \
+	                    procedure.c procedure.h
 
 libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 

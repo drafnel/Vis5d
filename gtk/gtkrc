@@ -4,6 +4,9 @@
 #
 style "blackbase"
 {
+  fg[NORMAL]={ 0.8, 0.8, 0.8 }
   base[NORMAL]={ 0.0, 0.0, 0.0 }
+  bg[NORMAL]={ 0.0, 0.0, 0.0 }
 }
-widget "window3D.*.Graphs_CList" style "blackbase"
+widget "window3D.*.VariableCTree" style "blackbase"
+

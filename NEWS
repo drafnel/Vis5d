@@ -1,5 +1,17 @@
 Summary of changes for new releases of Vis5d+:
 
+Vis5d+ 1.0.1
+
+  * Fixed stack-overflow bug in contour plotting, which was causing
+    crashes under Linux.  Thanks to Tairan Wang for his help.
+    Linux/POSIX threads support now seems to work, although
+    --disable-threads is still the default for now.
+
+  * Fixed bug with map data files being installed into the wrong
+    directory.  Thanks to Michael M. Tung for the bug report.
+    Users of older versions might want to delete the /usr/local/share/vis5d/
+    directory, as we now use /usr/local/share/vis5d+/.
+
 Vis5d+ 1.0
 
   * Renamed to Vis5d+, and set up project hosting on SourceForge.

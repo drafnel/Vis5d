@@ -276,11 +276,10 @@ but there are several optional arguments that you may want to pass it:
 	location.  Contrariwise, --without-netcdf forces Vis5D to *not*
 	use NetCDF even if it could find the library.
 
---disable-threads
-	Force Vis5D to run in single-tasked mode, even if it finds
-	a multithreading library on your system.  Not recommended,
-	unless the threading library on your system is buggy; e.g.
-	LinuxPPC R5 is known to have some problems.
+--enable-threads
+	Turn on multi-threading mode in Vis5d (if a threads library
+	is found); should enhance responsiveness, even on single-CPU
+	systems.
 
 --with-memory=<MB>
 	Set the maximum amount of memory to use to <MB> megabytes

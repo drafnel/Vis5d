@@ -396,28 +396,15 @@ fi
 AC_SUBST(THREADLIBS)
 
 ##########################################################################
-# Warnings to user about potential problems I have observed:
-
-if test -n "$THREADLIBS"; then
-case "${host_cpu}-${host_os}" in
-	*linux*)  
-	echo "***********************************************************"
-	echo "Crashing problems have been observed on Linux systems"
-	echo "with threads enabled.  You may want to disable threads"
-        echo "by re-running configure with --disable-threads."
-	echo "***********************************************************"
-	;;
-esac
-fi
-
-##########################################################################
 
 # define a preprocessor symbol for where the Vis5d data files
 # (e.g. EARTH.TOPO) go:
-if test "$prefix" = "NONE"; then
-	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$ac_default_prefix/share/vis5d/")
+if test "$datadir" != '${prefix}/share'; then
+	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$datadir/$PACKAGE/")
+elif test "$prefix" = "NONE"; then
+	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$ac_default_prefix/share/$PACKAGE/")
 else
-	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$prefix/share/vis5d/")
+	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$prefix/share/$PACKAGE/")
 fi
 
 ##########################################################################

@@ -135,7 +135,6 @@ void png_dump(Display	*dpy,
       * channels). The second parameter is not used. */
      png_set_filler(png_ptr, 0, PNG_FILLER_AFTER);
 
-
      /* write out the entire image data in one call */
      png_write_image(png_ptr, row_pointers);
 

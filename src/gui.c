@@ -12161,8 +12161,6 @@ int set_busy_cursor ( int busy)
  *         show -  1 map the sndwindow, 0 unmap the sndwindow
  *
  */
-/* MJK 12.10.98 begin - moved from api.c 09.27.00 JPE*/
-extern Display_Context vis5d_get_dtx( int index );
 
 int vis5d_map_sndwindow( int index)
 {

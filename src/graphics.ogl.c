@@ -100,9 +100,6 @@ struct Biggfx{
 
 struct Biggfx biggfx;
 
-
-
-
 void check_gl_error( char *where )
 {
    GLenum error;
@@ -1330,7 +1327,7 @@ int save_formats( void )
    return formats;
 }
 
-
+extern Display_Context vis5d_get_dtx( int index );
   
 int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
 {

@@ -160,3 +160,7 @@ on_irregular_activate                  (GtkMenuItem     *menuitem,
 void
 on_vars3D_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+
+void
+on_text_data1_activate                 (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

@@ -14,7 +14,7 @@ bin_PROGRAMS = vis5dgtk
 lib_LTLIBRARIES = libvis5dgtk.la
 
 EXTRA_DIST = vis5dgtk.pc.in vis5d+.glade vargraphicscontrols.glade \
-             window3D.glade proceduredialog.glade 
+             window3D.glade proceduredialog.glade textplotdialog.glade
 	          
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -30,7 +30,9 @@ libvis5dgtk_la_SOURCES = window3D.c window3D.h \
 	                    procedure.c procedure.h \
                        PD_interface.c	PD_interface.h	\
                        ProcedureDialog.c  ProcedureDialog.h \
-	                    graph_labels.c  graph_labels.h
+	                    graph_labels.c  graph_labels.h \
+	                    tp_interface.c  tp_interface.h \
+	                    textplot.c	   textplot.h 
 
 libvis5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 

@@ -40,6 +40,7 @@
 #include "graph_labels.h"
 #include "VarGraphicsControls.h"
 #include "ProcedureDialog.h"
+#include "textplot.h"
 
 extern GtkWidget *FileSelectionDialog;
 extern GtkWidget *FontSelectionDialog;
@@ -984,18 +985,25 @@ on_irreg_variable_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   gint i;
+  GtkWidget *window3D;
   v5d_var_info *vinfo = (v5d_var_info *) user_data;
   
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
 
   if(GTK_CHECK_MENU_ITEM(menuitem)->active ){
 	 vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_ON);
 	 vis5d_set_text_plot( vinfo->v5d_data_context, vinfo->varid, 1.,10.,10.,1.);
 	 for(i=0;i<vinfo->numtimes;i++)
 		vis5d_make_text_plot( vinfo->v5d_data_context,i, i==vinfo->info->timestep);
-	 printf("on irreg data\n");
+
+	 gtk_object_set_data(GTK_OBJECT(window3D),"itx_context",
+								GINT_TO_POINTER(vinfo->v5d_data_context));
+
   }else{
 	 vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_OFF);
-	 printf("off irreg data\n");
+
+	 gtk_object_remove_data(GTK_OBJECT(window3D),"itx_context");
+
   }
 
 
@@ -1048,7 +1056,7 @@ on_variable_activate                   (GtkMenuItem     *menuitem,
 }
 
 
-GtkWidget *create_variables_menu(GtkWidget *window3D, GtkWidget *parent, gchar *name)
+GtkWidget *create_variables_menu(GtkWidget *window3D, GtkWidget *parent, const gchar *name)
 {
   GtkWidget *variables_menu;
 
@@ -1104,6 +1112,22 @@ variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
 		exit(-1);
 	 }
 	 gtk_widget_set_sensitive(menu,TRUE);
+
+	 gtk_widget_show(menu);
+
+	 if(myvtype == VIRREG){
+		GtkWidget *new_TextPlotDialog(GtkWidget *window);
+		GtkWidget *TextPlotDialog = new_TextPlotDialog(window3D);
+
+		gtk_object_set_data_full(GTK_OBJECT(TextPlotDialog),
+										 "window3D",window3D,
+										 (GtkDestroyNotify) gtk_widget_unref );
+		TextPlotDialog_add_variable(TextPlotDialog,vinfo);
+		/* since only textplots are allowed for irregular data
+			we can return here */
+		return;
+	 }
+
 	 variables_menu = create_variables_menu(window3D,menu,menus[myvtype]);
 	 gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu), variables_menu);
 
@@ -1111,19 +1135,23 @@ variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
 	 gtk_widget_ref(tearoff);
 	 gtk_widget_show(tearoff);
 	 gtk_container_add (GTK_CONTAINER (variables_menu), tearoff);
-
-	 gtk_widget_show(menu);
   }else{
 	 variables_menu = GTK_WIDGET(variables_menu);
   }
 
   
   if(myvtype == VIRREG){
+	 GtkWidget *TextPlotDialog = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(window3D),"TextPlotDialog"));
+	 TextPlotDialog_add_variable(TextPlotDialog,vinfo);
+
+	 return;
+	 /*	 
 	 variable = gtk_check_menu_item_new_with_label (vinfo->vname);
 	 gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM (variable), TRUE);
 	 gtk_signal_connect (GTK_OBJECT (variable), "activate",
 								GTK_SIGNAL_FUNC (on_irreg_variable_activate),
 								(gpointer) vinfo);
+	 */
   }else{
 	 variable = gtk_menu_item_new_with_label (vinfo->vname);
 	 gtk_signal_connect (GTK_OBJECT (variable), "activate",
@@ -1178,6 +1206,14 @@ void
 on_irregular_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  /* irregular data in vis5d is limited to textplots at this time */
+
+  GtkWidget *textplotdialog, *window3D;
+  /*  
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  */
+  textplotdialog = lookup_widget(GTK_WIDGET(menuitem),"TextPlotDialog");
+  gtk_widget_show(textplotdialog);
 
 }
 
@@ -1195,4 +1231,7 @@ on_about1_activate                     (GtkMenuItem     *menuitem,
 {
 
 }
+
+
+
 

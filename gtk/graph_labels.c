@@ -91,7 +91,7 @@ void delete_label(v5d_info *info, graph_label *label)
   
   vis5d_delete_label(info->v5d_display_context, label->labelid);
   
-  g_list_remove(info->graph_label_list, (gpointer) label);
+  info->graph_label_list = g_list_remove(info->graph_label_list, (gpointer) label);
   
   g_free(label);
   

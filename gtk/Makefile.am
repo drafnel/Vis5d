@@ -11,6 +11,7 @@ noinst_PROGRAMS = vis5d
 
 noinst_LTLIBRARIES = libv5dgtk.la
 
+
 libv5dgtk_la_SOURCES = support.c support.h \
                        interface.c interface.h \
 	                    callbacks.h \
@@ -19,7 +20,7 @@ libv5dgtk_la_SOURCES = support.c support.h \
                        colorselectiondialog.c \
 	                    procedure.c procedure.h \
                        VarDialog.c HSliceControls.c \
-	                    graph_labels.c
+	                    graph_labels.c  
 
 libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
@@ -28,6 +29,7 @@ vis5d_SOURCES = \
 
 
 vis5d_LDADD = libv5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
+	           gradients/libgradients.la \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@ \
                @GTK_LIBS@ -lgtkgl $(INTLLIBS) 

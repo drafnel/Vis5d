@@ -951,3 +951,11 @@ on_colorselect_clicked                 (GtkButton       *button,
 
 }
 
+
+void
+on_hsclear_clicked                     (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+

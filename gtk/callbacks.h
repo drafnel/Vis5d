@@ -1,5 +1,21 @@
 #include <gtk/gtk.h>
 
+#if defined(HAVE_OPENGL)
+#  ifndef WORDS_BIGENDIAN
+#    define PACK_COLOR(R,G,B,A)   ( (A)<<24 | (B)<<16 | (G)<<8 | (R) )
+#    define UNPACK_RED(X)         ( (X) & 0xff )
+#    define UNPACK_GREEN(X)       ( ( (X) >> 8 ) & 0xff )
+#    define UNPACK_BLUE(X)        ( ( (X) >> 16 ) & 0xff )
+#    define UNPACK_ALPHA(X)       ( ( (X) >> 24 ) & 0xff )
+#  else
+#    define PACK_COLOR(R,G,B,A)   ( (R)<<24 | (G)<<16 | (B)<<8 | (A) )
+#    define UNPACK_RED(X)         ( ( (X) >> 24 ) & 0xff )
+#    define UNPACK_GREEN(X)       ( ( (X) >> 16 ) & 0xff )
+#    define UNPACK_BLUE(X)        ( ( (X) >> 8 ) & 0xff )
+#    define UNPACK_ALPHA(X)       ( (X) & 0xff )
+#  endif
+#endif
+
 typedef enum {
   HSLICE=0,
   CHSLICE,
@@ -51,7 +67,7 @@ typedef struct {
   graph_label *label;
 
   GtkWidget *level_value;  /* the vertical level label */
-
+  guint *colors;
   guchar *sample_buf;
   GdkGC *sample_gc;
 
@@ -636,4 +652,8 @@ on_colortable_select_clicked           (GtkButton       *button,
 
 void
 on_colorselect_clicked                 (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_hsclear_clicked                     (GtkButton       *button,
                                         gpointer         user_data);

@@ -32,7 +32,7 @@ vis5d_LDADD = libv5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
 	           gradients/libgradients.la \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@ \
-               @GTK_LIBS@ -lgtkgl $(INTLLIBS) 
+              @GTK_LIBS@ @GTKGL_LIBS@ $(INTLLIBS) 
 
 if MIXKIT
 vis5d_SOURCES = main.c dummy.C

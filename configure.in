@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.38 $)
+AC_REVISION($Revision: 1.39 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([src/v5d.c])
 # should be on a cvs branch labeled vis5d-x-x 
 # (for example vis5d-1-2) 
 #
-AM_INIT_AUTOMAKE(vis5d+, 1.3.0)
+AM_INIT_AUTOMAKE(vis5d+, 1.3.1)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
 
@@ -56,8 +56,14 @@ AC_CHECK_HEADERS(libintl.h,[], enable_nls="no")
 AM_GNU_GETTEXT(use-libtool, need-ngettext)
 GTK_DIRS=
 if test "$usegtk" = "yes"; then
+
 AM_PATH_GTK(1.2.9, GTK_DIRS="gtk ",
             [AC_MSG_ERROR([Cannot find GTK: Is gtk-config in path?])])
+
+AM_PATH_GTKGL()
+ 
+
+
 fi
 AC_SUBST(GTK_DIRS)
 
@@ -203,52 +209,6 @@ if test -z "$GLLIBS"; then
 	fi
 fi
 
-# Finally, look for PEX (crufty old 3d extensions for X):
-# (do these even work in Vis5d anymore?)
-if test -z "$GLLIBS"; then
-	# first, check for possible include & lib directory locations:
-	if test -d /usr/lib/PEX5/utilities; then
-		CPPFLAGS="$CPPFLAGS -I/usr/lib/PEX5/utilities"
-	elif test -d /opt/graphics/PEX5/include/X11R6; then
-		CPPFLAGS="$CPPFLAGS -I/opt/graphics/PEX5/include/X11R6"
-	fi
-	if test -d /opt/graphics/PEX5/lib; then
-		LDFLAGS="$LDFLAGS -L/opt/graphics/PEX5/lib"
-	fi
-
-	# now, check for the actual library:
-	save_LDFLAGS="$LDFLAGS"; LDFLAGS="$LDFLAGS $X_LIBS"
-	AC_CHECK_LIB(PEX5, PEXInitialize, GLLIBS="$X_LIBS -lPEX5", :, $XLIBS)
-	LDFLAGS="$save_LDFLAGS"
-
-	if test -n "$GLLIBS"; then
-		# finally, look for the pexut.a library
-		AC_MSG_CHECKING([for pexut.a library])
-		if test -z "$PEXUT_LIB"; then
-			if test -r /usr/lib/PEX5/utilities/pexut.a; then
-				PEXUT_LIB="/usr/lib/PEX5/utilities/pexut.a"
-			elif test -r /var/opt/PEX5/pexut.a; then
-				PEXUT_LIB="/var/opt/PEX5/pexut.a"
-			fi
-		fi
-		AC_MSG_RESULT(${PEXUT_LIB-no})
-		if test -z "$PEXUT_LIB"; then
-			AC_MSG_WARN([pexut.a is required when using PEX])
-			GLLIBS=""
-		elif test -r "$PEXUT_LIB"; then
-			GLLIBS="$PEXUT_LIB $GLLIBS"
-		else
-			# this could happen if the user specified a bogus
-			# PEXUT_LIB environment variable:
-			AC_MSG_ERROR($PEXUT_LIB is not readable)
-		fi
-	fi
-
-	if test -n "$GLLIBS"; then
-		AC_DEFINE(HAVE_PEX,1,[Define if we have PEX (GL-like) libs.])
-	fi
-fi
-
 if test -z "$GLLIBS"; then
 	echo "****************************************************"
 	echo "You need to install a 3D graphics library, preferably"
@@ -304,6 +264,10 @@ if test -n "$F77"; then
 fi
 	
 AC_CHECK_LIB(image, iopen, OPT_UTILS="$OPT_UTILS fromxwd")
+
+
+
+
 
 ##########################################################################
 # Find NetCDF
@@ -368,37 +332,30 @@ if test "$with_mixkit" != "no"; then
 			/*) ;; # already an absolute path
 			*) mixkit_dir="`pwd`/$mixkit_dir" ;;
 		esac
-		LDFLAGS="-L$mixkit_dir $LDFLAGS"
-      V5D_LIBS_AUX="-lmix  $V5D_LIBS_AUX"
+	   MIXLIBS="-L$mixkit_dir -lmix"     
 	elif test -r $srcdir/libmix.a; then
-		LDFLAGS="-L`pwd`/$srcdir $LDFLAGS"
-      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
+	   MIXLIBS="-L`pwd`/$srcdir -lmix"
 	elif test -r $srcdir/src/libmix.a; then
-		LDFLAGS="-L`pwd`/$srcdir/src $LDFLAGS"
-      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
+		MIXLIBS="-L`pwd`/$srcdir/src -lmix"
 	elif test -d /usr/mixkit/lib; then
-		LDFLAGS="-L/usr/mixkit/lib $LDFLAGS"
+		MIXLIBS="-L/usr/mixkit/lib -lmix"
 		if test -d /usr/mixkit/include; then
 			CPPFLAGS="-I/usr/mixkit/include $CPPFLAGS"
 		fi
-      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
 	elif test -d /usr/local/mixkit/lib; then
-		LDFLAGS="-L/usr/local/mixkit/lib $LDFLAGS"
+		MIXLIBS="-L/usr/local/mixkit/lib -lmix"
 		if test -d /usr/local/mixkit/include; then
 			CPPFLAGS="-I/usr/local/mixkit/include $CPPFLAGS"
 		fi
-      V5D_LIBS_AUX="-lmix   $V5D_LIBS_AUX"
 	fi
-	case $V5D_LIBS_AUX in
-		*mix*)
+	if test -n "$MIXLIBS"; then
 		# Look for the header; 
 	   AC_LANG_PUSH(C++)
 		AC_CHECK_HEADERS(mixkit/mixio.h, 
 		       [AC_DEFINE(HAVE_MIXKIT,1,[Do we have mixkit library?])])
 	   AC_LANG_POP(C++)
-		;;
-
-		*)
+      LIBS="$MIXLIBS $LIBS"
+	else
  		echo "****************************************************"
 		echo "Didn't find the mixkit library;"
 		echo "You can download the Mixkit source"
@@ -407,10 +364,10 @@ if test "$with_mixkit" != "no"; then
 		echo "and/or use --with-mixkit=<lib> to specify the location"
 		echo "of libmix.a."
 		echo "****************************************************"
-		;;
-	esac
+	fi
 fi
 AM_CONDITIONAL(MIXKIT,test "x$ac_cv_header_mixkit_mixio_h" = "xyes")
+
 
 ##########################################################################
 # Find MCIDAS
@@ -525,5 +482,5 @@ fi
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
-AC_CONFIG_FILES([gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile])
+AC_CONFIG_FILES([vis5d+.pc gtk/vis5dgtk.pc gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile])
 AC_OUTPUT

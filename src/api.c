@@ -6721,6 +6721,7 @@ int vis5d_set_volume( int index, int CurrentVolumeOwner, int CurrentVolume )
 {
    DPY_CONTEXT("vis5d_set_volume")
 
+	dtx->VolumeFlag=1;
    dtx->CurrentVolumeOwner = CurrentVolumeOwner;
    dtx->CurrentVolume = CurrentVolume;
    return 0;

@@ -110,6 +110,10 @@ void check_gl_error( char *where )
    while ((error = glGetError()) != GL_NO_ERROR) {
       fprintf(stderr, "vis5d: OpenGL error near %s: %s\n",
 	      where, gluErrorString( error ) );
+		fprintf(stderr, "OpenGL: %s %s %s\n",
+				  (char *) glGetString(GL_VENDOR),
+				  (char *) glGetString(GL_RENDERER),
+				  (char *) glGetString(GL_VERSION));
    }
 }
 
@@ -203,8 +207,6 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
    unsigned long mask;
    Screen *screen = DefaultScreenOfDisplay( GfxDpy );
 
-   check_gl_error("somewhere before calling make_big_window");
-
    root = DefaultRootWindow(GfxDpy);
 
    /*********************/
@@ -274,18 +276,15 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
          exit(0);
       }
    }
-   check_gl_error("make_big_window (XCreateWindow)");
 
    if (width==ScrWidth && height==ScrHeight) {
       /* This is a hack for borderless windows! */
       no_border( GfxDpy, BigWindow );
    }
-   check_gl_error("make_big_window (no_border)");
 
    if (!off_screen_rendering){
       XMapWindow( GfxDpy, BigWindow);
    }
-   check_gl_error("make_big_window (XMapWindow)");
 
    if (visualinfo->depth<8) {
       /* This case occurs on 8-bit SGI Indys, etc because in double buffer
@@ -305,56 +304,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
       GfxColormap = win_attrib.colormap;
    }
 
-   /*
-    * Need to make sure the correct draw buffer is initially selected - SGI bug?
-    * (It seems that the second time you bring up the application, the correct
-    * buffer is not selected. The default by the spec for a double-buffered
-    * visual is that the BACK buffer should be selected, but that doesn't
-    * seem to be the case.)
-    */
-   glDrawBuffer(GL_BACK);
-
-   /* Setup lighting parameters */
-   {
-      static GLfloat light0_pos[] = { 0.0, 0.0, 1000.0, 0.0 };
-      static GLfloat light1_pos[] = { 0.0, 0.0, -1000.0, 0.0 };
-      static GLfloat light_ambient[] = { 0.15, 0.15, 0.15, 1.0 };
-      static GLfloat light_diffuse[] = { 0.6, 0.6, 0.6, 1.0 };
-      static GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-      static GLfloat model_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
-      /*static GLfloat mat_specular[] = { 0.5, 0.5, 0.5, 1.0 };*/
-      glLightfv( GL_LIGHT0, GL_AMBIENT, light_ambient );
-      glLightfv( GL_LIGHT0, GL_DIFFUSE, light_diffuse );
-      glLightfv( GL_LIGHT0, GL_SPECULAR, light_specular );
-      glLightfv( GL_LIGHT0, GL_POSITION, light0_pos );
-      glLightfv( GL_LIGHT1, GL_AMBIENT, light_ambient );
-      glLightfv( GL_LIGHT1, GL_DIFFUSE, light_diffuse );
-      glLightfv( GL_LIGHT1, GL_SPECULAR, light_specular );
-      glLightfv( GL_LIGHT1, GL_POSITION, light1_pos );
-      glLightModelfv( GL_LIGHT_MODEL_AMBIENT, model_ambient );
-      glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, 0 );
-      glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, 0 );
-      /*glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular );*/
-      /*glMaterialf( GL_FRONT_AND_BACK, GL_SHININESS, 100.0 );*/
-      glEnable( GL_LIGHT0 );
-      glEnable( GL_LIGHT1 );
-      glEnable( GL_NORMALIZE );
-   }
-   /* Setup fog/depthcue parameters */
-   {
-      static GLfloat fog_color[] = { 0.2, 0.2, 0.2, 1.0 };
-
-      glFogi( GL_FOG_MODE, GL_LINEAR );
-      glFogfv( GL_FOG_COLOR, fog_color );
-   }
-	scalelist = v5d_glGenLists(1);
-	glNewList(scalelist,GL_COMPILE);
-	glPushMatrix();
-   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
-	glEndList();
-
-
-   check_gl_error("make_big_window (glLight,glEnable,glFov)");
+  
 
    return 1;
 }
@@ -366,7 +316,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
 int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
                     int width, int height )
 {
-
+  /* TODO: should query GL for best options available */
    int attrib_list[] = {
       GLX_RGBA,
       GLX_RED_SIZE, 1,
@@ -455,9 +405,6 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       win_attrib.background_pixmap = None;
       win_attrib.background_pixel = 0;
       win_attrib.border_pixel = 0;
-/******************************************************************************/
-/*    Johan don't forget to add KeyReleaseMask to pex and gl graphics!!!!!!!!!   */
-/******************************************************************************/
       win_attrib.colormap = GfxColormap;
       win_attrib.event_mask = ExposureMask | ButtonMotionMask | KeyReleaseMask
                               | KeyPressMask | ButtonPressMask | ButtonReleaseMask
@@ -523,7 +470,17 @@ int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int h
             exit(0);
          }
       }
-   } 
+   }  
+
+	/*
+    * Need to make sure the correct draw buffer is initially selected - SGI bug?
+    * (It seems that the second time you bring up the application, the correct
+    * buffer is not selected. The default by the spec for a double-buffered
+    * visual is that the BACK buffer should be selected, but that doesn't
+    * seem to be the case.)
+    */
+   
+	glDrawBuffer(GL_BACK);
    {
       static GLfloat light0_pos[] = { 0.0, 0.0, 1000.0, 0.0 };
       static GLfloat light1_pos[] = { 0.0, 0.0, -1000.0, 0.0 };
@@ -558,6 +515,11 @@ int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int h
       glFogi( GL_FOG_MODE, GL_LINEAR );
       glFogfv( GL_FOG_COLOR, fog_color );
    }
+	scalelist = v5d_glGenLists(1);
+	glNewList(scalelist,GL_COMPILE);
+	glPushMatrix();
+   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+	glEndList();
 
    dtx->WinWidth = width;
    dtx->WinHeight = height;

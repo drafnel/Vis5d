@@ -46,31 +46,32 @@ typedef struct {
 } v5d_var_info;
 
 
-GtkWidget *fileselection=NULL;
+GtkWidget *FileSelectionDialog=NULL;
 GtkWidget *graph_menu=NULL;
+GtkWidget *FontSelectionDialog=NULL;
 
 void
 on_open1_activate                      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *window3D;
-  if(fileselection == NULL)
-	 fileselection = create_fileselection1();
+  if(FileSelectionDialog == NULL)
+	 FileSelectionDialog = create_fileselection1();
 
   /* This is the only window that should accept input */
-  gtk_grab_add(fileselection);
+  gtk_grab_add(FileSelectionDialog);
 
-  gtk_window_set_title(fileselection,_("Open Data File"));
+  gtk_window_set_title(FileSelectionDialog,_("Open Data File"));
 
   window3D=lookup_widget(GTK_WIDGET (menuitem),"window3D");
 
-  gtk_object_set_data(GTK_OBJECT(fileselection),"window3D" , window3D);
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"window3D" , window3D);
 
-  gtk_object_set_data(GTK_OBJECT(fileselection),"OpenWhat" , "data");
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" , "data");
 
-  gtk_widget_show (fileselection);
+  gtk_widget_show (FileSelectionDialog);
 
-  gtk_window_set_transient_for(GTK_WINDOW(fileselection),GTK_WINDOW( window3D));
+  gtk_window_set_transient_for(GTK_WINDOW(FileSelectionDialog),GTK_WINDOW( window3D));
 }
 
 
@@ -650,31 +651,22 @@ on_fileselect_ok                       (GtkButton       *button,
   what = (gchar *) gtk_object_get_data(GTK_OBJECT(filesel), "OpenWhat");
 
   window3D = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(filesel), "window3D"));
-  printf(" window3d= 0x%x\n",(unsigned int) window3D);
 
   if(window3D==NULL){
 	 fprintf(stderr,"Could not find window3D widget\n");
 	 exit -1;
   }
+  info = lookup_widget(window3D,"v5d_info");
 
   if(what==NULL) return;
 
   if(strcmp(what,"data")==0){
-	 info = lookup_widget(window3D,"v5d_info");
 	 load_data_file(info,filename);  
   }else if(strcmp(what,"topo")==0){
-	 GtkWidget *Prefs, *topo_entry;
-
-	 Prefs=GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(filesel),"PrefsDialog"));
-	 topo_entry = lookup_widget(Prefs, "Topo_entry");
-	 gtk_entry_set_text(GTK_ENTRY(topo_entry),filename);
-
+	 int hires = vis5d_graphics_mode(info->v5d_display_context,VIS5D_HIRESTOPO,VIS5D_GET);
+	 vis5d_init_topo(info->v5d_display_context,filename,hires);
   }else if(strcmp(what,"map")==0){
-	 GtkWidget *Prefs, *map_entry;
-
-	 Prefs=GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(filesel),"PrefsDialog"));
-	 map_entry = lookup_widget(Prefs, "Map_entry");
-	 gtk_entry_set_text(GTK_ENTRY(map_entry),filename);
+	 vis5d_init_map(info->v5d_display_context,filename);
   }
   gtk_widget_hide (filesel);
   /* This is the only window that should accept input */
@@ -980,18 +972,18 @@ on_browse_clicked                      (GtkButton       *button,
 {
   GtkWidget *Prefs;
   gchar title[40];
-  if(fileselection == NULL)
-	 fileselection = create_fileselection1();
+  if(FileSelectionDialog == NULL)
+	 FileSelectionDialog = create_fileselection1();
 
   sprintf(title,_("Open %s File"),(gchar *) user_data);
 
-  gtk_window_set_title(fileselection,title);
-  gtk_grab_add(fileselection);
+  gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),title);
+  gtk_grab_add(FileSelectionDialog);
 
   /* TODO: Need to set the default directory? */
   Prefs = gtk_widget_get_toplevel (GTK_WIDGET (button));
 
-  gtk_object_set_data(GTK_OBJECT(fileselection),"OpenWhat" ,user_data);
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" ,user_data);
 
   
   if(! strncmp("map",(gchar *) user_data,3)){
@@ -999,25 +991,25 @@ on_browse_clicked                      (GtkButton       *button,
 	 v5d_info *info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(Prefs), "v5d_info");
 	 vis5d_get_map(info->v5d_display_context , (char *) v5dstr);
 	 if(v5dstr[0]=='/'){
-		gtk_file_selection_set_filename(fileselection,v5dstr);
+		gtk_file_selection_set_filename(FileSelectionDialog,v5dstr);
 	 }else{
-		gtk_file_selection_set_filename(fileselection,DATA_PREFIX );
+		gtk_file_selection_set_filename(FileSelectionDialog,DATA_PREFIX );
 	 }
   }else if(! strncmp("topo",(gchar *) user_data,4)){
 	 char v5dstr[V5D_MAXSTRLEN];
 	 v5d_info *info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(Prefs), "v5d_info");
 	 vis5d_get_topo(info->v5d_display_context , (char *) v5dstr);
 	 if(v5dstr[0]=='/'){
-		gtk_file_selection_set_filename(fileselection,v5dstr);
+		gtk_file_selection_set_filename(FileSelectionDialog,v5dstr);
 	 }else{
-		gtk_file_selection_set_filename(fileselection,DATA_PREFIX );
+		gtk_file_selection_set_filename(FileSelectionDialog,DATA_PREFIX );
 	 }
   }
-  gtk_object_set_data(GTK_OBJECT(fileselection),"PrefsDialog" ,Prefs );
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"PrefsDialog" ,Prefs );
 
-  gtk_widget_show (fileselection);
-  gtk_grab_add(fileselection);
-  gtk_window_set_transient_for(GTK_WINDOW(fileselection),GTK_WINDOW(Prefs));
+  gtk_widget_show (FileSelectionDialog);
+  gtk_grab_add(FileSelectionDialog);
+  gtk_window_set_transient_for(GTK_WINDOW(FileSelectionDialog),GTK_WINDOW(Prefs));
 
 }
 
@@ -1285,4 +1277,141 @@ on_animate_toggled                     (GtkToggleButton *togglebutton,
 }
 
 
+
+
+void
+on_window_3d1_activate                 (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  GtkWidget *window3D;
+  v5d_info *info;
+
+  if(!FontSelectionDialog)
+	 FontSelectionDialog = create_fontselectiondialog1();
+
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  if(!window3D) return;
+  info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(window3D), "v5d_info");
+  if(!info) return;
+  gtk_object_set_data(FontSelectionDialog,"v5d_info",info);
+
+  gtk_object_set_data(FontSelectionDialog,"Font",WINDOW_3D_FONT);
+	 
+  gtk_widget_show(FontSelectionDialog);
+
+}
+
+
+void
+on_contour_label1_activate             (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  GtkWidget *window3D;
+  v5d_info *info;
+
+  if(!FontSelectionDialog)
+	 FontSelectionDialog = create_fontselectiondialog1();
+
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  if(!window3D) return;
+  info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(window3D), "v5d_info");
+  if(!info) return;
+  gtk_object_set_data(FontSelectionDialog,"v5d_info",info);
+
+  gtk_object_set_data(FontSelectionDialog,"Font",CONTOUR_LABEL_FONT);
+	 
+  gtk_widget_show(FontSelectionDialog);
+
+}
+
+
+void
+on_topography1_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  char v5dstr[V5D_MAXSTRLEN];
+  GtkWidget *window3D;
+  v5d_info *info;
+
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  if(!window3D) return;
+  info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(window3D), "v5d_info");
+  if(!info) return;
+
+  if(FileSelectionDialog == NULL)
+	 FileSelectionDialog = create_fileselection1();
+
+  gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Select Topography File"));
+  gtk_grab_add(FileSelectionDialog);
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" ,"topo");
+  
+  vis5d_get_topo(info->v5d_display_context , (char *) v5dstr);
+  if(v5dstr[0]=='/'){
+	 gtk_file_selection_set_filename(FileSelectionDialog,v5dstr);
+  }else{
+	 gtk_file_selection_set_filename(FileSelectionDialog,DATA_PREFIX );
+  }
+  gtk_widget_show (FileSelectionDialog);
+  gtk_grab_add(FileSelectionDialog);
+  gtk_window_set_transient_for(GTK_WINDOW(FileSelectionDialog),GTK_WINDOW(window3D));
+}
+
+
+void
+on_map2_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  char v5dstr[V5D_MAXSTRLEN];
+  GtkWidget *window3D;
+  v5d_info *info;
+
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  if(!window3D) return;
+  info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(window3D), "v5d_info");
+  if(!info) return;
+
+  if(FileSelectionDialog == NULL)
+	 FileSelectionDialog = create_fileselection1();
+
+  gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Select Map File"));
+  gtk_grab_add(FileSelectionDialog);
+  gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" ,"map");
+
+  vis5d_get_map(info->v5d_display_context , (char *) v5dstr);
+  if(v5dstr[0]=='/'){
+	 gtk_file_selection_set_filename(FileSelectionDialog,v5dstr);
+  }else{
+	 gtk_file_selection_set_filename(FileSelectionDialog,DATA_PREFIX );
+  }  
+ 
+  gtk_widget_show (FileSelectionDialog);
+  gtk_grab_add(FileSelectionDialog);
+  gtk_window_set_transient_for(GTK_WINDOW(FileSelectionDialog),GTK_WINDOW(window3D));
+}
+
+
+void
+on_fontselectionbutton_clicked         (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  int whichbutton, whichfont;
+  gchar *fontname;
+  v5d_info *info;
+
+  whichbutton = (int) user_data;
+
+  printf("whichbutton = %d\n",whichbutton);
+
+  if(whichbutton==0)/* OK */{
+	 fontname = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG (FontSelectionDialog));
+
+	 whichfont = (int) gtk_object_get_data(GTK_OBJECT(FontSelectionDialog),"Font");
+	 info = (v5d_info *) gtk_object_get_data(GTK_OBJECT(FontSelectionDialog),"v5d_info");
+  
+	 vis5d_set_font(info->v5d_display_context,fontname,0,whichfont);
+  }
+
+  gtk_widget_hide(FontSelectionDialog);
+
+}
 

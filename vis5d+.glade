@@ -39,7 +39,6 @@
       <last_modification_time>Fri, 09 Mar 2001 18:25:03 GMT</last_modification_time>
     </signal>
     <stock_button>GNOME_STOCK_BUTTON_OK</stock_button>
-    <relief>GTK_RELIEF_NORMAL</relief>
   </widget>
 
   <widget>
@@ -54,7 +53,6 @@
       <last_modification_time>Fri, 02 Mar 2001 20:58:30 GMT</last_modification_time>
     </signal>
     <label>Cancel</label>
-    <relief>GTK_RELIEF_NORMAL</relief>
   </widget>
 </widget>
 
@@ -120,7 +118,6 @@
 		<signal>
 		  <name>activate</name>
 		  <handler>on_open1_activate</handler>
-		  <data>GtkGlArea</data>
 		  <last_modification_time>Wed, 18 Jul 2001 12:43:12 GMT</last_modification_time>
 		</signal>
 		<label>_Open</label>
@@ -163,7 +160,6 @@
 		<signal>
 		  <name>activate</name>
 		  <handler>on_map1_activate</handler>
-		  <data>GtkGlArea</data>
 		  <last_modification_time>Tue, 17 Jul 2001 19:52:39 GMT</last_modification_time>
 		</signal>
 		<label>Map</label>
@@ -177,7 +173,6 @@
 		<signal>
 		  <name>activate</name>
 		  <handler>on_box1_activate</handler>
-		  <data>GtkGlArea</data>
 		  <last_modification_time>Tue, 17 Jul 2001 19:52:28 GMT</last_modification_time>
 		</signal>
 		<label>Box</label>
@@ -191,7 +186,6 @@
 		<signal>
 		  <name>activate</name>
 		  <handler>on_clock1_activate</handler>
-		  <data>GtkGlArea</data>
 		  <last_modification_time>Tue, 17 Jul 2001 19:52:14 GMT</last_modification_time>
 		</signal>
 		<label>Clock</label>
@@ -205,7 +199,6 @@
 		<signal>
 		  <name>activate</name>
 		  <handler>on_topo1_activate</handler>
-		  <data>GtkGlArea</data>
 		  <last_modification_time>Tue, 17 Jul 2001 19:52:01 GMT</last_modification_time>
 		</signal>
 		<label>Topo</label>
@@ -225,11 +218,89 @@
 		<signal>
 		  <name>activate</name>
 		  <handler>on_preferences1_activate</handler>
-		  <data>window3D</data>
 		  <last_modification_time>Wed, 18 Jul 2001 12:16:23 GMT</last_modification_time>
 		</signal>
 		<label>Preferences</label>
 		<right_justify>False</right_justify>
+
+		<widget>
+		  <class>GtkMenu</class>
+		  <name>preferences1_menu</name>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>fonts1</name>
+		    <label>Fonts</label>
+		    <right_justify>False</right_justify>
+
+		    <widget>
+		      <class>GtkMenu</class>
+		      <name>fonts1_menu</name>
+
+		      <widget>
+			<class>GtkMenuItem</class>
+			<name>window_3d1</name>
+			<tooltip>Select the default font for 3D Graphics labels</tooltip>
+			<signal>
+			  <name>activate</name>
+			  <handler>on_window_3d1_activate</handler>
+			  <last_modification_time>Mon, 06 Aug 2001 22:48:28 GMT</last_modification_time>
+			</signal>
+			<label>Window 3D</label>
+			<right_justify>False</right_justify>
+		      </widget>
+
+		      <widget>
+			<class>GtkMenuItem</class>
+			<name>contour_label1</name>
+			<tooltip>Select the contour label font </tooltip>
+			<signal>
+			  <name>activate</name>
+			  <handler>on_contour_label1_activate</handler>
+			  <last_modification_time>Mon, 06 Aug 2001 22:48:59 GMT</last_modification_time>
+			</signal>
+			<label>Contour Label</label>
+			<right_justify>False</right_justify>
+		      </widget>
+		    </widget>
+		  </widget>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>files1</name>
+		    <label>Files</label>
+		    <right_justify>False</right_justify>
+
+		    <widget>
+		      <class>GtkMenu</class>
+		      <name>files1_menu</name>
+
+		      <widget>
+			<class>GtkMenuItem</class>
+			<name>topography1</name>
+			<signal>
+			  <name>activate</name>
+			  <handler>on_topography1_activate</handler>
+			  <last_modification_time>Mon, 06 Aug 2001 22:51:35 GMT</last_modification_time>
+			</signal>
+			<label>Topography</label>
+			<right_justify>False</right_justify>
+		      </widget>
+
+		      <widget>
+			<class>GtkMenuItem</class>
+			<name>map2</name>
+			<signal>
+			  <name>activate</name>
+			  <handler>on_map2_activate</handler>
+			  <last_modification_time>Mon, 06 Aug 2001 22:51:51 GMT</last_modification_time>
+			</signal>
+			<label>Map</label>
+			<right_justify>False</right_justify>
+		      </widget>
+		    </widget>
+		  </widget>
+		</widget>
 	      </widget>
 	    </widget>
 	  </widget>
@@ -673,7 +744,6 @@
 	      <name>togglebutton3</name>
 	      <can_focus>True</can_focus>
 	      <label>Snap to Grid</label>
-	      <relief>GTK_RELIEF_NORMAL</relief>
 	      <active>False</active>
 	      <child>
 		<padding>0</padding>
@@ -951,7 +1021,6 @@
 		<last_modification_time>Sun, 18 Mar 2001 21:00:02 GMT</last_modification_time>
 	      </signal>
 	      <label>Reset to Defaults</label>
-	      <relief>GTK_RELIEF_NORMAL</relief>
 	      <child>
 		<padding>0</padding>
 		<expand>True</expand>
@@ -1003,7 +1072,6 @@
 	    <name>togglebutton4</name>
 	    <can_focus>True</can_focus>
 	    <label>Shaded</label>
-	    <relief>GTK_RELIEF_NORMAL</relief>
 	    <active>False</active>
 	    <child>
 	      <padding>0</padding>
@@ -1028,7 +1096,6 @@
 	      <name>button21</name>
 	      <can_focus>True</can_focus>
 	      <label>Select Color</label>
-	      <relief>GTK_RELIEF_NORMAL</relief>
 	      <child>
 		<padding>0</padding>
 		<expand>True</expand>
@@ -1041,7 +1108,6 @@
 	      <name>button22</name>
 	      <can_focus>True</can_focus>
 	      <label>Select Color Table</label>
-	      <relief>GTK_RELIEF_NORMAL</relief>
 	      <child>
 		<padding>0</padding>
 		<expand>True</expand>
@@ -1274,7 +1340,6 @@
 	    <last_modification_time>Wed, 18 Jul 2001 11:51:06 GMT</last_modification_time>
 	  </signal>
 	  <label>Browse</label>
-	  <relief>GTK_RELIEF_NORMAL</relief>
 	  <child>
 	    <left_attach>2</left_attach>
 	    <right_attach>3</right_attach>
@@ -1302,7 +1367,6 @@
 	    <last_modification_time>Wed, 18 Jul 2001 11:51:38 GMT</last_modification_time>
 	  </signal>
 	  <label>Browse</label>
-	  <relief>GTK_RELIEF_NORMAL</relief>
 	  <child>
 	    <left_attach>2</left_attach>
 	    <right_attach>3</right_attach>
@@ -1394,7 +1458,6 @@
 	  <last_modification_time>Wed, 18 Jul 2001 13:11:42 GMT</last_modification_time>
 	</signal>
 	<label>Okay</label>
-	<relief>GTK_RELIEF_NORMAL</relief>
       </widget>
 
       <widget>
@@ -1408,7 +1471,6 @@
 	  <last_modification_time>Wed, 18 Jul 2001 13:12:11 GMT</last_modification_time>
 	</signal>
 	<label>Cancel</label>
-	<relief>GTK_RELIEF_NORMAL</relief>
       </widget>
     </widget>
   </widget>
@@ -1508,7 +1570,6 @@
       <last_modification_time>Fri, 27 Jul 2001 15:52:22 GMT</last_modification_time>
     </signal>
     <label>OK</label>
-    <relief>GTK_RELIEF_NORMAL</relief>
   </widget>
 
   <widget>
@@ -1523,7 +1584,6 @@
       <last_modification_time>Fri, 27 Jul 2001 15:54:05 GMT</last_modification_time>
     </signal>
     <label>Cancel</label>
-    <relief>GTK_RELIEF_NORMAL</relief>
   </widget>
 
   <widget>
@@ -1533,7 +1593,64 @@
     <can_default>True</can_default>
     <can_focus>True</can_focus>
     <label>Help</label>
-    <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkFontSelectionDialog</class>
+  <name>fontselectiondialog1</name>
+  <border_width>4</border_width>
+  <title>Select Font</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>True</auto_shrink>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FontSel:ok_button</child_name>
+    <name>fontselectionokaybutton</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <signal>
+      <name>clicked</name>
+      <handler>on_fontselectionbutton_clicked</handler>
+      <data>0</data>
+      <last_modification_time>Mon, 06 Aug 2001 23:36:21 GMT</last_modification_time>
+    </signal>
+    <label>OK</label>
+  </widget>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FontSel:apply_button</child_name>
+    <name>fontselectionapplybutton</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <signal>
+      <name>clicked</name>
+      <handler>on_fontselectionbutton_clicked</handler>
+      <data>1</data>
+      <last_modification_time>Mon, 06 Aug 2001 23:36:42 GMT</last_modification_time>
+    </signal>
+    <label>Apply</label>
+  </widget>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FontSel:cancel_button</child_name>
+    <name>fontselectioncancelbutton</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <signal>
+      <name>clicked</name>
+      <handler>on_fontselectionbutton_clicked</handler>
+      <data>2</data>
+      <last_modification_time>Mon, 06 Aug 2001 23:37:01 GMT</last_modification_time>
+    </signal>
+    <label>Cancel</label>
   </widget>
 </widget>
 

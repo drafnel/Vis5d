@@ -1,9 +1,7 @@
 #include <gtk/gtk.h>
 
-/* copied from gkkgl.c, see hint.txt */
 
-
-
+GtkWidget *new_window3D(GtkWidget *oldwindow3D);
 
 
 void
@@ -341,4 +339,40 @@ on_animate_toggled                     (GtkToggleButton *togglebutton,
 
 void
 on_animate_toggled                     (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_open_in_new_frame1_activate         (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_open_profile_activate               (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_new_profile_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_delete_frame1_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_window_3d1_activate                 (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_contour_label1_activate             (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_topography1_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_map2_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_fontselectionbutton_clicked         (GtkButton       *button,
                                         gpointer         user_data);

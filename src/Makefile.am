@@ -24,13 +24,6 @@ SRC_I = analyze_i.c file_i.c grid_i.c \
 GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
           soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c
 
-OTHER_API = analysis.o anim.o api.o box.o chrono.o compute.o contour.o \
-            groupchrono.o globals.o graphics.all.o grid.o image.o imemory.o \
-            map.o matrix.o memory.o misc.o mwmborder.o pipe.o proj.o queue.o \
-            record.o render.o rgb.o save.o socketio.o stream.o sounding.o \
-            sync.o tclsave.o textplot.o topo.o traj.o user_data.o volume.o \
-            vtmcP.o work.o
-
 # when are these not used?
 AUXSRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
 
@@ -39,7 +32,7 @@ HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour
 libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
 libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-libvis5d_la_SOURCES = $(API_SRC) $(SRC_I) $(OTHER_API) $(AUXSRC) api.h
+libvis5d_la_SOURCES = $(API_SRC) $(SRC_I) $(AUXSRC) api.h
 libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
 vis5d_SOURCES = $(GUI_SRC) main.c $(HEADER_SRC)

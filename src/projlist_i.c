@@ -490,9 +490,9 @@ struct vcs *new_vcs( struct grid_db *db, int kind, int nl, int lowlev,
    switch (kind) {
       case VERT_GENERIC:     nargs = 2;   break;
       case VERT_EQUAL_KM:    nargs = 2;   break;
-      case VERT_UNEQUAL_KM:  nargs = nl;  break;
+      case VERT_UNEQUAL_KM:  nargs = nl+lowlev;  break;
 #if V5D_VERSION >= 42
-      case VERT_UNEQUAL_MB:  nargs = nl;  break;
+      case VERT_UNEQUAL_MB:  nargs = nl+lowlev;  break;
 #endif
       case VERT_EPA:         nargs = nl;  break;
       default:
@@ -551,7 +551,7 @@ struct vcs *new_vcs( struct grid_db *db, int kind, int nl, int lowlev,
       struct vcs *newv;
       newv = (struct vcs *) calloc( 1, sizeof(struct vcs) );
       newv->Kind = kind;
-      newv->Nl = nl;
+      newv->Nl = nl+lowlev;
       newv->LowLev = lowlev;
       newv->Args = (float *) MALLOC( nargs * sizeof(float) );
       for (i=0;i<nargs;i++) {

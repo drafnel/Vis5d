@@ -113,15 +113,12 @@ struct isosurface {
    int     lock;        /* mutual exclusion lock */
    int     valid;       /* valid/initialized surface flag */
    float   isolevel;    /* the isolevel of the surface */
-#ifdef USE_GLLISTS
-  GLuint glList;
-#else
+
    int_2   *verts;      /* array [numverts][3] of vertices */
    int_1   *norms;      /* array [numverts][3] of normals */
    int     numindex;    /* number of indexes */
    uint_index  *index;      /* array of indices into verts, norms arrays */
                         /* 4-bytes indices means LONG strips OK */
-#endif
    int     numverts;    /* number of vertices */
    uint_1  *colors;     /* array [numverts] of color table indexes */
    int     colorvar;    /* variable which is coloring the surface, or -1 */
@@ -273,9 +270,6 @@ struct hslice {
   float  lowlimit;          /* lowest level to contour */
   float  highlimit;         /* highest level to contour */
   float  level;             /* position of slice in grid levels */
-#ifdef USE_GLLISTS
-  GLuint glList[4];  /*(4 lists here) 0=contour lines 1=hidden contour lines 2=labels 3=box */
-#else
   int    num1;              /* number of line segment vertices */
   int_2  *verts1;           /* array [num1][3] of int_2 vertices */
   int    num2;              /* number of 'hidden' line segment vertices */
@@ -286,7 +280,6 @@ struct hslice {
   int    numboxverts;       /* number of vertices in boxverts array */
 #ifdef USE_SYSTEM_FONTS
   char *labels;
-#endif
 #endif
 
 };
@@ -302,9 +295,6 @@ typedef struct {
   int textureflag;  /* use texture objects for color ? */
   int linewidth;
   int stipple;
-#ifdef USE_GLLISTS
-  GLuint textureobject;
-#endif
 } hslice_request;
 
 typedef struct {
@@ -327,9 +317,6 @@ typedef struct {
   int fillstyle;
   int linewidth;
   int stipple;
-#ifdef USE_GLLISTS
-  GLuint textureobject;
-#endif
 } vslice_request;
 
 
@@ -342,9 +329,7 @@ struct vslice {
    float  highlimit;         /* highest level to contour */
    float  r1, c1;            /* 1st corner position in [0,Nr-1],[0,Nc-1] */
    float  r2, c2;            /* 2nd corner position in [0,Nr-1],[0,Nc-1] */
-#ifdef USE_GLLISTS
-  GLuint glList[4]; /* 0=contour lines 1=hidden contour lines 2=labels 4=box */
-#else
+
    int    num1;              /* number of line segment vertices */
    int_2  *verts1;           /* array [num1][3] of int_2 vertices */
    int    num2;              /* number of 'hidden' line segment vertices */
@@ -355,7 +340,6 @@ struct vslice {
    int    numboxverts;       /* number of vertices in boxverts array */
 #ifdef USE_SYSTEM_FONTS
   char *labels;
-#endif
 #endif
 };
 
@@ -368,13 +352,11 @@ struct chslice {
   int     lock;
   int     valid;           /* valid/initialized slice flag */
   float   level;           /* position of slice in grid levels */
-#ifdef USE_GLLISTS
-  GLuint   glList[2];   /* one list, one texture */
-#else
+
   int     rows, columns;   /* size of quadmesh */
   int_2   *verts;          /* array [rows*columns][3] of int_2 vertices */
   uint_1  *color_indexes;  /* quadmesh vertex color indexes */
-#endif
+
 };
 
 
@@ -385,13 +367,10 @@ struct cvslice {
    float   r1, c1;            /* 1st corner position in [0,Nr-1],[0,Nc-1] */
    float   r2, c2;            /* 2nd corner position in [0,Nr-1],[0,Nc-1] */
    float   mark[2][3];        /* tiny marker at midpoint of top edge */
-#ifdef USE_GLLISTS
-  GLuint   glList[2];  /* one list, one texture */
-#else
    int     rows, columns;     /* size of quadmesh */
    int_2   *verts;            /* array [rows*columns][3] of int_2 vertices */
    uint_1  *color_indexes;    /* quadmesh vertex color indexes */
-#endif
+
 };
 
 /* tiny struct for the clipping planes */
@@ -1027,11 +1006,9 @@ struct display_context {
    int DisplayMap;       /* display map? */
    int DisplayTexture;   /* display texture images? */
    int CoordFlag;        /* coordinate display units:  0=geographic, 1=grid */
-#ifdef USE_GLLISTS
-   GLuint DisplayBox;       /* Display 3-D box? */
-#else
+
   int DisplayBox;
-#endif
+
    int DisplayClock;     /* Display clock? */
    int PrettyFlag;       /* 'Pretty' rendering mode? */
    int DisplayInfo;      /* Display information? */

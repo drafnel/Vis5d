@@ -20,6 +20,7 @@ API_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
           sounding.c sync.c tclsave.c textplot.c topo.c traj.c user_data.c \
           volume.c vtmcP.c work.c sgidump.c decimate.C
 
+
 IMPORT_SRC = analyze_i.c file_i.c grid_i.c \
          misc_i.c output_i.c proj_i.c projlist_i.c read_epa_i.c \
         read_gr3d_i.c read_grid_i.c read_grads_i.c read_uwvis_i.c read_v5d_i.c\
@@ -63,9 +64,12 @@ vis5d_LDADD = $(LIBGUI) $(LIBLUI5) libvis5d.la libv5d.la \
 #
 # If linking with mixkit we need to use c++
 #
-if CXX
+if MIXKIT
 vis5d_LINK=$(CXXLINK) -o $@
 v5dimport_LINK=$(CXXLINK) -o $@
+else
+vis5d_LINK=$(LINK) -o $@
+v5dimport_LINK=$(LINK) -o $@
 endif
 
 

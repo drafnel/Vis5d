@@ -6424,11 +6424,6 @@ int vis5d_graphics_mode( int index, int what, int mode )
       if (*val != 0) {
         dtx->Redraw = 1;
         vis5d_invalidate_dtx_frames(index);
-#ifdef USE_GLLISTS 
-		  if( glIsList(*val)){
-			 glDeleteLists((GLuint ) *val, 1);
-		  }
-#endif
       }
       *val = 0;
       break;

@@ -34,7 +34,7 @@ vis5d_LDADD = libv5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
               @GLLIBS@ @XLIBS@ @THREADLIBS@ \
                @GTK_LIBS@ -lgtkgl $(INTLLIBS) 
 
-if CXX
+if MIXKIT
 vis5d_SOURCES = main.c dummy.C
 else
 vis5d_SOURCES = main.c

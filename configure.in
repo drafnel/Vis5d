@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.32 $)
+AC_REVISION($Revision: 1.33 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(vis5d+, 1.2.0)
 
@@ -171,6 +171,11 @@ if test "$with_mesa" = "yes"; then
 fi
 if test -n "$GLLIBS"; then
 	AC_DEFINE(HAVE_OPENGL,1,[Define if we have OpenGL libraries.])
+   AC_CHECK_HEADERS(GL/gl.h, ,
+	          AC_MSG_ERROR(
+ Couldn't include header file <GL/gl.h>
+ you may need to specify the path to OpenGL include files in CPPFLAGS.
+              ) )
 else
 	echo "couldn't find OpenGL libraries!"
 	if test "$with_mesa" = "yes"; then
@@ -389,7 +394,6 @@ if test "$with_mixkit" != "no"; then
       	 ])
 
 	   AC_LANG_POP(C++)
-	   AM_CONDITIONAL(CXX,test -n '1')
 		;;
 
 		*)
@@ -404,6 +408,7 @@ if test "$with_mixkit" != "no"; then
 		;;
 	esac
 fi
+AM_CONDITIONAL(MIXKIT,test -n "$HAVE_MIXKIT")
 
 ##########################################################################
 # Find MCIDAS

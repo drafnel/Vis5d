@@ -48,9 +48,6 @@
 #include "sync.h"
 #include "vis5d.h"
 
-#ifdef USE_GLLISTS
-#  include <GL/gl.h>
-#endif
 
 /*
  * Print an error message and abort.
@@ -287,9 +284,6 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->CHSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
 	  ctx->Variable[var]->CHSliceRequest->fillstyle = GL_FILL;
 	  ctx->Variable[var]->CHSliceRequest->textureflag=0;
-#ifdef USE_GLLISTS
-	  ctx->Variable[var]->CHSliceRequest->textureobject=0;
-#endif
 	}
    ctx->Variable[var]->CHSliceRequest->Level = l;
    ctx->Variable[var]->CHSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
@@ -333,9 +327,6 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->CVSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
 	  ctx->Variable[var]->CVSliceRequest->fillstyle = GL_FILL;
 	  ctx->Variable[var]->CVSliceRequest->textureflag=0;
-#ifdef USE_GLLISTS
-	  ctx->Variable[var]->CVSliceRequest->textureobject=0;
-#endif
 	}
 
    ctx->Variable[var]->CVSliceRequest->R1 = ctx->Variable[var]->VSliceRequest->R1;
@@ -450,109 +441,6 @@ void del_traj_group( Display_Context dtx, int g )
  */
 int free_isosurface( Context ctx, int time, int var )
 {
-#ifdef USE_GLLISTS
-   Display_Context dtx;
-   int ctime, ftime, t, total;
-   
-   dtx = ctx->dpy_ctx;
-   total = 0;
-   if (!ctx->SameIsoColorVarOwner[var]){
-      ftime = dtx->TimeStep[time].ownerstimestep[return_ctx_index_pos(dtx,
-                                  ctx->context_index)];
-      for(t=0; t < dtx->NumTimes; t++){
-         ctime = dtx->TimeStep[t].ownerstimestep[return_ctx_index_pos(dtx,
-                                                 ctx->context_index)];
-         if ( ctime==ftime){
-            if (ctx->Variable[var]->SurfTable[time]->valid) {
-               int b4, b5, b6, b7;
-               /* colors */
-               if (ctx->Variable[var]->SurfTable[time]->colors) {
-                  b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
-                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->colors, b4 );
-                  ctx->Variable[var]->SurfTable[time]->colors = NULL;
-               }
-               else {
-                  b4 = 0;
-               }
-               ctx->Variable[var]->SurfTable[time]->valid = 0;
-               total += b4;
-               /* vertices */
-               b5 = ctx->SurfTable[var][time]->deci_numverts * sizeof(int_2) * 3;
-               if (b5) {
-                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->deci_verts, b5 );
-               }
-               /* normals */
-               b6 = ctx->SurfTable[var][time]->deci_numverts * sizeof(int_1) * 3;
-               if (b6) {
-                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->deci_norms, b6 );
-               }
-
-               /* colors */
-               if (ctx->Variable[var]->SurfTable[time]->deci_colors) {
-                  b7 = ctx->Variable[var]->SurfTable[time]->deci_numverts * sizeof(uint_1);
-                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->deci_colors, b7 );
-                  ctx->Variable[var]->SurfTable[time]->deci_colors = NULL;
-               }
-               else {
-                  b7 = 0;
-               }
-					total += b5 + b6 + b7;
-
-            }
-         }
-      }
-      return total;
-   }
-   
-   else{
-
-      if (ctx->Variable[var] && 
-			 ctx->Variable[var]->SurfTable[time] && 
-			 ctx->Variable[var]->SurfTable[time]->valid) {
-         int b4, b5, b6, b7;
-         /* colors */
-         if (ctx->Variable[var]->SurfTable[time]->colors) {
-            b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
-            deallocate( ctx, ctx->Variable[var]->SurfTable[time]->colors, b4 );
-            ctx->Variable[var]->SurfTable[time]->colors = NULL;
-         }
-         else {
-            b4 = 0;
-         }
-         ctx->Variable[var]->SurfTable[time]->valid = 0;
-         total += b4;
-         /* vertices */
-         b5 = ctx->SurfTable[var][time].deci_numverts * sizeof(int_2) * 3;
-         if (b5) {
-            deallocate( ctx, ctx->SurfTable[var][time].deci_verts, b5 );
-         }
-         /* normals */
-         b6 = ctx->SurfTable[var][time].deci_numverts * sizeof(int_1) * 3;
-         if (b6) {
-            deallocate( ctx, ctx->SurfTable[var][time].deci_norms, b6 );
-         }
-
-         /* colors */
-         if (ctx->SurfTable[var][time].deci_colors) {
-            b7 = ctx->SurfTable[var][time].deci_numverts * sizeof(uint_1);
-            deallocate( ctx, ctx->SurfTable[var][time].deci_colors, b7 );
-            ctx->SurfTable[var][time].deci_colors = NULL;
-         }
-         else {
-            b7 = 0;
-         }
-	total += b5 + b6 + b7;
-	return total;
-
-      }
-      else 
-		  {
-			 return 0;
-		  }
-   }
-	
-
-#else
    Display_Context dtx;
    int ctime, ftime, t, total;
    
@@ -637,7 +525,6 @@ int free_isosurface( Context ctx, int time, int var )
          return 0;
       }
    }
-#endif
 	return 0;
 }
 
@@ -672,17 +559,6 @@ int free_hslice( Context ctx, int time, int var )
   int i;
   if(! (ctx->Variable[var] && ctx->Variable[var]->HSliceTable[time]))
 	 return 0;
-#ifdef USE_GLLISTS
-  for(i=0;i<4;i++)
-	 {
-		if(glIsList(ctx->Variable[var]->HSliceTable[time]->glList[i])){
-		  printf("freeing gllists in free_hslice\n");
-		  glDeleteLists(ctx->Variable[var]->HSliceTable[time]->glList[i],1);
-		}
-		ctx->Variable[var]->HSliceTable[time]->glList[i]=0;
-	 }
-
-#else
    if (ctx->Variable[var]->HSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
@@ -707,7 +583,6 @@ int free_hslice( Context ctx, int time, int var )
       return b1 + b2 + b3 + b4;
    }
    else 
-#endif	  
 	  {
 		 return 0;
 	  }
@@ -724,16 +599,6 @@ int free_vslice( Context ctx, int time, int var )
 	 return 0;
 
 
-#ifdef USE_GLLISTS
-  for(i=0;i<4;i++)
-	 {
-		if(glIsList(ctx->Variable[var]->VSliceTable[time]->glList[i])){
-		  printf("freeing gllists in free_vslice\n");
-		  glDeleteLists(ctx->Variable[var]->VSliceTable[time]->glList[i],1);
-		}
-		ctx->Variable[var]->VSliceTable[time]->glList[i]=0;
-	 }
-#else  
    if ( ctx->Variable[var]->VSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
@@ -760,7 +625,6 @@ int free_vslice( Context ctx, int time, int var )
       return b1 + b2 + b3 + b4;
    }
    else 
-#endif
 	  {
 		 return 0;
 	  }
@@ -772,8 +636,6 @@ int free_chslice( Context ctx, int time, int var )
 {
   if(! (ctx->Variable[var] && ctx->Variable[var]->CHSliceTable[time]))
 	 return 0;
-#ifdef USE_GLLISTS
-#else
    if (ctx->Variable[var]->CHSliceTable[time]->valid) {
       int nrnc, b1, b2;
       nrnc = ctx->Variable[var]->CHSliceTable[time]->rows
@@ -786,7 +648,6 @@ int free_chslice( Context ctx, int time, int var )
       return b1 + b2;
    }
    else 
-#endif
 	  {
 		 return 0;
 	  }
@@ -799,8 +660,6 @@ int free_cvslice( Context ctx, int time, int var )
 {
   if(! (ctx->Variable[var] && ctx->Variable[var]->CVSliceTable[time]))
 	 return 0;
-#ifdef USE_GLLISTS
-#else
    if (ctx->Variable[var]->CVSliceTable[time]->valid) {
       int nrnc, b1, b2;
       nrnc = ctx->Variable[var]->CVSliceTable[time]->rows
@@ -813,7 +672,6 @@ int free_cvslice( Context ctx, int time, int var )
       return b1 + b2;
    }
    else 
-#endif
 	  {
       return 0;
    }

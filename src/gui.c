@@ -8035,17 +8035,6 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
       else {
 		  return 0;
       }
-#ifdef USE_GLLISTS
-		{
-		  int curtime, numtimes, times;
-		  vis5d_get_ctx_numtimes( vindex, &numtimes );
-		  vis5d_get_ctx_timestep( vindex,  &curtime);
-		  for ( times = 0; times < numtimes; times++){
-			 vis5d_invalidate_chslice(vindex,cb_chvvar[cb_dindex] , curtime); 
-			 vis5d_make_chslice( vindex, times, cb_chvvar[cb_dindex] , times==curtime);
-		  }
-		}
-#endif
       vis5d_signal_redraw( index, 1 );
       /* BUG FIX MJK 8.8.98 */
       /* added this function */
@@ -8116,17 +8105,6 @@ static int colorbar_cb( LUI_COLORBAR *cb, int action )
 
 		  copy_grp_colors( gtx->group_index, index, vindex, cb_vvar[cb_dindex], VIS5D_CVSLICE);
       }
-#ifdef USE_GLLISTS
-		{
-		  int curtime, numtimes, times;
-		  vis5d_get_ctx_numtimes( vindex, &numtimes );
-		  vis5d_get_ctx_timestep( vindex,  &curtime);
-		  for ( times = 0; times < numtimes; times++){
-			 vis5d_invalidate_cvslice(vindex,cb_vvar[cb_dindex] , curtime); 
-			 vis5d_make_cvslice( vindex, times, cb_vvar[cb_dindex] , times==curtime);
-		  }
-		}
-#endif
 		vis5d_signal_redraw( index, 1 );
    }
    else if (cb_graphic[cb_dindex]==VIS5D_VOLUME) {

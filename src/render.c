@@ -37,9 +37,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef USE_GLLISTS
-#include <GL/gl.h>
-#endif
+
 
 #include "anim.h"
 #include "api.h"
@@ -869,9 +867,6 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
 		  }
 		  if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
 			 if (ctx->Variable[var]->SurfTable[time]->colors) {
-#ifdef USE_GLLISTS
-				printf("Should be drawing something here\n");
-#else					 
 				int	fastdraw;
 				vis5d_check_fastdraw(dtx->dpy_context_index, &fastdraw);
 				if ((fastdraw || animflag) && ctx->Variable[var]->SurfTable[time]->deci_verts) {
@@ -909,22 +904,8 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
 												  (void *) ctx->Variable[var]->SurfTable[time]->colors,
 												  dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[cvowner*MAXVARS+colorvar],
 												  alpha );
-#endif
 			 }
 			 else 
-#ifdef USE_GLLISTS
-				{
-				  unsigned int color=dtx->Color[ctx->context_index*MAXVARS+var][0] ;
-				  float mat_color[4];
-				  mat_color[0] = UNPACK_RED( color )   / 255.0;
-				  mat_color[1] = UNPACK_GREEN( color ) / 255.0;
-				  mat_color[2] = UNPACK_BLUE( color )  / 255.0;
-				  mat_color[3] = UNPACK_ALPHA( color ) / 255.0;
-				  glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_color );
-				  set_transparency( UNPACK_ALPHA(color) );
-				  glCallList(ctx->Variable[var]->SurfTable[time]->glList);
-				}
-#else
 			 {
 				draw_isosurface( ctx->Variable[var]->SurfTable[time]->numindex,
 									  ctx->Variable[var]->SurfTable[time]->index,
@@ -934,7 +915,6 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
 									  dtx->Color[ctx->context_index*MAXVARS+var][0], NULL, 0 );
 				
 			 }
-#endif
 		  }
 		}
 		done_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
@@ -1074,27 +1054,13 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
 				}
 				if(ctx->Variable[var]->HSliceRequest->linewidth>1)
 				  glLineWidth(ctx->Variable[var]->HSliceRequest->linewidth);
-#ifdef USE_GLLISTS
-			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE]) );
-				glCallList(ctx->Variable[var]->HSliceTable[time]->glList[0]);
-#else
-
             /* draw main contour lines */
             draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num1,
                                  (void *) ctx->Variable[var]->HSliceTable[time]->verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE], 
 											NULL, 0 );
-#endif
             if (labels) {
 #ifdef USE_SYSTEM_FONTS
-#  ifdef USE_GLLISTS
-				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[1]);
-
-				  glDisable(GL_LINE_STIPPLE);
-				  glListBase(ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase);
-				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[2]);
-
-#  else
                /* draw hidden contour lines */
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts2,
@@ -1108,23 +1074,14 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
 									  ctx->Variable[var]->HSliceTable[time]->verts3,
 									  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE],
 									  ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
-#  endif
 #else
-#  ifdef USE_GLLISTS
-				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[2]);
-				  
-#  else
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num3,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS
                                     +var][HSLICE], NULL, 0 );
-#  endif
 #endif
             }
             else {
-#ifdef USE_GLLISTS
-				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[1]);
-#else
 
                /* draw hidden contour lines */
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
@@ -1132,7 +1089,6 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][HSLICE], NULL, 0 );
 
-#endif
             }
 
             /* draw the bounding box */
@@ -1140,12 +1096,8 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
 				glDisable(GL_LINE_STIPPLE);
             /* MJK 12.01.98 */
             if (!ctx->DisplaySfcHSlice[var]){
-#ifdef USE_GLLISTS				  
-				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[3]);
-#else
 				  polyline( (void *) ctx->Variable[var]->HSliceTable[time]->boxverts,
 								ctx->Variable[var]->HSliceTable[time]->numboxverts );
-#endif
             }
             done_read_lock( &ctx->Variable[var]->HSliceTable[time]->lock );
          }
@@ -1210,26 +1162,14 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
 				}
 				if(ctx->Variable[var]->VSliceRequest->linewidth>1)
 				  glLineWidth(ctx->Variable[var]->VSliceRequest->linewidth);
-#ifdef USE_GLLISTS
-			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE]) );
-				glCallList(ctx->Variable[var]->VSliceTable[time]->glList[0]);
-#else				
             /* draw main contour lines */
             draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num1,
                                  (void*) ctx->Variable[var]->VSliceTable[time]->verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                  var][VSLICE], NULL, 0 );
 
-#endif
             if (labels) {
 #ifdef USE_SYSTEM_FONTS
-#  ifdef USE_GLLISTS
-				  glCallList(ctx->Variable[var]->VSliceTable[time]->glList[1]);
-
-				  glListBase(ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase);
-				  glCallList(ctx->Variable[var]->VSliceTable[time]->glList[2]);
-
-#  else 
                /* draw hidden contour lines */
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
@@ -1241,38 +1181,25 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
 									  (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
 									  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE],
 									  ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
-#  endif
 #else
-#  ifdef USE_GLLISTS
-					glCallList(ctx->Variable[var]->VSliceTable[time]->glList[2]);
-#  else
                /* draw contour labels */
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num3,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] , NULL, 0);
-#  endif
 #endif
             }
             else {
                /* draw hidden contour lines */
-#ifdef USE_GLLISTS
-				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[1]);
-#else
                draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] , NULL, 0);
-#endif
             }
-#ifdef USE_GLLISTS			
-			glCallList(ctx->Variable[var]->VSliceTable[time]->glList[3]);
-#else
             /* draw the bounding box */
             polyline( (void *) ctx->Variable[var]->VSliceTable[time]->boxverts,
                            ctx->Variable[var]->VSliceTable[time]->numboxverts );
 
-#endif
             done_read_lock( &ctx->Variable[var]->VSliceTable[time]->lock );
          }
 
@@ -1363,21 +1290,12 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
             if (lock) {
                recent( ctx, CHSLICE, var );
 					if(!tf){
-#ifdef USE_GLLISTS
-					  if(ctx->Variable[var]->CHSliceRequest->textureflag)
-						 color_quadmesh_texture_object(ctx->Variable[var]->CHSliceTable[time]->glList+1,
-																 (GLubyte *)dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
-					  glPolygonMode(GL_FRONT_AND_BACK, ctx->Variable[var]->CHSliceRequest->fillstyle);
-					  glCallList( ctx->Variable[var]->CHSliceTable[time]->glList[0] );
-					  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#else
 					  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
 												  ctx->Variable[var]->CHSliceTable[time]->columns,
 												  (void *)ctx->Variable[var]->CHSliceTable[time]->verts,
 												  ctx->Variable[var]->CHSliceTable[time]->color_indexes,
 												  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var], 
 												  0,NULL,0);
-#endif
 					}
                done_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
             }
@@ -1426,23 +1344,12 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
          if (lock) {
             recent( ctx, CVSLICE, var );
             if ( !tf) {
-#ifdef USE_GLLISTS
-				  if(ctx->Variable[var]->CVSliceRequest->textureflag)
-					 color_quadmesh_texture_object(ctx->Variable[var]->CVSliceTable[time]->glList+1,
-															 (GLubyte *)dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
-				  
-				  glPolygonMode(GL_FRONT_AND_BACK, ctx->Variable[var]->CVSliceRequest->fillstyle);
-				  glCallList( ctx->Variable[var]->CVSliceTable[time]->glList[0] );
-				  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				  
-#else
                draw_color_quadmesh( ctx->Variable[var]->CVSliceTable[time]->rows,
                                     ctx->Variable[var]->CVSliceTable[time]->columns,
                                     (void *)ctx->Variable[var]->CVSliceTable[time]->verts,
                                     ctx->Variable[var]->CVSliceTable[time]->color_indexes,
                                     dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
                                     0,NULL,0 );
-#endif
             }
             done_read_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
          }
@@ -2916,12 +2823,6 @@ void render_everything( Display_Context dtx, int animflag )
 		 
 		 if (dtx->DisplayBox){
 			int i, listflag=0;
-#ifdef USE_GLLISTS
-			if(dtx->NumBoxVerts > 0 && ! glIsList(dtx->DisplayBox)){
-			  dtx->DisplayBox = v5d_glGenLists(1);
-			  glNewList(dtx->DisplayBox,GL_COMPILE_AND_EXECUTE);
-			  listflag=1;
-#endif
 			  
 			  for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
 				 start_aa_pass(i);
@@ -2929,12 +2830,6 @@ void render_everything( Display_Context dtx, int animflag )
 				 /* draw_tick_marks( dtx ); */
 				 end_aa_pass(i);
 			  }
-#ifdef USE_GLLISTS
-			  glEndList();
-			}
-			else
-			  glCallList(dtx->DisplayBox);
-#endif
 		 }
 
 		 clipping_on();

@@ -63,14 +63,12 @@ typedef struct {
   int numtimes;
   int vcs;
   int label_count;
-  GtkWidget *HSliceControls;
 
   GList *graph_label_list;
 
 } v5d_info;
 
 typedef struct {
-
   gfloat min, max, interval, level, pressure;
   gdouble color[4];
   gint linewidth;
@@ -79,10 +77,10 @@ typedef struct {
   gboolean onscreen;
 
   graph_label *label;
-
-  GtkWidget *level_value;  /* the vertical level label */
   preview_area *sample;
 
+  GtkWidget *level_value;  /* the vertical level label */
+  gchar *var;  /* should be a reference used for procedure saving */
 } hslicecontrols;
 
 typedef struct {
@@ -91,7 +89,10 @@ typedef struct {
   v5d_info *info;
   gint maxlevel;
   gchar vname[10];
-  hslicecontrols *hc;
+
+  hslicecontrols *hs, *chs;
+
+  GtkWidget *VarGraphicsDialog;
 } v5d_var_info;
 
 

@@ -1,3 +1,5 @@
+#include "support_cb.h"
+
 GtkWidget *new_window3D(GtkWidget *oldwindow3D);
 
 void 
@@ -116,3 +118,29 @@ void
 glarea_init (GtkWidget* widget, 
 						gpointer user_data);
 
+
+void
+on_variable_activate                   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_about1_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+void
+variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo);
+
+void
+on_variable_activate                   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_animate_slower                      (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_animate_faster                      (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_change_animate_speed                (GtkButton       *button,
+                                        gpointer         user_data);

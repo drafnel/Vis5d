@@ -19,6 +19,8 @@
 #include "support.h"
 #include "support_cb.h"
 #include "graph_labels.h"
+#include "VarGraphicsControls.h"
+
 
 extern GtkWidget *FileSelectionDialog;
 extern GtkWidget *FontSelectionDialog;
@@ -46,6 +48,9 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
   if(oldwindow3D)
 	 gtk_object_set_data(GTK_OBJECT(oldwindow3D),"window3Dlist",(gpointer) window3Dlist);
 	 
+  gtk_widget_set_sensitive(lookup_widget(window3D,"vars2d"),FALSE);
+  gtk_widget_set_sensitive(lookup_widget(window3D,"vars3d"),FALSE);
+
   gtk_widget_show (window3D);
   return window3D;
 }
@@ -282,11 +287,17 @@ on_animate_toggled                     (GtkToggleButton *togglebutton,
 	 /* set all other toolbar items to inactive */
 	 item = g_list_first(toolbar->children);
 	 while(item!=NULL){
-		if((widget=((GtkToolbarChild *) item->data)->widget) != GTK_WIDGET(togglebutton)){
+		if((widget=((GtkToolbarChild *) item->data)->widget) != GTK_WIDGET(togglebutton)
+			&& !GTK_IS_TOOLBAR(widget) ){
 		  gtk_widget_set_sensitive(widget,FALSE);
 		}
 		item=g_list_next(item);
 	 }
+	 /* animation speed items should be active */
+	 gtk_widget_set_sensitive(lookup_widget(GTK_WIDGET(togglebutton),"faster"),TRUE);
+	 gtk_widget_set_sensitive(lookup_widget(GTK_WIDGET(togglebutton),"slower"),TRUE);
+
+
   }else{
 	 info->animate=0;
 
@@ -298,6 +309,9 @@ on_animate_toggled                     (GtkToggleButton *togglebutton,
 		}
 		item=g_list_next(item);
 	 }
+	 /* animation speed items should be inactive */
+	 gtk_widget_set_sensitive(lookup_widget(GTK_WIDGET(togglebutton),"faster"),FALSE);
+	 gtk_widget_set_sensitive(lookup_widget(GTK_WIDGET(togglebutton),"slower"),FALSE);
   }
 
 }
@@ -409,7 +423,7 @@ on_newprocedure_activate               (GtkMenuItem     *menuitem,
 {
 
 }
-
+/*
 void
 on_hslice_activate (GtkMenuItem     *menuitem,
 							 gpointer         user_data)
@@ -423,7 +437,7 @@ on_hslice_activate (GtkMenuItem     *menuitem,
  	 gtk_widget_show(info->HSliceControls);
 
 }
-
+*/
 void
 on_chslice_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -914,9 +928,11 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 		vis5d_init_opengl_window(info->v5d_display_context,Xdisplay, Xwindow, glcontext);
 
 		vis5d_init_path(DATA_PREFIX);
+
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_BOX,VIS5D_ON);
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_CLOCK,VIS5D_ON);
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_MAP,VIS5D_ON);
+
 		vis5d_alpha_mode(info->v5d_display_context,VIS5D_ON );
 		vis5d_set_logo_size(info->v5d_display_context, 0.0);
 
@@ -976,3 +992,145 @@ on_window_3d1_activate                 (GtkMenuItem     *menuitem,
   gtk_widget_show(FontSelectionDialog);
 
 }
+
+void
+on_variable_activate                   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  v5d_var_info *vinfo = (v5d_var_info *) user_data;
+
+  if(vinfo->VarGraphicsDialog){
+	 /* the dialog already exist what to do ? */
+	 gtk_widget_show(vinfo->VarGraphicsDialog);
+  }else{
+	 vinfo->VarGraphicsDialog = new_VarGraphicsControls();	 
+	 
+	 gtk_widget_hide_on_delete(vinfo->VarGraphicsDialog);
+
+	 gtk_object_set_data(GTK_OBJECT(vinfo->VarGraphicsDialog),"v5d_var_info",(gpointer) vinfo);
+
+	 if(vinfo->maxlevel==1){
+		GtkWidget *notebook;
+		int i;
+		notebook = lookup_widget(vinfo->VarGraphicsDialog,"notebook3");
+		/* get rid of all but the horizontal contour pages */
+		for(i=5;i>1;i--){
+		  gtk_notebook_remove_page(GTK_NOTEBOOK(notebook), i);
+
+		}
+		/* perhaps we want to use these for 2d variables? (lui does allow movement) */
+		gtk_widget_destroy(lookup_widget(vinfo->VarGraphicsDialog,"hsvbox"));
+		gtk_widget_destroy(lookup_widget(vinfo->VarGraphicsDialog,"chvbox"));
+	 }else{
+		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"Vslicebutton"),TRUE);
+		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"CVslicebutton"),TRUE);
+		/*
+		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"Isosurfbutton"),TRUE);
+		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"Volumebutton"),TRUE);
+		*/
+	 }
+	 gtk_widget_show(vinfo->VarGraphicsDialog);
+  }
+
+}
+
+
+void
+on_about1_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+void
+variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
+{
+  GtkWidget *variables_menu, *variable, *tearoff;
+  gpointer tmp;
+
+  if(vinfo->maxlevel == 1){
+	 variables_menu = lookup_widget(window3D,"vars2d_menu");
+	 gtk_widget_set_sensitive(lookup_widget(window3D,"vars2d"),TRUE);
+	 tmp = gtk_object_get_data(GTK_OBJECT(window3D),"tearoff_2d");
+	 if(tmp)
+		tearoff = GTK_WIDGET(tmp);
+	 else{
+		variable = lookup_widget(window3D,"var2d");
+		if(variable){
+		  gtk_widget_destroy(variable);  
+		  gtk_object_remove_data(GTK_OBJECT(window3D),"var2d");
+		}
+		tearoff =  gtk_tearoff_menu_item_new();
+		gtk_widget_ref(tearoff);
+		gtk_widget_show(tearoff);
+		gtk_container_add (GTK_CONTAINER (variables_menu), tearoff);
+		gtk_object_set_data_full(GTK_OBJECT(window3D), "tearoff_2d", 
+										 tearoff, (GtkDestroyNotify) gtk_widget_unref);
+		
+	 }
+  }
+  else{
+	 variables_menu = lookup_widget(window3D,"vars3d_menu");
+	 gtk_widget_set_sensitive(lookup_widget(window3D,"vars3d"),TRUE);
+	 tmp = gtk_object_get_data(GTK_OBJECT(window3D),"tearoff_3d");
+	 if(tmp)
+		tearoff = GTK_WIDGET(tmp);
+	 else{
+		variable = lookup_widget(window3D,"var3d");
+		if(variable){
+		  gtk_widget_destroy(variable);
+		  gtk_object_remove_data(GTK_OBJECT(window3D),"var3d");
+		}
+		tearoff =  gtk_tearoff_menu_item_new();
+		gtk_widget_ref(tearoff);
+		gtk_widget_show(tearoff);
+		gtk_container_add (GTK_CONTAINER (variables_menu), tearoff);
+		gtk_object_set_data_full(GTK_OBJECT(window3D), "tearoff_3d", 
+										 tearoff, (GtkDestroyNotify) gtk_widget_unref);
+	 }
+  }
+  
+
+  /* get rid of the glade generated place holder and add tearoff */
+  /* glade cannot handle tearoffs at this time                   */
+
+  variable = gtk_menu_item_new_with_label (vinfo->vname);
+  gtk_widget_ref (variable);
+  gtk_widget_show (variable);
+  gtk_container_add (GTK_CONTAINER (variables_menu), variable);
+
+  gtk_signal_connect (GTK_OBJECT (variable), "activate",
+                      GTK_SIGNAL_FUNC (on_variable_activate),
+                      (gpointer) vinfo);
+
+}
+
+void
+on_change_animate_speed                (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  v5d_info *info;
+  GtkWidget *window3D;
+  /* user_data == 0 -> slower ; 1 -> faster */
+  gint faster = GPOINTER_TO_INT(user_data);
+
+  window3D = lookup_widget(GTK_WIDGET(button),"window3D");
+  info = gtk_object_get_data(GTK_OBJECT(window3D),"v5d_info");
+
+  if(!(info && info->timeout_id ))
+	 return;
+
+  if(faster){
+	 /* set a reasonable limit on speed (may not be achievable on all platforms) */
+	 /* 16 is about 60 frames per second                                         */
+	 if(info->animate_speed > 16) 
+		info->animate_speed*=0.5; 	
+  }else{
+	 info->animate_speed*=2.0; 	 
+  }
+  printf("Setting animate speed to %f frames per second\n",1000.0/ (float) info->animate_speed);
+
+  gtk_timeout_remove(info->timeout_id);
+  info->timeout_id = gtk_timeout_add(info->animate_speed, (GtkFunction) (_glarea_draw),(gpointer) info);
+}
+

@@ -551,27 +551,13 @@ void hslice_toggle(v5d_var_info *vinfo)
 
   if(vinfo->hc->onscreen){
 	 vinfo->hc->onscreen=FALSE;
-	 if(COLOR_FILL(vinfo->info->HSliceControls)){
-		vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_CHSLICE,
-									 vinfo->varid, VIS5D_OFF);
-	 }else{
-		vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
-									 vinfo->varid, VIS5D_OFF);
-
-	 }
+	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
+								  vinfo->varid, VIS5D_OFF);
 	 vis5d_set_color( vinfo->info->v5d_display_context, VIS5D_LABEL, vinfo->hc->label->labelid, 
 							0.5,0.5,0.5,0.5);
-	 
-	 
   }else{
-	 if(COLOR_FILL(vinfo->info->HSliceControls)){
-		vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_CHSLICE,
-									 vinfo->varid, VIS5D_ON);
-	 }else{
-		vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
+	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_ON);
-	 }
-
 	 vinfo->hc->onscreen=TRUE;
 	 hs_label(vinfo);
   }

@@ -88,7 +88,7 @@ on_clist1_select_row                   (GtkCList        *clist,
   sample = (preview_area *) gtk_object_get_data(GTK_OBJECT(Gradient),"Sample");
   glarea = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(Gradient),"GtkGlArea"));
 
-  if(! sample->colors)
+  if(! sample && sample->colors)
 	 return;
 
   for(i=0;i<255;i++){

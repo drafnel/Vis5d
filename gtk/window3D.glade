@@ -378,61 +378,61 @@
 
 	  <widget>
 	    <class>GtkMenuItem</class>
-	    <name>tools1</name>
+	    <name>variables</name>
 	    <sensitive>False</sensitive>
-	    <label>Tools</label>
+	    <label>Variables</label>
 	    <right_justify>False</right_justify>
 
 	    <widget>
 	      <class>GtkMenu</class>
-	      <name>tools1_menu</name>
+	      <name>variables_menu</name>
 
 	      <widget>
 		<class>GtkMenuItem</class>
-		<name>horizontal_contours1</name>
-		<signal>
-		  <name>activate</name>
-		  <handler>on_hslice_activate</handler>
-		  <last_modification_time>Fri, 17 Aug 2001 12:33:44 GMT</last_modification_time>
-		</signal>
-		<label>Horizontal Contours</label>
+		<name>vars2d</name>
+		<label>2D</label>
 		<right_justify>False</right_justify>
+
+		<widget>
+		  <class>GtkMenu</class>
+		  <name>vars2d_menu</name>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>var2d</name>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_variable_activate</handler>
+		      <last_modification_time>Thu, 30 Aug 2001 14:10:39 GMT</last_modification_time>
+		    </signal>
+		    <label>var2d</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+		</widget>
 	      </widget>
 
 	      <widget>
 		<class>GtkMenuItem</class>
-		<name>vertical_contours1</name>
-		<signal>
-		  <name>activate</name>
-		  <handler>on_vslice_activate</handler>
-		  <last_modification_time>Fri, 17 Aug 2001 12:33:44 GMT</last_modification_time>
-		</signal>
-		<label>Vertical Contours</label>
+		<name>vars3d</name>
+		<label>3D</label>
 		<right_justify>False</right_justify>
-	      </widget>
 
-	      <widget>
-		<class>GtkMenuItem</class>
-		<name>isosurface1</name>
-		<signal>
-		  <name>activate</name>
-		  <handler>on_isosurface_activate</handler>
-		  <last_modification_time>Fri, 10 Aug 2001 15:00:09 GMT</last_modification_time>
-		</signal>
-		<label>Isosurface</label>
-		<right_justify>False</right_justify>
-	      </widget>
+		<widget>
+		  <class>GtkMenu</class>
+		  <name>vars3d_menu</name>
 
-	      <widget>
-		<class>GtkMenuItem</class>
-		<name>volume</name>
-		<signal>
-		  <name>activate</name>
-		  <handler>on_volume_activate</handler>
-		  <last_modification_time>Fri, 10 Aug 2001 15:00:09 GMT</last_modification_time>
-		</signal>
-		<label>Volume</label>
-		<right_justify>False</right_justify>
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>var3d</name>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_variable_activate</handler>
+		      <last_modification_time>Thu, 30 Aug 2001 14:10:39 GMT</last_modification_time>
+		    </signal>
+		    <label>var3d</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+		</widget>
 	      </widget>
 	    </widget>
 	  </widget>
@@ -501,6 +501,49 @@
 	  </widget>
 
 	  <widget>
+	    <class>GtkToolbar</class>
+	    <name>toolbar2</name>
+	    <orientation>GTK_ORIENTATION_VERTICAL</orientation>
+	    <type>GTK_TOOLBAR_ICONS</type>
+	    <space_size>5</space_size>
+	    <space_style>GTK_TOOLBAR_SPACE_EMPTY</space_style>
+	    <relief>GTK_RELIEF_NORMAL</relief>
+	    <tooltips>True</tooltips>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <child_name>Toolbar:button</child_name>
+	      <name>faster</name>
+	      <sensitive>False</sensitive>
+	      <tooltip>animate faster</tooltip>
+	      <signal>
+		<name>clicked</name>
+		<handler>on_change_animate_speed</handler>
+		<data>GINT_TO_POINTER(1)</data>
+		<last_modification_time>Mon, 10 Sep 2001 14:33:56 GMT</last_modification_time>
+	      </signal>
+	      <label>button35</label>
+	      <icon>up.xpm</icon>
+	    </widget>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <child_name>Toolbar:button</child_name>
+	      <name>slower</name>
+	      <sensitive>False</sensitive>
+	      <tooltip>animate slower</tooltip>
+	      <signal>
+		<name>clicked</name>
+		<handler>on_change_animate_speed</handler>
+		<data>GINT_TO_POINTER(0)</data>
+		<last_modification_time>Mon, 10 Sep 2001 14:34:34 GMT</last_modification_time>
+	      </signal>
+	      <label>button36</label>
+	      <icon>down.xpm</icon>
+	    </widget>
+	  </widget>
+
+	  <widget>
 	    <class>GtkToggleButton</class>
 	    <child_name>Toolbar:button</child_name>
 	    <name>togglebutton5</name>
@@ -547,7 +590,38 @@
 	</widget>
 
 	<widget>
-	  <class>Placeholder</class>
+	  <class>GtkMenuBar</class>
+	  <name>menubar2</name>
+	  <shadow_type>GTK_SHADOW_OUT</shadow_type>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>help1</name>
+	    <label>Help</label>
+	    <right_justify>False</right_justify>
+
+	    <widget>
+	      <class>GtkMenu</class>
+	      <name>help1_menu</name>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>about1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_about1_activate</handler>
+		  <last_modification_time>Thu, 30 Aug 2001 13:41:19 GMT</last_modification_time>
+		</signal>
+		<label>About</label>
+		<right_justify>False</right_justify>
+	      </widget>
+	    </widget>
+	  </widget>
 	</widget>
       </widget>
     </widget>

@@ -15,6 +15,7 @@
 GtkWidget *FileSelectionDialog=NULL;
 GtkWidget *FontSelectionDialog=NULL;
 GtkWidget *ColorSelectionDialog=NULL;
+GtkWidget *ProcedureDialog=NULL;
 
 void variable_ctree_add_var(GtkCTree *ctree, gchar *name, v5d_var_info *vinfo)
 {
@@ -58,45 +59,29 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 	 float vertargs[MAXVERTARGS];
 	 vis5d_get_dtx_vertical(info->v5d_display_context, &(info->vcs), vertargs);
   }
-  /* create but do not show tools */
-  info->HSliceControls = create_HSliceControls();
-  /* point back to info */  
-  gtk_object_set_data(GTK_OBJECT(info->HSliceControls),"v5d_info",(gpointer) info);
-  hs_ctree = GTK_CTREE(lookup_widget(info->HSliceControls,"hslicectree"));
 
-  /*
-  VarDialog = create_VarDialog();
-  */
   for(i=0;i < numvars; i++){
 	 vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
 	 
-	 vinfo->hc = NULL;
+	 vinfo->hs = NULL;
+	 vinfo->chs = NULL;
 	 vinfo->varid=i;
 	 vinfo->v5d_data_context=dc;
 	 vinfo->info = info;
 	 vis5d_get_ctx_var_name(dc,i,vinfo->vname);
 	 vinfo->maxlevel = vis5d_get_levels(dc, i);
-
-	 variable_ctree_add_var(hs_ctree, vinfo->vname, vinfo);
-	 
-    /*
-	 add_variable_toolbar(VarDialog , vinfo);
-	 */
+	 vinfo->VarGraphicsDialog=NULL;
+	 variable_menu_add_variable(window3D, vinfo);
   }
-  /*
-  gtk_widget_show(VarDialog);
-  */
+
   /* make the menu widgets sensitive */
   gtk_widget_set_sensitive(lookup_widget(window3D,"options1"),TRUE);
-  /*  gtk_widget_set_sensitive(lookup_widget(window3D,"procedures1"),TRUE); */
-  gtk_widget_set_sensitive(lookup_widget(window3D,"tools1"),TRUE);
+  gtk_widget_set_sensitive(lookup_widget(window3D,"procedures1"),TRUE); 
+  gtk_widget_set_sensitive(lookup_widget(window3D,"variables"),TRUE);
   vis5d_get_dtx_numtimes(info->v5d_display_context, &info->numtimes);
   if(info->numtimes>1)
 	 gtk_widget_set_sensitive(lookup_widget(window3D,"toolbar1"),TRUE);
 	 
-
-
-
 }
 
 
@@ -135,7 +120,11 @@ on_fileselect_ok                       (GtkButton       *button,
 	 vis5d_load_topo_and_map(info->v5d_display_context);
 	 break;
   case PROCEDURE_FILE:
-	 
+	 if(ProcedureDialog)
+		gtk_widget_destroy(ProcedureDialog);
+    ProcedureDialog = new_ProcedureDialog(filename);
+	 gtk_window_set_transient_for(GTK_WINDOW(window3D));
+	 break;
   default:
 	 g_print("open what ? %d\n",what);
   }

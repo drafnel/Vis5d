@@ -14,12 +14,14 @@ noinst_LTLIBRARIES = libv5dgtk.la
 
 libv5dgtk_la_SOURCES = window3D.c window3D.h \
                        w3D_interface.c w3D_interface.h \
-                       HSliceControls.c HSliceControls.h \
-                       HSC_interface.c HSC_interface.h \
+                       VarGraphicsControls.c  VGC_interface.c \
+                       VarGraphicsControls.h  VGC_interface.h \
 							  support.c support.h \
 	                    support_cb.c support_cb.h \
                        interface.c interface.h \
 	                    procedure.c procedure.h \
+                       PD_interface.c	PD_interface.h	\
+                       ProcedureDialog.c  ProcedureDialog.h \
 	                    graph_labels.c  
 
 libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
@@ -34,12 +36,12 @@ vis5d_LDADD = libv5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
               @GLLIBS@ @XLIBS@ @THREADLIBS@ \
                @GTK_LIBS@ -lgtkgl $(INTLLIBS) 
 
-HSC_interface.c HSC_interface.h : hslicecontrols.glade
-	glade -w $<
-
-support.c support.h interface.c interface.h callbacks.h : vis5d+.glade
-	glade -w $<
-
-w3D_interface.c w3D_interface.h : window3D.glade
-	glade -w $<
+#HSC_interface.c HSC_interface.h : hslicecontrols.glade
+#	glade -w $<
+#
+#support.c support.h interface.c interface.h callbacks.h : vis5d+.glade
+#	glade -w $<
+#
+#w3D_interface.c w3D_interface.h : window3D.glade
+#	glade -w $<
 

@@ -117,7 +117,9 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
 {
   GList *item;
   graph_label *label=NULL;
-  
+  v5d_var_info *vinfo;
+  GtkWidget *widget;
+
   item = g_list_first(info->graph_label_list);
 
   while(item!=NULL){
@@ -132,17 +134,22 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
 	 printf("couldnt find labelid %d in list\n",label_id);
 	 return;
   }
-
+  vinfo = (v5d_var_info *) label->data;
   switch(label->gtype){
   case HSLICE:
 	 switch(button){
 	 case 1:
-	   hslicecontrol((v5d_var_info *) label->data);
+	   gtk_widget_show(vinfo->VarGraphicsDialog);
 		break;
 	 case 2:
-		hslice_toggle((v5d_var_info *) label->data);
+		/* toggles the graphics but leaves the label in the window */
+		hslice_toggle(vinfo);
 		break;
 	 case 3:
+		/* removes the graphic and label from the display */
+		widget = lookup_widget(vinfo->VarGraphicsDialog,"Hslicebutton");
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), FALSE);
+      break;
 	 default:
 	 }
 	 break;

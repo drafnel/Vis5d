@@ -389,15 +389,17 @@ arguments.  In the simplest case it may contain only a few commands such as:
 </para>
 <para>     
 As <command>v5dimport</command> executes a script it prints each command and its result.  Lines
-which start with a # are considered comments and ignored.
+that start with a "#" are considered comments and ignored.
 </para>
 </sect1>
 <sect1 id="ch07sec4">
 <title>Adding support for new file format</title>
 <para>
-     <command>v5dimport</command> was written so that adding code to read new file formats should
-be easy.  The source code for <command>v5dimport</command> is in the import/ subdirectory.  Look
-for the comment 
+     <command>v5dimport</command> was written so that adding code to
+read new file formats should be easy.  The source code for
+<command>v5dimport</command> is in the <filename>src/</filename>
+subdirectory (see especially <filename>v5dimport.c</filename> and
+<filename>file_i.c</filename>).  Look for the comment:
 </para>
 <para>
 <programlisting>
@@ -416,6 +418,7 @@ where foo is the name of your file format.  Then, update the
 <filename>file.c</filename> file to use your functions.  
 Use the existing <filename>read_*.c</filename> files as a guide.
 </para>
+
 </sect1>
 <sect1 id="ch07sec5">
 <title>Notes on specific file formats</title>

@@ -1,4 +1,4 @@
-SUBDIRS = lui5 src util import doc
+SUBDIRS = lui5 src util doc
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts userfuncs
 
 #

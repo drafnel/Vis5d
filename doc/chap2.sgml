@@ -610,7 +610,7 @@ while programs just doing file I/O can link with just
 </row>
 <row>
      <entry>src/</entry>
-     <entry> source code for vis5d</entry>
+     <entry>source code for <command>vis5d</command> and <command>v5dimport</command></entry>
 </row>
 <row>
      <entry>util/</entry>
@@ -619,10 +619,6 @@ while programs just doing file I/O can link with just
 <row>
      <entry>lui5/</entry>
      <entry>source code for LUI user interface library</entry>
-</row>
-<row>
-     <entry>import/</entry>
-     <entry>source code for the v5dimport program</entry>
 </row>
 <row>
      <entry>userfuncs/</entry>

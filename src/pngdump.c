@@ -131,9 +131,8 @@ void png_dump(Display	*dpy,
      /* Write the file header information.  REQUIRED */
      png_write_info(png_ptr, info_ptr);
 
-     /* Get rid of filler (OR ALPHA) bytes, pack XRGB/RGBX/ARGB/RGBA into
-      * RGB (4 channels -> 3 channels). The second parameter is not used.
-      */
+     /* Get rid of ALPHA bytes: pack RGBA into RGB (4 channels -> 3
+      * channels). The second parameter is not used. */
      png_set_filler(png_ptr, 0, PNG_FILLER_AFTER);
 
 

@@ -1,3 +1,1235 @@
-	This file should contain a detailed list of changes.  It can be
-	generated automatically if/when Vis5d uses CVS version control
-	by using the rcs2log program.
+2000-08-06  stevengj  <stevengj@alum.mit.edu>
+
+	* /cvsroot/vis5d/vis5d/src/gui.c: fixed bug for hidden colorbar
+	windows
+
+	* /cvsroot/vis5d/vis5d/src/sync.h: added POSIX mutex lock support
+
+	* /cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/memory.c: made check for init_memory more
+	explicit and safer
+
+	* /cvsroot/vis5d/vis5d/NEWS, /cvsroot/vis5d/vis5d/acx_pthread.m4,
+	/cvsroot/vis5d/vis5d/configure.in: updated thread library
+	detection
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/work.c,
+	/cvsroot/vis5d/vis5d/src/work.h: fixed thread function prototype
+
+2000-08-05  stevengj  <stevengj@alum.mit.edu>
+
+	* /cvsroot/vis5d/vis5d/NEWS: fixed typo
+
+	* /cvsroot/vis5d/vis5d/Makefile.am, /cvsroot/vis5d/vis5d/NEWS,
+	/cvsroot/vis5d/vis5d/configure.in: README.ps no longer distributed
+	(out of date)
+
+	* /cvsroot/vis5d/vis5d/util/Makefile.in,
+	/cvsroot/vis5d/vis5d/Makefile.in,
+	/cvsroot/vis5d/vis5d/import/Makefile.in,
+	/cvsroot/vis5d/vis5d/lui5/Makefile.in,
+	/cvsroot/vis5d/vis5d/src/Makefile.in: Makefile.in should not be in
+	cvs
+
+	* /cvsroot/vis5d/vis5d/PORTING, /cvsroot/vis5d/vis5d/autogen.sh:
+	added autogen script
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c.old2: got rid of unnecessary
+	file
+
+	* /cvsroot/vis5d/vis5d/contrib/witte/ccm_to_v5d,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/gemvis.tar,
+	/cvsroot/vis5d/vis5d/contrib/grads/grads_2_vis5d,
+	/cvsroot/vis5d/vis5d/contrib/grib/grib5d: removed redundant files
+
+	* /cvsroot/vis5d/vis5d/contrib/witte/ccm_to_v5d,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccm_to_v5d.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccmheader,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccrutil.h,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccrutil.readme,
+	/cvsroot/vis5d/vis5d/contrib/witte/diffccr.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/extrccr.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/henk-note,
+	/cvsroot/vis5d/vis5d/contrib/witte/scanccr.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/vec_to_map.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/vectomap.readme: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/witte/ccm_to_v5d,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccm_to_v5d.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccmheader,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccrutil.h,
+	/cvsroot/vis5d/vis5d/contrib/witte/ccrutil.readme,
+	/cvsroot/vis5d/vis5d/contrib/witte/diffccr.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/extrccr.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/henk-note,
+	/cvsroot/vis5d/vis5d/contrib/witte/scanccr.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/vec_to_map.c,
+	/cvsroot/vis5d/vis5d/contrib/witte/vectomap.readme: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/uw-meteor/vis_to_v5d.c,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/viswrite_cray.f,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/viswrite_unix.f,
+	/cvsroot/vis5d/vis5d/contrib/witte/Make_ccrutil,
+	/cvsroot/vis5d/vis5d/contrib/witte/Make_map,
+	/cvsroot/vis5d/vis5d/contrib/witte/Make_tov5d: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/uw-meteor/vis_to_v5d.c,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/viswrite_cray.f,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/viswrite_unix.f,
+	/cvsroot/vis5d/vis5d/contrib/witte/Make_ccrutil,
+	/cvsroot/vis5d/vis5d/contrib/witte/Make_map,
+	/cvsroot/vis5d/vis5d/contrib/witte/Make_tov5d: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/grib/grib5d,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/assign5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/buffer.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/bword.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/dyofyr.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/exbits.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/fetch5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/grib5d.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gribinfo.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gribinfo.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/grid5d.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gridproj.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gsdate.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/hrzintp5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/ktypes.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/locate5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/lscale.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/open5d.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/set_sign.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/sort5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/unpack5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vfetch5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vhrzint5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vrtintp5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vsort5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vvrtint5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/w3fb00.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/w3fc02.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/w3ft01.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/want.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/windcon.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/winds.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/write5d.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/x9ie32.c,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/HDFCONV.DOC,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/README.HDF,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/args.c,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/compal.c,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/hdftovis.F,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/hdftovis.m,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/Makefile,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/README,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/driver.f: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/grib/grib5d,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/assign5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/buffer.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/bword.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/dyofyr.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/exbits.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/fetch5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/grib5d.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gribinfo.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gribinfo.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/grid5d.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gridproj.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/gsdate.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/hrzintp5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/ktypes.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/locate5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/lscale.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/open5d.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/set_sign.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/sort5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/unpack5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vfetch5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vhrzint5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vrtintp5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vsort5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/vvrtint5.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/w3fb00.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/w3fc02.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/w3ft01.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/want.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/windcon.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/winds.h,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/write5d.c,
+	/cvsroot/vis5d/vis5d/contrib/grib/src/x9ie32.c,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/HDFCONV.DOC,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/README.HDF,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/args.c,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/compal.c,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/hdftovis.F,
+	/cvsroot/vis5d/vis5d/contrib/hdftovis/hdftovis.m,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/Makefile,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/README,
+	/cvsroot/vis5d/vis5d/contrib/uw-meteor/driver.f: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/grib/README.V5D: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/grib/README.V5D: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/grads/grads_2_vis5d,
+	/cvsroot/vis5d/vis5d/contrib/grads/grads_2_vis5d.f,
+	/cvsroot/vis5d/vis5d/contrib/grads/j.ctl,
+	/cvsroot/vis5d/vis5d/contrib/grib/Makefile: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/grads/grads_2_vis5d,
+	/cvsroot/vis5d/vis5d/contrib/grads/grads_2_vis5d.f,
+	/cvsroot/vis5d/vis5d/contrib/grads/j.ctl,
+	/cvsroot/vis5d/vis5d/contrib/grib/Makefile: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/gemvis/source/cyctim.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/encdec.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gdttim.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gemvis.err,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gemvis.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gemvis.pdf,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/getusr.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/intdat.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/julday.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/link_hp,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/link_sg,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/main.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/opnvfy.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/prshgt.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/setlvs.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/setpnt.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/usrinp.f,
+	/cvsroot/vis5d/vis5d/contrib/grads/grads.m: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/gemvis/source/cyctim.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/encdec.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gdttim.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gemvis.err,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gemvis.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/gemvis.pdf,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/getusr.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/intdat.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/julday.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/link_hp,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/link_sg,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/main.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/opnvfy.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/prshgt.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/setlvs.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/setpnt.f,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/usrinp.f,
+	/cvsroot/vis5d/vis5d/contrib/grads/grads.m: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/gemvis/gemvis.tar,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/chklav.f: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/gemvis/gemvis.tar,
+	/cvsroot/vis5d/vis5d/contrib/gemvis/source/chklav.f: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/SimonBaas/README,
+	/cvsroot/vis5d/vis5d/contrib/SimonBaas/README2: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/SimonBaas/README,
+	/cvsroot/vis5d/vis5d/contrib/SimonBaas/README2: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/contrib/CONTENTS,
+	/cvsroot/vis5d/vis5d/import/Makefile.am,
+	/cvsroot/vis5d/vis5d/import/Makefile.in,
+	/cvsroot/vis5d/vis5d/import/uam.c,
+	/cvsroot/vis5d/vis5d/import/uam_i.c,
+	/cvsroot/vis5d/vis5d/import/ui.c,
+	/cvsroot/vis5d/vis5d/import/ui.h,
+	/cvsroot/vis5d/vis5d/import/ui_i.c,
+	/cvsroot/vis5d/vis5d/import/ui_i.h: New file.
+
+	* /cvsroot/vis5d/vis5d/contrib/CONTENTS,
+	/cvsroot/vis5d/vis5d/import/Makefile.am,
+	/cvsroot/vis5d/vis5d/import/Makefile.in,
+	/cvsroot/vis5d/vis5d/import/uam.c,
+	/cvsroot/vis5d/vis5d/import/uam_i.c,
+	/cvsroot/vis5d/vis5d/import/ui.c,
+	/cvsroot/vis5d/vis5d/import/ui.h,
+	/cvsroot/vis5d/vis5d/import/ui_i.c,
+	/cvsroot/vis5d/vis5d/import/ui_i.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/import/resample_i.c,
+	/cvsroot/vis5d/vis5d/import/resample_i.h,
+	/cvsroot/vis5d/vis5d/import/rom.c,
+	/cvsroot/vis5d/vis5d/import/rom_i.c,
+	/cvsroot/vis5d/vis5d/import/select.c,
+	/cvsroot/vis5d/vis5d/import/select.h,
+	/cvsroot/vis5d/vis5d/import/select_i.c,
+	/cvsroot/vis5d/vis5d/import/select_i.h,
+	/cvsroot/vis5d/vis5d/import/tokenize.c,
+	/cvsroot/vis5d/vis5d/import/tokenize.h,
+	/cvsroot/vis5d/vis5d/import/tokenize_i.c,
+	/cvsroot/vis5d/vis5d/import/tokenize_i.h,
+	/cvsroot/vis5d/vis5d/import/topo.c,
+	/cvsroot/vis5d/vis5d/import/topo.h,
+	/cvsroot/vis5d/vis5d/import/topo_i.c,
+	/cvsroot/vis5d/vis5d/import/topo_i.h: New file.
+
+	* /cvsroot/vis5d/vis5d/import/resample_i.c,
+	/cvsroot/vis5d/vis5d/import/resample_i.h,
+	/cvsroot/vis5d/vis5d/import/rom.c,
+	/cvsroot/vis5d/vis5d/import/rom_i.c,
+	/cvsroot/vis5d/vis5d/import/select.c,
+	/cvsroot/vis5d/vis5d/import/select.h,
+	/cvsroot/vis5d/vis5d/import/select_i.c,
+	/cvsroot/vis5d/vis5d/import/select_i.h,
+	/cvsroot/vis5d/vis5d/import/tokenize.c,
+	/cvsroot/vis5d/vis5d/import/tokenize.h,
+	/cvsroot/vis5d/vis5d/import/tokenize_i.c,
+	/cvsroot/vis5d/vis5d/import/tokenize_i.h,
+	/cvsroot/vis5d/vis5d/import/topo.c,
+	/cvsroot/vis5d/vis5d/import/topo.h,
+	/cvsroot/vis5d/vis5d/import/topo_i.c,
+	/cvsroot/vis5d/vis5d/import/topo_i.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/import/read_epa_i.c,
+	/cvsroot/vis5d/vis5d/import/read_epa_i.h,
+	/cvsroot/vis5d/vis5d/import/read_gr3d.c,
+	/cvsroot/vis5d/vis5d/import/read_gr3d.h,
+	/cvsroot/vis5d/vis5d/import/read_gr3d_i.c,
+	/cvsroot/vis5d/vis5d/import/read_gr3d_i.h,
+	/cvsroot/vis5d/vis5d/import/read_grads.c,
+	/cvsroot/vis5d/vis5d/import/read_grads.h,
+	/cvsroot/vis5d/vis5d/import/read_grads_i.c,
+	/cvsroot/vis5d/vis5d/import/read_grads_i.h,
+	/cvsroot/vis5d/vis5d/import/read_grid.c,
+	/cvsroot/vis5d/vis5d/import/read_grid.h,
+	/cvsroot/vis5d/vis5d/import/read_grid_i.c,
+	/cvsroot/vis5d/vis5d/import/read_grid_i.h,
+	/cvsroot/vis5d/vis5d/import/read_uwvis.c,
+	/cvsroot/vis5d/vis5d/import/read_uwvis.h,
+	/cvsroot/vis5d/vis5d/import/read_uwvis_i.c,
+	/cvsroot/vis5d/vis5d/import/read_uwvis_i.h,
+	/cvsroot/vis5d/vis5d/import/read_v5d.c,
+	/cvsroot/vis5d/vis5d/import/read_v5d.h,
+	/cvsroot/vis5d/vis5d/import/read_v5d_i.c,
+	/cvsroot/vis5d/vis5d/import/read_v5d_i.h,
+	/cvsroot/vis5d/vis5d/import/resample.c,
+	/cvsroot/vis5d/vis5d/import/resample.h: New file.
+
+	* /cvsroot/vis5d/vis5d/import/read_epa_i.c,
+	/cvsroot/vis5d/vis5d/import/read_epa_i.h,
+	/cvsroot/vis5d/vis5d/import/read_gr3d.c,
+	/cvsroot/vis5d/vis5d/import/read_gr3d.h,
+	/cvsroot/vis5d/vis5d/import/read_gr3d_i.c,
+	/cvsroot/vis5d/vis5d/import/read_gr3d_i.h,
+	/cvsroot/vis5d/vis5d/import/read_grads.c,
+	/cvsroot/vis5d/vis5d/import/read_grads.h,
+	/cvsroot/vis5d/vis5d/import/read_grads_i.c,
+	/cvsroot/vis5d/vis5d/import/read_grads_i.h,
+	/cvsroot/vis5d/vis5d/import/read_grid.c,
+	/cvsroot/vis5d/vis5d/import/read_grid.h,
+	/cvsroot/vis5d/vis5d/import/read_grid_i.c,
+	/cvsroot/vis5d/vis5d/import/read_grid_i.h,
+	/cvsroot/vis5d/vis5d/import/read_uwvis.c,
+	/cvsroot/vis5d/vis5d/import/read_uwvis.h,
+	/cvsroot/vis5d/vis5d/import/read_uwvis_i.c,
+	/cvsroot/vis5d/vis5d/import/read_uwvis_i.h,
+	/cvsroot/vis5d/vis5d/import/read_v5d.c,
+	/cvsroot/vis5d/vis5d/import/read_v5d.h,
+	/cvsroot/vis5d/vis5d/import/read_v5d_i.c,
+	/cvsroot/vis5d/vis5d/import/read_v5d_i.h,
+	/cvsroot/vis5d/vis5d/import/resample.c,
+	/cvsroot/vis5d/vis5d/import/resample.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/import/projlist_i.c,
+	/cvsroot/vis5d/vis5d/import/projlist_i.h,
+	/cvsroot/vis5d/vis5d/import/radm.c,
+	/cvsroot/vis5d/vis5d/import/radm_emis.c,
+	/cvsroot/vis5d/vis5d/import/radm_emis_i.c,
+	/cvsroot/vis5d/vis5d/import/radm_i.c,
+	/cvsroot/vis5d/vis5d/import/read_epa.c,
+	/cvsroot/vis5d/vis5d/import/read_epa.h: New file.
+
+	* /cvsroot/vis5d/vis5d/import/projlist_i.c,
+	/cvsroot/vis5d/vis5d/import/projlist_i.h,
+	/cvsroot/vis5d/vis5d/import/radm.c,
+	/cvsroot/vis5d/vis5d/import/radm_emis.c,
+	/cvsroot/vis5d/vis5d/import/radm_emis_i.c,
+	/cvsroot/vis5d/vis5d/import/radm_i.c,
+	/cvsroot/vis5d/vis5d/import/read_epa.c,
+	/cvsroot/vis5d/vis5d/import/read_epa.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/import/output.c,
+	/cvsroot/vis5d/vis5d/import/output.h,
+	/cvsroot/vis5d/vis5d/import/outputold.c,
+	/cvsroot/vis5d/vis5d/import/proj.c,
+	/cvsroot/vis5d/vis5d/import/proj.h,
+	/cvsroot/vis5d/vis5d/import/proj2.c,
+	/cvsroot/vis5d/vis5d/import/proj2_i.c,
+	/cvsroot/vis5d/vis5d/import/proj_i.c,
+	/cvsroot/vis5d/vis5d/import/proj_i.h,
+	/cvsroot/vis5d/vis5d/import/projlist.c,
+	/cvsroot/vis5d/vis5d/import/projlist.h: New file.
+
+	* /cvsroot/vis5d/vis5d/import/output.c,
+	/cvsroot/vis5d/vis5d/import/output.h,
+	/cvsroot/vis5d/vis5d/import/outputold.c,
+	/cvsroot/vis5d/vis5d/import/proj.c,
+	/cvsroot/vis5d/vis5d/import/proj.h,
+	/cvsroot/vis5d/vis5d/import/proj2.c,
+	/cvsroot/vis5d/vis5d/import/proj2_i.c,
+	/cvsroot/vis5d/vis5d/import/proj_i.c,
+	/cvsroot/vis5d/vis5d/import/proj_i.h,
+	/cvsroot/vis5d/vis5d/import/projlist.c,
+	/cvsroot/vis5d/vis5d/import/projlist.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/import/gui.c,
+	/cvsroot/vis5d/vis5d/import/gui.h,
+	/cvsroot/vis5d/vis5d/import/julian2std.c,
+	/cvsroot/vis5d/vis5d/import/kltwin.f,
+	/cvsroot/vis5d/vis5d/import/main.c,
+	/cvsroot/vis5d/vis5d/import/memory.c,
+	/cvsroot/vis5d/vis5d/import/memory.h,
+	/cvsroot/vis5d/vis5d/import/misc.c,
+	/cvsroot/vis5d/vis5d/import/misc.h,
+	/cvsroot/vis5d/vis5d/import/mm4.c,
+	/cvsroot/vis5d/vis5d/import/mm4date2std.c,
+	/cvsroot/vis5d/vis5d/import/model.c,
+	/cvsroot/vis5d/vis5d/import/model.h,
+	/cvsroot/vis5d/vis5d/import/netcdf.h,
+	/cvsroot/vis5d/vis5d/import/netcdf2julian.c: New file.
+
+	* /cvsroot/vis5d/vis5d/import/gui.c,
+	/cvsroot/vis5d/vis5d/import/gui.h,
+	/cvsroot/vis5d/vis5d/import/julian2std.c,
+	/cvsroot/vis5d/vis5d/import/kltwin.f,
+	/cvsroot/vis5d/vis5d/import/main.c,
+	/cvsroot/vis5d/vis5d/import/memory.c,
+	/cvsroot/vis5d/vis5d/import/memory.h,
+	/cvsroot/vis5d/vis5d/import/misc.c,
+	/cvsroot/vis5d/vis5d/import/misc.h,
+	/cvsroot/vis5d/vis5d/import/mm4.c,
+	/cvsroot/vis5d/vis5d/import/mm4date2std.c,
+	/cvsroot/vis5d/vis5d/import/model.c,
+	/cvsroot/vis5d/vis5d/import/model.h,
+	/cvsroot/vis5d/vis5d/import/netcdf.h,
+	/cvsroot/vis5d/vis5d/import/netcdf2julian.c: Start of CVS
+	repository, importing initial version from Vis5d 5.2.6a
+	"autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/import/analyze.c,
+	/cvsroot/vis5d/vis5d/import/analyze.h,
+	/cvsroot/vis5d/vis5d/import/areal.c,
+	/cvsroot/vis5d/vis5d/import/file.c,
+	/cvsroot/vis5d/vis5d/import/file.h,
+	/cvsroot/vis5d/vis5d/import/grid.c,
+	/cvsroot/vis5d/vis5d/import/grid.h: New file.
+
+	* /cvsroot/vis5d/vis5d/import/analyze.c,
+	/cvsroot/vis5d/vis5d/import/analyze.h,
+	/cvsroot/vis5d/vis5d/import/areal.c,
+	/cvsroot/vis5d/vis5d/import/file.c,
+	/cvsroot/vis5d/vis5d/import/file.h,
+	/cvsroot/vis5d/vis5d/import/grid.c,
+	/cvsroot/vis5d/vis5d/import/grid.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/convert/foo2_to_v5d.c,
+	/cvsroot/vis5d/vis5d/convert/foo2_to_v5d.c.m,
+	/cvsroot/vis5d/vis5d/convert/foo2_to_v5d.f,
+	/cvsroot/vis5d/vis5d/convert/foo2_to_v5d.f.m,
+	/cvsroot/vis5d/vis5d/convert/foo_to_gr3d.c,
+	/cvsroot/vis5d/vis5d/convert/foo_to_gr3d.c.m,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.c,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.c.m,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.f,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.f.m,
+	/cvsroot/vis5d/vis5d/convert/sample.c,
+	/cvsroot/vis5d/vis5d/convert/sample.c.m,
+	/cvsroot/vis5d/vis5d/convert/sample.f,
+	/cvsroot/vis5d/vis5d/convert/sample.f.m,
+	/cvsroot/vis5d/vis5d/convert/test.c,
+	/cvsroot/vis5d/vis5d/convert/test.m,
+	/cvsroot/vis5d/vis5d/import/README,
+	/cvsroot/vis5d/vis5d/import/alpha.c,
+	/cvsroot/vis5d/vis5d/userfuncs/README,
+	/cvsroot/vis5d/vis5d/userfuncs/example.f,
+	/cvsroot/vis5d/vis5d/userfuncs/externf,
+	/cvsroot/vis5d/vis5d/userfuncs/externf.m,
+	/cvsroot/vis5d/vis5d/userfuncs/externf_all,
+	/cvsroot/vis5d/vis5d/userfuncs/probe.f,
+	/cvsroot/vis5d/vis5d/userfuncs/spd3d.f,
+	/cvsroot/vis5d/vis5d/util/Makefile.am: New file.
+
+	* /cvsroot/vis5d/vis5d/convert/foo2_to_v5d.c,
+	/cvsroot/vis5d/vis5d/convert/foo2_to_v5d.c.m,
+	/cvsroot/vis5d/vis5d/convert/foo2_to_v5d.f,
+	/cvsroot/vis5d/vis5d/convert/foo2_to_v5d.f.m,
+	/cvsroot/vis5d/vis5d/convert/foo_to_gr3d.c,
+	/cvsroot/vis5d/vis5d/convert/foo_to_gr3d.c.m,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.c,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.c.m,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.f,
+	/cvsroot/vis5d/vis5d/convert/foo_to_v5d.f.m,
+	/cvsroot/vis5d/vis5d/convert/sample.c,
+	/cvsroot/vis5d/vis5d/convert/sample.c.m,
+	/cvsroot/vis5d/vis5d/convert/sample.f,
+	/cvsroot/vis5d/vis5d/convert/sample.f.m,
+	/cvsroot/vis5d/vis5d/convert/test.c,
+	/cvsroot/vis5d/vis5d/convert/test.m,
+	/cvsroot/vis5d/vis5d/import/README,
+	/cvsroot/vis5d/vis5d/import/alpha.c,
+	/cvsroot/vis5d/vis5d/userfuncs/README,
+	/cvsroot/vis5d/vis5d/userfuncs/example.f,
+	/cvsroot/vis5d/vis5d/userfuncs/externf,
+	/cvsroot/vis5d/vis5d/userfuncs/externf.m,
+	/cvsroot/vis5d/vis5d/userfuncs/externf_all,
+	/cvsroot/vis5d/vis5d/userfuncs/probe.f,
+	/cvsroot/vis5d/vis5d/userfuncs/spd3d.f,
+	/cvsroot/vis5d/vis5d/util/Makefile.am: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/util/Makefile.in,
+	/cvsroot/vis5d/vis5d/util/maketopo.c,
+	/cvsroot/vis5d/vis5d/util/mapfunc.f,
+	/cvsroot/vis5d/vis5d/util/newmap.c,
+	/cvsroot/vis5d/vis5d/util/outlgrid.c,
+	/cvsroot/vis5d/vis5d/util/sdest.f,
+	/cvsroot/vis5d/vis5d/util/topo.f,
+	/cvsroot/vis5d/vis5d/util/topoinfo.c,
+	/cvsroot/vis5d/vis5d/util/v5dappend.c,
+	/cvsroot/vis5d/vis5d/util/v5dedit.c,
+	/cvsroot/vis5d/vis5d/util/v5dinfo.c,
+	/cvsroot/vis5d/vis5d/util/v5dstats.c,
+	/cvsroot/vis5d/vis5d/util/vis5d.h,
+	/cvsroot/vis5d/vis5d/util/vis_to_v5d.c: New file.
+
+	* /cvsroot/vis5d/vis5d/util/Makefile.in,
+	/cvsroot/vis5d/vis5d/util/maketopo.c,
+	/cvsroot/vis5d/vis5d/util/mapfunc.f,
+	/cvsroot/vis5d/vis5d/util/newmap.c,
+	/cvsroot/vis5d/vis5d/util/outlgrid.c,
+	/cvsroot/vis5d/vis5d/util/sdest.f,
+	/cvsroot/vis5d/vis5d/util/topo.f,
+	/cvsroot/vis5d/vis5d/util/topoinfo.c,
+	/cvsroot/vis5d/vis5d/util/v5dappend.c,
+	/cvsroot/vis5d/vis5d/util/v5dedit.c,
+	/cvsroot/vis5d/vis5d/util/v5dinfo.c,
+	/cvsroot/vis5d/vis5d/util/v5dstats.c,
+	/cvsroot/vis5d/vis5d/util/vis5d.h,
+	/cvsroot/vis5d/vis5d/util/vis_to_v5d.c: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/util/fromxwd.c,
+	/cvsroot/vis5d/vis5d/util/get5d.f,
+	/cvsroot/vis5d/vis5d/util/gg3d.f,
+	/cvsroot/vis5d/vis5d/util/gr3d_to_v5d.f,
+	/cvsroot/vis5d/vis5d/util/help.c,
+	/cvsroot/vis5d/vis5d/util/igg3d.f,
+	/cvsroot/vis5d/vis5d/util/igmk3d.f,
+	/cvsroot/vis5d/vis5d/util/igu3d.f,
+	/cvsroot/vis5d/vis5d/util/kludge.f,
+	/cvsroot/vis5d/vis5d/util/listfonts.c,
+	/cvsroot/vis5d/vis5d/util/main.c,
+	/cvsroot/vis5d/vis5d/util/makemap.c: New file.
+
+	* /cvsroot/vis5d/vis5d/util/fromxwd.c,
+	/cvsroot/vis5d/vis5d/util/get5d.f,
+	/cvsroot/vis5d/vis5d/util/gg3d.f,
+	/cvsroot/vis5d/vis5d/util/gr3d_to_v5d.f,
+	/cvsroot/vis5d/vis5d/util/help.c,
+	/cvsroot/vis5d/vis5d/util/igg3d.f,
+	/cvsroot/vis5d/vis5d/util/igmk3d.f,
+	/cvsroot/vis5d/vis5d/util/igu3d.f,
+	/cvsroot/vis5d/vis5d/util/kludge.f,
+	/cvsroot/vis5d/vis5d/util/listfonts.c,
+	/cvsroot/vis5d/vis5d/util/main.c,
+	/cvsroot/vis5d/vis5d/util/makemap.c: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c.old2,
+	/cvsroot/vis5d/vis5d/util/comp_to_v5d.c,
+	/cvsroot/vis5d/vis5d/util/doubt.f: New file.
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c.old2,
+	/cvsroot/vis5d/vis5d/util/comp_to_v5d.c,
+	/cvsroot/vis5d/vis5d/util/doubt.f: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/OUTLUSAM,
+	/cvsroot/vis5d/vis5d/src/api-config.h.in,
+	/cvsroot/vis5d/vis5d/src/p: New file.
+
+	* /cvsroot/vis5d/vis5d/src/OUTLUSAM,
+	/cvsroot/vis5d/vis5d/src/api-config.h.in,
+	/cvsroot/vis5d/vis5d/src/p: Start of CVS repository, importing
+	initial version from Vis5d 5.2.6a "autoconfiscated" version of
+	Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/EARTH.TOPO: New file.
+
+	* /cvsroot/vis5d/vis5d/src/EARTH.TOPO: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/OUTLSUPW: New file.
+
+	* /cvsroot/vis5d/vis5d/src/OUTLSUPW: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/Makefile.in,
+	/cvsroot/vis5d/vis5d/src/ifdefs.out: New file.
+
+	* /cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/Makefile.in,
+	/cvsroot/vis5d/vis5d/src/ifdefs.out: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/work.c,
+	/cvsroot/vis5d/vis5d/src/work.h, /cvsroot/vis5d/vis5d/src/xdump.c,
+	/cvsroot/vis5d/vis5d/src/xdump.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/work.c,
+	/cvsroot/vis5d/vis5d/src/work.h, /cvsroot/vis5d/vis5d/src/xdump.c,
+	/cvsroot/vis5d/vis5d/src/xdump.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/volume.h,
+	/cvsroot/vis5d/vis5d/src/vtmcP.c,
+	/cvsroot/vis5d/vis5d/src/vtmcP.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/volume.h,
+	/cvsroot/vis5d/vis5d/src/vtmcP.c,
+	/cvsroot/vis5d/vis5d/src/vtmcP.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/v5d.c, /cvsroot/vis5d/vis5d/src/v5d.h,
+	/cvsroot/vis5d/vis5d/src/v5df.h,
+	/cvsroot/vis5d/vis5d/src/vertplot.c,
+	/cvsroot/vis5d/vis5d/src/vertplot.h,
+	/cvsroot/vis5d/vis5d/src/vis5d.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/v5d.c, /cvsroot/vis5d/vis5d/src/v5d.h,
+	/cvsroot/vis5d/vis5d/src/v5df.h,
+	/cvsroot/vis5d/vis5d/src/vertplot.c,
+	/cvsroot/vis5d/vis5d/src/vertplot.h,
+	/cvsroot/vis5d/vis5d/src/vis5d.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/traj.c,
+	/cvsroot/vis5d/vis5d/src/traj.h, /cvsroot/vis5d/vis5d/src/uam_i.c,
+	/cvsroot/vis5d/vis5d/src/ui_i.c, /cvsroot/vis5d/vis5d/src/ui_i.h,
+	/cvsroot/vis5d/vis5d/src/user_data.c,
+	/cvsroot/vis5d/vis5d/src/user_data.h,
+	/cvsroot/vis5d/vis5d/src/uvwwidget.c,
+	/cvsroot/vis5d/vis5d/src/uvwwidget.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/traj.c,
+	/cvsroot/vis5d/vis5d/src/traj.h, /cvsroot/vis5d/vis5d/src/uam_i.c,
+	/cvsroot/vis5d/vis5d/src/ui_i.c, /cvsroot/vis5d/vis5d/src/ui_i.h,
+	/cvsroot/vis5d/vis5d/src/user_data.c,
+	/cvsroot/vis5d/vis5d/src/user_data.h,
+	/cvsroot/vis5d/vis5d/src/uvwwidget.c,
+	/cvsroot/vis5d/vis5d/src/uvwwidget.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/tclsave.c,
+	/cvsroot/vis5d/vis5d/src/tclsave.h,
+	/cvsroot/vis5d/vis5d/src/textplot.c,
+	/cvsroot/vis5d/vis5d/src/textplot.h,
+	/cvsroot/vis5d/vis5d/src/tokenize_i.c,
+	/cvsroot/vis5d/vis5d/src/tokenize_i.h,
+	/cvsroot/vis5d/vis5d/src/topo.c, /cvsroot/vis5d/vis5d/src/topo.h,
+	/cvsroot/vis5d/vis5d/src/topo_i.c,
+	/cvsroot/vis5d/vis5d/src/topo_i.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/tclsave.c,
+	/cvsroot/vis5d/vis5d/src/tclsave.h,
+	/cvsroot/vis5d/vis5d/src/textplot.c,
+	/cvsroot/vis5d/vis5d/src/textplot.h,
+	/cvsroot/vis5d/vis5d/src/tokenize_i.c,
+	/cvsroot/vis5d/vis5d/src/tokenize_i.h,
+	/cvsroot/vis5d/vis5d/src/topo.c, /cvsroot/vis5d/vis5d/src/topo.h,
+	/cvsroot/vis5d/vis5d/src/topo_i.c,
+	/cvsroot/vis5d/vis5d/src/topo_i.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/sounding.h,
+	/cvsroot/vis5d/vis5d/src/soundingGUI.c,
+	/cvsroot/vis5d/vis5d/src/soundingGUI.h,
+	/cvsroot/vis5d/vis5d/src/stream.c,
+	/cvsroot/vis5d/vis5d/src/stream.h,
+	/cvsroot/vis5d/vis5d/src/sync.c, /cvsroot/vis5d/vis5d/src/sync.h:
+	New file.
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/sounding.h,
+	/cvsroot/vis5d/vis5d/src/soundingGUI.c,
+	/cvsroot/vis5d/vis5d/src/soundingGUI.h,
+	/cvsroot/vis5d/vis5d/src/stream.c,
+	/cvsroot/vis5d/vis5d/src/stream.h,
+	/cvsroot/vis5d/vis5d/src/sync.c, /cvsroot/vis5d/vis5d/src/sync.h:
+	Start of CVS repository, importing initial version from Vis5d
+	5.2.6a "autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/slice.c,
+	/cvsroot/vis5d/vis5d/src/slice.h,
+	/cvsroot/vis5d/vis5d/src/socketio.c,
+	/cvsroot/vis5d/vis5d/src/socketio.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/slice.c,
+	/cvsroot/vis5d/vis5d/src/slice.h,
+	/cvsroot/vis5d/vis5d/src/socketio.c,
+	/cvsroot/vis5d/vis5d/src/socketio.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/script.c,
+	/cvsroot/vis5d/vis5d/src/script.h,
+	/cvsroot/vis5d/vis5d/src/select_i.c,
+	/cvsroot/vis5d/vis5d/src/select_i.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/script.c,
+	/cvsroot/vis5d/vis5d/src/script.h,
+	/cvsroot/vis5d/vis5d/src/select_i.c,
+	/cvsroot/vis5d/vis5d/src/select_i.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/save.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/save.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/rgbsliders.c,
+	/cvsroot/vis5d/vis5d/src/rgbsliders.h,
+	/cvsroot/vis5d/vis5d/src/rom_i.c, /cvsroot/vis5d/vis5d/src/save.c:
+	New file.
+
+	* /cvsroot/vis5d/vis5d/src/rgbsliders.c,
+	/cvsroot/vis5d/vis5d/src/rgbsliders.h,
+	/cvsroot/vis5d/vis5d/src/rom_i.c, /cvsroot/vis5d/vis5d/src/save.c:
+	Start of CVS repository, importing initial version from Vis5d
+	5.2.6a "autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/render.h,
+	/cvsroot/vis5d/vis5d/src/resample_i.c,
+	/cvsroot/vis5d/vis5d/src/resample_i.h,
+	/cvsroot/vis5d/vis5d/src/rgb.c, /cvsroot/vis5d/vis5d/src/rgb.h:
+	New file.
+
+	* /cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/render.h,
+	/cvsroot/vis5d/vis5d/src/resample_i.c,
+	/cvsroot/vis5d/vis5d/src/resample_i.h,
+	/cvsroot/vis5d/vis5d/src/rgb.c, /cvsroot/vis5d/vis5d/src/rgb.h:
+	Start of CVS repository, importing initial version from Vis5d
+	5.2.6a "autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/radm_i.c,
+	/cvsroot/vis5d/vis5d/src/read_epa_i.c,
+	/cvsroot/vis5d/vis5d/src/read_epa_i.h,
+	/cvsroot/vis5d/vis5d/src/read_gr3d_i.c,
+	/cvsroot/vis5d/vis5d/src/read_gr3d_i.h,
+	/cvsroot/vis5d/vis5d/src/read_grads_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grads_i.h,
+	/cvsroot/vis5d/vis5d/src/read_grid_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grid_i.h,
+	/cvsroot/vis5d/vis5d/src/read_uwvis_i.c,
+	/cvsroot/vis5d/vis5d/src/read_uwvis_i.h,
+	/cvsroot/vis5d/vis5d/src/read_v5d_i.c,
+	/cvsroot/vis5d/vis5d/src/read_v5d_i.h,
+	/cvsroot/vis5d/vis5d/src/record.c,
+	/cvsroot/vis5d/vis5d/src/record.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/radm_i.c,
+	/cvsroot/vis5d/vis5d/src/read_epa_i.c,
+	/cvsroot/vis5d/vis5d/src/read_epa_i.h,
+	/cvsroot/vis5d/vis5d/src/read_gr3d_i.c,
+	/cvsroot/vis5d/vis5d/src/read_gr3d_i.h,
+	/cvsroot/vis5d/vis5d/src/read_grads_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grads_i.h,
+	/cvsroot/vis5d/vis5d/src/read_grid_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grid_i.h,
+	/cvsroot/vis5d/vis5d/src/read_uwvis_i.c,
+	/cvsroot/vis5d/vis5d/src/read_uwvis_i.h,
+	/cvsroot/vis5d/vis5d/src/read_v5d_i.c,
+	/cvsroot/vis5d/vis5d/src/read_v5d_i.h,
+	/cvsroot/vis5d/vis5d/src/record.c,
+	/cvsroot/vis5d/vis5d/src/record.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/proj.c,
+	/cvsroot/vis5d/vis5d/src/proj.h,
+	/cvsroot/vis5d/vis5d/src/proj2_i.c,
+	/cvsroot/vis5d/vis5d/src/proj_i.c,
+	/cvsroot/vis5d/vis5d/src/proj_i.h,
+	/cvsroot/vis5d/vis5d/src/projlist_i.c,
+	/cvsroot/vis5d/vis5d/src/projlist_i.h,
+	/cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/queue.h,
+	/cvsroot/vis5d/vis5d/src/radm_emis_i.c: New file.
+
+	* /cvsroot/vis5d/vis5d/src/proj.c,
+	/cvsroot/vis5d/vis5d/src/proj.h,
+	/cvsroot/vis5d/vis5d/src/proj2_i.c,
+	/cvsroot/vis5d/vis5d/src/proj_i.c,
+	/cvsroot/vis5d/vis5d/src/proj_i.h,
+	/cvsroot/vis5d/vis5d/src/projlist_i.c,
+	/cvsroot/vis5d/vis5d/src/projlist_i.h,
+	/cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/queue.h,
+	/cvsroot/vis5d/vis5d/src/radm_emis_i.c: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/netcdf.h,
+	/cvsroot/vis5d/vis5d/src/netcdf2julian_i.c,
+	/cvsroot/vis5d/vis5d/src/netcdf_i.h,
+	/cvsroot/vis5d/vis5d/src/newproj.c,
+	/cvsroot/vis5d/vis5d/src/oldrecord.c,
+	/cvsroot/vis5d/vis5d/src/output_i.c,
+	/cvsroot/vis5d/vis5d/src/output_i.h,
+	/cvsroot/vis5d/vis5d/src/own.c, /cvsroot/vis5d/vis5d/src/pi.c,
+	/cvsroot/vis5d/vis5d/src/pipe.c, /cvsroot/vis5d/vis5d/src/pipe.h:
+	New file.
+
+	* /cvsroot/vis5d/vis5d/src/netcdf.h,
+	/cvsroot/vis5d/vis5d/src/netcdf2julian_i.c,
+	/cvsroot/vis5d/vis5d/src/netcdf_i.h,
+	/cvsroot/vis5d/vis5d/src/newproj.c,
+	/cvsroot/vis5d/vis5d/src/oldrecord.c,
+	/cvsroot/vis5d/vis5d/src/output_i.c,
+	/cvsroot/vis5d/vis5d/src/output_i.h,
+	/cvsroot/vis5d/vis5d/src/own.c, /cvsroot/vis5d/vis5d/src/pi.c,
+	/cvsroot/vis5d/vis5d/src/pipe.c, /cvsroot/vis5d/vis5d/src/pipe.h:
+	Start of CVS repository, importing initial version from Vis5d
+	5.2.6a "autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/misc.h,
+	/cvsroot/vis5d/vis5d/src/misc_i.c,
+	/cvsroot/vis5d/vis5d/src/misc_i.h,
+	/cvsroot/vis5d/vis5d/src/mm4_i.c,
+	/cvsroot/vis5d/vis5d/src/mm4date2std_i.c,
+	/cvsroot/vis5d/vis5d/src/model_i.c,
+	/cvsroot/vis5d/vis5d/src/model_i.h,
+	/cvsroot/vis5d/vis5d/src/mwmborder.c,
+	/cvsroot/vis5d/vis5d/src/mwmborder.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/misc.h,
+	/cvsroot/vis5d/vis5d/src/misc_i.c,
+	/cvsroot/vis5d/vis5d/src/misc_i.h,
+	/cvsroot/vis5d/vis5d/src/mm4_i.c,
+	/cvsroot/vis5d/vis5d/src/mm4date2std_i.c,
+	/cvsroot/vis5d/vis5d/src/model_i.c,
+	/cvsroot/vis5d/vis5d/src/model_i.h,
+	/cvsroot/vis5d/vis5d/src/mwmborder.c,
+	/cvsroot/vis5d/vis5d/src/mwmborder.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/main.c,
+	/cvsroot/vis5d/vis5d/src/main_i.c,
+	/cvsroot/vis5d/vis5d/src/main_i.h, /cvsroot/vis5d/vis5d/src/map.c,
+	/cvsroot/vis5d/vis5d/src/map.h, /cvsroot/vis5d/vis5d/src/matrix.c,
+	/cvsroot/vis5d/vis5d/src/matrix.h,
+	/cvsroot/vis5d/vis5d/src/memory.c,
+	/cvsroot/vis5d/vis5d/src/memory.h,
+	/cvsroot/vis5d/vis5d/src/memory_i.c,
+	/cvsroot/vis5d/vis5d/src/memory_i.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/main.c,
+	/cvsroot/vis5d/vis5d/src/main_i.c,
+	/cvsroot/vis5d/vis5d/src/main_i.h, /cvsroot/vis5d/vis5d/src/map.c,
+	/cvsroot/vis5d/vis5d/src/map.h, /cvsroot/vis5d/vis5d/src/matrix.c,
+	/cvsroot/vis5d/vis5d/src/matrix.h,
+	/cvsroot/vis5d/vis5d/src/memory.c,
+	/cvsroot/vis5d/vis5d/src/memory.h,
+	/cvsroot/vis5d/vis5d/src/memory_i.c,
+	/cvsroot/vis5d/vis5d/src/memory_i.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/isocolor.c,
+	/cvsroot/vis5d/vis5d/src/isocolor.h,
+	/cvsroot/vis5d/vis5d/src/julian2std_i.c,
+	/cvsroot/vis5d/vis5d/src/kltwin.f,
+	/cvsroot/vis5d/vis5d/src/labels.c,
+	/cvsroot/vis5d/vis5d/src/labels.h,
+	/cvsroot/vis5d/vis5d/src/linterp.c,
+	/cvsroot/vis5d/vis5d/src/linterp.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/isocolor.c,
+	/cvsroot/vis5d/vis5d/src/isocolor.h,
+	/cvsroot/vis5d/vis5d/src/julian2std_i.c,
+	/cvsroot/vis5d/vis5d/src/kltwin.f,
+	/cvsroot/vis5d/vis5d/src/labels.c,
+	/cvsroot/vis5d/vis5d/src/labels.h,
+	/cvsroot/vis5d/vis5d/src/linterp.c,
+	/cvsroot/vis5d/vis5d/src/linterp.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/imain.c,
+	/cvsroot/vis5d/vis5d/src/imain.h,
+	/cvsroot/vis5d/vis5d/src/imemory.c,
+	/cvsroot/vis5d/vis5d/src/imemory.h,
+	/cvsroot/vis5d/vis5d/src/irregular_api.c,
+	/cvsroot/vis5d/vis5d/src/irregular_api.h,
+	/cvsroot/vis5d/vis5d/src/irregular_v5d.c,
+	/cvsroot/vis5d/vis5d/src/irregular_v5d.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/imain.c,
+	/cvsroot/vis5d/vis5d/src/imain.h,
+	/cvsroot/vis5d/vis5d/src/imemory.c,
+	/cvsroot/vis5d/vis5d/src/imemory.h,
+	/cvsroot/vis5d/vis5d/src/irregular_api.c,
+	/cvsroot/vis5d/vis5d/src/irregular_api.h,
+	/cvsroot/vis5d/vis5d/src/irregular_v5d.c,
+	/cvsroot/vis5d/vis5d/src/irregular_v5d.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/igrid.c,
+	/cvsroot/vis5d/vis5d/src/igui.c, /cvsroot/vis5d/vis5d/src/igui.h,
+	/cvsroot/vis5d/vis5d/src/image.c,
+	/cvsroot/vis5d/vis5d/src/image.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/igrid.c,
+	/cvsroot/vis5d/vis5d/src/igui.c, /cvsroot/vis5d/vis5d/src/igui.h,
+	/cvsroot/vis5d/vis5d/src/image.c,
+	/cvsroot/vis5d/vis5d/src/image.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/gui_i.c,
+	/cvsroot/vis5d/vis5d/src/gui_i.h, /cvsroot/vis5d/vis5d/src/iapi.c,
+	/cvsroot/vis5d/vis5d/src/iapi.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/gui_i.c,
+	/cvsroot/vis5d/vis5d/src/gui_i.h, /cvsroot/vis5d/vis5d/src/iapi.c,
+	/cvsroot/vis5d/vis5d/src/iapi.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/gui.c, /cvsroot/vis5d/vis5d/src/gui.h:
+	New file.
+
+	* /cvsroot/vis5d/vis5d/src/gui.c, /cvsroot/vis5d/vis5d/src/gui.h:
+	Start of CVS repository, importing initial version from Vis5d
+	5.2.6a "autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/grid.h,
+	/cvsroot/vis5d/vis5d/src/grid_i.c,
+	/cvsroot/vis5d/vis5d/src/grid_i.h,
+	/cvsroot/vis5d/vis5d/src/groupchrono.c,
+	/cvsroot/vis5d/vis5d/src/groupchrono.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/grid.h,
+	/cvsroot/vis5d/vis5d/src/grid_i.c,
+	/cvsroot/vis5d/vis5d/src/grid_i.h,
+	/cvsroot/vis5d/vis5d/src/groupchrono.c,
+	/cvsroot/vis5d/vis5d/src/groupchrono.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/graphics.pex.c,
+	/cvsroot/vis5d/vis5d/src/grid.c: New file.
+
+	* /cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/graphics.pex.c,
+	/cvsroot/vis5d/vis5d/src/grid.c: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/graphics.gl.c,
+	/cvsroot/vis5d/vis5d/src/graphics.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/graphics.gl.c,
+	/cvsroot/vis5d/vis5d/src/graphics.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/g.pex.c,
+	/cvsroot/vis5d/vis5d/src/gl_to_ppm.c,
+	/cvsroot/vis5d/vis5d/src/gl_to_ppm.h,
+	/cvsroot/vis5d/vis5d/src/globals.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.all.c: New file.
+
+	* /cvsroot/vis5d/vis5d/src/g.pex.c,
+	/cvsroot/vis5d/vis5d/src/gl_to_ppm.c,
+	/cvsroot/vis5d/vis5d/src/gl_to_ppm.h,
+	/cvsroot/vis5d/vis5d/src/globals.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/graphics.all.c: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/file.c,
+	/cvsroot/vis5d/vis5d/src/file.h,
+	/cvsroot/vis5d/vis5d/src/file_i.c,
+	/cvsroot/vis5d/vis5d/src/file_i.h, /cvsroot/vis5d/vis5d/src/fsl.c,
+	/cvsroot/vis5d/vis5d/src/fsl.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/file.c,
+	/cvsroot/vis5d/vis5d/src/file.h,
+	/cvsroot/vis5d/vis5d/src/file_i.c,
+	/cvsroot/vis5d/vis5d/src/file_i.h, /cvsroot/vis5d/vis5d/src/fsl.c,
+	/cvsroot/vis5d/vis5d/src/fsl.h: Start of CVS repository, importing
+	initial version from Vis5d 5.2.6a "autoconfiscated" version of
+	Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/etableP.h,
+	/cvsroot/vis5d/vis5d/src/extmain.c: New file.
+
+	* /cvsroot/vis5d/vis5d/src/etableP.h,
+	/cvsroot/vis5d/vis5d/src/extmain.c: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/contour.c,
+	/cvsroot/vis5d/vis5d/src/contour.h,
+	/cvsroot/vis5d/vis5d/src/cursor.c,
+	/cvsroot/vis5d/vis5d/src/cursor.h,
+	/cvsroot/vis5d/vis5d/src/displaywidget.c,
+	/cvsroot/vis5d/vis5d/src/displaywidget.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/contour.c,
+	/cvsroot/vis5d/vis5d/src/contour.h,
+	/cvsroot/vis5d/vis5d/src/cursor.c,
+	/cvsroot/vis5d/vis5d/src/cursor.h,
+	/cvsroot/vis5d/vis5d/src/displaywidget.c,
+	/cvsroot/vis5d/vis5d/src/displaywidget.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/binio.c,
+	/cvsroot/vis5d/vis5d/src/binio.h, /cvsroot/vis5d/vis5d/src/box.c,
+	/cvsroot/vis5d/vis5d/src/box.h, /cvsroot/vis5d/vis5d/src/cb.c,
+	/cvsroot/vis5d/vis5d/src/cb.h, /cvsroot/vis5d/vis5d/src/chrono.c,
+	/cvsroot/vis5d/vis5d/src/chrono.h,
+	/cvsroot/vis5d/vis5d/src/compute.c,
+	/cvsroot/vis5d/vis5d/src/compute.h: New file.
+
+	* /cvsroot/vis5d/vis5d/src/binio.c,
+	/cvsroot/vis5d/vis5d/src/binio.h, /cvsroot/vis5d/vis5d/src/box.c,
+	/cvsroot/vis5d/vis5d/src/box.h, /cvsroot/vis5d/vis5d/src/cb.c,
+	/cvsroot/vis5d/vis5d/src/cb.h, /cvsroot/vis5d/vis5d/src/chrono.c,
+	/cvsroot/vis5d/vis5d/src/chrono.h,
+	/cvsroot/vis5d/vis5d/src/compute.c,
+	/cvsroot/vis5d/vis5d/src/compute.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/areal_i.c: New file.
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/areal_i.c: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/lui5/Makefile.am,
+	/cvsroot/vis5d/vis5d/lui5/Makefile.in,
+	/cvsroot/vis5d/vis5d/lui5/README,
+	/cvsroot/vis5d/vis5d/lui5/newlist.c,
+	/cvsroot/vis5d/vis5d/lui5/newlist.h,
+	/cvsroot/vis5d/vis5d/lui5/newslider.c,
+	/cvsroot/vis5d/vis5d/lui5/newslider.h,
+	/cvsroot/vis5d/vis5d/lui5/pixmaps.c,
+	/cvsroot/vis5d/vis5d/lui5/pixmaps.h,
+	/cvsroot/vis5d/vis5d/lui5/popup.c,
+	/cvsroot/vis5d/vis5d/lui5/popup.h,
+	/cvsroot/vis5d/vis5d/lui5/radio.c,
+	/cvsroot/vis5d/vis5d/lui5/radio.h,
+	/cvsroot/vis5d/vis5d/lui5/scrollbar.c,
+	/cvsroot/vis5d/vis5d/lui5/scrollbar.h,
+	/cvsroot/vis5d/vis5d/src/alpha_i.c,
+	/cvsroot/vis5d/vis5d/src/analysis.c,
+	/cvsroot/vis5d/vis5d/src/analysis.h,
+	/cvsroot/vis5d/vis5d/src/analyze_i.c,
+	/cvsroot/vis5d/vis5d/src/analyze_i.h,
+	/cvsroot/vis5d/vis5d/src/anim.c, /cvsroot/vis5d/vis5d/src/anim.h:
+	New file.
+
+	* /cvsroot/vis5d/vis5d/lui5/Makefile.am,
+	/cvsroot/vis5d/vis5d/lui5/Makefile.in,
+	/cvsroot/vis5d/vis5d/lui5/README,
+	/cvsroot/vis5d/vis5d/lui5/newlist.c,
+	/cvsroot/vis5d/vis5d/lui5/newlist.h,
+	/cvsroot/vis5d/vis5d/lui5/newslider.c,
+	/cvsroot/vis5d/vis5d/lui5/newslider.h,
+	/cvsroot/vis5d/vis5d/lui5/pixmaps.c,
+	/cvsroot/vis5d/vis5d/lui5/pixmaps.h,
+	/cvsroot/vis5d/vis5d/lui5/popup.c,
+	/cvsroot/vis5d/vis5d/lui5/popup.h,
+	/cvsroot/vis5d/vis5d/lui5/radio.c,
+	/cvsroot/vis5d/vis5d/lui5/radio.h,
+	/cvsroot/vis5d/vis5d/lui5/scrollbar.c,
+	/cvsroot/vis5d/vis5d/lui5/scrollbar.h,
+	/cvsroot/vis5d/vis5d/src/alpha_i.c,
+	/cvsroot/vis5d/vis5d/src/analysis.c,
+	/cvsroot/vis5d/vis5d/src/analysis.h,
+	/cvsroot/vis5d/vis5d/src/analyze_i.c,
+	/cvsroot/vis5d/vis5d/src/analyze_i.h,
+	/cvsroot/vis5d/vis5d/src/anim.c, /cvsroot/vis5d/vis5d/src/anim.h:
+	Start of CVS repository, importing initial version from Vis5d
+	5.2.6a "autoconfiscated" version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/lui5/dialog.c,
+	/cvsroot/vis5d/vis5d/lui5/dialog.h,
+	/cvsroot/vis5d/vis5d/lui5/event.c,
+	/cvsroot/vis5d/vis5d/lui5/field.c,
+	/cvsroot/vis5d/vis5d/lui5/field.h,
+	/cvsroot/vis5d/vis5d/lui5/help.c,
+	/cvsroot/vis5d/vis5d/lui5/label.c,
+	/cvsroot/vis5d/vis5d/lui5/label.h,
+	/cvsroot/vis5d/vis5d/lui5/layout.c,
+	/cvsroot/vis5d/vis5d/lui5/layout.h,
+	/cvsroot/vis5d/vis5d/lui5/list.c,
+	/cvsroot/vis5d/vis5d/lui5/list.h, /cvsroot/vis5d/vis5d/lui5/lui.c,
+	/cvsroot/vis5d/vis5d/lui5/lui.h,
+	/cvsroot/vis5d/vis5d/lui5/newbrowser.c,
+	/cvsroot/vis5d/vis5d/lui5/newbrowser.h,
+	/cvsroot/vis5d/vis5d/lui5/newbutton.c,
+	/cvsroot/vis5d/vis5d/lui5/newbutton.h,
+	/cvsroot/vis5d/vis5d/lui5/newlabel.c,
+	/cvsroot/vis5d/vis5d/lui5/newlabel.h: New file.
+
+	* /cvsroot/vis5d/vis5d/lui5/dialog.c,
+	/cvsroot/vis5d/vis5d/lui5/dialog.h,
+	/cvsroot/vis5d/vis5d/lui5/event.c,
+	/cvsroot/vis5d/vis5d/lui5/field.c,
+	/cvsroot/vis5d/vis5d/lui5/field.h,
+	/cvsroot/vis5d/vis5d/lui5/help.c,
+	/cvsroot/vis5d/vis5d/lui5/label.c,
+	/cvsroot/vis5d/vis5d/lui5/label.h,
+	/cvsroot/vis5d/vis5d/lui5/layout.c,
+	/cvsroot/vis5d/vis5d/lui5/layout.h,
+	/cvsroot/vis5d/vis5d/lui5/list.c,
+	/cvsroot/vis5d/vis5d/lui5/list.h, /cvsroot/vis5d/vis5d/lui5/lui.c,
+	/cvsroot/vis5d/vis5d/lui5/lui.h,
+	/cvsroot/vis5d/vis5d/lui5/newbrowser.c,
+	/cvsroot/vis5d/vis5d/lui5/newbrowser.h,
+	/cvsroot/vis5d/vis5d/lui5/newbutton.c,
+	/cvsroot/vis5d/vis5d/lui5/newbutton.h,
+	/cvsroot/vis5d/vis5d/lui5/newlabel.c,
+	/cvsroot/vis5d/vis5d/lui5/newlabel.h: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/lui5/browser.c,
+	/cvsroot/vis5d/vis5d/lui5/browser.h,
+	/cvsroot/vis5d/vis5d/lui5/browser2.c,
+	/cvsroot/vis5d/vis5d/lui5/browser2.h,
+	/cvsroot/vis5d/vis5d/lui5/button.c,
+	/cvsroot/vis5d/vis5d/lui5/button.h,
+	/cvsroot/vis5d/vis5d/lui5/buttonmatrix.c,
+	/cvsroot/vis5d/vis5d/lui5/buttonmatrix.h,
+	/cvsroot/vis5d/vis5d/lui5/colorbar.c,
+	/cvsroot/vis5d/vis5d/lui5/colorbar.h,
+	/cvsroot/vis5d/vis5d/lui5/destroy.c,
+	/cvsroot/vis5d/vis5d/lui5/destroy.h,
+	/cvsroot/vis5d/vis5d/scripts/trajcol.tcl,
+	/cvsroot/vis5d/vis5d/scripts/trajcol2.tcl,
+	/cvsroot/vis5d/vis5d/scripts/wslice.tcl: New file.
+
+	* /cvsroot/vis5d/vis5d/lui5/browser.c,
+	/cvsroot/vis5d/vis5d/lui5/browser.h,
+	/cvsroot/vis5d/vis5d/lui5/browser2.c,
+	/cvsroot/vis5d/vis5d/lui5/browser2.h,
+	/cvsroot/vis5d/vis5d/lui5/button.c,
+	/cvsroot/vis5d/vis5d/lui5/button.h,
+	/cvsroot/vis5d/vis5d/lui5/buttonmatrix.c,
+	/cvsroot/vis5d/vis5d/lui5/buttonmatrix.h,
+	/cvsroot/vis5d/vis5d/lui5/colorbar.c,
+	/cvsroot/vis5d/vis5d/lui5/colorbar.h,
+	/cvsroot/vis5d/vis5d/lui5/destroy.c,
+	/cvsroot/vis5d/vis5d/lui5/destroy.h,
+	/cvsroot/vis5d/vis5d/scripts/trajcol.tcl,
+	/cvsroot/vis5d/vis5d/scripts/trajcol2.tcl,
+	/cvsroot/vis5d/vis5d/scripts/wslice.tcl: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/ChangeLog, /cvsroot/vis5d/vis5d/hole.v5d,
+	/cvsroot/vis5d/vis5d/scripts/clone.tcl,
+	/cvsroot/vis5d/vis5d/scripts/highwind.tcl,
+	/cvsroot/vis5d/vis5d/scripts/label.tcl,
+	/cvsroot/vis5d/vis5d/scripts/movie.tcl,
+	/cvsroot/vis5d/vis5d/scripts/movie2.tcl,
+	/cvsroot/vis5d/vis5d/scripts/spin.tcl: New file.
+
+	* /cvsroot/vis5d/vis5d/ChangeLog, /cvsroot/vis5d/vis5d/hole.v5d,
+	/cvsroot/vis5d/vis5d/scripts/clone.tcl,
+	/cvsroot/vis5d/vis5d/scripts/highwind.tcl,
+	/cvsroot/vis5d/vis5d/scripts/label.tcl,
+	/cvsroot/vis5d/vis5d/scripts/movie.tcl,
+	/cvsroot/vis5d/vis5d/scripts/movie2.tcl,
+	/cvsroot/vis5d/vis5d/scripts/spin.tcl: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+
+	* /cvsroot/vis5d/vis5d/AUTHORS, /cvsroot/vis5d/vis5d/COPYING,
+	/cvsroot/vis5d/vis5d/COPYRIGHT, /cvsroot/vis5d/vis5d/Makefile.am,
+	/cvsroot/vis5d/vis5d/Makefile.in, /cvsroot/vis5d/vis5d/NEWS,
+	/cvsroot/vis5d/vis5d/PORTING, /cvsroot/vis5d/vis5d/README,
+	/cvsroot/vis5d/vis5d/acconfig.h,
+	/cvsroot/vis5d/vis5d/acinclude.m4,
+	/cvsroot/vis5d/vis5d/configure.in: New file.
+
+	* /cvsroot/vis5d/vis5d/AUTHORS, /cvsroot/vis5d/vis5d/COPYING,
+	/cvsroot/vis5d/vis5d/COPYRIGHT, /cvsroot/vis5d/vis5d/Makefile.am,
+	/cvsroot/vis5d/vis5d/Makefile.in, /cvsroot/vis5d/vis5d/NEWS,
+	/cvsroot/vis5d/vis5d/PORTING, /cvsroot/vis5d/vis5d/README,
+	/cvsroot/vis5d/vis5d/acconfig.h,
+	/cvsroot/vis5d/vis5d/acinclude.m4,
+	/cvsroot/vis5d/vis5d/configure.in: Start of CVS repository,
+	importing initial version from Vis5d 5.2.6a "autoconfiscated"
+	version of Vis5d.
+

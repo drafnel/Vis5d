@@ -4,10 +4,14 @@ Vis5d+ 1.0
 
   * Renamed to Vis5d+, and set up project hosting on SourceForge.
 
+  * Fixed bug causing crashes when colorbar windows are hidden.
+
   * Merged in recent crash fixes from mainline sources, thanks
     to Michael Schaferkotter and Bill Hibbard.
 
   * Fixed another fp-exception bug on Alpha.
+
+  * Improved POSIX threads support (though crashes still occur at times).
 
 Previous releases were called "Vis5d 5.2.<x>a", an "autoconfiscated"
 version of Vis5d 5.2.

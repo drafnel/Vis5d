@@ -26,6 +26,7 @@ load_data_file  (v5d_info *info, gchar *filename)
   
   /* todo: should check for errors here */
 
+  printf("on load display=%d\n",info->v5d_display_context);
   dc = vis5d_load_v5dfile(info->v5d_display_context,0,filename,"context");
 
   if(dc==VIS5D_FAIL){
@@ -120,8 +121,10 @@ on_fileselect_ok                       (GtkButton       *button,
   }else if(strcmp(what,"topo")==0){
 	 int hires = vis5d_graphics_mode(info->v5d_display_context,VIS5D_HIRESTOPO,VIS5D_GET);
 	 vis5d_init_topo(info->v5d_display_context,filename,hires);
+	 vis5d_load_topo_and_map(info->v5d_display_context);
   }else if(strcmp(what,"map")==0){
 	 vis5d_init_map(info->v5d_display_context,filename);
+	 vis5d_load_topo_and_map(info->v5d_display_context);
   }
   gtk_widget_hide (filesel);
   /* This is the only window that should accept input */

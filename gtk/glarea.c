@@ -17,6 +17,7 @@
 #include "interface.h"
 #include "support.h"
 
+gboolean vis5d_initialized=FALSE;
 
 /*****************************************************************************/
 /*                                                                           */
@@ -438,13 +439,14 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 
 		info->zoom = 1;
 		info->animate_speed=500;
-
-		vis5d_initialize(0);
-		/*
-		vis5d_set_verbose_level(VERBOSE_DISPLAY);
-		*/
-		vis5d_noexit(1);
-
+		if( vis5d_initialized==FALSE){
+		  vis5d_initialize(0);
+		  /*
+			 vis5d_set_verbose_level(VERBOSE_DISPLAY);
+		  */
+		  vis5d_noexit(1);
+		  vis5d_initialized=TRUE;
+		}
 		info->v5d_display_context = vis5d_alloc_display_context();
 
 		vis5d_set_BigWindow(Xdisplay, Xwindow, glcontext);

@@ -59,7 +59,12 @@ on_open1_activate                      (GtkMenuItem     *menuitem,
 
   gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Open Data File"));
 
-  window3D=lookup_widget(GTK_WIDGET (menuitem),"window3D");
+  if(user_data){
+	 /* called from open in new frame */
+	 window3D=GTK_WIDGET(user_data);
+  }else{
+	 window3D=lookup_widget(GTK_WIDGET (menuitem),"window3D");
+  }
 
   gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"window3D" , window3D);
 
@@ -130,7 +135,7 @@ on_open_in_new_frame1_activate         (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *window3D;
-
+    
   window3D = new_window3D(lookup_widget(GTK_WIDGET(menuitem),"window3D"));
   on_open1_activate(menuitem,(gpointer) window3D);
 
@@ -237,8 +242,9 @@ on_Arrow_clicked                       (GtkButton       *button,
 	 {
 		info->timestep = info->numtimes-1;
 	 }
+
   if(info->timestep<0){
-	 info->timestep = info->numtimes-info->timestep;
+	 info->timestep = info->numtimes+info->timestep;
   }else if(info->timestep>=info->numtimes){
 	 info->timestep = info->timestep-info->numtimes;
   }
@@ -372,12 +378,7 @@ on_VariableCTree_tree_select_row       (GtkCTree        *ctree,
 
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_ON);
-
-
-	 
   }
-
-
 
 }
 

@@ -1,3 +1,106 @@
+2001-07-26  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in: bumped version
+
+2001-07-19  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/topo.c: in looking for the topo header
+	i replaced strcmp with strncmp so that the null byte is not
+	required after TOPO or TOPO2 , this also means that the order had
+	to be reversed in the if/else if.
+
+	* /cvsroot/vis5d/vis5d/src/work.c: In extract_hslicePRIME the
+	LowLev of the dtx rather than that of the variable was being used
+	to extract hslices from a given variable.  This caused variable
+	contours to be displayed at levels below which the variables were
+	undefined.
+
+	A similar change was made in extract_hslice in 1998, i can only
+	assume he overlooked the code in extract_hslicePRIME.
+
+2001-07-19  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/util/main.c,
+	/cvsroot/vis5d/vis5d/util/newmap.c: use F77_DUMMY_MAIN from
+	autoconf 2.52
+
+	* /cvsroot/vis5d/vis5d/configure.in: be more tolerant of flaky
+	Fortran installations in autoconf 2.52
+
+	* /cvsroot/vis5d/vis5d/util/Makefile.am,
+	/cvsroot/vis5d/vis5d/util/newmap.c: don't require Fortran
+
+	* /cvsroot/vis5d/vis5d/src/v5d.c,
+	/cvsroot/vis5d/vis5d/src/vtmcP.c: omit Fortran API if a Fortran
+	compiler was not detected
+
+2001-07-18  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/proj.c: removed static declarations for
+	lat lon and hgt in several conversion routines and replaced with
+	malloc calls.  At least on my linux box this makes a significant
+	improvement in memory usage since in most cases the static value
+	was 64000 or more and the amount actually required was 1.
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/resample_i.c,
+	/cvsroot/vis5d/vis5d/src/topo.c, /cvsroot/vis5d/vis5d/src/topo.h:
+	improved cleanup of topo structure in free_topo which now takes
+	arg (struct Topo **tptr) and sets *tptr=NULL on exit.
+
+2001-07-18  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in: updatd shared-lib version
+
+	* /cvsroot/vis5d/vis5d/src/v5d.c: add backwards compatibility in
+	4-digit year support
+
+2001-07-17  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/AUTHORS, /cvsroot/vis5d/vis5d/NEWS: updated
+
+	* /cvsroot/vis5d/vis5d/src/main.c: expanded -version info
+
+2001-07-17  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/main.c: added an option -version which
+	prints the vis5d+ version number and exits.
+
+	* /cvsroot/vis5d/vis5d/NEWS,
+	/cvsroot/vis5d/vis5d/convert/foo2_to_v5d.f,
+	/cvsroot/vis5d/vis5d/src/render.c, /cvsroot/vis5d/vis5d/src/v5d.c:
+	applied patch This fixes several date problems:
+
+	- Year 2000 problem (you can now optionally specify year with 4
+	  digits) ..now gets the weekday right.  - Year 2100 problem: it
+	  is not a leap year.  - Timestamp comparison was wrong, it would
+	  accept date1 < date0 if time1 > time0.
+
+	  In the fortran callable V5DSETUNITS units were not stripped of
+	trailing white space.  Maybe you can comment on if this is a good
+	fix.
+
+	  I added fortran-callable functions V5DUPDATE and V5DUPDATETIMES,
+	as the functionality was available in C also.  I have not tested
+	those though.  My idea is to incrementally append to a v5d file as
+	the model run creating the data advances, so I can check the early
+	results as soon as they are available..
+
+	Jaakko
+
+	Jaakko Hyvätti <Jaakko.Hyvatti@foreca.com>
+
+2001-07-17  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/Makefile.am: removed reference to
+	netcdf_i.h
+
+	* /cvsroot/vis5d/vis5d/NEWS, /cvsroot/vis5d/vis5d/configure.in:
+	bumped version
+
+	* /cvsroot/vis5d/vis5d/ChangeLog: updated
+
 2001-07-17  stevengj  <stevengj@sourceforge.net>
 
 	* /cvsroot/vis5d/vis5d/src/Makefile.am: whoops

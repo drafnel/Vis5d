@@ -39,7 +39,7 @@ extern int any_work_pending( void );
 
 extern int do_one_task( int threadnum );
 
-extern void work( void *threadnum );
+extern void *work( void *threadnum );
 
 
 

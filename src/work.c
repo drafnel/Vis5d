@@ -6458,7 +6458,7 @@ int do_one_task( int threadnum )
  * contour slices, trajectories, etc.
  * Input:  threadnum - integer thread ID in [1..NumThreads-1]
  */
-void work( void *threadnum )
+void *work( void *threadnum )
 {
 #ifdef HAVE_SGI_SPROC
    /* make this process die if the parent dies */
@@ -6467,4 +6467,6 @@ void work( void *threadnum )
 
    while (do_one_task( (int) threadnum ))
      ;
+
+   return NULL;
 }

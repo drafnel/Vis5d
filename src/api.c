@@ -3808,31 +3808,39 @@ int vis5d_init_data_end( int index )
 #ifdef HAVE_SGI_SPROC
    if (NumThreads>1 && WorkerPID[0]==0) {
       /* Fork off the worker threads if we haven't already */
-      if (NumThreads>1)   WorkerPID[0] = sproc( work, PR_SALL, 1 );
-      if (NumThreads>2)   WorkerPID[1] = sproc( work, PR_SALL, 2 );
-      if (NumThreads>3)   WorkerPID[2] = sproc( work, PR_SALL, 3 );
-      if (NumThreads>4)   WorkerPID[3] = sproc( work, PR_SALL, 4 );
-      if (NumThreads>5)   WorkerPID[4] = sproc( work, PR_SALL, 5 );
-      if (NumThreads>6)   WorkerPID[5] = sproc( work, PR_SALL, 6 );
-      if (NumThreads>7)   WorkerPID[6] = sproc( work, PR_SALL, 7 );
-      if (NumThreads>8)   WorkerPID[7] = sproc( work, PR_SALL, 8 );
+      if (NumThreads>1)   WorkerPID[0] = sproc( work, PR_SALL, (void*) 1 );
+      if (NumThreads>2)   WorkerPID[1] = sproc( work, PR_SALL, (void*) 2 );
+      if (NumThreads>3)   WorkerPID[2] = sproc( work, PR_SALL, (void*) 3 );
+      if (NumThreads>4)   WorkerPID[3] = sproc( work, PR_SALL, (void*) 4 );
+      if (NumThreads>5)   WorkerPID[4] = sproc( work, PR_SALL, (void*) 5 );
+      if (NumThreads>6)   WorkerPID[5] = sproc( work, PR_SALL, (void*) 6 );
+      if (NumThreads>7)   WorkerPID[6] = sproc( work, PR_SALL, (void*) 7 );
+      if (NumThreads>8)   WorkerPID[7] = sproc( work, PR_SALL, (void*) 8 );
    }
 #endif
 #ifdef HAVE_SUNOS_THREADS
    if (NumThreads>1 && WorkerPID[0]==0) {
-      if (NumThreads>1)   thr_create( NULL, 0, work, 1, 0, &WorkerPID[0] );
-      if (NumThreads>2)   thr_create( NULL, 0, work, 2, 0, &WorkerPID[1] );
-      if (NumThreads>3)   thr_create( NULL, 0, work, 3, 0, &WorkerPID[2] );
-      if (NumThreads>4)   thr_create( NULL, 0, work, 4, 0, &WorkerPID[3] );
+      if (NumThreads>1)   thr_create( NULL, 0, work, (void*) 1, 0,
+				      &WorkerPID[0] );
+      if (NumThreads>2)   thr_create( NULL, 0, work, (void*) 2, 0,
+				      &WorkerPID[1] );
+      if (NumThreads>3)   thr_create( NULL, 0, work, (void*) 3, 0,
+				      &WorkerPID[2] );
+      if (NumThreads>4)   thr_create( NULL, 0, work, (void*) 4, 0,
+				      &WorkerPID[3] );
    }
 #endif
 
 #ifdef HAVE_PTHREADS 
    if (NumThreads>1 && WorkerPID[0]==0) {
-      if (NumThreads>1)   pthread_create( &WorkerPID[0], NULL, work, 1 );
-      if (NumThreads>2)   pthread_create( &WorkerPID[1], NULL, work, 2 );
-      if (NumThreads>3)   pthread_create( &WorkerPID[2], NULL, work, 3 );
-      if (NumThreads>4)   pthread_create( &WorkerPID[3], NULL, work, 4 );
+      if (NumThreads>1)   pthread_create( &WorkerPID[0], NULL,
+					  work, (void*) 1 );
+      if (NumThreads>2)   pthread_create( &WorkerPID[1], NULL,
+					  work, (void*) 2 );
+      if (NumThreads>3)   pthread_create( &WorkerPID[2], NULL,
+					  work, (void*) 3 );
+      if (NumThreads>4)   pthread_create( &WorkerPID[3], NULL,
+					  work, (void*) 4 );
    }
 #endif
 
@@ -10391,31 +10399,39 @@ int vis5d_init_irregular_data_end( int index )
 #ifdef HAVE_SGI_SPROC
    if (NumThreads>1 && WorkerPID[0]==0) {
       /* Fork off the worker threads if we haven't already */
-      if (NumThreads>1)   WorkerPID[0] = sproc( work, PR_SALL, 1 );
-      if (NumThreads>2)   WorkerPID[1] = sproc( work, PR_SALL, 2 );
-      if (NumThreads>3)   WorkerPID[2] = sproc( work, PR_SALL, 3 );
-      if (NumThreads>4)   WorkerPID[3] = sproc( work, PR_SALL, 4 );
-      if (NumThreads>5)   WorkerPID[4] = sproc( work, PR_SALL, 5 );
-      if (NumThreads>6)   WorkerPID[5] = sproc( work, PR_SALL, 6 );
-      if (NumThreads>7)   WorkerPID[6] = sproc( work, PR_SALL, 7 );
-      if (NumThreads>8)   WorkerPID[7] = sproc( work, PR_SALL, 8 );
+      if (NumThreads>1)   WorkerPID[0] = sproc( work, PR_SALL, (void*) 1 );
+      if (NumThreads>2)   WorkerPID[1] = sproc( work, PR_SALL, (void*) 2 );
+      if (NumThreads>3)   WorkerPID[2] = sproc( work, PR_SALL, (void*) 3 );
+      if (NumThreads>4)   WorkerPID[3] = sproc( work, PR_SALL, (void*) 4 );
+      if (NumThreads>5)   WorkerPID[4] = sproc( work, PR_SALL, (void*) 5 );
+      if (NumThreads>6)   WorkerPID[5] = sproc( work, PR_SALL, (void*) 6 );
+      if (NumThreads>7)   WorkerPID[6] = sproc( work, PR_SALL, (void*) 7 );
+      if (NumThreads>8)   WorkerPID[7] = sproc( work, PR_SALL, (void*) 8 );
    }
 #endif
 #ifdef HAVE_SUNOS_THREADS
    if (NumThreads>1 && WorkerPID[0]==0) {
-      if (NumThreads>1)   thr_create( NULL, 0, work, 1, 0, &WorkerPID[0] );
-      if (NumThreads>2)   thr_create( NULL, 0, work, 2, 0, &WorkerPID[1] );
-      if (NumThreads>3)   thr_create( NULL, 0, work, 3, 0, &WorkerPID[2] );
-      if (NumThreads>4)   thr_create( NULL, 0, work, 4, 0, &WorkerPID[3] );
+      if (NumThreads>1)   thr_create( NULL, 0, work, (void*) 1, 0,
+				      &WorkerPID[0] );
+      if (NumThreads>2)   thr_create( NULL, 0, work, (void*) 2, 0,
+				      &WorkerPID[1] );
+      if (NumThreads>3)   thr_create( NULL, 0, work, (void*) 3, 0,
+				      &WorkerPID[2] );
+      if (NumThreads>4)   thr_create( NULL, 0, work, (void*) 4, 0,
+				      &WorkerPID[3] );
    }
 #endif
 
 #ifdef HAVE_PTHREADS
    if (NumThreads>1 && WorkerPID[0]==0) {
-      if (NumThreads>1)   pthread_create( &WorkerPID[0], NULL, work, 1 );
-      if (NumThreads>2)   pthread_create( &WorkerPID[1], NULL, work, 2 );
-      if (NumThreads>3)   pthread_create( &WorkerPID[2], NULL, work, 3 );
-      if (NumThreads>4)   pthread_create( &WorkerPID[3], NULL, work, 4 );
+      if (NumThreads>1)   pthread_create( &WorkerPID[0], NULL,
+					  work, (void*) 1 );
+      if (NumThreads>2)   pthread_create( &WorkerPID[1], NULL,
+					  work, (void*) 2 );
+      if (NumThreads>3)   pthread_create( &WorkerPID[2], NULL,
+					  work, (void*) 3 );
+      if (NumThreads>4)   pthread_create( &WorkerPID[3], NULL,
+					  work, (void*) 4 );
    }
 #endif
    return 1;

@@ -37,7 +37,7 @@
 #define XY
 
 
-
+#include <stdio.h>
 #include <string.h>
 #include "memory.h"
 #include "globals.h"
@@ -669,8 +669,8 @@ int contour( Context ctx, float g[], int nr, int nc,
    float xd, yd ,xx, yy;
    float clow, chi;
    float gg;
-   float vx[MAXTEMP], vy[MAXTEMP];
-   int ipnt[2*MAXTEMP];
+   float *vx, *vy;
+   int *ipnt;
    int nump, ip;
    register int numv;
    char *mark;
@@ -679,6 +679,22 @@ int contour( Context ctx, float g[], int nr, int nc,
    char         lbl_str[10], lbl_fmt[40];
    int          lbl_len, lbl_dot;
    int use_resize;
+
+   /* Dynamically allocate temp. arrays, to avoid using excessive
+      stack space and crashing on some systems.  It's not going to be
+      appreciably slower, since the caller (calc_hslice or
+      calc_vslice) calls malloc at least 6 times anyway. calc_hslice
+      and calc_vslice determine maxv1 & maxv2 based on an upper bound
+      for the number of vertices derived from the code below. */
+   const int maxtemp = maxv1 > maxv2 ? maxv1 : maxv2;
+   vx = (float*) malloc(sizeof(float)*maxtemp);
+   vy = (float*) malloc(sizeof(float)*maxtemp);
+   ipnt = (int*) malloc(sizeof(int)*((nr-1)*(nc-1) + 1)); /* see below loop */
+   if (!vx || !vy || !ipnt) {
+      fprintf(stderr, "You do not have enough memory to create contours.\n");
+      free(vx); free(vy); free(ipnt);
+      return 0;
+   }
 
    use_resize = 0;
    ffex = ffey = 0;
@@ -697,6 +713,7 @@ int contour( Context ctx, float g[], int nr, int nc,
 
    if (interval==0.0) {
       /* bad contour interval */
+      free(vx); free(vy); free(ipnt);
       return 0;
    }
    if (interval<0.0) {
@@ -764,8 +781,10 @@ int contour( Context ctx, float g[], int nr, int nc,
 
    /* allocate mark array */
    mark = (char *) allocate( ctx, nr * nc * sizeof(char) );
-   if (!mark)
+   if (!mark) {
+      free(vx); free(vy); free(ipnt);
       return 0;
+   }
 
    /* initialize mark array to zeros */
    memset( mark, 0, nr*nc*sizeof(char) );
@@ -806,9 +825,9 @@ int contour( Context ctx, float g[], int nr, int nc,
 
    numv = nump = 0;
    /* compute contours */
-   for (ir=0; ir<nrm && numv<MAXTEMP-8 && nump<2*MAXTEMP; ir++) {
+   for (ir=0; ir<nrm && numv<maxtemp-8 && nump<2*maxtemp; ir++) {
       xx = xd*ir+XMIN;
-      for (ic=0; ic<ncm && numv<MAXTEMP-8 && nump<2*MAXTEMP; ic++) {
+      for (ic=0; ic<ncm && numv<maxtemp-8 && nump<2*maxtemp; ic++) {
          float ga, gb, gc, gd;
          float gv, gn, gx;
          register float tmp1, tmp2;
@@ -870,7 +889,7 @@ int contour( Context ctx, float g[], int nr, int nc,
          /* gg is current contour line value */
          gg = clow;
 
-         for (il=0; il<numc && numv+8<MAXTEMP; il++, gg += interval) {
+         for (il=0; il<numc && numv+8<maxtemp; il++, gg += interval) {
             float gba, gca, gdb, gdc;
             int ii;
 
@@ -1151,8 +1170,8 @@ int contour( Context ctx, float g[], int nr, int nc,
 
    /* copy vertices from vx, vy arrays to either v1 or v2 arrays */
    ip = 0;
-   for (ir=0;ir<nrm && ip<2*MAXTEMP;ir++) {
-      for (ic=0;ic<ncm && ip<2*MAXTEMP;ic++) {
+   for (ir=0;ir<nrm && ip<2*maxtemp;ir++) {
+      for (ic=0;ic<ncm && ip<2*maxtemp;ic++) {
          int start, len;
          start = ipnt[ip];
          len = ipnt[ip+1] - start;
@@ -1179,6 +1198,8 @@ int contour( Context ctx, float g[], int nr, int nc,
 
    /* deallocate mark array */
    deallocate( ctx, mark, nr * nc * sizeof(char) );
+
+   free(vx); free(vy); free(ipnt);
 
    return 1;
 }

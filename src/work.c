@@ -1922,6 +1922,8 @@ static void calc_hslice( Context ctx, int time, int var,
    float *boxverts;
    int numboxverts;
    Display_Context dtx;
+   int contour_ok;
+   int max_cont_verts;
 
    dtx = ctx->dpy_ctx;
    /* MJK 12.04.98 */
@@ -1993,13 +1995,20 @@ static void calc_hslice( Context ctx, int time, int var,
    if (!slicedata)
       return;
 
-   vr1 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS);
-   vc1 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS);
-   vr2 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vc2 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vr3 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vc3 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vl  = (float *) malloc(sizeof(float)*MAX_CONT_VERTS);
+   /* compute an upper bound on the number of vertices that contour() 
+      can return: */
+   max_cont_verts = 4 * (dtx->Nr-1) * (dtx->Nc-1)
+	* fabs((high-low)/interval) + .5;
+   if (max_cont_verts > MAX_CONT_VERTS)
+	max_cont_verts = MAX_CONT_VERTS;
+
+   vr1 = (float *) malloc(sizeof(float)*max_cont_verts);
+   vc1 = (float *) malloc(sizeof(float)*max_cont_verts);
+   vr2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vc2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vr3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vc3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vl  = (float *) malloc(sizeof(float)*max_cont_verts);
 
    if (!vr1 || !vc1 || !vr2 || !vc2 || !vr3 || !vc3 || !vl){
       printf(" You do not have enough memory to create hslices.\n");
@@ -2013,7 +2022,7 @@ static void calc_hslice( Context ctx, int time, int var,
          free(vr2);
       }
       if (vc2){
-         free(vr3);
+         free(vc2);
       }
       if (vc3){
          free(vc3);
@@ -2035,15 +2044,20 @@ static void calc_hslice( Context ctx, int time, int var,
      base = low;
 
    /* call contouring routine */
-   contour( ctx, slicedata, dtx->Nr, dtx->Nc, interval, low, high, base,
-            vr1, vc1, MAX_CONT_VERTS, &num1,
-            vr2, vc2, MAX_CONT_VERTS/2, &num2,
-            vr3, vc3, MAX_CONT_VERTS/2, &num3
-           );
+   contour_ok =
+     contour( ctx, slicedata, dtx->Nr, dtx->Nc, interval, low, high, base,
+	      vr1, vc1, max_cont_verts, &num1,
+	      vr2, vc2, max_cont_verts/2, &num2,
+	      vr3, vc3, max_cont_verts/2, &num3);
 
    /* done with grid and slice */
    deallocate( ctx, slicedata, -1 );
    release_grid( ctx, time, var, grid );
+
+   if (!contour_ok) {
+     free(vr1);free(vc1);free(vr2);free(vc2);free(vr3);free(vc3);free(vl);
+     return;
+   }
 
    /* generate level coordinates array */
    if (num1>num2 && num1>num3) {
@@ -2067,7 +2081,7 @@ static void calc_hslice( Context ctx, int time, int var,
 
    /* MJK 12.04.98 */
    if (ctx->DisplaySfcHSlice[var]){
-      num1 = fit_vecs_to_topo (ctx, num1, MAX_CONT_VERTS, vr1, vc1, vl);
+      num1 = fit_vecs_to_topo (ctx, num1, max_cont_verts, vr1, vc1, vl);
    }
 
 
@@ -2087,7 +2101,7 @@ static void calc_hslice( Context ctx, int time, int var,
 
    /* MJK 12.04.98 */
    if (ctx->DisplaySfcHSlice[var]){
-      num2 = fit_vecs_to_topo (ctx, num2, MAX_CONT_VERTS/2, vr2, vc2, vl);
+      num2 = fit_vecs_to_topo (ctx, num2, max_cont_verts/2, vr2, vc2, vl);
    }
 
 
@@ -2107,7 +2121,7 @@ static void calc_hslice( Context ctx, int time, int var,
 
    /* MJK 12.04.98 */
    if (ctx->DisplaySfcHSlice[var]){
-      num3 = fit_vecs_to_topo (ctx, num3, MAX_CONT_VERTS/2, vr3, vc3, vl);
+      num3 = fit_vecs_to_topo (ctx, num3, max_cont_verts/2, vr3, vc3, vl);
    }
 
 
@@ -2204,6 +2218,8 @@ static void calc_vslice( Context ctx, int time, int var,
    int numboxverts;
    Display_Context dtx;
    int ctxnl, ctxll;
+   int contour_ok;
+   int max_cont_verts;
 
    /* WLH 15 Oct 98 */
    float ctxlow;
@@ -2232,15 +2248,21 @@ static void calc_vslice( Context ctx, int time, int var,
    if (!slice)
       return;
 
-   vr1 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS);
-   vc1 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS);
-   vl1 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS);
-   vr2 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vc2 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vl2 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vr3 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vc3 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
-   vl3 = (float *) malloc(sizeof(float)*MAX_CONT_VERTS/2);
+   /* compute an upper bound on the number of vertices that contour() 
+      can return: */
+   max_cont_verts = 4 * (rows-1) * (cols-1) * fabs((high-low)/interval) + .5;
+   if (max_cont_verts > MAX_CONT_VERTS)
+	max_cont_verts = MAX_CONT_VERTS;
+
+   vr1 = (float *) malloc(sizeof(float)*max_cont_verts);
+   vc1 = (float *) malloc(sizeof(float)*max_cont_verts);
+   vl1 = (float *) malloc(sizeof(float)*max_cont_verts);
+   vr2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vc2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vl2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vr3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vc3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vl3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
    if (!vr1 || !vc1 || !vl1 || !vr2 || !vc2 || !vl2 || !vr3 || !vc3 || !vl3){
       printf(" You do not have enough memory to create vslices.\n");
       if (vr1){
@@ -2281,14 +2303,20 @@ static void calc_vslice( Context ctx, int time, int var,
    else
      base = low;
    /* call contouring routine */
-   contour( ctx, slice, rows, cols, interval, low, high, base,
-            vr1, vc1, MAX_CONT_VERTS, &num1,
-            vr2, vc2, MAX_CONT_VERTS/2, &num2,
-            vr3, vc3, MAX_CONT_VERTS/2, &num3
-           );
+   contour_ok =
+	contour( ctx, slice, rows, cols, interval, low, high, base,
+		 vr1, vc1, max_cont_verts, &num1,
+		 vr2, vc2, max_cont_verts/2, &num2,
+		 vr3, vc3, max_cont_verts/2, &num3);
 
    deallocate( ctx, slice, -1 );
    release_grid( ctx, time, var, grid );
+
+   if (!contour_ok) {
+	free(vr1); free(vc1); free(vr2); free(vc2); free(vr3); free(vc3);
+	free(vl1); free(vl2); free(vl3);
+	return;
+   }
 
    /*
     * Convert 2-D coordinates from [0,rows-1][0,cols-1] to 3-D coords

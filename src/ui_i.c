@@ -755,17 +755,17 @@ static void parse_command( char *command, struct grid_db *db,
       }
       printf("  Vertical Coordinate System: ");
       switch (v5dout->VerticalSystem) {
-         case 0:
+         case VERT_GENERIC:
             printf("Generic\n");
             printf("    BottomBound: %f\n", v5dout->VertArgs[0] );
             printf("    LevInc: %f\n", v5dout->VertArgs[1] );
             break;
-         case 1:
+         case VERT_EQUAL_KM:
             printf("Equally spaced km\n");
             printf("    BottomBound: %f\n", v5dout->VertArgs[0] );
             printf("    LevInc: %f\n", v5dout->VertArgs[1] );
             break;
-         case 2:
+         case VERT_UNEQUAL_KM:
             printf("Unequally spaced km\n");
             {
                for (i=0;i<MaxNl;i++) {
@@ -773,16 +773,17 @@ static void parse_command( char *command, struct grid_db *db,
                }
             }
             break;
-         case 3:
+         case VERT_UNEQUAL_MB:
             printf("Unequally spaced mb\n");
             {
                for (i=0;i<MaxNl;i++) {
-                  printf("    Level %d:  %.3f km\n", i+1,
+                  printf("    Level %d:  %.3f mb\n", i+1,
                          height_to_pressure(v5dout->VertArgs[i]) );
                }
             }
+	         break;
          default:
-            printf("Undefined\n");
+            printf("ERROR Undefined VerticalSystem: %d\n",v5dout->VerticalSystem);
       }
    }
    else if (strcmp(token[0],"read")==0) {
@@ -805,7 +806,7 @@ static void parse_command( char *command, struct grid_db *db,
             flag = 0;
          }
          if (strcmp(token[1],"all")==0) {
-            select_all( db, ALL_BITS, 1 );
+            select_all( db, ALL_BITS, flag );
          }
 #ifdef LEAVEOUT
          else if (strncmp(token[1],"grid",4)==0) {

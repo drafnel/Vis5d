@@ -108,7 +108,7 @@ void
 on_fileselect_ok                       (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *filesel, *window3D;
+  GtkWidget *filesel, *window3D, *save_procedure;
   gint what;
   gchar *filename;
   v5d_info *info;
@@ -143,6 +143,14 @@ on_fileselect_ok                       (GtkButton       *button,
 		gtk_widget_destroy(info->ProcedureDialog);
     info->ProcedureDialog = new_ProcedureDialog(info, filename);
 	 gtk_window_set_transient_for(GTK_WINDOW(info->ProcedureDialog),GTK_WINDOW(window3D));
+	 break;
+  case SAVE_PROCEDURE_FILE:
+	 if(! info->ProcedureDialog){
+		printf("Error: ProcedureDialog not defined\n");
+		return;
+	 }
+	 save_procedure = lookup_widget(info->ProcedureDialog, "saveProcedure");
+	 on_saveProcedure_activate(GTK_MENU_ITEM(save_procedure), filename);
 	 break;
   default:
 	 g_print("open what ? %d\n",what);

@@ -101,7 +101,9 @@ typedef enum {
   DATA_FILE,
   PROCEDURE_FILE,
   TOPO_FILE,
-  MAP_FILE
+  MAP_FILE,
+  SAVE_PROCEDURE_FILE
+
 } openwhatfile;
 
 

@@ -15,17 +15,15 @@ typedef struct {
   gchar *name;
   GPtrArray *items;
   GArray *item_type;
-  GPtrArray *vinfo_array;
+  GArray *vinfo_array; 
   /* GList *items; */
 } Image;
 
 
 void procedure_free_image(Image *image);
 void procedure_free(GList *Procedure);
-GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, 
-								  gboolean NewImage, gchar *imagename, gint position);
-
 void
 print_ProcedureList(GList *ProcedureList,gchar *filename);
 
 GList *procedure_open_file(char *filename);
+Image *image_add_item(Image *image, gpointer item, gint itemtype, gchar *imagename);

@@ -203,32 +203,23 @@ token_int(GScanner *scanner, guint *fval)
   return G_TOKEN_NONE;
 }
 
-GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, gboolean NewImage, gchar *imagename, gint position)
+Image *image_add_item(Image *image, gpointer item, gint itemtype, gchar *imagename)
 {
-  Image *oneimage;
-  if(Procedure && NewImage==FALSE){
-    oneimage = (Image *) g_list_last(Procedure)->data;
-  }else{
-	 oneimage = g_new(Image,1); /* *) g_malloc(sizeof(Image)); */
-    oneimage->vinfo_array = g_ptr_array_new();
-	 oneimage->items=g_ptr_array_new();
-	 oneimage->item_type=g_array_new(FALSE,TRUE,sizeof(gint));
+  if(image==NULL){
+	 image =  g_new(Image,1);
+	 image->vinfo_array = g_array_new(FALSE,TRUE,sizeof(v5d_var_info *)); 
+	 image->items=g_ptr_array_new();
+	 image->item_type=g_array_new(FALSE,TRUE,sizeof(gint));
   }
-  
-  g_ptr_array_add(oneimage->items,(gpointer) item);
-  g_array_append_val(oneimage->item_type,itemtype);
-
+  if(item){  
+	 g_ptr_array_add(image->items,(gpointer) item);
+	 g_array_append_val(image->item_type,itemtype);
+  }
   if(imagename){
-	 oneimage->name = g_strdup(imagename);
+	 image->name = g_strdup(imagename);
   }
-
-  if(NewImage==TRUE){
-	 /*	 Procedure = g_list_append(Procedure, (gpointer) oneimage); */
-	 Procedure = g_list_insert(Procedure, (gpointer) oneimage, position);
-  }
-  return Procedure;
+  return image;
 }
-
 
 
 static guint
@@ -264,12 +255,9 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 	 context[++context_depth] = symbol;
 	 g_scanner_set_scope(scanner,context[context_depth]);
 
-	 oneimage = g_new(Image,1); /* *) g_malloc(sizeof(Image));*/
-	 oneimage->name = NULL;
-	 oneimage->items=g_ptr_array_new();
-	 oneimage->vinfo_array=g_ptr_array_new();
-	 oneimage->item_type=g_array_new(FALSE,TRUE,sizeof(gint));
+	 oneimage = image_add_item(NULL, NULL, 0, NULL);
     *ProcedureList = g_list_append(*ProcedureList, (gpointer) oneimage);
+	 
 	 return G_TOKEN_NONE;
 	 break;
   case SCOPE_SYMBOL_IMAGE:
@@ -294,7 +282,14 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 		g_scanner_set_scope(scanner,context[context_depth]);
 		onehslice = g_new0(hslicecontrols,1); /* *) g_malloc(sizeof(hslicecontrols));*/
 		onehslice->var=NULL;
+
+		/*
 		*ProcedureList = procedure_add_item(*ProcedureList,(gpointer) onehslice, HSLICE, FALSE, NULL, -1);
+		*/
+
+		image_add_item(oneimage, (gpointer) onehslice, HSLICE, NULL);
+		
+
 
 		return G_TOKEN_NONE;
 		break;
@@ -398,7 +393,7 @@ print_ProcedureList(GList *ProcedureList,gchar *filename)
   
   while(nextimage){
 	 fprintf(fp,"image { \n");
-	 if( name=( ((Image *)nextimage->data)->name)){
+	 if( (name= ((Image *)nextimage->data)->name)){
 		fprintf(fp,"  name=\"%s\";\n",name);
 	 }
 	 items = (GPtrArray *) ((Image *)nextimage->data)->items;
@@ -487,13 +482,15 @@ void hslice_free(hslicecontrols *hslice){
   }
 }
 
+
+
 void procedure_free_image(Image *image)
 {
   gint i;
   gint type;
   if(image){
 	 if(image->name)
-		free(image->name);
+		g_free(image->name);
 		
 
 	 for(i=0;i<image->items->len;i++){
@@ -518,9 +515,7 @@ void procedure_free(GList *Procedure)
 {
   GList *imagelist;
   Image *image;
-  gint i, type;
 
-  printf("Freeing Procedure 0x%x\n",Procedure);
 
   imagelist = g_list_first(Procedure);
   while(imagelist){

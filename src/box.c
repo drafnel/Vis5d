@@ -710,11 +710,11 @@ void draw_box( Display_Context dtx, int it )
 /*MiB*/
    xdir1[0] = ' ';
    xdir2[0] = ' ';
-   xdir1[1] = '\0 ';
+   xdir1[1] = '\0';
    xdir2[1] = '\0';
    ydir1[0] = ' ';
    ydir2[0] = ' ';
-   ydir1[1] = '\0 ';
+   ydir1[1] = '\0';
    ydir2[1] = '\0';
 
    set_depthcue( dtx->DepthCue );

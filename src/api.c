@@ -7333,10 +7333,7 @@ int vis5d_make_isosurface( int index, int time, int var, int urgent )
    
    CONTEXT("vis5d_make_iso_surface")
 
-  if(!ctx->Variable[var]->SurfTable[time]){
-	 ctx->Variable[var]->SurfTable[time] = (struct isosurface *) allocate(ctx,sizeof(struct isosurface));
-	 memset(ctx->Variable[var]->SurfTable[time], 0, sizeof(struct isosurface));
-  }	
+
 
    if (!ctx->VeryLarge || time == ctx->CurTime) {
      request_isosurface( ctx, time, var, urgent );

@@ -1270,7 +1270,6 @@ small region over Wisconsin with:
 <para>
 Vis5D 5.2 supports the following vertical coordinate systems:
 </para>
-<para>
 
 <sect3 id="ch03sec2-vert-1">
 <title>Equally spaced, generic units:</title>
@@ -1517,7 +1516,7 @@ round topography.  It's probably best to just experiment with these
 options using the LAMPS dataset for example.  
 See the section on Vis5d's command line options for more information.
 </para>
-
+</sect3>
 </sect2>
 
 </sect1>

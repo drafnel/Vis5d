@@ -90,7 +90,7 @@ We continue to communicate closely with the Vis5d authors, track
 changes in the main tree, and share bugfixes where possible.  This
 project benefits from the collaboration and hosting services provided
 by <ulink url="http://www.sourceforge.net/">SourceForge</ulink>.
-
+</para>
 <para>The initial version of Vis5d+ was based on a replacement of the
 original Vis5d's build process, which relied on specific
 <filename>Makefile</filename> rules for each supported system, with a

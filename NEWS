@@ -1,9 +1,14 @@
-Summary of changes for new releases of Vis5d:
+Summary of changes for new releases of Vis5d+:
+
+Vis5d+ 1.0
 
   * Merged in recent crash fixes from mainline sources, thanks
     to Michael Schaferkotter and Bill Hibbard.
 
   * Fixed another fp-exception bug on Alpha.
+
+Previous releases were called "Vis5d 5.2.<x>a", an "autoconfiscated"
+version of Vis5d 5.2.
 
 Vis5d 5.2.5a:
 

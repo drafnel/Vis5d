@@ -1,5 +1,5 @@
 SUBDIRS = lui5 src util import
-EXTRA_DIST = PORTING README.ps COPYRIGHT hole.v5d contrib convert scripts userfuncs
+EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts userfuncs
 
 # add a target to completely get rid of all the files produced by
 # autoheader, automake, autoconf, and aclocal:

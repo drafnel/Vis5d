@@ -162,10 +162,10 @@
 unsigned int vis5d_verbose=0;
 
 /* initial xformation matrix */
-static MATRIX init_ctm = { 1.0, 0.0, 0.0, 0.0,
-                           0.0, 1.0, 0.0, 0.0, 
-                           0.0, 0.0, 1.0, 0.0,
-                           0.0, 0.0, 0.0, 1.0 };
+static MATRIX init_ctm = { {1.0, 0.0, 0.0, 0.0},
+                           {0.0, 1.0, 0.0, 0.0}, 
+                           {0.0, 0.0, 1.0, 0.0},
+                           {0.0, 0.0, 0.0, 1.0} };
 
 /* WLH 6 Oct 98 */
 int noexit = 0; /* if true, don't exit on bad vis5d_open_gridfile */
@@ -239,7 +239,7 @@ void debugstuff(void)
   if(vis5d_verbose & VERBOSE_DATA) printf("in c %s\n",msg); \
   if (index<0 || index>=VIS5D_MAX_CONTEXTS || (ctx = ctx_table[index])==NULL) { \
     debugstuff(); \
-    printf("bad context in %s %d 0x%x\n", msg,index,ctx); \
+    printf("bad context in %s %d 0x%x\n", msg,index,(unsigned int) ctx); \
     return VIS5D_BAD_CONTEXT; \
   }
 
@@ -247,7 +247,7 @@ void debugstuff(void)
   Display_Context dtx; \
   if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c %s\n",msg); \
   if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS || (dtx = dtx_table[index])==NULL) { \
-    printf("bad display_context in %s %d 0x%x\n", msg, index, dtx); \
+    printf("bad display_context in %s %d 0x%x\n", msg, index, (unsigned int) dtx); \
     debugstuff(); \
     return VIS5D_BAD_CONTEXT; \
   }
@@ -257,7 +257,7 @@ void debugstuff(void)
   if(vis5d_verbose & VERBOSE_IRREGULAR) printf("in c %s\n",msg); \
   if (index<0 || index>=VIS5D_MAX_CONTEXTS || (itx = itx_table[index])==NULL) { \
     debugstuff(); \
-    printf("bad irregular context in %s %d 0x%x\n", msg,index,itx); \
+    printf("bad irregular context in %s %d 0x%x\n", msg,index,(unsigned int) itx); \
     return VIS5D_BAD_CONTEXT; \
   }
 
@@ -727,50 +727,6 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
 
    return 0;
 }   
-
-
-
-static void clear_irregular_context( Irregular_Context itx)
-{
-
-   
-   memset( itx->TextPlotTable, 0, sizeof(itx->TextPlotTable) );
-}
-
-
-/*
- * Deallocate all the resources attached to the context.  This is used
- * prior to loading a new dataset into a context.
- */
-static void clear_context( Context ctx )
-{
-   int i;
-
-   reinit_memory( ctx );
-   FREE_LOCK( ctx->Mutex );
-   /* clear graphics tables */
-   memset( ctx->SurfTable, 0, sizeof(ctx->SurfTable) );
-   memset( ctx->HSliceTable, 0, sizeof(ctx->HSliceTable) );
-   memset( ctx->VSliceTable, 0, sizeof(ctx->VSliceTable) );
-   memset( ctx->CHSliceTable, 0, sizeof(ctx->CHSliceTable) );
-   memset( ctx->CVSliceTable, 0, sizeof(ctx->CVSliceTable) );
-   memset( ctx->dpy_ctx->HWindTable, 0, sizeof(ctx->dpy_ctx->HWindTable) );
-   memset( ctx->dpy_ctx->VWindTable, 0, sizeof(ctx->dpy_ctx->VWindTable) );
-   memset( ctx->dpy_ctx->TrajTable, 0, sizeof(ctx->dpy_ctx->TrajTable) );
-   ctx->dpy_ctx->NumTraj = 0;
-
-   for (i=0;i<VIS5D_WIND_SLICES;i++) {
-      ctx->dpy_ctx->Uvar[i] = ctx->dpy_ctx->Vvar[i] = ctx->dpy_ctx->Wvar[i] = -1;
-   }
-   ctx->dpy_ctx->TrajU = ctx->dpy_ctx->TrajV = ctx->dpy_ctx->TrajW = -1;
-
-   memset( ctx->ExpressionList, 0, sizeof(ctx->ExpressionList) );
-
-   ctx->dpy_ctx->Zoom = 1.0;
-   memcpy( ctx->dpy_ctx->CTM, init_ctm, 16*sizeof(float) );
-   ctx->dpy_ctx->CursorColor = &ctx->dpy_ctx->TrajColor[0];
-}
-
 
 
 /*
@@ -3498,7 +3454,9 @@ int vis5d_init_topo( int index, char *toponame, int highres_flag )
 	}else{
 	  printf("WARNING: vis5d_init_topo topo already initialized\n");
 	}
-	if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c vis5d_init_topo Topo=0x%x\n",dtx->topo); 
+	if(vis5d_verbose & VERBOSE_DISPLAY) 
+	  printf("in c vis5d_init_topo Topo=0x%x\n",(unsigned int) dtx->topo); 
+
    dtx->topo->DisplayTopoBase = 0;
    dtx->topo->TopoBaseLev     = 0.0;
 
@@ -3670,7 +3628,8 @@ static void load_topo_and_map( Display_Context dtx )
 	if(dtx->topo==NULL){
 	  printf("ERROR: topo not initialized\n");
 	}
-	if(vis5d_verbose & VERBOSE_DISPLAY) printf("in c load_topo_and_map topo=0x%x\n",dtx->topo); 
+	if(vis5d_verbose & VERBOSE_DISPLAY) 
+	  printf("in c load_topo_and_map topo=0x%x\n",(unsigned int) dtx->topo); 
 
    /*** Load topography ***/
    if (Vis5dDataPath[0]) {
@@ -5758,7 +5717,7 @@ int vis5d_check_texture( int index, int *textureflag )
 }
 
 
-vis5d_get_topo_range( int index, float *MinTopoHgt, float *MaxTopoHgt )
+int vis5d_get_topo_range( int index, float *MinTopoHgt, float *MaxTopoHgt )
 {
   DPY_CONTEXT("vis5d_get_topo_range")
   *MinTopoHgt = dtx->topo->MinTopoHgt;
@@ -6075,7 +6034,7 @@ int vis5d_check_redraw( int index, int *redraw )
 
   if(vis5d_verbose & VERBOSE_REDRAW) printf("in c vis5d_check_redraw\n");
   if (index<0 || index>=VIS5D_MAX_DPY_CONTEXTS || (dtx = dtx_table[index])==NULL) { 
-    printf("bad display_context in vis5d_check_redraw %d 0x%x\n",  index, dtx); 
+    printf("bad display_context in vis5d_check_redraw %d 0x%x\n",  index, (unsigned int) dtx); 
     debugstuff(); 
     return VIS5D_BAD_CONTEXT; 
   }
@@ -6198,7 +6157,7 @@ int vis5d_invalidate_dtx_frames( int index )
 
 
 
-vis5d_set_pointer( int index, int x, int y )
+int vis5d_set_pointer( int index, int x, int y )
 {
   DPY_CONTEXT("vis5d_set_pointer")
   dtx->PointerX = x;
@@ -6509,7 +6468,7 @@ int vis5d_enable_graphics( int index, int type, int number, int mode )
 }
 
 
-vis5d_get_volume( int index, int *CurrentVolumeOwner, int *CurrentVolume )
+int vis5d_get_volume( int index, int *CurrentVolumeOwner, int *CurrentVolume )
 {
    DPY_CONTEXT("vis5d_get_volume")
    *CurrentVolumeOwner = dtx->CurrentVolumeOwner;
@@ -6518,7 +6477,7 @@ vis5d_get_volume( int index, int *CurrentVolumeOwner, int *CurrentVolume )
 }
 
 
-vis5d_set_volume( int index, int CurrentVolumeOwner, int CurrentVolume )
+int vis5d_set_volume( int index, int CurrentVolumeOwner, int CurrentVolume )
 {
    DPY_CONTEXT("vis5d_set_volume")
 
@@ -7164,7 +7123,7 @@ int vis5d_get_matrix( int index, float ctm[4][4] )
  * Set the view to either North, South, East, West, Top, or Bottom.
  * Input:  view - one of VIS5D_NORTH, VIS5D_SOUTH, .. VIS5D_BOTTOM
  */
-vis5d_set_ortho_view( int index, int view )
+int vis5d_set_ortho_view( int index, int view )
 {
    MATRIX ctm;
    DPY_CONTEXT("vis5d_ortho_view")
@@ -9183,7 +9142,7 @@ int vis5d_get_cursor( int index, float *x, float *y, float *z )
    return 0;
 }
 
-vis5d_set_logo_size( int index, float size )
+int vis5d_set_logo_size( int index, float size )
 {
    DPY_CONTEXT("vis5d_set_logo_size")
    dtx->LogoSize = size;
@@ -9418,13 +9377,13 @@ int vis5d_save_to_v5dfile( int index, char *filename)
    }
 }
 
-vis5d_print_window( void )
+int vis5d_print_window( void )
 {
   print_3d_window();
   return 0;
 }
 
-vis5d_print_snd_window( int index )
+int vis5d_print_snd_window( int index )
 {
    DPY_CONTEXT("vis5d_print_snd_window")
    set_current_window( dtx );
@@ -9435,7 +9394,7 @@ vis5d_print_snd_window( int index )
 /*** Functions useful for controlling Vis5D via -pipe */
 /* get dispay_index by location in BIG 3-D window */
 /* WLH 15 Oct 98 */
-vis5d_locate_dtx(Window w, int x, int y, int *display_index)
+int vis5d_locate_dtx(Window w, int x, int y, int *display_index)
 {
    int width, height, i, j;
    Display_Context dtx;
@@ -9477,7 +9436,7 @@ vis5d_locate_dtx(Window w, int x, int y, int *display_index)
 }
 
 /* get context_index by name */
-vis5d_name_ctx(char *name, int *context_index)
+int vis5d_name_ctx(char *name, int *context_index)
 {
    int i;
    for (i=0; i<VIS5D_MAX_CONTEXTS; i++) {
@@ -9878,7 +9837,7 @@ int vis5d_set_flatmap_level (int index, float level)
 
 
 /* MJK 12.04.98 begin */
-vis5d_init_cloned_var_colortables( int index, int varowner, int var )
+int vis5d_init_cloned_var_colortables( int index, int varowner, int var )
 {
     int                  var_type, src_var;
     unsigned int        *ctable, *src_ctable;

@@ -90,5 +90,6 @@ extern int install_new_grid( Context ctx, int time, int var,
 
 extern int write_gridfile( Context ctx, char filename[] );
 
+extern int set_ctx_from_internalv5d(Context ctx);
 
 #endif

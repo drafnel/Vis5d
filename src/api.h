@@ -685,14 +685,14 @@ extern int vis5d_font(  int index, char *fontname, int size );
 
 extern int vis5d_soundfont( int index, char *fontname );
 
-extern vis5d_get_font( int index, char *fontname, int *size);
+extern int vis5d_get_font( int index, char *fontname, int *size);
 
 /* MJK 2.22.99 */
 int vis5d_resize_contour_font( int index, int factorx, int factory);
 
 
 /* WLH 8 Oct 98 */
-extern vis5d_get_font_height( int index, int *height);
+extern int vis5d_get_font_height( int index, int *height);
 
 extern int vis5d_linewidth( int index, float width );
 
@@ -1123,7 +1123,7 @@ extern int vis5d_enable_sfc_map( int index, int mode );
 /* MJK 12.04.98 */
 extern int vis5d_enable_sfc_graphics (int index, int type, int number,
                                         int mode);
-extern vis5d_init_cloned_var_colortables( int index, int varowner, int var );
+extern int vis5d_init_cloned_var_colortables( int index, int varowner, int var );
 
 /* MJK 12.10.98 */
 extern int vis5d_set_view_scales (int index, float scalex, float scaley,

@@ -2138,7 +2138,6 @@ int vis5d_init_begin( int index, int dindex )
       if (!dtx){
          dtx = dtx_table[dindex] = new_display_context();
          dtx->dpy_context_index = dindex;
-         init_display_context( dtx, 1 );
       }
       return 0;
    }
@@ -9641,6 +9640,7 @@ int vis5d_save_window( char *filename, int format )
 {
    Display_Context dtx;
    int i;
+	int tmpformat;
    struct stat buf;
 #ifdef IMCONVERT
    int use_convert=1;
@@ -9653,10 +9653,12 @@ int vis5d_save_window( char *filename, int format )
       /* no filename! */
       return VIS5D_FAIL;
    }
-   if (off_screen_rendering && format != VIS5D_PPM){
+	
+   if (!use_convert && off_screen_rendering && format != VIS5D_PPM){
       printf("Error: when off screen rendering, save format must be VIS5D_PPM\n");
       return VIS5D_FAIL;
    }
+
 
    XRaiseWindow( GfxDpy, BigWindow);
  
@@ -9672,39 +9674,14 @@ int vis5d_save_window( char *filename, int format )
       vis5d_swap_frame(dtx->dpy_context_index);
       XSync( GfxDpy, 0 );
    }
-       
+	return save_3d_window( filename, format );
+	/*
    if (!off_screen_rendering && (( format == VIS5D_PPM && use_convert) ||
        (format != VIS5D_PPM)) && save_3d_window( filename, format )){
       return 0;
-   }
-#ifdef HAVE_OPENGL
-   else if (format == VIS5D_PPM){
-      int x = 0;
-      int y = 0;
-      for (i = 0; i < DisplayCols; i++){
-         dtx = vis5d_get_dtx(i);
-         x += dtx->WinWidth;
-      }
-      for (i = 0; i < DisplayRows; i++){
-         dtx = vis5d_get_dtx(i*DisplayCols);
-         y += dtx->WinHeight;
-      }
-      if (!open_ppm_file( filename, x, y)){
-         return VIS5D_FAIL;
-      }
-      for (i = 0; i < DisplayRows*DisplayCols; i++){
-         dtx = vis5d_get_dtx(i);
-         if (!add_display_to_ppm_file( dtx, i)){
-            return VIS5D_FAIL;
-         }
-      }
-      if (!close_ppm_file()){
-         return VIS5D_FAIL;
-      }
-   }
-#endif
-
+   }	 
    return VIS5D_FAIL;
+	*/
 }
 
 int vis5d_save_to_v5dfile( int index, char *filename)

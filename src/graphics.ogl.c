@@ -441,8 +441,13 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       dtx->GfxPixmap = XCreatePixmap( GfxDpy, dtx->GfxWindow, width, height,visualinfo->depth);
       dtx->WinHeight = height;
       dtx->WinWidth  = width;
+
       yomap = glXCreateGLXPixmap( GfxDpy, visualinfo, dtx->GfxPixmap);
       glXMakeCurrent( GfxDpy, yomap, dtx->gl_ctx );
+
+		printf(" The window id is 0x%x 0x%x\n",dtx->GfxWindow,dtx->GfxPixmap);
+		check_gl_error("make_3d_window:off_screen_rendering ");
+		
    }
 
 
@@ -745,14 +750,14 @@ void resize_BIG_window( int width, int height )
 
 void swap_3d_window( void )
 {
-   /* MJK 11.19.98 */
-   if (!off_screen_rendering){
-      glXSwapBuffers( GfxDpy, current_dtx->GfxWindow );
-   }
-   else{
-      glXSwapBuffers( GfxDpy, current_dtx->GfxPixmap );
-   }
-   check_gl_error("swap_3d_window");
+  if (off_screen_rendering){
+	 printf("0x%x 0x%x 0x%x\n",GfxDpy, current_dtx->GfxPixmap , current_dtx->GfxWindow);
+	 /*	 glXSwapBuffers( GfxDpy, current_dtx->GfxPixmap ); */
+  }
+  else{
+	 glXSwapBuffers( GfxDpy, current_dtx->GfxWindow );
+  }
+
 }
 
 
@@ -1333,91 +1338,108 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
 
    if(!VIS5DInitializedFormats) (void)save_formats();
 
-   if (format==VIS5D_RGB) {
-      strcpy( rgbname, filename );
-   }
-   else {
-      strcpy( rgbname, TMP_RGB );
-   }
+	if(off_screen_rendering){
+	  int x = 0;
+	  int y = 0;
+	  int i;
+	  Display_Context dtx;
 
-   /* Make an rgb dump file (.rgb) */
-   f = fopen(rgbname,"w");
-   if (!f) {
-      printf("Error unable to open %s for writing\n", filename);
-      set_pointer(0);
-      return 0;
-   }
+	  if (format==VIS5D_PPM ) {
+		 strcpy( rgbname, filename );
+	  }
+	  else {
+		 strcpy( rgbname, TMP_RGB );
+	  }
+
+	  for (i = 0; i < DisplayCols; i++){
+		 dtx = vis5d_get_dtx(i);
+		 x += dtx->WinWidth;
+	  }
+	  for (i = 0; i < DisplayRows; i++){
+		 dtx = vis5d_get_dtx(i*DisplayCols);
+		 y += dtx->WinHeight;
+	  }
+	  if (!open_ppm_file( rgbname, x, y)){
+		 return VIS5D_FAIL;
+	  }
+	  for (i = 0; i < DisplayRows*DisplayCols; i++){
+		 dtx = vis5d_get_dtx(i);
+		 if (!add_display_to_ppm_file( dtx, i)){
+			return VIS5D_FAIL;
+		 }
+	  }
+	  if (!close_ppm_file()){
+		 return VIS5D_FAIL;
+	  }
+	  
+
+	}else{
+	  if (format==VIS5D_RGB ) {
+		 strcpy( rgbname, filename );
+	  }
+	  else {
+		 strcpy( rgbname, TMP_RGB );
+	  }
+	  /* Make an rgb dump file (.rgb) */
+	  f = fopen(rgbname,"w");
+	  if (!f) {
+		 printf("Error unable to open %s for writing\n", filename);
+		 set_pointer(0);
+		 return 0;
+	  }
+	
+
 #ifdef WORDS_BIGENDIAN
-	/* TODO: the SGI_Dump code currently only works on BIGENDIAN hardware */
-   SGI_Dump( GfxDpy, GfxScr, BigWindow, f, oglbuf);
+	  /* TODO: the SGI_Dump code currently only works on BIGENDIAN hardware */
+	  SGI_Dump( GfxDpy, GfxScr, BigWindow, f, oglbuf);
 #else
-	Window_Dump( GfxDpy, GfxScr, BigWindow, f );
+	  Window_Dump( GfxDpy, GfxScr, BigWindow, f );
 #endif
-
-   fclose(f);
+	  fclose(f);
+	}
+   if ((off_screen_rendering && format !=  VIS5D_PPM) || 
+		 (!off_screen_rendering && format != VIS5D_RGB)){
 #ifdef IMCONVERT
-   if (format != VIS5D_RGB){
-      if (format==VIS5D_XWD){
-         sprintf( cmd, "%s %s xwd:%s",IMCONVERT, rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( rgbname );
-      }
-      if (format==VIS5D_GIF){
-         sprintf( cmd, "%s %s gif:%s", IMCONVERT,rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( rgbname );
-      }
-      if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
-         sprintf( cmd, "%s %s ps:%s", IMCONVERT,rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( rgbname );
-      }
-      if (format==VIS5D_PPM){
-         sprintf( cmd, "%s %s ppm:%s", IMCONVERT,rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( rgbname );
-      }
-      if (format==VIS5D_TGA){
-         sprintf( cmd, "%s %s tga:%s", IMCONVERT,rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( rgbname );
-      }
-   }else
-#endif
-	  {
-      if (format==VIS5D_GIF) {
-         /* convert rgb to gif */
-         sprintf( cmd, "togif %s %s", rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( rgbname );
-      }
-      else if (format==VIS5D_PPM) {
-         sprintf(cmd,"toppm %s > %s", rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( rgbname );
-      }
-      else if (format==VIS5D_PS) {
-         sprintf(cmd,"tops %s > %s", rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( rgbname );
-      }
-      else if (format==VIS5D_COLOR_PS) {
-         /* convert rgb to color PS */
-         sprintf(cmd,"tops %s -rgb > %s", rgbname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( rgbname );
-      }
-   }
+	  if (format==VIS5D_XWD){
+		 sprintf( cmd, "%s %s xwd:%s",IMCONVERT, rgbname, filename );
+	  }
+	  else if (format==VIS5D_GIF){
+		 sprintf( cmd, "%s %s gif:%s", IMCONVERT,rgbname, filename );
+	  }
+	  else if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
+		 sprintf( cmd, "%s %s ps:%s", IMCONVERT,rgbname, filename );
+	  }
+	  else if (format==VIS5D_PPM){
+		 sprintf( cmd, "%s %s ppm:%s", IMCONVERT,rgbname, filename );
+	  }
+	  else if (format==VIS5D_TGA){
+		 sprintf( cmd, "%s %s tga:%s", IMCONVERT,rgbname, filename );
+	  }
+#else
+	  if (format==VIS5D_GIF) {
+		 /* convert rgb to gif */
+		 sprintf( cmd, "togif %s %s", rgbname, filename );
+	  }
+	  else if (format==VIS5D_PPM) {
+		 sprintf(cmd,"toppm %s > %s", rgbname, filename );
+	  }
+	  else if (format==VIS5D_PS) {
+		 sprintf(cmd,"tops %s > %s", rgbname, filename );
+	  }
+	  else if (format==VIS5D_COLOR_PS) {
+		 /* convert rgb to color PS */
+		 sprintf(cmd,"tops %s -rgb > %s", rgbname, filename );
 
+	  }
+#endif
+	  else{
+		 fprintf(stderr,"Could not convert image to %d format",format);
+		 return 0;
+	  }
+	  printf("Executing: %s\n", cmd );
+	  system( cmd );
+	  unlink( rgbname );
+	}
    printf("Done writing image file.\n");
    set_pointer(0);
    return 1;

@@ -4,32 +4,26 @@
 bin_PROGRAMS = vis5d
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
-lib_LTLIBRARIES = libv5d.la libvis5d.la libvis5dapi.la
+lib_LTLIBRARIES = libv5d.la libvis5d.la
 
 CPPFLAGS = @CPPFLAGS@ # -I flags
 
-VIS_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
+API_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
           groupchrono.c globals.c graphics.all.c grid.c image.c imemory.c \
-          map.c matrix.c linterp.c memory.c misc.c mwmborder.c pipe.c proj.c \
+          map.c matrix.c linterp.c memory.c misc.c mwmborder.c proj.c \
           queue.c render.c rgb.c record.c save.c socketio.c stream.c \
           sounding.c sync.c tclsave.c textplot.c topo.c traj.c user_data.c \
           volume.c vtmcP.c work.c
 
 SRC_I = analyze_i.c file_i.c grid_i.c \
-        main_i.c misc_i.c output_i.c proj_i.c projlist_i.c read_epa_i.c \
+         misc_i.c output_i.c proj_i.c projlist_i.c read_epa_i.c \
         read_gr3d_i.c read_grid_i.c read_grads_i.c read_uwvis_i.c read_v5d_i.c\
-        resample_i.c select_i.c tokenize_i.c topo_i.c ui_i.c memory_i.c \
-        imain.c igui.c iapi.c file.c irregular_v5d.c
+        resample_i.c select_i.c tokenize_i.c topo_i.c  memory_i.c \
+         iapi.c file.c irregular_v5d.c
 
 GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
-          soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c
-
-API_SRC = api.c box.c map.c topo.c contour.c v5d.c  graphics.all.c \
-	graphics.ogl.c graphics.gl.c graphics.pex.c globals.c misc.c grid.c sync.c \
-	queue.c work.c groupchrono.c chrono.c volume.c anim.c proj.c traj.c sounding.c \
-   image.c memory.c analysis.c compute.c render.c matrix.c gl_to_ppm.c save.c \
-   imemory.c record.c linterp.c user_data.c binio.c mwmborder.c xdump.c vtmcP.c \
-   stream.c textplot.c rgb.c socketio.c irregular_v5d.c file.c iapi.c
+          soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c  igui.c pipe.c \
+          main_i.c ui_i.c imain.c
 
 # when are these not used?
 AUXSRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
@@ -39,12 +33,8 @@ HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour
 libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
 libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-libvis5d_la_SOURCES = $(VIS_SRC) $(SRC_I) $(AUXSRC) api.h
+libvis5d_la_SOURCES = $(API_SRC) $(SRC_I) $(AUXSRC) api.h
 libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
-
-libvis5dapi_la_SOURCES = $(API_SRC)
-libvis5dapi_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
-
 
 vis5d_SOURCES = $(GUI_SRC) main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files
@@ -68,10 +58,3 @@ MISC_SRC = alpha_i.c areal_i.c julian2std_i.c model_i.c mm4_i.c mm4date2std_i.c 
 # Files which aren't involved in the compilation, but we need to make sure
 # they are included in the distribution for completeness:
 EXTRA_DIST = $(MISC_SRC) g.pex.c extmain.c libmcidas5.a EARTH.TOPO OUTLSUPW OUTLUSAM
-
-am_libvis5dapi_la_OBJECTS = $(addsuffix .API.lo,$(basename $(API_SRC)))
-
-API: libvis5dapi.la 
-
-%.API.lo: %.c 
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -DAPIONLY $< -o $@

@@ -1046,6 +1046,12 @@ static int clip_line_seg (Display_Context dtx,
    w  = dtx->Sound.sndwidth;
    h  = dtx->Sound.sndheight;
 
+   /* WLH 29 August 2000 */
+   if (fabs(x1) > 10000.0 || fabs(y1) > 10000.0 ||
+       fabs(x2) > 10000.0 || fabs(y2) > 10000.0) {
+      return CLIP_BOTH_OUT;
+   }
+
    /* MJK 3.22.99 */
    if (x1 < 0.0 && y1 < 0.0){
       return CLIP_BOTH_OUT;

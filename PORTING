@@ -57,31 +57,21 @@ file, in turn, was generated from Makefile.am by automake; see below.)
 ---------------------------------------------------------------------------
 To build everything from scratch, assuming you have up-to-date
 versions of automake, libtool, autoconf, and autoheader (all of which
-can be gotten from the GNU web site; I think autoheader comes with
-autoconf), you do the below.  Once you've got things built for the
-first time, though, the Makefiles know enough to rebuild the various
-things when necessary (usually).
+can be gotten from the GNU web site; autoheader comes with autoconf),
+you run the included script:
 
-0) things you only need to do once (or probably never, since I've
-   already done them for you):
-	% aclocal
-	% autoheader
-	% automake --add-missing
-	% autoconf
-	% automake
-	% autoconf
+	% ./autogen.sh
 
-You do this once, the first time you start development.  automake
---add-missing fetches any extra files that the build system will need;
-e.g. the config.guess script, which figures out what kind of machine
-you have and outputs it in a canonical format (for example,
-i686-pc-linux-gnu).  The rest of the commands (yes, some of them are
-repeated, and the order is important) will make sure all the other
-necessary files are in place.  After these steps you can do the
-ordinary ./configure, make, make install, etcetera.
+Once you've got things built for the first time, though, the Makefiles
+know enough to rebuild the various things when necessary (usually).
 
-Below, we'll go into some of the individual commands in more detail,
-and explain what they are and when you'll want to re-run them.
+Unfortunately, there is a bug in automake-1.4 (which will be fixed in
+the next release) that causes a problem in the generated Makefile.in
+(and thus the Makefile).  To fix the problem by hand, replace
+occurrences of "$$/" in the top-level Makefile.in with "$$d/".
+
+Below, we'll go into some of the individual commands that are run by
+autogen.sh in more detail, so you have some idea of what is happening.
 
 ---------------------------------------------------------------------------
 1)
@@ -184,8 +174,8 @@ do much; if you really want to clean the directory, use:
 
 Gets rid of *all* the automatically generated files, including the
 configure script, the Makefile.in files, etcetera.  You will need to
-re-run the commands in step (0) above after doing this.  Don't do this
-unless you have automake, autoconf, etcetera!
+re-run autogen.sh.  Don't do this unless you have automake, autoconf,
+etcetera!
 
 	% make dist
 

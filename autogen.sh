@@ -159,7 +159,6 @@ if test "$GLADE" = 1; then
 	 glade -w gtk/hslicecontrols.glade
 	 glade -w gtk/window3D.glade
 	 glade -w gtk/vis5d+.glade
-	 cd ../
 fi
 }
 

@@ -2884,6 +2884,7 @@ int v5dClose( void )
 /*****                FORTRAN-callable simple output              *****/
 /**********************************************************************/
 
+#ifdef F77_FUNC
 
 /*
  * Create a v5d file.  See README file for argument descriptions.
@@ -3232,3 +3233,5 @@ int F77_FUNC(v5dupdatetimes,V5DUPDATETIMES)
    }
    return 1;
 }
+
+#endif /* F77_FUNC */

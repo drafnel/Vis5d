@@ -1526,6 +1526,7 @@ void main_march( Context ctx, float *ptGRID, int NC, int NR, int NL,
           Marching Cube process
 */ 
 
+#ifdef F77_FUNC
 void
 F77_FUNC(marchcube,MARCHCUBE)
 ( Context ctx, float GRID[], int *NC, int *NR, int *NL,
@@ -1540,7 +1541,7 @@ F77_FUNC(marchcube,MARCHCUBE)
 	       *NVERTS, VX,VY,VZ,NX,NY,NZ,
                *NPTS, VPTS, IVERT,IPTS,IPOLY,ITRI);
 }
-
+#endif
 
 
 

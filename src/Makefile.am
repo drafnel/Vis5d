@@ -59,8 +59,8 @@ LIBGUI  = libvis5dgui.a
 vis5d_SOURCES = main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files
 vis5d_LDADD = $(LIBGUI) $(LIBLUI5) libvis5d.la libv5d.la \
-              @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
-              @GLLIBS@ @XLIBS@ @THREADLIBS@
+              $(MCIDAS_LIBS) $(V5D_LIBS_AUX) \
+              $(GLLIBS) $(XLIBS) $(THREADLIBS)
 #
 # If linking with mixkit we need to use c++
 #
@@ -75,8 +75,8 @@ endif
 
 v5dimport_SOURCES = v5dimport.c
 v5dimport_LDADD = $(LIBGUI) $(LIBLUI5) libvis5d.la libv5d.la \
-                  @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
-                  @GLLIBS@ @XLIBS@ @THREADLIBS@
+              $(MCIDAS_LIBS) $(V5D_LIBS_AUX) \
+              $(GLLIBS) $(XLIBS) $(THREADLIBS)
 
 # vis5d should depend on kltwin.o when building with McIDAS.  The
 # following is an automake conditional statement to accomplish that

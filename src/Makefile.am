@@ -2,9 +2,9 @@
 # would go into it.
 
 if VIS5DPLUS
-PRG = vis5d
 IMPORT_SRC_ADD = main_i.c ui_i.c
 else
+PRG = vis5d
 LIBGUI = libvis5dgui.a
 LIBLUI5 = ../lui5/liblui.a
 endif

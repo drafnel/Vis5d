@@ -1,0 +1,59 @@
+<chapter id="acknowledgments"><title>Acknowledgments</title>
+
+<para>
+The Vis5D project has benefited over the years from the contributions
+of countless organizations and individuals.  We would like to express our
+sincere gratitude to all of them, but we'll have to make do with
+mentioning those few whose help has been recorded in the sparse logs.
+</para>
+
+<para>
+First on any list, of course, must be the authors of the original
+Vis5D: Bill Hibbard, Johan Kellum, and Brian Paul.  They and their
+generous sponsors, the University of Wisconsin-Madison's <ulink
+url="http://www.ssec.wisc.edu/">Space Science and Engineering
+Center</ulink> (SSEC), made this considerable project a reality long
+before "open source" was in vogue.
+</para>
+
+<para>
+Other contributors to Vis5D include Andre Battaiola of CPTEC (Sao
+Paolo, Brazil), Dave Santek of SSEC, Marie-Francoise Voidrot-Martinez
+of the French Meteorology Office, Dave Kamins and Jeff Vroom of
+Stellar Computer Inc., Simon Baas and Hans de Jong of the Netherlands
+for the HP/VOGL port, Pratish Shah of Kubota Computer for the Kubota
+port, and Mike Stroyan of HP for the PEX support.
+</para>
+
+<para>
+The Vis5d+ project has been aided by the efforts of Axel Reimann of
+Humboldt Univ. (who converted the manual to DocBook), Jim Edwards
+(many API cleanups, etc.), and Conrad Poelman of Stellar Science
+Ltd. Co. (improved v5dimport, etc.).  Jim Edwards would like to thank
+<ulink url="http://www.inmet.gov.br/">Instituto Nacional de
+Meteorologia Brasil</ulink> (INMET) for their support of his work on
+Vis5d+.
+</para>
+
+<para>
+Steven G. Johnson of <ulink url="http://web.mit.edu/">MIT</ulink>
+would also like to extend a special thanks to his physics advisor,
+Prof. John Joannopoulos, for unstinting encouragement despite his
+student's dubious pastimes.  Steven's work was supported in part by
+the Materials Research Science and Engineering Center program of the
+National Science Foundation under Grant No. DMR-9400334.
+</para>
+
+<para>
+Finally, this project, like so many others, is deeply indebted to the
+free software community and especially the <ulink
+url="http://www.gnu.org/">GNU project</ulink> for many invaluable
+tools and libraries, a free operating system to run them on, and
+inspiration not least of all.  And <ulink
+url="http://www.valinux.com/">VA Linux</ulink> deserves the last
+mention for graciously providing us with hosting on <ulink
+url="http://www.sourceforge.net/">SourceForge</ulink>, a service that
+we highly recommend.
+</para>
+
+</chapter>

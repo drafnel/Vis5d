@@ -8,7 +8,8 @@
 <!ENTITY chap7 SYSTEM "chap7.sgml">
 <!ENTITY chap8 SYSTEM "chap8.sgml">
 <!ENTITY chap9 SYSTEM "chap9.sgml">
-<!ENTITY chap10 SYSTEM "chap10.sgml">
+<!ENTITY acknowledgments SYSTEM "acknowledgments.sgml">
+<!ENTITY license SYSTEM "license.sgml">
 ]>
 <book>
 <bookinfo>
@@ -23,7 +24,8 @@
 &chap7;
 &chap8;
 &chap9;
-&chap10;
+&acknowledgments;
+&license;
 </book>
 
 

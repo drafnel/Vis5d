@@ -513,6 +513,7 @@ int get_grads_info( char *name, struct grid_db *db )
       printf("Error: couldn't open %s\n", name );
       return 0;
    }
+   
 
    while (1) {
       char line[MAXLINE];
@@ -531,8 +532,20 @@ int get_grads_info( char *name, struct grid_db *db )
          }
          else {
             if (token[1][0]=='^') {
+
                /* skip the ^ (current directory) character */
-               strcpy( dset_name, token[1]+1 );
+               /* This is not the current directory, rather it is the same 
+                  directory in which the control file is located */
+              int i;
+              for(i=strlen(name)-1;i>=0;i--){
+                if(name[i] == '/'){
+                  strncpy(dset_name,name,i);
+                  i++;
+                  break;
+                }
+              } 
+              if(i<0) i=0; /* No path in ctl file name */
+              strcpy( dset_name+i, token[1]+1 );
             }
             else {
                strcpy( dset_name, token[1] );
@@ -704,36 +717,15 @@ int get_grads_info( char *name, struct grid_db *db )
                }
             }
             else if (strcasecmp(token[2],"LEVELS")==0) {
-               vertical = VERT_UNEQUAL_KM;
+               vertical = VERT_UNEQUAL_MB ; /*VERT_UNEQUAL_KM;*/
                for (i=0;i<maxnl && i+3<ntokens;i++) {
                   pressure[i] = atof( token[3+i] );
-               }
-               while (i<maxnl) {
-                  fscanf( f, "%f", &pressure[i] );
-                  i++;
+                  height[i] = pressure_to_height(pressure[i]);
                }
             }
 
-            /* convert pressures to heights */
-            {
-               float p_bot, p_top, zinc;
-               float Po=1012.15;
-               float H=7.2;
-               p_bot = pressure[0];
-               p_top = pressure[maxnl-1];
-               height[0] = MAX( H*log(Po/p_bot), 1.0 );
-               height[maxnl-1] = H*log(Po/p_top);
-               if (maxnl<=1) {
-                  zinc = 0.0;
-               }
-               else {
-                  zinc = (height[maxnl-1] - height[0]) / (maxnl-1);
-               }
-               for (i=0;i<maxnl;i++) {
-                  height[i] = H * log( Po/pressure[i] );
-               }
-            }
          }
+
       }
       else if (strcasecmp(token[0],"TDEF")==0) {
          if (ntokens!=5) {
@@ -932,6 +924,7 @@ float *get_grads_data( struct grid_info *g )
    data = (float *) malloc( n * sizeof(float) );
 
    nread = read_float4_array( f, data, n );
+
    if (nread<n) {
       printf("Error: couldn't read GrADS data for time %d, var %s\n",
              g->TimeStep, g->VarName );

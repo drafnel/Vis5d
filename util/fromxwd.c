@@ -60,8 +60,7 @@ short rbuf[8192];
 short gbuf[8192];
 short bbuf[8192];
 
-printxwdheader(xi)
-XWDFileHeader *xi;
+void printxwdheader(XWDFileHeader *xi)
 {
     fprintf(stderr,"header size %d\n",xi->header_size);
     fprintf(stderr,"file version %d\n",xi->file_version);
@@ -88,11 +87,11 @@ XWDFileHeader *xi;
     fprintf(stderr,"window border width %d\n",xi->window_bdrwidth);
 }
 
-writeimage(name,ximage,rmap,gmap,bmap,visual_class)
-char *name;
-XImage *ximage;
-unsigned short *rmap, *gmap, *bmap;
-int visual_class;
+void writeimage(char *name,
+		XImage *ximage,
+		unsigned short *rmap,
+		unsigned short *gmap,
+		unsigned short *bmap, int visual_class)
 {
     IMAGE *image;
     int y, x;
@@ -333,16 +332,13 @@ XWDFileHeader *xi;
       	return (xi->bytes_per_line * xi->pixmap_depth * xi->pixmap_height);
 }
 
-Error(string)
-char *string;
+void Error(char *string)
 {
     fprintf(stderr, "xwud: Error => %s\n", string);
     exit(1);
 }
 
-_swapshort (bp, n)
-register char *bp;
-register unsigned n;
+void _swapshort (char *bp, unsigned int n)
 {
     register char c;
     register char *ep = bp + n;
@@ -355,9 +351,7 @@ register unsigned n;
     }
 }
 
-_swaplong (bp, n)
-register char *bp;
-register unsigned n;
+void _swaplong (char *bp, unsigned int n)
 {
     register char c;
     register char *ep = bp + n;
@@ -427,12 +421,13 @@ static void _Reverse_Bytes (bpt, nb)
     return;
 }
 
-static _normalizeimagebits (bpt, nb, byteorder, unitsize, bitorder)
-    unsigned char *bpt;	/* beginning pointer to image bits */
-    int nb;		/* number of bytes to normalize */
-    int byteorder;	/* swap bytes if byteorder == MSBFirst */
-    int unitsize;	/* size of the bitmap_unit or Zpixel */
-    int bitorder;	/* swap bits if bitorder == MSBFirst */
+static void _normalizeimagebits (char *bpt, int nb, int byteorder,
+				 int unitsize, int bitorder)
+/*    unsigned char *bpt;	 beginning pointer to image bits */
+/*    int nb;		 number of bytes to normalize */
+/*    int byteorder;	 swap bytes if byteorder == MSBFirst */
+/*    int unitsize;	 size of the bitmap_unit or Zpixel */
+/*    int bitorder;	 swap bits if bitorder == MSBFirst */
 {
 	if ((byteorder==MSBFirst) && (byteorder!=bitorder)) {
 	    register char c;

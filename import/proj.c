@@ -297,7 +297,7 @@ int rowcol_to_latlon( float row, float col, float *lat, float *lon,
          break;
 
       default:
-         printf("Error in rowcol_to_latlon: bad projection: %d\n", proj );
+         printf("Error in rowcol_to_latlon: bad projection: %d\n", (int)proj );
          break;
    }
 
@@ -545,7 +545,7 @@ int latlon_to_rowcol( float lat, float lon, float *row, float *col,
          break;
 
       default:
-         printf("Error in latlon_to_rowcol: bad projection: %d\n", proj );
+         printf("Error in latlon_to_rowcol: bad projection: %d\n", (int)proj );
          break;
    }
 
@@ -601,7 +601,7 @@ float proj_resolution( struct projection *proj )
          break;
 
       default:
-         printf("Error in proj_resolution: bad projection: %d\n", proj );
+         printf("Error in proj_resolution: bad projection: %d\n", (int)proj );
          break;
    }
 

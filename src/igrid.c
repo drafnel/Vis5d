@@ -157,7 +157,7 @@ int open_recordfile( Irregular_Context itx, char filename[] )
 
 
 
-int free_grid_cache( Irregular_Context itx )
+void free_grid_cache( Irregular_Context itx )
 {
    int it, iv;
 

@@ -1065,7 +1065,7 @@ void get_timer(int which)
    if(which == 1){
       lapsed_usec = ((tp.tv_sec - timer)* 1000000) +
                     tp.tv_usec - utimer;
-      printf("elapsed time is %d\n",lapsed_usec);
+      printf("elapsed time is %ld\n",lapsed_usec);
    }
    else{
       utimer = tp.tv_usec;
@@ -9118,9 +9118,8 @@ int vis5d_save_window( char *filename, int format )
       }
    }
 #endif
-   else {
-      return VIS5D_FAIL;
-   }
+
+   return VIS5D_FAIL;
 }
 
 int vis5d_save_snd_window( int index, char *filename, int format )

@@ -338,7 +338,7 @@ void v5dPrintStruct( const v5dstruct *v )
       printf("Compression:  %d bytes per gridpoint.\n", v->CompressMode);
    }
    printf("header size=%d\n", v->FirstGridPos);
-   printf("sizeof(v5dstruct)=%d\n", sizeof(v5dstruct) );
+   printf("sizeof(v5dstruct)=%d\n", (int) sizeof(v5dstruct) );
    printf("\n");
 
    printf("NumVars = %d\n", v->NumVars );

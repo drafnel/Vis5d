@@ -153,9 +153,7 @@ char *ckw;
  * Output: str - null terminated string
  *         len - length of str
  */
-F77_FUNC(strarg,STRARG)( result, resultmax, arg )
-char *result;
-int resultmax, *arg;
+void F77_FUNC(strarg,STRARG)(char *result, int resultmax, int *arg )
 {
    strncpy( result, Argvl[*arg], resultmax );
 }
@@ -168,9 +166,8 @@ int resultmax, *arg;
    NOTE strings are FORTRAN strings, so no
    null termination and blank padded to length
 */
-F77_FUNC(ckwp,CKWP)(cres,len,ckw,ip,cin,lenkw,lenc)
-int *ip,len,lenkw,lenc;
-char *cres,*ckw,*cin;
+int F77_FUNC(ckwp,CKWP)(char *cres,int len,char *ckw,int *ip,char *cin,
+			 int lenkw,int lenc)
 {
   char *d,c[20],ck[20],*cmd;
   int i,j,k,n;

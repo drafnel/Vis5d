@@ -37,7 +37,7 @@
 
 extern struct volume *alloc_volume( Context ctx, int nr, int nc, int nl );
 
-extern int free_volume( Context ctx);
+extern void free_volume( Context ctx);
 
 extern void draw_volume( Context ctx, int it, int ip, unsigned int *ctable );
 

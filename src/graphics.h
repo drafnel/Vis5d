@@ -165,11 +165,11 @@
  * Graphics variables which have the same value for all vis5d contexts:
  */
 extern Window BigWindow;              /* The main big window */
-extern BigWinWidth;
-extern BigWinHeight;
+extern int BigWinWidth;
+extern int BigWinHeight;
 
 /* MJK 12.21.98 */
-extern BigWinFull;                    /* 1 = full size window */
+extern int BigWinFull;                    /* 1 = full size window */
 
 extern int StaticWin;
 extern int StaticWinXPos;

@@ -369,6 +369,7 @@ static int tempapply_cb( LUI_NEWBUTTON *b, int state )
 
    vis5d_graphics_mode( index, VIS5D_SND_TEMP, VIS5D_TOGGLE);
    vis5d_draw_sounding_only( index, 1 );
+   return 0;
 }
 /* MJK 12.15.98 end */
 
@@ -381,6 +382,7 @@ static int thtaapply_cb( LUI_NEWBUTTON *b, int state )
 
    vis5d_graphics_mode( index, VIS5D_SND_THTA, VIS5D_TOGGLE);
    vis5d_draw_sounding_only( index, 1 );
+   return 0;
 }
 
 static int thteapply_cb( LUI_NEWBUTTON *b, int state )
@@ -391,6 +393,7 @@ static int thteapply_cb( LUI_NEWBUTTON *b, int state )
 
    vis5d_graphics_mode( index, VIS5D_SND_THTE, VIS5D_TOGGLE);
    vis5d_draw_sounding_only( index, 1 );
+   return 0;
 }
 
 static int wapply_cb( LUI_NEWBUTTON *b, int state )
@@ -401,6 +404,7 @@ static int wapply_cb( LUI_NEWBUTTON *b, int state )
 
    vis5d_graphics_mode( index, VIS5D_SND_W, VIS5D_TOGGLE);
    vis5d_draw_sounding_only( index, 1 );
+   return 0;
 }
 
 static int tickapply_cb(LUI_NEWBUTTON *b, int state )
@@ -411,6 +415,7 @@ static int tickapply_cb(LUI_NEWBUTTON *b, int state )
 
    vis5d_graphics_mode( index, VIS5D_SND_TICKS, VIS5D_TOGGLE);
    vis5d_draw_sounding_only( index, 1 );
+   return 0;
 }
 
 

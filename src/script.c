@@ -1028,7 +1028,7 @@ static int cmd_open_recordfile( ClientData client_data, Tcl_Interp *interp,
 static int cmd_init_window( ClientData client_data, Tcl_Interp *interp,
                             int argc, char *argv[] )
 {
-   int result;
+   int result = 0;;
    if (!arg_check( interp, "vis5d_init_window", argc, 5,5 )) {
       return TCL_ERROR;
    }
@@ -1535,7 +1535,7 @@ static int cmd_get_grp_numtimes( ClientData client_data, Tcl_Interp *interp,
 static int cmd_get_time_stamp( ClientData client_data, Tcl_Interp *interp,
                                int argc, char *argv[] )
 {
-   int date, time, result;
+   int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_time_stamp", argc, 2, 2 )) {
       return TCL_ERROR;
    }
@@ -1549,7 +1549,7 @@ static int cmd_get_time_stamp( ClientData client_data, Tcl_Interp *interp,
 static int cmd_get_ctx_time_stamp( ClientData client_data, Tcl_Interp *interp,
                                int argc, char *argv[] )
 {
-   int date, time, result;
+   int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_ctx_time_stamp", argc, 2, 2 )) {
       return TCL_ERROR;
    }
@@ -1563,7 +1563,7 @@ static int cmd_get_ctx_time_stamp( ClientData client_data, Tcl_Interp *interp,
 static int cmd_get_itx_time_stamp( ClientData client_data, Tcl_Interp *interp,
                                int argc, char *argv[] )
 {
-   int date, time, result;
+   int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_itx_time_stamp", argc, 2, 2 )) {
       return TCL_ERROR;
    }
@@ -1577,7 +1577,7 @@ static int cmd_get_itx_time_stamp( ClientData client_data, Tcl_Interp *interp,
 static int cmd_set_time_stamp( ClientData client_data, Tcl_Interp *interp,
                                int argc, char *argv[] )
 {
-   int date, time, result;
+   int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_set_time_stamp", argc, 4, 4 )) {
       return TCL_ERROR;
    }
@@ -1591,7 +1591,7 @@ static int cmd_set_time_stamp( ClientData client_data, Tcl_Interp *interp,
 static int cmd_get_dtx_time_stamp( ClientData client_data, Tcl_Interp *interp,
                                int argc, char *argv[] )
 {
-   int date, time, result;
+   int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_dtx_time_stamp", argc, 2, 2 )) {
       return TCL_ERROR;
    }
@@ -3959,6 +3959,7 @@ static int cmd_load_color_table( ClientData client_data,
    }
 
    error_check( interp, "vis5d_load_color_table", result );
+   return 1;
 }
 
 static int cmd_set_color_table_entry( ClientData client_data,

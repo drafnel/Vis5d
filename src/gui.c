@@ -92,9 +92,9 @@ static int key9status = 0;
 static Window keywin = 0;
 static LUI_NEWLABEL *keylabel = NULL;
 static LUI_NEWBUTTON *keyexit = NULL;
-static int group_event( int gindex, int type, int status );
+static void group_event( int gindex, int type, int status );
 static int do_one_time[VIS5D_MAX_DPY_CONTEXTS];
-static do_once = 1;
+static int do_once = 1;
 int top_margin = 0;
 int bottom_margin = 0;
 int left_margin = 0;
@@ -130,8 +130,8 @@ int cb_dindex = 0;
 /* MJK 12.07.98 */
 static int mode_cb( LUI_BUTTON *pb );
 static int reverse_cb( LUI_NEWBUTTON *pb );
-int hide_colorbar_window( int index );
-int hide_chcolorbar_window( int index );
+void hide_colorbar_window( int index );
+void hide_chcolorbar_window( int index );
 static void map_map_window (int index, int state);
 static int tp_close_color_cb( LUI_NEWBUTTON *b);
 static int tp_monocolor_cb( LUI_NEWBUTTON *b);
@@ -2873,7 +2873,7 @@ int show_colorbar_window( int dindex, int vindex, int graphic, int var )
 
 
 
-int hide_colorbar_window( int index )
+void hide_colorbar_window( int index )
 {
    GuiContext gtx = get_gui_gtx(index);
 
@@ -2887,7 +2887,7 @@ int hide_colorbar_window( int index )
 
 
 
-int hide_chcolorbar_window( int index )
+void hide_chcolorbar_window( int index )
 {
    GuiContext gtx = get_gui_gtx(index);
 
@@ -2954,6 +2954,7 @@ static int cb_close_cb (LUI_NEWBUTTON *b)
         hide_colorbar_window (b->context_index);
     else
         hide_chcolorbar_window (b->context_index);
+    return 0;
 }
 
 
@@ -7771,6 +7772,7 @@ static int legend_cb( LUI_NEWBUTTON *b )
 {
    int index = b->context_index;
    vis5d_graphics_mode( index, VIS5D_LEGENDS, VIS5D_TOGGLE );
+   return 0;
 }
 
 /* BUG FIX MJK 8.8.98 */
@@ -8189,7 +8191,7 @@ void unmap_gtx_CpWindow( int index )
 
 
 /* HERE */
-static int group_event( int gindex, int type, int status)
+static void group_event( int gindex, int type, int status)
 {
    int yo;
    int index;
@@ -11157,6 +11159,7 @@ int map_fake_windows( int onlyrecolor)
       (wstep+8)*DCs+4, (hstep+8)*DRs+4);
    }
 */
+   return 1;
 }
 
 int make_gui_BigWin( char *wdpy_name)

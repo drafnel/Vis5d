@@ -101,10 +101,10 @@ static LUI_NEWLABEL  *sdp[16];
 static LUI_FIELD *lfield, *cfield, *rfield;
 static LUI_NEWBUTTON *vrt_button, *prj_button;
 static LUI_NEWBUTTON *done_button;
-static current_selected_ctx;
-static current_selected_ctx_type;
-static current_selected_browser_where_ctx_is_in;
-static current_selected_display_where_ctx_is_in;
+static int current_selected_ctx;
+static int current_selected_ctx_type;
+static int current_selected_browser_where_ctx_is_in;
+static int current_selected_display_where_ctx_is_in;
 static void highlight_matrix_button( int mbutton);
 static void show_current_matrix( void );
 static int fub_cb( LUI_NEWBUTTON *b, int state);
@@ -246,6 +246,7 @@ static int destroy_cb( LUI_NEWBUTTON *b, int state )
     current_selected_browser_where_ctx_is_in = -1;
     return 1;
   }
+  return 0;
 }
 
 
@@ -336,6 +337,7 @@ static int fvf_cb( LUI_FIELD *field, char *str )
    vis5d_set_dtx_values( field->display_index, yoman);
    LUI_FieldSetText( field, "");
    v5dFreeStruct( yoman );
+   return 0;
 }
 
 /*********************************************************************************/
@@ -355,6 +357,7 @@ static int fdf_cb( LUI_FIELD *field, char *str )
    vis5d_set_dtx_values(field->display_index, yoman);
    v5dFreeStruct( yoman);
    LUI_FieldSetText( field, "");
+   return 0;
 }
 
 /*********************************************************************************/
@@ -1208,6 +1211,7 @@ static int done_cb( LUI_NEWBUTTON *button, XEvent *event )
    v5dFreeStruct(V5Dyo);
    V5Dyo = NULL;
    kg = 0;
+   return 0;
 }
 
 
@@ -1680,6 +1684,7 @@ static int m11_cb( LUI_NEWBUTTON *b, int state)
    show_browser( 0,0 ); 
    set_display_matrix(1,1);
    XResizeWindow(GuiDpy, Dwindow, 568,237);
+   return 0;
 }
 
 static int m12_cb( LUI_NEWBUTTON *b, int state)
@@ -1691,6 +1696,7 @@ static int m12_cb( LUI_NEWBUTTON *b, int state)
    show_browser(1,1);
    set_display_matrix(1,2);
    XResizeWindow(GuiDpy, Dwindow, 788,237);
+   return 0;
 }
 
 static int m13_cb( LUI_NEWBUTTON *b, int state)
@@ -1703,6 +1709,7 @@ static int m13_cb( LUI_NEWBUTTON *b, int state)
    show_browser(2,2);
    set_display_matrix(1,3);
    XResizeWindow(GuiDpy, Dwindow, 1009, 237);
+   return 0;
 }
 
 static int m22_cb( LUI_NEWBUTTON *b, int state)
@@ -1716,6 +1723,7 @@ static int m22_cb( LUI_NEWBUTTON *b, int state)
    show_browser(5,3);
    set_display_matrix(2,2);
    XResizeWindow(GuiDpy, Dwindow, 788,489);
+   return 0;
 }
 
 static int m23_cb( LUI_NEWBUTTON *b, int state)
@@ -1731,6 +1739,7 @@ static int m23_cb( LUI_NEWBUTTON *b, int state)
    show_browser(6,5);
    set_display_matrix(2,3);
    XResizeWindow(GuiDpy, Dwindow, 1009,489);
+   return 0;
 }
 
 static int m32_cb( LUI_NEWBUTTON *b, int state)
@@ -1746,6 +1755,7 @@ static int m32_cb( LUI_NEWBUTTON *b, int state)
    show_browser(9,5);
    set_display_matrix(3,2);   
    XResizeWindow(GuiDpy, Dwindow, 788,739);
+   return 0;
 }
 
 static int m33_cb( LUI_NEWBUTTON *b, int state)
@@ -1764,6 +1774,7 @@ static int m33_cb( LUI_NEWBUTTON *b, int state)
    show_browser(10,8);
    set_display_matrix(3,3);
    XResizeWindow(GuiDpy, Dwindow, 1009, 739);
+   return 0;
 }
 
 static int m34_cb( LUI_NEWBUTTON *b, int state)
@@ -1785,6 +1796,7 @@ static int m34_cb( LUI_NEWBUTTON *b, int state)
    show_browser(11,11);
    set_display_matrix(3,4);
    XResizeWindow(GuiDpy, Dwindow, 1264,739);
+   return 0;
 }
 
 static int m43_cb( LUI_NEWBUTTON *b, int state)
@@ -1806,6 +1818,7 @@ static int m43_cb( LUI_NEWBUTTON *b, int state)
    show_browser(14,11);
    set_display_matrix(4,3);
    XResizeWindow(GuiDpy, Dwindow, 1009, 984);
+   return 0;
 }
 
 static int m44_cb( LUI_NEWBUTTON *b, int state)
@@ -1831,12 +1844,13 @@ static int m44_cb( LUI_NEWBUTTON *b, int state)
    show_browser(15,15);
    set_display_matrix(4,4);
    XResizeWindow(GuiDpy, Dwindow, 1264, 984);
+   return 0;
 }
 
 static void show_current_matrix( void )
 {
    int mat;
-   LUI_NEWBUTTON *b;
+   LUI_NEWBUTTON *b = NULL;
 
    if ( DisplayRows <= 4 && DisplayCols <= 4){
       mat = (DisplayRows * 10) + DisplayCols;

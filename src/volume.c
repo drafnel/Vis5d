@@ -135,7 +135,7 @@ struct volume *alloc_volume( Context ctx, int nr, int nc, int nl )
       v->index = (uint_1 *) allocate( ctx, nl*nr*nc*sizeof(uint_1) );
       if (!v->vertex || !v->index) {
          printf("WARNING:  insufficient memory for volume rendering (%d bytes needed)\n",
-                nl * nr * nc * (3*sizeof(float)+sizeof(uint_1)) );
+                nl * nr * nc * ((int) (3*sizeof(float)+sizeof(uint_1))) );
          ctx->dpy_ctx->VolRender = 0; 
          return NULL;
       }
@@ -157,7 +157,7 @@ struct volume *alloc_volume( Context ctx, int nr, int nc, int nl )
    return v;
 }
 
-int free_volume( Context ctx)
+void free_volume( Context ctx)
 {
    deallocate( ctx, ctx->Volume->vertex,
      ctx->Volume->oldnl*ctx->Volume->oldnr*ctx->Volume->oldnc*3*sizeof(float));

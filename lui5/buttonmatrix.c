@@ -129,7 +129,7 @@ void LUI_ButtonMatrixRedraw( LUI_BUTTON_MATRIX *bm)
 /*
  * Convert a window (x,y) coordinate into a button (row,column).
  */
-static int xy_to_rowcol( LUI_BUTTON_MATRIX *bm, int x, int y,
+static void xy_to_rowcol( LUI_BUTTON_MATRIX *bm, int x, int y,
                          int *row, int *col )
 {
    *row = y / bm->bheight + bm->toprow;

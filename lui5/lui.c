@@ -962,7 +962,7 @@ unsigned long LUI_MakeColor( int r, int g, int b )
 
 
         
-static LUI_DrawBorderAt( Window window, int x, int y, int width, int height,
+static void LUI_DrawBorderAt( Window window, int x,int y, int width,int height,
                          int border_size, int invert )
 {
     XPoint pts[4];
@@ -1078,11 +1078,11 @@ void LUI_DrawFrame( Window window, int x, int y, int width, int height,
 
 
 
-/******************************************************************************/
-LUI_DrawFlatBorderAt(window, x, y, width, height, border_size, color)
-    Window window;
-    int x, y, width, height, border_size;
-    unsigned long color;
+/*****************************************************************************/
+void LUI_DrawFlatBorderAt(Window window,
+			  int x, int y, 
+			  int width, int height, int border_size,
+			  unsigned long color)
 {
     XPoint pts[4];
     int bs;
@@ -1119,11 +1119,9 @@ LUI_DrawFlatBorderAt(window, x, y, width, height, border_size, color)
     XFillPolygon(LUI_Display, window, LUI_Gc, pts, 4, Convex, CoordModeOrigin);
 }
 
-/******************************************************************************/
-LUI_DrawDropShadow(window, x, y, w, h, d, color)
-    Window window;
-    int x, y, w, h, d;
-    unsigned long color;
+/*****************************************************************************/
+void LUI_DrawDropShadow(Window window, int x, int y, int w, int h, int d,
+			unsigned long color)
 {
     XPoint p[6];
 

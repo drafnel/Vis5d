@@ -42,7 +42,7 @@ extern int McGrid[MAXTIMES][MAXVARS];
 
 extern int initially_open_gridfile( char filename[], v5dstruct *v );
 
-extern int free_grid_cache( Context ctx );
+extern void free_grid_cache( Context ctx );
 
 extern int open_gridfile( Context ctx, char filename[] );
 

@@ -58,7 +58,7 @@ void LUI_EventSetExitTime( int seconds )
 
 
 
-static int LUI_EventTimmerTriggeredExit( void )
+static void LUI_EventTimmerTriggeredExit( void )
 {
     struct timeval tp;
     static long start_sec, lapsed_usec;

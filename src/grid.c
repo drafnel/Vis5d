@@ -350,7 +350,7 @@ int open_gridfile( Context ctx, char filename[] )
    }
    if (ctx->MaxNl>MAXLEVELS) {
       printf("Error: Number of grid levels (%d) too large, %d is limit.\n",
-             ctx->Nl, MAXLEVELS );
+             ctx->MaxNl, MAXLEVELS );
       printf("Edit src/v5d.h and increase MAXLEVELS\n");
       return 0;
    }
@@ -376,7 +376,7 @@ int open_gridfile( Context ctx, char filename[] )
 
 
 
-int free_grid_cache( Context ctx )
+void free_grid_cache( Context ctx )
 {
    int it, iv;
 

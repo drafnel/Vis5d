@@ -285,7 +285,7 @@ static void usage( void )
    P("   F  - Faster animation.\n");
    P("   S  - Slower animation.\n");
    P("   l  - reduce the size of Vis5D logo\n");
-   P("   L  - increse the size of Vis%D logo\n");
+   P("   L  - increse the size of Vis5D logo\n");
 
 #undef P
 }

@@ -39,8 +39,11 @@ extern int any_work_pending( void );
 
 extern int do_one_task( int threadnum );
 
+#ifdef HAVE_SGI_SPROC
+extern void work( void *threadnum );
+#else
 extern void *work( void *threadnum );
-
+#endif
 
 
 #endif

@@ -150,7 +150,7 @@ int	user_data_get_header (char file_name[], v5dstruct *v)
     /* Read the time information */
 
     fgets (str, sizeof (str), file);
-    sscanf (str, "%d", &reftime);
+    sscanf (str, "%ld", &reftime);
 
     fgets (str, sizeof (str), file);
     sscanf (str, "%d", &v->NumTimes);
@@ -158,7 +158,7 @@ int	user_data_get_header (char file_name[], v5dstruct *v)
     for (i = 0; i < v->NumTimes; i++)
     {
         fgets (str, sizeof (str), file);
-        sscanf (str, "%d", &fcstime);
+        sscanf (str, "%ld", &fcstime);
 
         ltime           = reftime + fcstime;
         gmt             = gmtime ((time_t *) &ltime);

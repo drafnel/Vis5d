@@ -180,7 +180,7 @@ static void *alloc( Context ctx, int b, int permanent, int type )
         ctx->guess = NULL;
 #ifdef DEBUG_MEM
       pos->type = type;
-      printf("exact fit 0x%x 0x%x\n", pos, pos+1);
+      printf("exact fit 0x%x 0x%x\n", (int)pos, (int)(pos+1));
       check_memory( ctx );
 #endif
       return (void *) (pos+1);
@@ -213,7 +213,7 @@ static void *alloc( Context ctx, int b, int permanent, int type )
       }
 #ifdef DEBUG_MEM
       pos->type = type;
-      printf("big fit 0x%x 0x%x\n", pos, pos+1);
+      printf("big fit 0x%x 0x%x\n", (int)pos, (int)(pos+1));
       check_memory( ctx );
 #endif
       return (void *) (pos+1);
@@ -234,7 +234,7 @@ static void dealloc( Context ctx, void *addr, int b )
    struct mem *pos, *pred, *succ;
 
 #ifdef DEBUG_MEM
-   printf("Deallocate( 0x%x, %d )\n", addr, b );
+   printf("Deallocate( 0x%x, %d )\n", (int)addr, b );
 #endif
    if (addr==NULL) {
       printf("Warning:  deallocate(NULL)\n");
@@ -336,10 +336,11 @@ static void check_memory( Context ctx )
          printf("bad pos->free %d\n", pos->free);
       }
       if (pos->magic!=MAGIC) {
-         printf("bad magic number in node 0x%x\n", pos );
+         printf("bad magic number in node 0x%x\n", (int)pos );
       }
       if (pos->prev != pred) {
-         printf("bad pred pointer 0x%x should be 0x%x\n", pos->prev, pred );
+         printf("bad pred pointer 0x%x should be 0x%x\n", 
+		(int)pos->prev, (int)pred );
       }
       if (pos->next==NULL && ctx->tail!=pos) {
          die("bad tail\n");
@@ -372,17 +373,17 @@ static void dump_memory( Context ctx )
 
    pos = ctx->head;
    while (pos) {
-      printf("node: 0x%x\n", pos );
+      printf("node: 0x%x\n", (int)pos );
       printf("  size: %d", pos->size );
-      printf("  prev: 0x%x", pos->prev );
-      printf("  next: 0x%x", pos->next );
+      printf("  prev: 0x%x", (int)pos->prev );
+      printf("  next: 0x%x", (int)pos->next );
 #ifdef DEBUG_MEM
       printf("  type: %d", pos->type );
 #endif
       printf("  free: %d\n", pos->free );
       pos = pos->next;
    }
-   printf("tail = 0x%x\n", ctx->tail );
+   printf("tail = 0x%x\n", (int)ctx->tail );
    printf("memory used: %d\n", ctx->memory_used);
 }
 

@@ -205,6 +205,13 @@ extern char **LUI_MakeLabel( char *string );
 
 extern void LUI_EventLock( Window window );
 
+extern void LUI_DrawFlatBorderAt(Window window,
+			  int x, int y, 
+			  int width, int height, int border_size,
+				 unsigned long color);
+extern void LUI_DrawDropShadow(Window window, int x, int y, int w, int h,int d,
+			       unsigned long color);
+
 
 #endif  /*_LUI_HEADER*/
 

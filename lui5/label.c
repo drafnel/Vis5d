@@ -437,6 +437,7 @@ int LUI_LabelTextColor( char  *name, float r, float g, float b )
 
     label->color[LUI_LABEL_COL_TEXT] = LUI_MakeColor((int)(255.*r),
                                                 (int)(255.*g), (int)(255.*b));
+    return(1);
 }
 
 

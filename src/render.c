@@ -905,7 +905,7 @@ static void render_textplots( Irregular_Context itx, int time)
 {
    int var;
    float a, b, c, d;
-   static do_once = 0;
+   static int do_once = 0;
 
    vis5d_get_text_plot(itx->context_index, &var, &a, &b, &c, &d);
    if (itx->DisplayTextPlot && itx->TextPlotTable[time].valid){
@@ -2080,7 +2080,7 @@ int draw_legend( Context ctx, int varowner, int var, int type, int xleft, int yb
 
    /* Create 'pretty' formatting string */
    sprintf(scrap, "% .0f", label); 
-   sprintf(format, "%% %d.2f", strlen(scrap)+3);
+   sprintf(format, "%% %d.2f", (int)strlen(scrap)+3);
 
    /* Draw values and tick marks on the right hand side of the legend */
    textwidth = 0;

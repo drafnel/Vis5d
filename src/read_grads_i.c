@@ -49,7 +49,7 @@
 #include "tokenize_i.h"
 #include "../src/v5d.h"
 
-
+extern int Debug_i;           /* -debug  in read_grid_i.c*/
 
 #define MAX(A,B)  ( (A) > (B) ? (A) : (B) )
 
@@ -539,18 +539,19 @@ int get_grads_info( char *name, struct grid_db *db )
               int i;
               for(i=strlen(name)-1;i>=0;i--){
                 if(name[i] == '/'){
-                  strncpy(dset_name,name,i);
+                  strncpy(dset_name,name,i+1);
                   i++;
                   break;
                 }
               } 
-              if(i<0) i=0; /* No path in ctl file name */
+				  if(i<0) i=0; /* No path in ctl file name */
               strcpy( dset_name+i, token[1]+1 );
             }
             else {
                strcpy( dset_name, token[1] );
             }
          }
+			if(Debug_i) printf("dset name >%s<\n",dset_name);
       }
       else if (strcasecmp(token[0],"TITLE")==0) {
          /* ignore the title line */

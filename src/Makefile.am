@@ -2,14 +2,16 @@
 # would go into it.
 
 if VIS5DPLUS
-bin_PROGRAMS = v5dimport
-noinst_LIBRARIES = 
+PRG = vis5d
 IMPORT_SRC_ADD = main_i.c ui_i.c
 else
-bin_PROGRAMS = vis5d v5dimport
-noinst_LIBRARIES = libvis5dgui.a
-IMPORT_SRC_ADD =
+LIBGUI = libvis5dgui.a
+LIBLUI5 = ../lui5/liblui.a
 endif
+
+bin_PROGRAMS = $(PRG) v5dimport
+noinst_LIBRARIES = $(LIBGUI)
+
 
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
@@ -43,17 +45,10 @@ libvis5d_la_SOURCES = $(API_SRC) $(IMPORT_SRC) $(AUX_SRC) api.h
 
 libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-if VIS5DPLUS
-LIBGUI =
-LIBLUI5 = 
-else
 GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
           soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c  igui.c pipe.c \
           imain.c main_i.c ui_i.c
 libvis5dgui_a_SOURCES = $(GUI_SRC) 
-LIBGUI = libvis5dgui.a
-LIBLUI5 = ../lui5/liblui.a
-endif
 
 vis5d_SOURCES = main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files

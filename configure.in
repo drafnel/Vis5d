@@ -1,4 +1,6 @@
-AC_INIT(src/v5d.c)
+AC_INIT
+AC_PREREQ(2.50)
+AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(vis5d+, 1.0.2)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
@@ -51,9 +53,9 @@ if test "$enable_fortran" = "yes"; then
 	AC_PROG_F77
 	if test -n "$F77"; then
 		AC_F77_LIBRARY_LDFLAGS
-		ACX_F77_FUNC_MANGLE
+		AC_F77_WRAPPERS
 		
-		/* enable Fortran packages in util/ subdirectory: */
+		# enable Fortran packages in util/ subdirectory:
 		OPT_UTILS="$OPT_UTILS \$(FPROGS)"
 	else
 		AC_MSG_WARN([didn't find any Fortran compiler])
@@ -119,7 +121,7 @@ if test "$with_mesa" = "yes"; then
 			 :, -lGL $XLIBS), :, $XLIBS)
 fi
 if test -n "$GLLIBS"; then
-	AC_DEFINE(HAVE_OPENGL)
+	AC_DEFINE(HAVE_OPENGL,1,[Define if we have OpenGL libraries.])
 else
 	echo "couldn't find OpenGL libraries!"
 	if test "$with_mesa" = "yes"; then
@@ -138,7 +140,7 @@ if test -z "$GLLIBS"; then
 		fi
 	fi
 	if test -n "$GLLIBS"; then
-		AC_DEFINE(HAVE_SGI_GL)
+		AC_DEFINE(HAVE_SGI_GL,1,[Define if we have SGI GL libraries.])
 		OPT_UTILS="$OPT_UTILS listfonts"
 	fi
 fi
@@ -185,7 +187,7 @@ if test -z "$GLLIBS"; then
 	fi
 
 	if test -n "$GLLIBS"; then
-		AC_DEFINE(HAVE_PEX)
+		AC_DEFINE(HAVE_PEX,1,[Define if we have PEX (GL-like) libs.])
 	fi
 fi
 
@@ -227,19 +229,20 @@ V5D_LIBS_AUX="" # any extra libs we need to link Vis5d
 # Find Tcl (Linux systems need -ldl as well):
 AC_CHECK_LIB(dl, dlopen, V5D_LIBS_AUX="-ldl $V5D_LIBS_AUX")
 AC_CHECK_LIB(tcl, Tcl_Eval, [V5D_LIBS_AUX="-ltcl $V5D_LIBS_AUX"
-	                     AC_DEFINE(HAVE_LIBTCL)],:,$V5D_LIBS_AUX)
+	                     AC_DEFINE(HAVE_LIBTCL,1,[Have Tcl library?])],
+                                       [:],$V5D_LIBS_AUX)
 
 # check if we have setrlimit function:
 AC_CHECK_FUNCS(setrlimit)
 
 # check if we have the Fortran (sigh) idate function:
 if test -n "$F77"; then
-	AC_LANG_SAVE
-	AC_LANG_FORTRAN77
+	AC_LANG_PUSH(Fortran 77)dnl
 	AC_MSG_CHECKING([for Fortran idate function])
-	AC_TRY_LINK(,[idate(imon,iday,iyear)],[AC_DEFINE(HAVE_IDATE)
+	AC_TRY_LINK([],[      idate(imon,iday,iyear)],
+               [AC_DEFINE(HAVE_IDATE,1,[Do we have Fortran idate function?])
 		AC_MSG_RESULT(yes)],AC_MSG_RESULT(no))
-	AC_LANG_RESTORE
+	AC_LANG_POP(Fortran 77)dnl
 fi
 	
 AC_CHECK_LIB(image, iopen, OPT_UTILS="$OPT_UTILS fromxwd")
@@ -274,7 +277,7 @@ if test "$with_netcdf" != "no"; then
 
 	# now, look for the actual library:
 	AC_CHECK_LIB(netcdf, nc_inq_dimlen,
-		[AC_DEFINE(HAVE_LIBNETCDF)
+		[AC_DEFINE(HAVE_LIBNETCDF,1,[Do we have NetCDF library?])
                  V5D_LIBS_AUX="-lnetcdf $V5D_LIBS_AUX"],:, $V5D_LIBS_AUX)
 
 	case $V5D_LIBS_AUX in
@@ -314,41 +317,25 @@ if test "$with_mcidas" != "no" -a -n "$F77"; then
 			/*) ;; # already an absolute path
 			*) mcidas_dir="`pwd`/$mcidas_dir" ;;
 		esac
-                MCIDAS_LIBS="-L$mcidas_dir"
+                MCIDAS_LDFLAGS="-L$mcidas_dir"
         elif test -r $srcdir/libmcidas5.a; then
-                MCIDAS_LIBS="-L`pwd`/$srcdir"
+                MCIDAS_LDFLAGS="-L`pwd`/$srcdir"
         elif test -r $srcdir/src/libmcidas5.a; then
-                MCIDAS_LIBS="-L`pwd`/$srcdir/src"
+                MCIDAS_LDFLAGS="-L`pwd`/$srcdir/src"
 		using_included_mcidas=yes
 	fi
-	MCIDAS_LIBS="$MCIDAS_LIBS -l$mcidas_lib $FLIBS"
+	MCIDAS_LIBS="$MCIDAS_LDFLAGS -l$mcidas_lib $FLIBS"
 
-        # now, look for the actual library:
-	# (we can't use AC_CHECK_LIB because we need to define our
-	# F77_FUNC macro in order to check the correct identifier)
-	AC_MSG_CHECKING([for McIDAS library])
-	save_LIBS="$LIBS"
-	LIBS="$MCIDAS_LIBS $LIBS"
-        AC_TRY_LINK([
-#if FORTRANIZE_LOWERCASE
-#  define F77_FUNC(x,X) x
-#elif FORTRANIZE_UPPERCASE
-#  define F77_FUNC(x,X) X
-#elif FORTRANIZE_LOWERCASE_UNDERSCORE
-#  define F77_FUNC(x,X) x##_
-#elif FORTRANIZE_UPPERCASE_UNDERSCORE
-#  define F77_FUNC(x,X) X##_
-#endif
-], F77_FUNC(readd,READD)(),, MCIDAS_LIBS="")
-	LIBS="$save_LIBS"
-	if test -z "$MCIDAS_LIBS"; then
-		AC_MSG_RESULT(no)
-	else
-		AC_MSG_RESULT(yes)
+	save_LDFLAGS="$LDFLAGS"
+	LDFLAGS="$LDFLAGS $MCIDAS_LDFLAGS"	
+	AC_F77_FUNC(readd)
+	AC_CHECK_LIB(mcidas_lib, $readd, [], [MCIDAS_LIBS=""], $FLIBS)
+	LDFLAGS="$save_LDFLAGS"
+	if test -n "$MCIDAS_LIBS"; then
 		MCIDAS_LIBS="kltwin.o $MCIDAS_LIBS"
-		AC_DEFINE(HAVE_MCIDAS)
+		AC_DEFINE(HAVE_MCIDAS,1,[Do we have McIDAS library?])
 		if test "$using_included_mcidas" = "no"; then
-			AC_DEFINE(MCIDAS_SIDECAR)
+			AC_DEFINE(MCIDAS_SIDECAR,1,[Have McIDAS sidecar?])
 		fi
 	fi
 fi
@@ -378,7 +365,7 @@ if test "$enable_threads" = "yes"; then
 # (should we prefer POSIX threads to this?)
 if test -z "$THREADLIBS"; then
 	AC_CHECK_FUNC(sproc, [THREADLIBS="  "
-                              AC_DEFINE(HAVE_SGI_SPROC)])
+                              AC_DEFINE(HAVE_SGI_SPROC,1,[Have SGI sproc?])])
 fi
 
 # Check for POSIX threads:
@@ -387,7 +374,7 @@ if test -z "$THREADLIBS"; then
 	ACX_PTHREAD([THREADLIBS=" $PTHREAD_LIBS"
         	     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
                      CC="$PTHREAD_CC"
-                     AC_DEFINE(HAVE_PTHREADS)])
+                     AC_DEFINE(HAVE_PTHREADS,1,[Have POSIX threads?])])
 fi
 
 # Solaris threads:
@@ -395,7 +382,7 @@ fi
 if test -z "$THREADLIBS"; then
 	AC_CHECK_LIB(thread, thr_create,
 	             [THREADLIBS="-lthread"
-               	      AC_DEFINE(HAVE_SUNOS_THREADS)])
+               	      AC_DEFINE(HAVE_SUNOS_THREADS,1,[Have SunOS threads?])])
 fi
 
 if test -z "$THREADLIBS"; then
@@ -405,7 +392,7 @@ fi
 fi # if enable_threads = yes
 
 if test -z "$THREADLIBS"; then
-	AC_DEFINE(SINGLE_TASK)
+	AC_DEFINE(SINGLE_TASK,1,[Define to disable multi-threading.])
 fi
 AC_SUBST(THREADLIBS)
 
@@ -414,7 +401,8 @@ AC_SUBST(THREADLIBS)
 # define a preprocessor symbol for where the Vis5d data files
 # (e.g. EARTH.TOPO) go:
 if test "$datadir" != '${prefix}/share'; then
-	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$datadir/$PACKAGE/")
+	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$datadir/$PACKAGE/",
+                           [Define to installed location of Vis5d data files.])
 elif test "$prefix" = "NONE"; then
 	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$ac_default_prefix/share/$PACKAGE/")
 else
@@ -434,4 +422,5 @@ dnl
 
 VIS5DPLUS=
 AM_CONDITIONAL(VIS5DPLUS, test -n "$VIS5DPLUS" )
-AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile doc/Makefile)
+AC_CONFIG_FILES([Makefile src/Makefile lui5/Makefile util/Makefile doc/Makefile])
+AC_OUTPUT

@@ -5849,6 +5849,9 @@ static int cmd_get_image_formats( ClientData client_data, Tcl_Interp *interp,
 
    /* form a string list of image formats supported */
    strcpy( result, "{ " );
+   if (formats & VIS5D_PNG) {
+      strcat( result, "VIS5D_PNG " );
+   }
    if (formats & VIS5D_RGB) {
       strcat( result, "VIS5D_RGB " );
    }
@@ -5873,6 +5876,37 @@ static int cmd_get_image_formats( ClientData client_data, Tcl_Interp *interp,
    return TCL_OK;
 }
 
+static int string_to_saveformat(const char *s)
+{
+     if (strcmp(s,"VIS5D_GIF")==0) {
+	  return VIS5D_GIF;
+     }
+     else if (strcmp(s,"VIS5D_PNG")==0) {
+	  return VIS5D_PNG;
+     }
+     else if (strcmp(s,"VIS5D_RGB")==0) {
+	  return VIS5D_RGB;
+     }
+     else if (strcmp(s,"VIS5D_XWD")==0) {
+	  return VIS5D_XWD;
+     }
+     /* MJK 11.19.98 */         
+     else if (strcmp(s,"VIS5D_PPM")==0) {
+	  return VIS5D_PPM;
+     }
+     else if (strcmp(s,"VIS5D_TGA")==0) {
+	  return VIS5D_TGA;
+     }
+     else if (strcmp(s,"VIS5D_PS")==0) {
+	  return VIS5D_PS;
+     }
+     else if (strcmp(s,"VIS5D_COLOR_PS")==0) {
+	  return VIS5D_COLOR_PS;
+     }
+     else {
+	  return 0; /* unknown format */
+     }
+}
 
 static int cmd_save_window( ClientData client_data, Tcl_Interp *interp,
                             int argc, char *argv[] )
@@ -5886,62 +5920,15 @@ static int cmd_save_window( ClientData client_data, Tcl_Interp *interp,
    else {
       if (argc==4){
          name = argv[2];
-         if (strcmp(argv[3],"VIS5D_GIF")==0) {
-            format = VIS5D_GIF;
-         }
-         else if (strcmp(argv[3],"VIS5D_RGB")==0) {
-            format = VIS5D_RGB;
-         }
-         else if (strcmp(argv[3],"VIS5D_XWD")==0) {
-            format = VIS5D_XWD;
-         }
-         /* MJK 11.19.98 */         
-         else if (strcmp(argv[3],"VIS5D_PPM")==0) {
-            format = VIS5D_PPM;
-         }
-         else if (strcmp(argv[3],"VIS5D_TGA")==0) {
-            format = VIS5D_TGA;
-         }
-         else if (strcmp(argv[3],"VIS5D_PS")==0) {
-            format = VIS5D_PS;
-         }
-         else if (strcmp(argv[3],"VIS5D_COLOR_PS")==0) {
-            format = VIS5D_COLOR_PS;
-         }
-         
-         else {
-            interp->result = "vis5d_save_window: bad format";
-            return TCL_ERROR;
-         }
+	 format = string_to_saveformat(argv[3]);
       }
       else{
          name = argv[1];
-         if (strcmp(argv[2],"VIS5D_GIF")==0) {
-            format = VIS5D_GIF;
-         }
-         else if (strcmp(argv[2],"VIS5D_RGB")==0) {
-            format = VIS5D_RGB;
-         }
-         else if (strcmp(argv[2],"VIS5D_XWD")==0) {
-            format = VIS5D_XWD;
-         }
-         else if (strcmp(argv[2],"VIS5D_PS")==0) {
-            format = VIS5D_PS;
-         }
-         else if (strcmp(argv[2],"VIS5D_TGA")==0) {
-            format = VIS5D_TGA;
-         }
-         else if (strcmp(argv[2],"VIS5D_COLOR_PS")==0) {
-            format = VIS5D_COLOR_PS;
-         }
-         /* MJK 11.19.98 */            
-         else if (strcmp(argv[2],"VIS5D_PPM")==0) {
-            format = VIS5D_PPM;
-         }         
-         else {
-            interp->result = "vis5d_save_window: bad format";
-            return TCL_ERROR;
-         }
+	 format = string_to_saveformat(argv[2]);
+      }
+      if (!format) {
+	   interp->result = "vis5d_save_window: bad format";
+	   return TCL_ERROR;
       }
 
       result = vis5d_save_window(  name, format );
@@ -5959,30 +5946,10 @@ static int cmd_save_snd_window( ClientData client_data, Tcl_Interp *interp,
       char *name = argv[2];
       int format;
       int result;
-      if (strcmp(argv[3],"VIS5D_GIF")==0) {
-         format = VIS5D_GIF;
-      }
-      else if (strcmp(argv[3],"VIS5D_RGB")==0) {
-         format = VIS5D_RGB;
-      }
-      else if (strcmp(argv[3],"VIS5D_XWD")==0) {
-         format = VIS5D_XWD;
-      }
-      else if (strcmp(argv[3],"VIS5D_PS")==0) {
-         format = VIS5D_PS;
-      }
-      else if (strcmp(argv[3],"VIS5D_COLOR_PS")==0) {
-         format = VIS5D_COLOR_PS;
-      }
-      else if (strcmp(argv[3],"VIS5D_PPM")==0) {
-         format = VIS5D_PPM;
-      }
-      else if (strcmp(argv[3],"VIS5D_TGA")==0) {
-         format = VIS5D_TGA;
-      }
-      else {
-         interp->result = "vis5d_save_snd_window: bad format";
-         return TCL_ERROR;
+      format = string_to_saveformat(argv[3]);
+      if (!format) {
+	   interp->result = "vis5d_save_snd_window: bad format";
+	   return TCL_ERROR;
       }
       result = vis5d_save_snd_window(  atoi(argv[1]), name, format );
       return error_check( interp, "vis5d_save_snd_window", result );
@@ -6634,62 +6601,15 @@ static int cmd_save_right_window( ClientData client_data, Tcl_Interp *interp,
    else {
       if (argc==4){
          name = argv[2];
-         if (strcmp(argv[3],"VIS5D_GIF")==0) {
-            format = VIS5D_GIF;
-         }
-         else if (strcmp(argv[3],"VIS5D_RGB")==0) {
-            format = VIS5D_RGB;
-         }
-         else if (strcmp(argv[3],"VIS5D_XWD")==0) {
-            format = VIS5D_XWD;
-         }
-         /* MJK 11.19.98 */         
-         else if (strcmp(argv[3],"VIS5D_PPM")==0) {
-            format = VIS5D_PPM;
-         }
-         else if (strcmp(argv[3],"VIS5D_TGA")==0) {
-            format = VIS5D_TGA;
-         }
-         else if (strcmp(argv[3],"VIS5D_PS")==0) {
-            format = VIS5D_PS;
-         }
-         else if (strcmp(argv[3],"VIS5D_COLOR_PS")==0) {
-            format = VIS5D_COLOR_PS;
-         }
-         
-         else {
-            interp->result = "vis5d_save_right_window: bad format";
-            return TCL_ERROR;
-         }
+	 format = string_to_saveformat(argv[3]);
       }
       else{
          name = argv[1];
-         if (strcmp(argv[2],"VIS5D_GIF")==0) {
-            format = VIS5D_GIF;
-         }
-         else if (strcmp(argv[2],"VIS5D_RGB")==0) {
-            format = VIS5D_RGB;
-         }
-         else if (strcmp(argv[2],"VIS5D_XWD")==0) {
-            format = VIS5D_XWD;
-         }
-         else if (strcmp(argv[2],"VIS5D_PS")==0) {
-            format = VIS5D_PS;
-         }
-         else if (strcmp(argv[2],"VIS5D_TGA")==0) {
-            format = VIS5D_TGA;
-         }
-         else if (strcmp(argv[2],"VIS5D_COLOR_PS")==0) {
-            format = VIS5D_COLOR_PS;
-         }
-         /* MJK 11.19.98 */            
-         else if (strcmp(argv[2],"VIS5D_PPM")==0) {
-            format = VIS5D_PPM;
-         }         
-         else {
-            interp->result = "vis5d_save_right_window: bad format";
-            return TCL_ERROR;
-         }
+	 format = string_to_saveformat(argv[2]);
+      }
+      if (!format) {
+	   interp->result = "vis5d_save_right_window: bad format";
+	   return TCL_ERROR;
       }
   
       result = vis5d_save_right_window(  name, format );

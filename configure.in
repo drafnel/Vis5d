@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.37 $)
+AC_REVISION($Revision: 1.38 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -144,6 +144,8 @@ AC_C_BIGENDIAN
 
 # Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
+
+AC_CHECK_HEADER(png.h, [AC_CHECK_LIB(png, png_write_image)])
 
 AC_CHECK_FUNCS(strcasecmp strncasecmp strdup)
 

@@ -3084,12 +3084,17 @@ static void make_savepic_window( int index )
    LUI_NewLabelCreate( gtx->SavePicWindow, LUI_LEFT, LUI_TOP, 280, 30,
                        "Save Window Image" );
 
-   /* allocate array of 6 char pointers */
-   labels = (char **) malloc( 6 * sizeof(char *) );
+   /* allocate array of MAX_SAVEFORMATS char pointers */
+   labels = (char **) malloc(MAX_SAVEFORMATS * sizeof(char *) );
 
    /* make labels for radio button and update SaveFormats array */
    n = 0;
 	/* The default format is the first available */
+   if (formats & VIS5D_PNG) {
+      labels[n] = strdup("PNG");
+      gtx->SaveFormats[n] = VIS5D_PNG;
+      n++;
+   }
    if (formats & VIS5D_RGB) {
       labels[n] = strdup("SGI .rgb");
       gtx->SaveFormats[n] = VIS5D_RGB;
@@ -3120,6 +3125,11 @@ static void make_savepic_window( int index )
       labels[n] = strdup("24 bit ppm");
       gtx->SaveFormats[n] = VIS5D_PPM;
       n++;    
+   }
+
+   if (n > MAX_SAVEFORMATS) {
+	fprintf(stderr, "vis5d: MAX_SAVEFORMATS exceeded\n");
+	exit(1);
    }
 
    gtx->SavePicRadio = LUI_RadioCreate( gtx->SavePicWindow,
@@ -11842,13 +11852,10 @@ int set_window_decor_all (int index)
     set_window_decor (GuiDpy, gtx->SoundCtrlWindow);
     set_window_decor (GuiDpy, gtx->fakewin);
     set_window_decor (GuiDpy, gtx->ColorbarWindow);
-
     set_window_decor (GuiDpy, gtx->display_window);
-
-	 set_window_decor (GuiDpy, gtx->SaveSceneWindow);
+    set_window_decor (GuiDpy, gtx->SaveSceneWindow);
 
     XSync (GuiDpy, 0);
-
 
     return 1;
 }

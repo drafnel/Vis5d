@@ -1286,13 +1286,17 @@ static  int	VIS5DInitializedFormats = 0;
 
 int save_formats( void )
 {
-   int formats;
+   int formats = 0;
    char s[1000];
    struct stat buf;
    FILE *f;
 
 #ifdef WORDS_BIGENDIAN
-   formats = VIS5D_RGB;
+   formats |= VIS5D_RGB;
+#endif
+
+#ifdef HAVE_LIBPNG
+   formats |= VIS5D_PNG;
 #endif
 
    VIS5DInitializedFormats = 1;
@@ -1330,6 +1334,18 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
    XSync( GfxDpy, 0 );
 
    if(!VIS5DInitializedFormats) (void)save_formats();
+
+   if (format == VIS5D_PNG) {
+	if (!(f = fopen(filename, "w"))) {
+	     fprintf(stderr, "vis5d: can't open %s for writing\n", filename);
+	     set_pointer(0);
+	     return 0;
+	}
+	png_dump(GfxDpy, GfxScr, BigWindow, f, oglbuf);
+	fclose(f);
+	set_pointer(0);
+	return 1;
+   }
 
    if (format==VIS5D_RGB) {
       strcpy( rgbname, filename );

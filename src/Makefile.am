@@ -18,7 +18,7 @@ API_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
           map.c matrix.c linterp.c memory.c misc.c mwmborder.c proj.c \
           queue.c render.c rgb.c record.c save.c socketio.c stream.c \
           sounding.c sync.c tclsave.c textplot.c topo.c traj.c user_data.c \
-          volume.c vtmcP.c work.c sgidump.c decimate.C
+          volume.c vtmcP.c work.c sgidump.c pngdump.c decimate.C
 
 
 IMPORT_SRC = analyze_i.c file_i.c grid_i.c \
@@ -40,7 +40,7 @@ HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour
 	read_v5d_i.h record.h render.h resample_i.h rgb.h rgbsliders.h save.h script.h select_i.h \
 	slice.h socketio.h sounding.h soundingGUI.h stream.h sync.h tclsave.h textplot.h tokenize_i.h \
 	topo.h traj.h ui_i.h user_data.h uvwwidget.h vertplot.h vis5d.h volume.h vtmcP.h work.h xdump.h \
-	graphics.h graphics.vrml.h graphics.scenes.h sgidump.h decimate.h
+	graphics.h graphics.vrml.h graphics.scenes.h sgidump.h pngdump.h decimate.h
 
 libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
 libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@

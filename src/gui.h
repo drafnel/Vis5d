@@ -39,6 +39,7 @@
 
 #define MAX_TITLES 100
 #define CP_WIDTH  384
+#define MAX_SAVEFORMATS 7
 
 struct gui_context {
   int context_index;           /* index of this context */
@@ -254,7 +255,7 @@ struct gui_context {
   Window SavePicWindow;
   LUI_FIELD *SavePicField;
   LUI_RADIO *SavePicRadio;
-  int SaveFormats[6];      /* image file format for each button displayed */
+  int SaveFormats[MAX_SAVEFORMATS];  /* image format for each button */
 
   /* Trajectory window */
   Window TrajWindow;

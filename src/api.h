@@ -235,6 +235,7 @@ typedef enum{
 #define VIS5D_COLOR_PS 16
 #define VIS5D_PPM      32
 #define VIS5D_TGA      64
+#define VIS5D_PNG     128
 
 #define	VIS5D_VRML	1
 #define	VIS5D_POV	2

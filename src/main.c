@@ -253,6 +253,8 @@ static void usage( void )
    P("         t or T    - use the function for reading topo data\n");
    P("      Example:  vis5d dataset -userdata gtM\n");
 
+	P("   -version\n");
+	P("      Print the vis5d+ release version number and exit.\n");
 
    P("   -vertical v\n");
    P("      Define the vertical coordinate system.  Default is from datafile.\n");
@@ -1293,6 +1295,10 @@ main( int argc, char *argv[] )
             i += 2;
          }
       }
+		else if (strncmp(argv[i],"-version",8)==0) {
+		  printf("%s %s http://vis5d.sf.net\n",PACKAGE,VERSION);
+		  exit(0);
+      }  
       else if (strncmp(argv[i],"-vert",5)==0 && i+1<argc) {
          if (strncmp( argv[i+1], "gen", 3)==0) {
             user_vertsys[filepointer] = VERT_GENERIC;

@@ -1,5 +1,3 @@
-
-
 /*
  * Vis5D system for visualizing five dimensional gridded data sets.
  * Copyright (C) 1990 - 2000 Bill Hibbard, Johan Kellum, Brian Paul,
@@ -232,7 +230,7 @@ void debugstuff(void)
  */
 #define CONTEXT( msg ) \
   Context ctx; \
-  /*printf("in c %s\n",msg); */\
+  /*printf("in c %s\n",msg);*/ \
   if (index<0 || index>=VIS5D_MAX_CONTEXTS || (ctx = ctx_table[index])==NULL) { \
     debugstuff(); \
     printf("bad context in %s %d 0x%x\n", msg,index,ctx); \
@@ -2166,9 +2164,24 @@ int vis5d_init_window( char *title, int x, int y,
    }
 }
 
+int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
+               int nr, int nc, const int nl[],
+               const char varname[MAXVARS][10],
+               const int timestamp[], const int datestamp[],
+               int compressmode,
+               int projection,
+               const float proj_args[],
+               int vertical,
+               const float vert_args[] )
+{
+  CONTEXT("vis5d_set_ctx_values")
 
+  v5dCreateStruct(&ctx->G,numtimes,numvars,nr,nc,nl,varname,timestamp,datestamp,
+							 compressmode,projection,proj_args,vertical,vert_args);
 
+  return set_ctx_from_internalv5d(ctx);
 
+}
 
 /***************************************************************************/
 /* This get's the needed information from a vis5d data context and returns */
@@ -3055,17 +3068,16 @@ int vis5d_init_sndwindow( int index, char *title, int x, int y,
  *
  */
 /* MJK 12.10.98 begin*/
+
 int vis5d_map_sndwindow( int index)
 {
    DPY_CONTEXT("vis5d_map_sndwindow");
 
    XSynchronize(SndDpy, 1);
-#ifndef APIONLY
    if (dtx->Sound.SoundCtrlWindow){
       extern Display *GuiDpy;
       XMapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
    }
-#endif
    XMapWindow( SndDpy, dtx->Sound.soundwin);
    XSynchronize(SndDpy, 0);
    return 0;
@@ -3074,16 +3086,14 @@ int vis5d_map_sndwindow( int index)
 int vis5d_unmap_sndwindow( int index )
 {
    DPY_CONTEXT("vis5d_map_sndwindow");
-
-#ifndef APIONLY
    if (dtx->Sound.SoundCtrlWindow){
       extern Display *GuiDpy;
       XUnmapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
    }
-#endif
    XUnmapWindow( SndDpy, dtx->Sound.soundwin);
    return 0;
 }
+
 /* MJK 12.10.98 end */
 #ifdef HAVE_SGI_GL
 /*
@@ -5193,7 +5203,7 @@ int vis5d_get_grid( int index, int time, int var, float *data )
  */
 int vis5d_put_grid( int index, int time, int var, float *data )
 {
-   CONTEXT("vis5d_get_grid");
+   CONTEXT("vis5d_put_grid");
    if (put_grid( ctx, time, var, data )) {
       return 0;
    }
@@ -5547,8 +5557,8 @@ int vis5d_set_dtx_projection_and_vertsys( int index, int what, int type, float t
          setup_dtx(dtx, index);
          break;                  
       default:
-         printf("somehting is awry in vis5d_set_dtx_projection_and_vertsys\n");
-         return 0;
+         printf("something is awry in vis5d_set_dtx_projection_and_vertsys %d\n",what);
+         return -1;
    }
 
    /* WLH 22 Oct 98 */
@@ -5900,7 +5910,8 @@ int vis5d_signal_redraw( int index, int count )
 
 int vis5d_check_redraw( int index, int *redraw )
 {
-   DPY_CONTEXT("vis5d_check_redraw");
+  DPY_CONTEXT("vis5d_check_redraw"); 
+
    *redraw = dtx->Redraw;
    return 0;
 }
@@ -5909,7 +5920,7 @@ int vis5d_draw_frame( int index, int animflag )
 {
    int howmany;
 
-   DPY_CONTEXT("vis5d_check_redraw");
+   DPY_CONTEXT("vis5d_draw_frame");
 
    vis5d_get_num_of_data_sets_in_display( index, &howmany);
 /*
@@ -5946,9 +5957,10 @@ int vis5d_draw_frame( int index, int animflag )
    clear_3d_window(); 
 #endif
 /* MJK 3.6.99 */
-   if (howmany >= 1){
-      render_everything( dtx, animflag );
-   }
+	    /*   JPE: For what reason must we have data before we can render a map?
+				if (howmany >= 1){ */
+	render_everything( dtx, animflag );
+	 	/*   } */
    dtx->Redraw = 0;
    return 0;
 }
@@ -6020,7 +6032,7 @@ int vis5d_invalidate_dtx_frames( int index )
 
 vis5d_set_pointer( int index, int x, int y )
 {
-  DPY_CONTEXT("vis5d_set_fake_pointer")
+  DPY_CONTEXT("vis5d_set_pointer")
   dtx->PointerX = x;
   dtx->PointerY = y;
   return 0;
@@ -9019,15 +9031,15 @@ int vis5d_resize_BIG_window(  int width, int height )
       height = StaticWinHeight;
    }
 	
-   printf("resize bigwindow %x %x\n",GfxDpy,BigWindow);   
+
    XSynchronize(GfxDpy, 1);
-   printf("1resize bigwindow %x %x\n",GfxDpy,BigWindow);   
+
    XResizeWindow(GfxDpy, BigWindow, width, height);
-   printf("2resize bigwindow %x %x\n",GfxDpy,BigWindow);   
+
    resize_BIG_window( width, height);
-   printf("3resize bigwindow %x %x\n",GfxDpy,BigWindow);   
+
    XSynchronize(GfxDpy, 0);
-   printf("4resize bigwindow %x %x\n",GfxDpy,BigWindow);   
+
    return 0;
 
 }
@@ -10757,3 +10769,4 @@ int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context)
 
   return 0;
 }
+

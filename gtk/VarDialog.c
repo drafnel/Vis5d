@@ -31,14 +31,12 @@ GdkColor *
 toggle_hslice(v5d_var_info *vinfo, gboolean toggleon)
 {
   int times, numtimes,curtime;
-  float values[5];
   gchar labelstring[80];
   gchar *listentry[1];
   gchar varname[10];
   GdkColor *gcolor=NULL;
   GList *newnode;
   gchar *nstr[1];
-  gdouble color[4];
 
   GtkWidget *HSliceControls;
 
@@ -48,40 +46,27 @@ toggle_hslice(v5d_var_info *vinfo, gboolean toggleon)
 	 for ( times = 0; times < numtimes; times++){
 		vis5d_make_hslice( vinfo->v5d_data_context, times, vinfo->varid, times==curtime);
 	 }
-	 vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,0,0,0);
-  
-	 vis5d_get_hslice(vinfo->v5d_data_context,vinfo->varid, values+2,values , values+1, values+3);
+
   
 	 vis5d_get_ctx_var_name(vinfo->v5d_data_context,vinfo->varid,varname);
 
-	 /* TODO: Need to deal with other vertical grids */  
 
-	 vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,vinfo->varid,values[4],values+4);
 	 /*  
 	 g_snprintf(labelstring,80,_("HSlice from %4.4g to %4.4g by %4.4g at %4.4g MB"),
 					low,high,interval,pressure);
 	 */
 
-
-	 vis5d_get_color( vinfo->v5d_data_context, VIS5D_HSLICE, vinfo->varid,
-							(float *) color,(float *) (color+1),(float *) (color+2),(float *) (color+3));
-  
-
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_ON);
-	 
-	 vinfo->HSliceControls = create_HSliceControls();
-	 gtk_object_set_data(GTK_OBJECT(vinfo->HSliceControls),"v5d_var_info",(gpointer) vinfo);
-	 update_hslice_controls(vinfo->HSliceControls, values, color);
 
+	 update_hslice_controls(vinfo);
 
   }else{
-	 gtk_widget_destroy(vinfo->HSliceControls);
-	 vinfo->HSliceControls=NULL;
 	 vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
 								  vinfo->varid, VIS5D_OFF);
   }
   return gcolor;
+
 }
 
 

@@ -15,18 +15,29 @@ typedef struct {
   gint stepsize;
   int timestep;
   int numtimes;
+  int vcs;
+
+  GtkWidget *HSliceControls;
 
 } v5d_info;
+
+typedef struct {
+  gfloat min, max, interval, level, pressure;
+  gdouble color[4];
+  gint linewidth;
+  gint    stipplefactor;
+  gushort stipple;
+  GtkWidget *level_value;  /* the vertical level label */
+} hslicecontrols;
 
 typedef struct {
   gint v5d_data_context;
   gint varid;
   v5d_info *info;
-
-  GtkWidget *HSliceControls;
-  
-  gint clistrow;
+  gint maxlevel;
+  hslicecontrols *hc;
 } v5d_var_info;
+
 
 typedef enum {
   DATA_FILE,
@@ -445,7 +456,7 @@ on_newprocedure_activate               (GtkMenuItem     *menuitem,
 
 GtkWidget *new_window3D(GtkWidget *oldwindow3D);
 GdkColor *vis5d_color_to_gdk(GtkWidget *widget, float red, float green, float blue);
-void update_hslice_controls(GtkWidget *HSliceControls, float vals[5], gdouble color[4]);
+void update_hslice_controls(v5d_var_info *vinfo);
 
 void
 on_hslicecontrolsapply_clicked         (GtkButton       *button,
@@ -453,4 +464,93 @@ on_hslicecontrolsapply_clicked         (GtkButton       *button,
 
 void
 on_hslicecontrolsclose_clicked         (GtkButton       *button,
+                                        gpointer         user_data);
+
+gboolean
+on_interval_hscale_button_changed      (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data);
+
+gboolean
+on_level_vscale_button_release_event   (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data);
+
+void
+on_hsmin_changed                       (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_hsmax_changed                       (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_hsspin_changed                      (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_hslice_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_chslice_activate                    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_vslice_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_cvslice_activate                    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_isosurface_activate                 (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_volume_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_set_view_top1_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_set_view_south1_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_hslicecontrolsclose_clicked         (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_hslicectree_select_row              (GtkCList        *clist,
+                                        gint             row,
+                                        gint             column,
+                                        GdkEvent        *event,
+                                        gpointer         user_data);
+
+void
+on_hslicectree_tree_select_row         (GtkCTree        *ctree,
+                                        GList           *node,
+                                        gint             column,
+                                        gpointer         user_data);
+
+void
+on_hslicectree_tree_unselect_row       (GtkCTree        *ctree,
+                                        GList           *node,
+                                        gint             column,
+                                        gpointer         user_data);
+
+void
+on_hsclearall_clicked                  (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_hsclose_clicked                     (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_hs_color_changed                    (GtkColorSelection *colorselection,
                                         gpointer         user_data);

@@ -804,26 +804,10 @@ on_fontselectionbutton_clicked         (GtkButton       *button,
 
 }
 
-
-
-
-
-
-
-
 void
-on_save_options1_activate              (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
-
-
-
-
-void
-on_hslicecontrolsapply_clicked         (GtkButton       *button,
+on_hslicectree_tree_select_row         (GtkCTree        *ctree,
+                                        GList           *node,
+                                        gint             column,
                                         gpointer         user_data)
 {
 
@@ -831,7 +815,33 @@ on_hslicecontrolsapply_clicked         (GtkButton       *button,
 
 
 void
-on_hslicecontrolsclose_clicked         (GtkButton       *button,
+on_hslicectree_tree_unselect_row       (GtkCTree        *ctree,
+                                        GList           *node,
+                                        gint             column,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_hsclearall_clicked                  (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_hsclose_clicked                     (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_hs_color_changed                    (GtkColorSelection *colorselection,
                                         gpointer         user_data)
 {
 

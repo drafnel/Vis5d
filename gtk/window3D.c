@@ -417,3 +417,76 @@ on_newprocedure_activate               (GtkMenuItem     *menuitem,
 {
 
 }
+
+void
+on_hslice_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  GtkWidget *window3D;
+  v5d_info *info;
+
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  
+  info = gtk_object_get_data(GTK_OBJECT(window3D),"v5d_info");
+  if(info){
+	 gtk_widget_show(info->HSliceControls);
+  }
+}
+
+
+void
+on_chslice_activate                    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_vslice_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_cvslice_activate                    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_isosurface_activate                 (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_volume_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_set_view_top1_activate              (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_set_view_south1_activate            (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+}
+
+

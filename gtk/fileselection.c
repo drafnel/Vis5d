@@ -19,11 +19,13 @@
 
 GtkWidget *FileSelectionDialog=NULL;
 
-void
-VarSelectionDialog_Append(GtkWidget *window,v5d_info *info, char *fname, int dc)
+void variable_ctree_add_var(GtkCTree *ctree, gchar *name, v5d_var_info *vinfo)
 {
-
-
+  GtkCTreeNode *node;
+  gchar *nstr[1];
+  nstr[0] = name;
+  node = gtk_ctree_insert_node(ctree,NULL,NULL,nstr,0,NULL,NULL,NULL,NULL,1,0);
+  gtk_ctree_node_set_row_data(ctree,node,(gpointer) vinfo);
 }
 
 void
@@ -36,6 +38,9 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
   v5d_info *info;
   GtkWidget *VarDialog;
 
+  GtkCTree *hs_ctree;
+  
+  
   /* todo: should check for errors here */
   info = (v5d_info *) lookup_widget(window3D,"v5d_info");
 
@@ -53,24 +58,38 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
   glarea_draw(info->GtkGlArea,NULL,NULL);
 
   vis5d_get_ctx_numvars(dc,&numvars);
-  
-  VarDialog = create_VarDialog();
+  {
+	 float vertargs[MAXVERTARGS];
+	 vis5d_get_dtx_vertical(info->v5d_display_context, &(info->vcs), vertargs);
+  }
+  /* create but do not show tools */
+  info->HSliceControls = create_HSliceControls();
+  /* point back to info */  
+  gtk_object_set_data(GTK_OBJECT(info->HSliceControls),"v5d_info",(gpointer) info);
+  hs_ctree = GTK_CTREE(lookup_widget(info->HSliceControls,"hslicectree"));
 
+  /*
+  VarDialog = create_VarDialog();
+  */
   for(i=0;i < numvars; i++){
 	 vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
 	 
-	 vinfo->HSliceControls = NULL;
+	 vinfo->hc = NULL;
 	 vinfo->varid=i;
 	 vinfo->v5d_data_context=dc;
 	 vinfo->info = info;
 	 vis5d_get_ctx_var_name(dc,i,vname);
+	 vinfo->maxlevel = vis5d_get_levels(dc, i);
 
+	 variable_ctree_add_var(hs_ctree, vname, vinfo);
+	 
+    /*
 	 add_variable_toolbar(VarDialog , vinfo);
-
+	 */
   }
-
+  /*
   gtk_widget_show(VarDialog);
-
+  */
 }
 
 

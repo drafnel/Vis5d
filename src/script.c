@@ -70,7 +70,7 @@
  * least parse and execute simple Vis5D "Tcl save" files.
  */
 
-#define MAX_COMMANDS 250
+#define MAX_COMMANDS 400
 #define MAX_ARGS     100
 #define MAX_ARG_LEN  100
 #define MAX_VARS     100

@@ -6374,7 +6374,79 @@ int vis5d_check_dtx_volume( int index, int *volume )
    return 0;
 }
 
+int vis5d_var_graphics_options(int index, int type, int number, int what, int mode)
+{
+  int *val=NULL;
+  CONTEXT("vis5d_var_graphics_options");
 
+  switch(what){
+  case VIS5D_FILL_STYLE:
+	 switch(type) {
+    case VIS5D_CHSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->CHSliceRequest)
+		  val = &ctx->Variable[number]->CHSliceRequest->textureflag;
+		break;
+    case VIS5D_CVSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->CVSliceRequest)
+		  val = &ctx->Variable[number]->CVSliceRequest->textureflag;
+		break;
+	 default:
+		fprintf(stderr, " Bad option combination in vis5d_var_graphics_options %d %d\n",type, what);
+		break;
+	 }
+	 break;
+  case VIS5D_TEXTURE_COLORS:
+	 switch(type) {
+    case VIS5D_CHSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->CHSliceRequest)
+		  val = &ctx->Variable[number]->CHSliceRequest->fillstyle;
+		break;
+    case VIS5D_CVSLICE:
+		if(ctx->Variable[number] && ctx->Variable[number]->CVSliceRequest)
+		  val = &ctx->Variable[number]->CVSliceRequest->fillstyle;
+		break;
+	 default:
+		fprintf(stderr, " Bad option combination in vis5d_var_graphics_options %d %d\n",type, what);
+		break;
+	 }
+	 /* here mode is the GL fill type or get if none of GL_FILL, GL_POINTS, GL_LINES */
+	 if(mode == GL_FILL || mode == GL_POINTS || mode == GL_LINES){
+		*val = mode;
+	 }
+	 return *val;
+	 break;
+  default:
+	 fprintf(stderr, " Bad option combination in vis5d_var_graphics_options %d %d\n",type, what);
+	 break;
+  }
+  switch (mode) {
+  case VIS5D_OFF:
+	 if (*val != 0) {
+		ctx->dpy_ctx->Redraw = 1;
+		vis5d_invalidate_dtx_frames(ctx->dpy_ctx->dpy_context_index);
+	 }
+	 *val = 0;
+	 break;
+  case VIS5D_ON:
+	 if (*val != 1) {
+		ctx->dpy_ctx->Redraw = 1;
+		vis5d_invalidate_dtx_frames(ctx->dpy_ctx->dpy_context_index);
+	 }
+	 *val = 1;
+	 break;
+  case VIS5D_TOGGLE:
+	 *val = *val ? 0 : 1;
+	 ctx->dpy_ctx->Redraw = 1;
+	 vis5d_invalidate_dtx_frames(ctx->dpy_ctx->dpy_context_index);
+	 break;
+  case VIS5D_GET:
+	 break;
+  default:
+	 printf("bad mode (%d) in vis5d_enable_graphics\n", mode);
+	 return VIS5D_BAD_MODE;
+  }
+  return *val;
+}
 
 
 /*
@@ -8097,6 +8169,8 @@ int vis5d_get_slice_link (int index, int type, int num,
 
 
 
+
+
 static int new_slice_pos( int index, int type, int num )
 /* if type = HSLICE, VSLICE, CHSLICE or CVSLICE then num = variable number
    if type = HWIND, VWIND, HSTREAM or VSTREAM then num = slice number */
@@ -8216,11 +8290,6 @@ int vis5d_set_hslice( int index, int var, float interval,
    /* added 11-08-2000 JPE to compute reasonable contour values 
 		based on the values in the slice to be contoured. */
 
-	if(! ctx->Variable[var]->HSliceRequest){
-	  ctx->Variable[var]->HSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
-	}
-
-
 	if(interval==0){
 	  set_hslice_pos(ctx,var,ctx->Variable[var]->HSliceRequest,level);
 	  return 0;
@@ -8327,6 +8396,8 @@ int vis5d_make_chslice( int index, int time, int var, int urgent )
 
    return 0;
 }
+
+
 
 int vis5d_set_chslice_limits(int index, int var, float low, float high, float level)
 {
@@ -8933,6 +9004,7 @@ int vis5d_get_traj_info( int index, int trajnum,
    *ribbon   = t->kind;
    return 0;
 }
+
 
 
 

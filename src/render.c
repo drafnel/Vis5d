@@ -1322,7 +1322,13 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
                recent( ctx, CHSLICE, var );
 					if(!tf){
 #ifdef USE_GLLISTS
-					  glCallList( ctx->Variable[var]->CHSliceTable[time]->glList );
+					  if(ctx->Variable[var]->CHSliceRequest->textureflag)
+						 color_quadmesh_texture_object(ctx->Variable[var]->CHSliceTable[time]->glList+1,
+																 (GLubyte *)dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
+												  									  
+					  glPolygonMode(GL_FRONT_AND_BACK, ctx->Variable[var]->CHSliceRequest->fillstyle);
+					  glCallList( ctx->Variable[var]->CHSliceTable[time]->glList[0] );
+					  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #else
 					  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
 												  ctx->Variable[var]->CHSliceTable[time]->columns,
@@ -1380,7 +1386,14 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
             recent( ctx, CVSLICE, var );
             if ( !tf) {
 #ifdef USE_GLLISTS
-				  glCallList( ctx->Variable[var]->CVSliceTable[time]->glList );
+				  if(ctx->Variable[var]->CVSliceRequest->textureflag)
+					 color_quadmesh_texture_object(ctx->Variable[var]->CVSliceTable[time]->glList+1,
+															 (GLubyte *)dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
+				  
+				  glPolygonMode(GL_FRONT_AND_BACK, ctx->Variable[var]->CVSliceRequest->fillstyle);
+				  glCallList( ctx->Variable[var]->CVSliceTable[time]->glList[0] );
+				  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				  
 #else
                draw_color_quadmesh( ctx->Variable[var]->CVSliceTable[time]->rows,
                                     ctx->Variable[var]->CVSliceTable[time]->columns,

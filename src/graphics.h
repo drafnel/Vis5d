@@ -544,7 +544,7 @@ extern void draw_colored_triangle_strip( int n,
                                          uint_1 color_indexes[],
                                          unsigned int *color_table, int alpha );
 
-
+void color_quadmesh_texture_object(GLuint *texture, GLubyte *color_table );
 /*
  * Draw a per-vertex colored quadrilateral mesh.
  * Used to draw colored slices.

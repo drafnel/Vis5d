@@ -283,6 +283,11 @@ typedef struct {
   float Level;     /* JPE: why keep all three? */
   float Z;
   float Hgt;
+  int fillstyle;
+  int textureflag;  /* use texture objects for color ? */
+#ifdef USE_GLLISTS
+  GLuint textureobject;
+#endif
 } hslice_request;
 
 typedef struct {
@@ -301,6 +306,11 @@ typedef struct {
   float Lat2;
   float Lon1;
   float Lon2;
+  int textureflag; /* use texture objects for color ? */
+  int fillstyle;
+#ifdef USE_GLLISTS
+  GLuint textureobject;
+#endif
 } vslice_request;
 
 
@@ -340,7 +350,7 @@ struct chslice {
   int     valid;           /* valid/initialized slice flag */
   float   level;           /* position of slice in grid levels */
 #ifdef USE_GLLISTS
-  GLuint   glList;
+  GLuint   glList[2];   /* one list, one texture */
 #else
   int     rows, columns;   /* size of quadmesh */
   int_2   *verts;          /* array [rows*columns][3] of int_2 vertices */
@@ -357,7 +367,7 @@ struct cvslice {
    float   r2, c2;            /* 2nd corner position in [0,Nr-1],[0,Nc-1] */
    float   mark[2][3];        /* tiny marker at midpoint of top edge */
 #ifdef USE_GLLISTS
-  GLuint   glList;
+  GLuint   glList[2];  /* one list, one texture */
 #else
    int     rows, columns;     /* size of quadmesh */
    int_2   *verts;            /* array [rows*columns][3] of int_2 vertices */

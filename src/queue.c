@@ -392,6 +392,14 @@ void request_chslice( Context ctx, int time, int var, int urgent )
   if(! ctx->Variable[var]->CHSliceTable[time]){
 	 ctx->Variable[var]->CHSliceTable[time] = (struct chslice *) allocate(ctx, sizeof(struct chslice));
 	 memset(ctx->Variable[var]->CHSliceTable[time], 0, sizeof(struct chslice));
+#ifdef USE_GLLISTS
+	 /* set up the texture object */
+	 if(ctx->Variable[var]->CHSliceRequest->textureobject<=0){
+		color_quadmesh_texture_object(&ctx->Variable[var]->CHSliceRequest->textureobject,
+												(GLubyte *) ctx->dpy_ctx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
+	 }
+	 ctx->Variable[var]->CHSliceTable[time]->glList[1]=ctx->Variable[var]->CHSliceRequest->textureobject;
+#endif
   }
 
   if (ctx->Variable[var]->CHSliceTable[time]->valid==0 ||
@@ -415,6 +423,12 @@ void request_cvslice( Context ctx, int time, int var, int urgent )
   if(! ctx->Variable[var]->CVSliceTable[time]){
 	 ctx->Variable[var]->CVSliceTable[time] = (struct cvslice *) allocate(ctx, sizeof(struct cvslice));
 	 memset(ctx->Variable[var]->CVSliceTable[time], 0, sizeof(struct cvslice));
+	 /* set up the texture object */
+	 if(ctx->Variable[var]->CVSliceRequest->textureobject<=0){
+		color_quadmesh_texture_object(&ctx->Variable[var]->CVSliceRequest->textureobject,
+												(GLubyte *) ctx->dpy_ctx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
+	 }
+	 ctx->Variable[var]->CVSliceTable[time]->glList[1]=ctx->Variable[var]->CVSliceRequest->textureobject;
   }
 
   if (ctx->Variable[var]->CVSliceTable[time]->valid==0 ||

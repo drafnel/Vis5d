@@ -1833,40 +1833,58 @@ void draw_colored_triangle_strip( int n,
 
 }
 
+void color_quadmesh_texture_object(GLuint *texture, GLubyte *color_table )
+{
+  if(*texture<=0)
+	 glGenTextures(1, texture);
+
+  glBindTexture(GL_TEXTURE_1D, *texture );
+
+  glTexImage1D( GL_TEXTURE_1D, 0, 4, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+						color_table );
+  glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+  
+  glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+  glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+}
+
+
+
 void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
                           uint_1 color_indexes[], unsigned int color_table[], 
 								  int texture_method, GLuint *list, int listtype )
 {
 
   register int i, j, base1, base2;
-
   if(list!=NULL){
-	if(*list<=0){
-	  *list = glGenLists(1);
-	  if(*list==0)
+	if(list[0]<=0){
+	  list[0] = glGenLists(1);
+	  if(list[0]==0)
 		 check_gl_error("draw_color_quadmesh");
 	}
-	glNewList(*list, listtype);
+	glNewList(list[0], listtype);
 	
   }
   if(texture_method){
-	 glTexImage1D( GL_TEXTURE_1D, 0, 4, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-						color_table );
-	 glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-  
-	 glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	 glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  
+	 glBindTexture(GL_TEXTURE_1D, list[1] );
+
 	 glEnable( GL_TEXTURE_1D );
 	 glMatrixMode( GL_TEXTURE );
 	 glLoadIdentity();
 	 glScalef( 1.0/255.0, 1.0/255.0, 1.0/255.0 );
-  
+
 	 glMatrixMode( GL_MODELVIEW );
 	 glPushMatrix();
 	 glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
   
+	 /* variable alpha in the mesh */
+	 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	 glEnable( GL_BLEND );
+	 glAlphaFunc( GL_GREATER, 0.05 );
+	 glEnable( GL_ALPHA_TEST );
+
 	 glColor4f( 1.0, 1.0, 1.0, 1.0 );
+
 
 	 /* render mesh as a sequence of quad strips */
 	 for (i=0;i<rows-1;i++) {
@@ -1881,12 +1899,10 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
 		}
 		glEnd();
 	 }
-  
-	 glDisable( GL_TEXTURE_1D );
-	 glPopMatrix();
   }else{
 	 glEnableClientState(GL_COLOR_ARRAY);
 	 glColorPointer(4,GL_UNSIGNED_BYTE,0,(GLvoid *) color_table);
+
 	 /* variable alpha in the mesh */
 	 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	 glEnable( GL_BLEND );
@@ -1908,15 +1924,14 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
         glVertex3sv( verts[base2+j] );
       }
       glEnd();
-
 	 }
-
-	 glPopMatrix();
-	 glDisable( GL_BLEND );
-	 glDisable( GL_POLYGON_STIPPLE );
-	 glDisable( GL_ALPHA_TEST );
-
   }
+  glDisable( GL_BLEND );
+  glDisable( GL_POLYGON_STIPPLE );
+  glDisable( GL_ALPHA_TEST );
+  glDisable( GL_TEXTURE_1D );
+  glPopMatrix();
+
   if(list!=NULL){
 	 glEndList();
   }

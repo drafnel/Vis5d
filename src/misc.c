@@ -283,6 +283,8 @@ void init_graphics_pos( Context ctx, int var )
 
 	if(! ctx->Variable[var]->CHSliceRequest){
 	  ctx->Variable[var]->CHSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
+	  ctx->Variable[var]->CHSliceRequest->fillstyle = GL_FILL;
+	  ctx->Variable[var]->CHSliceRequest->textureflag=0;
 	}
    ctx->Variable[var]->CHSliceRequest->Level = l;
 
@@ -316,6 +318,8 @@ void init_graphics_pos( Context ctx, int var )
 
 	if(! ctx->Variable[var]->CVSliceRequest){
 	  ctx->Variable[var]->CVSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
+	  ctx->Variable[var]->CVSliceRequest->fillstyle = GL_FILL;
+	  ctx->Variable[var]->CVSliceRequest->textureflag=0;
 	}
 
    ctx->Variable[var]->CVSliceRequest->R1 = ctx->Variable[var]->VSliceRequest->R1;

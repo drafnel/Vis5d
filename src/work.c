@@ -2779,7 +2779,7 @@ static void calc_chslice( Context ctx, int time, int var,
    slice->valid = 1;
 	draw_color_quadmesh(slice_rows, slice_cols, cverts, indexes, 
 							  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-								0,	&slice->glList, GL_COMPILE);
+							  ctx->Variable[var]->HSliceRequest->textureflag,	slice->glList, GL_COMPILE);
 	deallocate(ctx, cverts, 3*sizeof(int_2)*slice_rows*slice_cols);
 	deallocate(ctx, indexes, sizeof(uint_1)*slice_rows*slice_cols);
 
@@ -2973,7 +2973,7 @@ static void calc_cvslice( Context ctx, int time, int var,
    ctx->Variable[var]->CVSliceTable[time]->valid = 1;
 	draw_color_quadmesh(rows, cols, cverts, indexes, 
 							  dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
-							  0,&ctx->Variable[var]->CVSliceTable[time]->glList,GL_COMPILE);
+							  ctx->Variable[var]->VSliceRequest->textureflag,ctx->Variable[var]->CVSliceTable[time]->glList,GL_COMPILE);
 	deallocate(ctx, cverts, 3*sizeof(int_2)*rows*cols);
 	deallocate(ctx, indexes, sizeof(uint_1)*rows*cols);
 #else

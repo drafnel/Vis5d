@@ -141,6 +141,8 @@ extern "C" {
 #define VIS5D_LIGHT_MAP        520		
 #define VIS5D_DARK_MAP         530
 #define VIS5D_PROBE_ON_TRAJ    540
+#define VIS5D_TEXTURE_COLORS   550
+#define VIS5D_FILL_STYLE       560
 
 
 /* These are the defines used in the function
@@ -191,11 +193,12 @@ extern "C" {
 #define VIS5D_EXPRESSION      93
 #define VIS5D_PUT             94
 
-/* modes for vis5d_graphics_mode */
+/* modes for vis5d_graphics_mode  */
 #define VIS5D_OFF           0
 #define VIS5D_ON            1
 #define VIS5D_TOGGLE        2
 #define VIS5D_GET           3
+#define VIS5D_SET           4
 
 
 /* Map projections and vertical coordinate systems: */
@@ -220,9 +223,10 @@ extern "C" {
 #define VIS5D_XWD       4
 #define VIS5D_PS        8
 #define VIS5D_COLOR_PS 16
-/* MJK 11.19.98 */
 #define VIS5D_PPM      32
 #define VIS5D_TGA      64
+
+
 /* Number of trajectory sets */
 #define VIS5D_TRAJ_SETS   8
 
@@ -1217,6 +1221,8 @@ extern int vis5d_destroy_irregular_data_context( int index );
 extern int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context);
 
 extern int vis5d_set_verbose_level(int level);
+
+extern int vis5d_var_graphics_options(int index, int type, int number, int what, int mode);
 
 #ifdef __cplusplus
 }                               /* extern "C" */

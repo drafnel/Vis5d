@@ -100,6 +100,7 @@ static LUI_NEWBUTTON *vert_button;
 static LUI_FIELD *outfile_field;
 static LUI_FIELD *outcontext_field;
 static LUI_FIELD *outmbs_field;
+static LUI_NEWBUTTON *make_button, *visualize_button, *add_button = 0;
 
 
 /*
@@ -585,7 +586,7 @@ static int debug_cb( void )
 
 
 /* Called for "Exit" button */
-static int exit_cb( void )
+static int exit_window_cb( void )
 {
    free_grid_db( DB );
    v5dFreeStruct( V5Dout );
@@ -602,73 +603,19 @@ static int exit_cb( void )
 
 
 
-/* Called for "Make" button */
-static int make_cb( void )
+/* callback for quit button */
+static int exit_v5dimport_cb( LUI_NEWBUTTON *pb )
 {
-   char filein[1000], filename[1000];
-   int maxnl = 0;
-   int average, compressmode;
-
-   LUI_FieldGetText( outfile_field, filein );
-   LUI_FieldSetText( outfile_field, "");
-   if (filein[0]==0) {
-      printf("No filename given!\n");
-      return 0;
-   }
-   if (filein[0] == '/' || path == NULL) {
-     strcpy(filename, filein);
-   }
-   else {
-     int len;
-     strcpy(filename, path);
-     /* add a trailing slash to path if there isn't one already */
-     len = strlen(filename);
-     if (len>0 && filename[len-1]!='/') {
-       strcat(filename, "/");
-     }
-     strcat(filename, filein);
-   }
-
-   average = LUI_RadioGetCurrent( bytes_radio );
-   switch (LUI_RadioGetCurrent( bytes_radio )) {
-      case 0:
-         compressmode = 1;
-         break;
-      case 1:
-         compressmode = 2;
-         break;
-      case 2:
-         compressmode = 4;
-         break;
-   }
-
-   V5Dout->Nr = LUI_FieldGetInt( rows_field );
-   V5Dout->Nc = LUI_FieldGetInt( columns_field );
-   maxnl = LUI_FieldGetInt( levels_field );
-   if (V5Dout->Nr < 2 || V5Dout->Nr>MAXROWS) {
-      printf("Error: too few or too many grid rows, range is [2,%d]\n",
-             MAXROWS);
-      return 0;
-   }
-   if (V5Dout->Nc < 2 || V5Dout->Nc>MAXCOLUMNS) {
-      printf("Error: too few or too many grid columns, range is [2,%d]\n",
-             MAXCOLUMNS);
-      return 0;
-   }
-   if (maxnl<1 || maxnl>MAXLEVELS) {
-      printf("Error: too few or too many grid levels, range is [1,%d]\n",
-             MAXLEVELS);
-      return 0;
-   }
-
-/*   read_projection_widgets( V5Dout );*/
-
-   printf("Making %s...\n", filename );
-   make_output_file( DB, V5Dout, filename, maxnl, average, compressmode );
-   printf("Done\n");
+   free_grid_db( DB );
+   v5dFreeStruct( V5Dout );
+   LUI_ListUnload( gridlister );
+   LUI_ListUnload( timelister );
+   LUI_ListUnload( varlister );
+   LUI_ListUnload( projlister );
+   LUI_ListUnload( vcslister );
+   exit(0);
    return 0;
 }
-
 
 
 int start_vis5d( char *filename )
@@ -697,16 +644,41 @@ int start_vis5d( char *filename )
 }
 
 
+/* This function refers to other Vis5D UI components that don't exist when
+   running v5dimport as a standalone program, so be sure to only call it
+   when running the importer as part of Vis5D, not when running the
+   standalone v5dimport program!
+*/
+static void regenerate_window_after_import_add( int yo )
+{
+   int cur;
+   int Kurrant, rows, cols, yo2;
+   
+   get_display_matrix( &rows, &cols);
+   for (yo2 = 0; yo2 < rows*cols; yo2++){
+      vis5d_create_display_context(yo2);
+      make_another_gui(yo2, 0);
+   }
+   unmap_all_windows();
+   map_all_windows(0);
+   if (yo > 0 ){
+      init_some_colortables( 0, yo);
+   }
+   get_current_display( &Kurrant );
+   hide_widgets( Kurrant );
+   show_widgets( Kurrant );
+}
 
-/* Called for Make button */
-static int go_cb( void )
+
+/* Called for any of the three "action" buttons, checks argument to modify
+   behavior. */
+static int go_cb( LUI_NEWBUTTON *whichButton )
 {
    char filein[1000], filename[1000];
    char ctxin[1000], ctxname[1000];
    int maxnl = 0;
    int average, compressmode;
    int index;
-   GuiContext gtx = get_gui_gtx(0);
    int mbs;
    int makeafile, makeactx;
    char messag[100];
@@ -715,22 +687,25 @@ static int go_cb( void )
 
    LUI_FieldGetText( outfile_field, filein );
    LUI_FieldSetText( outfile_field, "");
-   mbs = LUI_FieldGetInt( outmbs_field);
    if (filein[0]==0) {
       makeafile = 0;
    }
    else{
       makeafile = 1;
    }
-   LUI_FieldGetText( outcontext_field, ctxin );
-   LUI_FieldSetText( outcontext_field, "");
-   if (ctxin[0]==0){
-      makeactx = 0;
-   }
-   else{
+
+   if ( whichButton == add_button ) {
+      /* These widgets may not have been created in v5dimport mode. */
+      LUI_FieldGetText( outcontext_field, ctxin );
+      LUI_FieldSetText( outcontext_field, "");
+      mbs = LUI_FieldGetInt( outmbs_field);
       makeactx = 1;
       strcpy(ctxname, ctxin);
    }
+   else {
+      makeactx = 0;
+   }
+
    if (filein[0] == '/' || path == NULL) {
      strcpy(filename, filein);
    }
@@ -783,28 +758,19 @@ static int go_cb( void )
    yo =  make_output_ctx( DB, V5Dout, filename, ctxname, maxnl, average, compressmode, mbs,
                     makeafile, makeactx );
 
-/*   start_vis5d(filename); */
+   if ( whichButton == visualize_button ) {
+      start_vis5d(filename);
+      keepgoing = 1;
+      return 0;
+   }
 
-   if ( yo >= 0){
-      int cur;
-      int Kurrant, rows, cols, yo2;
-   
+   if ( yo >= 0 && whichButton == add_button ){
       free_grid_db( DB );
       keepgoing = 0;
       XUnmapWindow(dpy_i, mainwin_i);
-      get_display_matrix( &rows, &cols);
-      for (yo2 = 0; yo2 < rows*cols; yo2++){
-         vis5d_create_display_context(yo2);
-         make_another_gui(yo2, 0);
-      }
-      unmap_all_windows();
-      map_all_windows(0);
-      if (yo > 0 ){
-         init_some_colortables( 0, yo);
-      }
-      get_current_display( &Kurrant );
-      hide_widgets( Kurrant );
-      show_widgets( Kurrant );
+      /* Add button only exists in vis5d, not in v5dimport, so OK to call
+         regenerate_window_after_import_add() */
+      regenerate_window_after_import_add( yo );
       return 0;
    }
    keepgoing = 1;
@@ -1396,12 +1362,12 @@ static int discard_cb( void )
 /*
  * Make the main window.
  */
-static void make_mainwin( void )
+static void make_mainwin( int standalone )
 {
    LUI_NEWBUTTON *read_button;
    LUI_NEWBUTTON *time_button, *var_button;
    LUI_NEWBUTTON *all_button, *none_button;
-   LUI_NEWBUTTON *make_button, *go_button, *exit_button, *debug_button;
+   LUI_NEWBUTTON *exit_button, *debug_button;
    LUI_NEWBUTTON *discard_button;
    LUI_NEWBUTTON *option_button;
 
@@ -1519,34 +1485,40 @@ static void make_mainwin( void )
                        "File name:" );
    outfile_field = LUI_FieldCreate( mainwin_i,
                                     LUI_NEXT_X, LUI_SAME_Y, 200, LUI_SAME_H );
-
-   LUI_NewLabelCreate( mainwin_i, LUI_LEFT, LUI_NEXT_Y, 110, 26,
-                       "Context name:" );
-   outcontext_field = LUI_FieldCreate( mainwin_i,
-                                    LUI_NEXT_X, LUI_SAME_Y, 150, LUI_SAME_H );
-   LUI_NewLabelCreate( mainwin_i, LUI_NEXT_X, LUI_SAME_Y, 100, 26,
-                       "Size in MBS:" );
-   outmbs_field = LUI_FieldCreate( mainwin_i,
-                                    LUI_NEXT_X, LUI_SAME_Y, 30, LUI_SAME_H );
-   /* MJK 4.27.99 */
-   LUI_FieldSetInt(outmbs_field, 32);
-
    LUI_NewLabelCreate( mainwin_i, LUI_NEXT_X, LUI_SAME_Y, 20,26," ");
+
    make_button = LUI_PushButtonCreate( mainwin_i,
                      LUI_NEXT_X, LUI_SAME_Y, 60, LUI_SAME_H, "Make" );
-   LUI_NewLabelCreate( mainwin_i, LUI_NEXT_X, LUI_SAME_Y, 20,26," ");
+   LUI_ButtonCallback( make_button, go_cb );
+   visualize_button = LUI_PushButtonCreate( mainwin_i,
+                           LUI_NEXT_X, LUI_SAME_Y, 100,LUI_SAME_H,"Visualize");
+   LUI_ButtonCallback( visualize_button, go_cb );
 
-   /* MJK 4.13.99 */
-   LUI_FieldSetInt( outmbs_field, 32 );
+   if ( standalone ) {
+      exit_button = LUI_PushButtonCreate( mainwin_i,
+                         LUI_NEXT_X, LUI_SAME_Y, 60, LUI_SAME_H, "Exit" );
+      LUI_ButtonCallback( exit_button, exit_v5dimport_cb );
+   } else {
+      LUI_NewLabelCreate( mainwin_i, LUI_LEFT, LUI_NEXT_Y, 110, 26,
+                          "Context name:" );
+      outcontext_field = LUI_FieldCreate( mainwin_i,
+                                       LUI_NEXT_X, LUI_SAME_Y, 150, LUI_SAME_H );
+      LUI_NewLabelCreate( mainwin_i, LUI_NEXT_X, LUI_SAME_Y, 100, 26,
+                          "Size in MBS:" );
+      outmbs_field = LUI_FieldCreate( mainwin_i,
+                                       LUI_NEXT_X, LUI_SAME_Y, 30, LUI_SAME_H );
+      LUI_FieldSetInt( outmbs_field, 32 );
 
+      LUI_NewLabelCreate( mainwin_i, LUI_NEXT_X, LUI_SAME_Y, 20,26," ");
+      add_button = LUI_PushButtonCreate( mainwin_i,
+                        LUI_NEXT_X, LUI_SAME_Y, 60, LUI_SAME_H, "Add" );
+      LUI_ButtonCallback( add_button, go_cb );
+      LUI_NewLabelCreate( mainwin_i, LUI_NEXT_X, LUI_SAME_Y, 20,26," ");
+      exit_button = LUI_PushButtonCreate( mainwin_i,
+                         LUI_NEXT_X, LUI_SAME_Y, 60, LUI_SAME_H, "Exit" );
+      LUI_ButtonCallback( exit_button, exit_window_cb );
+   }
 
-
-/*   go_button = LUI_PushButtonCreate( mainwin_i,
-                     LUI_NEXT_X, LUI_SAME_Y, 100, LUI_SAME_H, "Visualize" );
-*/ LUI_ButtonCallback( make_button, go_cb );
-   exit_button = LUI_PushButtonCreate( mainwin_i,
-                      LUI_NEXT_X, LUI_SAME_Y, 60, LUI_SAME_H, "Exit" );
-   LUI_ButtonCallback( exit_button, exit_cb );
    LUI_NewLabelCreate( mainwin_i, LUI_LEFT, LUI_NEXT_Y, 100, 25, " ");
    if (Debug_i) {
       debug_button = LUI_PushButtonCreate( mainwin_i,
@@ -1778,17 +1750,21 @@ static void make_optionwin( void )
 
 
 /*
- * Make the graphical interface.
+ * Make the graphical interface. If standalone is true, then we are
+ * being called from the v5dimport standalone program, otherwise we
+ * are being called from vis5d itself.
  */
-void make_gui_i( Display *guidpy )
+void make_gui_i( Display *guidpy, int standalone )
 {
    dpy_i = guidpy;
    keepgoing = 1;
    LUI_BorderWidth( 2 );
- /*    LUI_Initialize( "v5dimport (4.2)", dpy_i, NULL, 0, 0 );  */
 
+   if ( standalone ) {
+      LUI_Initialize( "v5dimport (4.2)", dpy_i, NULL, 0, 0 );
+   }
 
-   make_mainwin();
+   make_mainwin( standalone );
    make_timewin();
    make_varwin();
    make_projwin();

@@ -417,8 +417,8 @@ static int fit_vecs_to_topo (Context ctx, int num, int max,
     Display_Context     dtx = ctx->dpy_ctx;
 
 
-    if (!dtx->TopoFlag) return num;
-    if (dtx->TopoVertex == NULL) return num;
+    if (!dtx->topo->TopoFlag) return num;
+    if (dtx->topo->TopoVertex == NULL) return num;
     if (num <= 0) return 0;
 
     xyz_new = allocate (ctx, (dtx->Nr * dtx->Nc * 3 * 3));
@@ -524,8 +524,8 @@ static float *extract_sfc_slice (Context ctx, int time, int var,
     gbot = ctx->LowLev[var];
     gtop = ctx->Nl[var] + ctx->LowLev[var] - 1;
 
-    dr   = ((float) (dtx->qrows - 1)) / ((float) (nrows - 1));
-    dc   = ((float) (dtx->qcols - 1)) / ((float) (ncols - 1));
+    dr   = ((float) (dtx->topo->qrows - 1)) / ((float) (nrows - 1));
+    dc   = ((float) (dtx->topo->qcols - 1)) / ((float) (ncols - 1));
     rr   = 0.0;
     di   = 0;
     dinc = (colmajor) ? nrows : 1;
@@ -538,10 +538,10 @@ static float *extract_sfc_slice (Context ctx, int time, int var,
            for (ic = 0; ic < ncols; ic++, di += dinc, cc += dc)
            {
                tc = cc + 0.5;
-               ti = (tr * dtx->qcols) + tc;
-               x  = dtx->TopoVertex[ti*3+0];
-               y  = dtx->TopoVertex[ti*3+1];
-               z  = dtx->TopoVertex[ti*3+2];
+               ti = (tr * dtx->topo->qcols) + tc;
+               x  = dtx->topo->TopoVertex[ti*3+0];
+               y  = dtx->topo->TopoVertex[ti*3+1];
+               z  = dtx->topo->TopoVertex[ti*3+2];
                xyz_to_grid (ctx, time, var, x, y, z, &grow, &gcol, &glev);
 
                if (ctx->Nl[var] == 1) glev = gbot;
@@ -562,7 +562,7 @@ static float *extract_sfc_slice (Context ctx, int time, int var,
           for (ic = 0; ic < ncols; ic++){
              di = ir*ctx->Nc+ic;
              rowcol_to_latlon( ctx, time, var, ir, ic, &thelat, &thelon);
-             thehgt = elevation( dtx, thelat, thelon, &nothing);
+             thehgt = elevation( dtx, dtx->topo, thelat, thelon, &nothing);
              geo_to_grid(ctx, time, var, 1, &thelat, &thelon, &thehgt,
                               &grow, &gcol, &glev);
 
@@ -6154,7 +6154,7 @@ static void calc_traj( Display_Context dtx, float row, float col, float lev,
 /* time = dtx time! */
 static void recolor_topography( Context ctx, int time )
 {
-   int colorvar = ctx->dpy_ctx->TopoColorVar;
+   int colorvar = ctx->dpy_ctx->topo->TopoColorVar;
    int ctxtime;
    Display_Context dtx;
 
@@ -6164,20 +6164,20 @@ static void recolor_topography( Context ctx, int time )
    if (colorvar==-1) {
       /* use default coloring by height */
       LOCK_ON( TrajLock );
-      if (ctx->dpy_ctx->TopoIndexes[time]) {
+      if (ctx->dpy_ctx->topo->TopoIndexes[time]) {
          /* free the vertex color indexes */
          /* YO 10-5-97 potential old stuff
          int bytes = ctx->qrows * ctx->qcols * sizeof(uint_1);
-         deallocate( ctx, ctx->TopoIndexes[time], bytes );
-         ctx->TopoIndexes[time] = NULL; */
+         deallocate( ctx, ctx->topo->TopoIndexes[time], bytes );
+         ctx->topo->TopoIndexes[time] = NULL; */
 
-         free(ctx->dpy_ctx->TopoIndexes[time]);
-         ctx->dpy_ctx->TopoIndexes[time] = NULL;
+         free(ctx->dpy_ctx->topo->TopoIndexes[time]);
+         ctx->dpy_ctx->topo->TopoIndexes[time] = NULL;
 
       }
       LOCK_OFF( TrajLock );
    }
-   else if (ctx->context_index == dtx->TopoColorVarOwner){
+   else if (ctx->context_index == dtx->topo->TopoColorVarOwner){
       /** if (ctx->Nl[colorvar]==1) **/  
       /* Compute color table indexes for each topography vertex */
       /* for this time step. */
@@ -6199,11 +6199,11 @@ static void recolor_topography( Context ctx, int time )
       bytes = ctx->qrows * ctx->qcols * sizeof(uint_1);
       indexes = allocate( ctx, bytes ); */
 
-      if (ctx->dpy_ctx->TopoIndexes[time]){
-         free(ctx->dpy_ctx->TopoIndexes[time]);
-         ctx->dpy_ctx->TopoIndexes[time] = NULL;
+      if (ctx->dpy_ctx->topo->TopoIndexes[time]){
+         free(ctx->dpy_ctx->topo->TopoIndexes[time]);
+         ctx->dpy_ctx->topo->TopoIndexes[time] = NULL;
       }
-      indexes = malloc( ctx->dpy_ctx->qrows * ctx->dpy_ctx->qcols * sizeof(uint_1) );
+      indexes = malloc( ctx->dpy_ctx->topo->qrows * ctx->dpy_ctx->topo->qcols * sizeof(uint_1) );
       if (!indexes){
          printf("You do not have enough memory to color topography.\n");
          return;
@@ -6211,8 +6211,8 @@ static void recolor_topography( Context ctx, int time )
 
       grid = get_grid( ctx, ctxtime, colorvar );
 
-      trows = ctx->dpy_ctx->qrows;
-      tcols = ctx->dpy_ctx->qcols;
+      trows = ctx->dpy_ctx->topo->qrows;
+      tcols = ctx->dpy_ctx->topo->qcols;
       for (trow=0;trow<trows;trow++) {
          for (tcol=0;tcol<tcols;tcol++) {
             float grow, gcol, glev;
@@ -6220,9 +6220,9 @@ static void recolor_topography( Context ctx, int time )
             int n;
 
             n = trow * tcols + tcol;
-            x = ctx->dpy_ctx->TopoVertex[n*3+0];
-            y = ctx->dpy_ctx->TopoVertex[n*3+1];
-            z = ctx->dpy_ctx->TopoVertex[n*3+2];
+            x = ctx->dpy_ctx->topo->TopoVertex[n*3+0];
+            y = ctx->dpy_ctx->topo->TopoVertex[n*3+1];
+            z = ctx->dpy_ctx->topo->TopoVertex[n*3+2];
             xyzPRIME_to_grid( ctx, ctxtime, colorvar, x, y, z,
                          &grow, &gcol, &glev );
 
@@ -6234,7 +6234,7 @@ static void recolor_topography( Context ctx, int time )
             }
             else{
                float value;
-               value = interpolate_grid_value(ctx, ctxtime, dtx->TopoColorVar,
+               value = interpolate_grid_value(ctx, ctxtime, dtx->topo->TopoColorVar,
                                               grow, gcol, glev);
  
                if (IS_MISSING(value) ||
@@ -6255,11 +6255,11 @@ static void recolor_topography( Context ctx, int time )
 
       /* save results */
       LOCK_ON( TrajLock );
-      if (ctx->dpy_ctx->TopoIndexes[time]) {
-         /* deallocate( ctx, ctx->TopoIndexes[time], bytes ); */
-         free( ctx->dpy_ctx->TopoIndexes[time]);
+      if (ctx->dpy_ctx->topo->TopoIndexes[time]) {
+         /* deallocate( ctx, ctx->topo->TopoIndexes[time], bytes ); */
+         free( ctx->dpy_ctx->topo->TopoIndexes[time]);
       }
-      ctx->dpy_ctx->TopoIndexes[time] = indexes;
+      ctx->dpy_ctx->topo->TopoIndexes[time] = indexes;
       LOCK_OFF( TrajLock );
    }
 

@@ -559,7 +559,7 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
 
    set_current_window( dtx );
 
-   dtx->TopoName[0] = 0;
+
    XSetWindowBorderWidth( GfxDpy, dtx->GfxWindow, 2);
 /*
    XSetWindowBorder( GfxDpy, dtx->GfxWindow,
@@ -714,8 +714,7 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
    dtx->UserTopoFlag = dtx->UserMapsFlag = 0;
 
    /* MJK 12.02.98 */
-   dtx->DisplayTopoBase = 0;
-   dtx->TopoBaseLev     = 0.0;
+   dtx->topo=NULL;	
 
 
    return 0;
@@ -2998,7 +2997,7 @@ int vis5d_init_display_values ( int index, int iindex, int display )
       vis5d_assign_display_to_irregular_data( iindex, display);
    }
 
-   if (dtx->TopoName[0] == 0){
+   if (dtx->topo->TopoName[0] == 0){
       vis5d_init_topo(display, "EARTH.TOPO", 0); 
    }
    vis5d_init_map(display, dtx->MapName);
@@ -3446,9 +3445,9 @@ int vis5d_get_map( int index, char *mapname )
 int vis5d_init_topo_and_map_ctx( int index, char *toponame, int highres_flag )
 {
    DPY_CONTEXT("vis5d_init_topo_and_map_ctx");
-   strcpy( dtx->TopoName, toponame );
-   dtx->HiResTopo = highres_flag;
-   dtx->TopoFlag = 1;
+   strcpy( dtx->topo->TopoName, toponame );
+   dtx->topo->HiResTopo = highres_flag;
+   dtx->topo->TopoFlag = 1;
    dtx->MapFlag = 1; 
    return 0;
 }
@@ -3473,8 +3472,15 @@ int vis5d_init_topo( int index, char *toponame, int highres_flag )
    else{
       dtx = vis5d_get_dtx( index );
    }
-   strcpy( dtx->TopoName, toponame );
-   dtx->HiResTopo = highres_flag;
+   if(dtx->topo==NULL){
+	  dtx->topo = (struct Topo *) calloc(1,sizeof(struct Topo ));
+	}else{
+	  printf("WARNING: vis5d_init_topo topo already initialized\n");
+	}
+   dtx->topo->DisplayTopoBase = 0;
+   dtx->topo->TopoBaseLev     = 0.0;
+   strcpy( dtx->topo->TopoName, toponame );
+   dtx->topo->HiResTopo = highres_flag;
 
    return 0;
 }
@@ -3485,7 +3491,7 @@ int vis5d_init_topo( int index, char *toponame, int highres_flag )
 int vis5d_get_topo( int index, char *toponame)
 {
    DPY_CONTEXT("vis5d_get_topo");
-   strcpy( toponame, dtx->TopoName);
+   strcpy( toponame, dtx->topo->TopoName);
    return 0;
 }
 
@@ -3646,22 +3652,22 @@ static void load_topo_and_map( Display_Context dtx )
       strcpy( name, dtx->Path );
    */      
       /* SGJ 7/3/00: don't prepend path if TopoName is already absolute: */
-      if (dtx->TopoName[0] != '/') {
+      if (dtx->topo->TopoName[0] != '/') {
 	   strcpy( name, Vis5dDataPath );
-	   strcat( name, dtx->TopoName );
+	   strcat( name, dtx->topo->TopoName );
       }
       else
-	   strcpy( name, dtx->TopoName );
+	   strcpy( name, dtx->topo->TopoName );
    }
    else {
-      strcpy( name, dtx->TopoName );
+      strcpy( name, dtx->topo->TopoName );
    }
 
    if (name[0]) {
-      dtx->TopoFlag = init_topo( dtx, name, dtx->TextureFlag, dtx->HiResTopo );
+      dtx->topo->TopoFlag = init_topo( dtx, name, dtx->TextureFlag, dtx->topo->HiResTopo );
    }
    else {
-      dtx->TopoFlag = 0;
+      dtx->topo->TopoFlag = 0;
    }
 
    /*** Load texture, areas, or image sequence ***/
@@ -5705,7 +5711,7 @@ int vis5d_load_topo_and_map( int index )
 int vis5d_check_topo( int index, int *topoflag )
 {
   DPY_CONTEXT("vis5d_check_topo")
-  *topoflag = dtx->TopoFlag;
+  *topoflag = dtx->topo->TopoFlag;
   return 0;
 }
 
@@ -5729,8 +5735,8 @@ int vis5d_check_texture( int index, int *textureflag )
 vis5d_get_topo_range( int index, float *MinTopoHgt, float *MaxTopoHgt )
 {
   DPY_CONTEXT("vis5d_get_topo_range")
-  *MinTopoHgt = dtx->MinTopoHgt;
-  *MaxTopoHgt = dtx->MaxTopoHgt;
+  *MinTopoHgt = dtx->topo->MinTopoHgt;
+  *MaxTopoHgt = dtx->topo->MaxTopoHgt;
   return 0;
 }
 
@@ -5739,8 +5745,8 @@ int vis5d_reset_topo_colors( int index )
 {
    DPY_CONTEXT("vis5d_reset_topo_colors")
 
-   init_topo_color_table( dtx->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
-   dtx->MinTopoHgt, dtx->MaxTopoHgt );
+   init_topo_color_table( dtx->topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
+   dtx->topo->MinTopoHgt, dtx->topo->MaxTopoHgt );
    dtx->Redraw = 1;
    return 0;
 }
@@ -5773,12 +5779,12 @@ int vis5d_texture_image( int index, int timestep, int width, int height,
 int vis5d_set_topo_color_var( int index, int colorvarctx, int colorvar )
 {
    DPY_CONTEXT("vis5d_set_topo_color_var");
-   if (dtx->TopoColorVarOwner != colorvarctx ||
-       (dtx->TopoColorVar != colorvar && 
-       dtx->TopoColorVarOwner == colorvarctx )){
+   if (dtx->topo->TopoColorVarOwner != colorvarctx ||
+       (dtx->topo->TopoColorVar != colorvar && 
+       dtx->topo->TopoColorVarOwner == colorvarctx )){
       Context ctx;
-      dtx->TopoColorVar = colorvar;
-      dtx->TopoColorVarOwner = colorvarctx;
+      dtx->topo->TopoColorVar = colorvar;
+      dtx->topo->TopoColorVarOwner = colorvarctx;
       ctx = vis5d_get_ctx(colorvarctx);
       request_topo_recoloring( ctx );
    }
@@ -5789,8 +5795,8 @@ int vis5d_set_topo_color_var( int index, int colorvarctx, int colorvar )
 int vis5d_get_topo_color_var( int index, int *colorvarctx, int *colorvar )
 {
    DPY_CONTEXT("vis5d_get_topo_color_var")
-   *colorvarctx = dtx->TopoColorVarOwner;
-   *colorvar = dtx->TopoColorVar;
+   *colorvarctx = dtx->topo->TopoColorVarOwner;
+   *colorvar = dtx->topo->TopoColorVar;
    return 0;
 }
 
@@ -6204,7 +6210,7 @@ int vis5d_graphics_mode( int index, int what, int mode )
       val = &dtx->DisplayMap;
       break;
     case VIS5D_TOPO:
-      val = &dtx->DisplayTopo;
+      val = &dtx->topo->DisplayTopo;
       break;
     case VIS5D_LEGENDS:
       val = &dtx->DisplayLegends;
@@ -6283,7 +6289,7 @@ int vis5d_graphics_mode( int index, int what, int mode )
       val = &dtx->AlphaBlend;
       break;
     case VIS5D_HIRESTOPO:
-      val = &dtx->HiResTopo;
+      val = &dtx->topo->HiResTopo;
       break;
     case VIS5D_SAMESCALE:
       val = &dtx->Sound.samestepflag;
@@ -6690,10 +6696,10 @@ int vis5d_get_color_table_address( int index, int type, int varowner, int number
       break;
     case VIS5D_TOPO:
       if (number<0) {
-         *colors = dtx->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS];
+         *colors = dtx->topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS];
       }
       else {
-         *colors = dtx->TopoColorTable[varowner*MAXVARS+number];
+         *colors = dtx->topo->TopoColorTable[varowner*MAXVARS+number];
       }
       break;
     case VIS5D_TRAJ:
@@ -6741,10 +6747,10 @@ int vis5d_get_color_table_params( int index, int graphic, int varowner, int var,
          break;
       case VIS5D_TOPO:
          if (var<0) {
-            *params = dtx->TopoColorParams[MAXVARS];
+            *params = dtx->topo->TopoColorParams[MAXVARS];
          }
          else {
-            *params = dtx->TopoColorParams[varowner*MAXVARS+var];
+            *params = dtx->topo->TopoColorParams[varowner*MAXVARS+var];
          }
          break;
       case VIS5D_TEXTPLOT:
@@ -6838,10 +6844,10 @@ int vis5d_set_color_table_params( int index, int graphic, int varowner, int var,
          break;
       case VIS5D_TOPO:
          if (var<0) {
-            p = dtx->TopoColorParams[MAXVARS];
+            p = dtx->topo->TopoColorParams[MAXVARS];
          }
          else {
-            p = dtx->TopoColorParams[varowner*MAXVARS+var];
+            p = dtx->topo->TopoColorParams[varowner*MAXVARS+var];
          }
          break;
       default:
@@ -9775,8 +9781,8 @@ int vis5d_set_topo_base (int index, int state, float level)
 {
    DPY_CONTEXT("vis5d_set_topo_base")
 
-   dtx->DisplayTopoBase = state;
-   dtx->TopoBaseLev     = level;
+   dtx->topo->DisplayTopoBase = state;
+   dtx->topo->TopoBaseLev     = level;
    if (!in_the_init_stage){
       setup_dtx(dtx, index);
    }
@@ -9905,7 +9911,7 @@ int vis5d_enable_sfc_map( int index, int mode )
    char *val;
    DPY_CONTEXT("vis5d_enable_sfc_map")
 
-   if ((!dtx->TopoFlag) || (dtx->TopoVertex == NULL )){
+   if ((!dtx->topo->TopoFlag) || (dtx->topo->TopoVertex == NULL )){
       return 0;
    }
    val = &dtx->DisplaySfcMap;
@@ -9956,7 +9962,7 @@ int vis5d_enable_sfc_graphics( int index, int type, int number, int mode )
    char *val;
    CONTEXT("vis5d_enable_sfc_graphics")
 
-   if ((!ctx->dpy_ctx->TopoFlag) || (ctx->dpy_ctx->TopoVertex == NULL))
+   if ((!ctx->dpy_ctx->topo->TopoFlag) || (ctx->dpy_ctx->topo->TopoVertex == NULL))
       return 0;
 
    switch (type) {

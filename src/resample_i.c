@@ -81,10 +81,14 @@ resampler.
 #include "memory_i.h"
 #include "proj_i.h"
 #include "resample_i.h"
-#include "topo_i.h"
+#include "topo.h"
 #include "v5d.h"
 #include "api.h"
 
+/* List of resamplers */
+#define MAX_RESAMPLERS 1000
+static struct resampler *ResamplerList[MAX_RESAMPLERS];
+static int NumResamplers = 0;
 
 #define TOPO_FILE "EARTH.TOPO"
 char toponame[100]={"\0"};
@@ -137,15 +141,19 @@ static void init_resampler( struct resampler *r, int outnl )
    if (r->invcs != r->outvcs) {
       /* Vertical resampling is needed */
       int i, j, k;
+		struct Topo *topo=NULL;
 
       r->DoVertical = 1;
       r->SampLev = (float *) MALLOC(r->inR * r->inC * r->outL * sizeof(float));
-
-      	
+		
+      if(topo==NULL){
+		  topo = (struct Topo *) calloc(1,sizeof(struct Topo));
+		}
+		  
       if(toponame[0]=='0')
 		  strcpy(toponame,TOPO_FILE);
 
-      if (load_topo(toponame)){
+      if (read_topo(topo,toponame)){
          /* Specify topo resampling by looking at distance in lat/lon */
          /* between two grid points near the center of domain. */
          float lat1, lat2, lon1, lon2;
@@ -153,7 +161,7 @@ static void init_resampler( struct resampler *r, int outnl )
                            &lat1, &lon1, r->inproj );
          rowcol_to_latlon_i( (float) r->inR/2+1, (float) r->inC/2+1,
                            &lat2, &lon2, r->inproj );
-         set_topo_sampling( ABS(lat2-lat1), ABS(lon2-lon1) );
+         set_topo_sampling(topo, ABS(lat2-lat1), ABS(lon2-lon1) );
       }
       else {
 		  printf("Note: topography file %s not found\n", toponame);
@@ -168,7 +176,7 @@ static void init_resampler( struct resampler *r, int outnl )
             /* Get the elevation of the topo at the lat/lon corresponding */
             /* to this row/column. */
             rowcol_to_latlon_i( (float) i, (float) j, &lat, &lon, r->inproj );
-            topo_elev = elevation_i( lat, lon, NULL) / 1000.0;
+            topo_elev = elevation(NULL, topo, lat, lon, NULL) / 1000.0;
 
             /* Special case of input grid being 2-D to make sure the data */
             /* shows up in the output grid and not missed when resampling. */
@@ -211,6 +219,9 @@ static void init_resampler( struct resampler *r, int outnl )
             }
          }
       }
+		free_topo(topo);
+      free(topo);
+		
    }
    else {
       r->DoVertical = 0;
@@ -249,14 +260,11 @@ static void init_resampler( struct resampler *r, int outnl )
 #undef SAMPROW
 #undef SAMPCOL
 #undef SAMPLEV
-}
+	}
 
 
 
-/* List of resamplers */
-#define MAX_RESAMPLERS 1000
-static struct resampler *ResamplerList[MAX_RESAMPLERS];
-static int NumResamplers = 0;
+
 
 
 /*

@@ -2054,10 +2054,10 @@ int draw_sounding( Display_Context dtx, int time )
    }
 
    elev = RESET_ELEV;
-   if (dtx->TopoData) {
+   if (dtx->topo->TopoData) {
       xyzPRIME_to_geo (dtx, -1, -1, dtx->CursorX, dtx->CursorY, 0.0,
                        &lat, &lon, &hgt);
-      elev = elevation (dtx, lat, lon, NULL) / 1000.0;
+      elev = elevation (dtx, dtx->topo, lat, lon, NULL) / 1000.0;
    }
 
 /* 13May98  Phil McDonald */

@@ -290,15 +290,15 @@ int	user_data_get_topo (Display_Context dtx, char topo_name[])
 
 
 
-    dtx->TopoData = (short *) malloc (ndat * sizeof (short));
-    if (dtx->TopoData == NULL)
+    dtx->topo->TopoData = (short *) malloc (ndat * sizeof (short));
+    if (dtx->topo->TopoData == NULL)
     {
         free (dat);
         return 0;
     }
 
 
-#define TD(ROW, COL)   dtx->TopoData[ (COL) + ((ROW) * nc) ]
+#define TD(ROW, COL)   dtx->topo->TopoData[ (COL) + ((ROW) * nc) ]
 
     i = 0;
     for (ir = nr-1; ir >= 0; ir--)
@@ -313,13 +313,13 @@ int	user_data_get_topo (Display_Context dtx, char topo_name[])
 
     free (dat);
 
-    dtx->Topo_rows = nr;
-    dtx->Topo_cols = nc;
+    dtx->topo->Topo_rows = nr;
+    dtx->topo->Topo_cols = nc;
 
-    dtx->Topo_westlon  = dtx->WestBound;
-    dtx->Topo_eastlon  = dtx->EastBound;
-    dtx->Topo_northlat = dtx->NorthBound;
-    dtx->Topo_southlat = dtx->SouthBound;
+    dtx->topo->Topo_westlon  = dtx->WestBound;
+    dtx->topo->Topo_eastlon  = dtx->EastBound;
+    dtx->topo->Topo_northlat = dtx->NorthBound;
+    dtx->topo->Topo_southlat = dtx->SouthBound;
 
 
     return 1;
@@ -374,9 +374,9 @@ int	user_data_get_map (Display_Context dtx, char map_name[])
  *  and Vis5D volume box coordinates.
  */
 
-    ymax = dtx->qrows - 1;
-    xfac = (dtx->Xmax - dtx->Xmin) / ((double) (dtx->qcols - 1));
-    yfac = (dtx->Ymin - dtx->Ymax) / ((double) (dtx->qrows - 1));
+    ymax = dtx->topo->qrows - 1;
+    xfac = (dtx->Xmax - dtx->Xmin) / ((double) (dtx->topo->qcols - 1));
+    yfac = (dtx->Ymin - dtx->Ymax) / ((double) (dtx->topo->qrows - 1));
 
     zmin = dtx->Zmin + 0.01;
 

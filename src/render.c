@@ -2019,7 +2019,7 @@ int draw_legend( Context ctx, int varowner, int var, int type, int xleft, int yb
          lut = dtx->VolumeColors[varowner*MAXVARS+var];
          break;
       case VIS5D_TOPO:
-         lut = dtx->TopoColorTable[varowner*MAXVARS+var];
+         lut = dtx->topo->TopoColorTable[varowner*MAXVARS+var];
          break;
       default:
          /* this should never happen */
@@ -2280,9 +2280,9 @@ static void draw_color_legends( Display_Context dtx )
    }
 
    /* Topo color table */
-   if (dtx->TopoColorVar>=0 && dtx->DisplayTopo) {
-      int cvar = dtx->TopoColorVar;
-      int cvowner = dtx->TopoColorVarOwner;
+   if (dtx->topo->TopoColorVar>=0 && dtx->topo->DisplayTopo) {
+      int cvar = dtx->topo->TopoColorVar;
+      int cvowner = dtx->topo->TopoColorVarOwner;
       /* Draw legend at position (xstart, ystart) = upper left corner */
       inc = draw_legend( ctx, cvowner, cvar, VIS5D_TOPO, left, bottom ); 
       if (vert) {
@@ -2454,7 +2454,7 @@ void render_3d_only( Display_Context dtx, int animflag )
       /*** Draw opaque 3-D graphics ***/
       /* MJK 12.02.98 begin */
       set_depthcue( dtx->DepthCue );
-      if (dtx->TopoFlag && dtx->DisplayTopo) {
+      if (dtx->topo->TopoFlag && dtx->topo->DisplayTopo) {
          set_depthcue(0);
          draw_topo( dtx, dtx->CurTime, dtx->DisplayTexture, 0 );
       }

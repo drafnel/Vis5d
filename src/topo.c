@@ -76,125 +76,127 @@ struct topo_header {
 };
 
 /* MJK 12.02.98 begin */
-int check_face_norm (Display_Context dtx, int_2 *verts)
+int check_face_norm (int_2 *verts)
 {
-    int         i, j;
-    float       xyz[3], xy[3][2], area;
+  int         i, j;
+  float       xyz[3], xy[3][2], area;
 
-    for (i = 0; i < 3; i++, verts += 3)
+  for (i = 0; i < 3; i++, verts += 3)
     {
-        for (j = 0; j < 3; j++) xyz[j] = verts[j] / VERTEX_SCALE;
-
-        project (xyz, &xy[i][0], &xy[i][1]);
+		for (j = 0; j < 3; j++) xyz[j] = verts[j] / VERTEX_SCALE;
+		
+		project (xyz, &xy[i][0], &xy[i][1]);
     }
 
-    area = 0.0;
-    j    = 2;
-    for (i = 0; i < 3; i++)
+  area = 0.0;
+  j    = 2;
+  for (i = 0; i < 3; i++)
     {
-        area += (xy[i][0] - xy[j][0]) * (xy[i][1] + xy[j][1]);
-        j     = i;
+		area += (xy[i][0] - xy[j][0]) * (xy[i][1] + xy[j][1]);
+		j     = i;
     }
-
-    return (area < 0.0) ? 1 : (area > 0.0) ? -1 : 0;
+  
+  return (area < 0.0) ? 1 : (area > 0.0) ? -1 : 0;
 }
 
-int make_topo_strips (Display_Context dtx)
+int make_topo_strips (Display_Context dtx )
 {
+  
+  int         i, j, n, ir, ic, nr, nc;
+  int_2       *verts;
+  int_1       *norms;
+  struct Topo *topo;
 
-    int         i, j, n, ir, ic, nr, nc;
-    int_2       *verts;
-    int_1       *norms;
+  topo = dtx->topo;
 
+  nr = topo->qrows;
+  nc = topo->qcols;
 
-    nr = dtx->qrows;
-    nc = dtx->qcols;
+  n = ((nr * nc * 2) * 2) + ((nc * 2) * 2) + ((nr * 2) * 2);
 
-    n = ((nr * nc * 2) * 2) + ((nc * 2) * 2) + ((nr * 2) * 2);
-
-    dtx->TopoStripsVerts = realloc (dtx->TopoStripsVerts,
+  topo->TopoStripsVerts = realloc (topo->TopoStripsVerts,
                                     (n * 3 * sizeof (int_2)));
-    dtx->TopoStripsNorms = realloc (dtx->TopoStripsNorms,
+  topo->TopoStripsNorms = realloc (topo->TopoStripsNorms,
                                     (n * 3 * sizeof (int_1)));
-    if ((dtx->TopoStripsVerts == NULL) || (dtx->TopoStripsNorms == NULL))
+  if ((topo->TopoStripsVerts == NULL) || (topo->TopoStripsNorms == NULL))
     {
-        if (dtx->TopoStripsVerts == NULL)
-            free (dtx->TopoStripsVerts), dtx->TopoStripsVerts = NULL;
-        if (dtx->TopoStripsNorms == NULL)
-            free (dtx->TopoStripsNorms), dtx->TopoStripsNorms = NULL;
-
-        return 0;
+		if (topo->TopoStripsVerts == NULL)
+		  free (topo->TopoStripsVerts), topo->TopoStripsVerts = NULL;
+		if (topo->TopoStripsNorms == NULL)
+		  free (topo->TopoStripsNorms), topo->TopoStripsNorms = NULL;
+		
+		return 0;
     }
 
-    verts = dtx->TopoStripsVerts;
-    norms = dtx->TopoStripsNorms;
+  verts = topo->TopoStripsVerts;
+  norms = topo->TopoStripsNorms;
 
 
-    j = 0;
-    i = nc;
-    for (ir = 1; ir < nr; ir++)
+  j = 0;
+  i = nc;
+  for (ir = 1; ir < nr; ir++)
     {
-        for (ic = 0; ic < nc; ic++, i++, j++)
+		for (ic = 0; ic < nc; ic++, i++, j++)
         {
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
-            verts[2] = dtx->TopoVertex[i*3+2] * VERTEX_SCALE;
-            norms[0] = dtx->TopoNormal[i*3+0] * NORMAL_SCALE;
-            norms[1] = dtx->TopoNormal[i*3+1] * NORMAL_SCALE;
-            norms[2] = dtx->TopoNormal[i*3+2] * NORMAL_SCALE;
-            verts += 3, norms += 3;
-            verts[0] = dtx->TopoVertex[j*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[j*3+1] * VERTEX_SCALE;
-            verts[2] = dtx->TopoVertex[j*3+2] * VERTEX_SCALE;
-            norms[0] = dtx->TopoNormal[j*3+0] * NORMAL_SCALE;
-            norms[1] = dtx->TopoNormal[j*3+1] * NORMAL_SCALE;
-            norms[2] = dtx->TopoNormal[j*3+2] * NORMAL_SCALE;
-            verts += 3, norms += 3;
+			 verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+			 verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
+			 verts[2] = topo->TopoVertex[i*3+2] * VERTEX_SCALE;
+			 norms[0] = topo->TopoNormal[i*3+0] * NORMAL_SCALE;
+			 norms[1] = topo->TopoNormal[i*3+1] * NORMAL_SCALE;
+			 norms[2] = topo->TopoNormal[i*3+2] * NORMAL_SCALE;
+			 verts += 3, norms += 3;
+			 verts[0] = topo->TopoVertex[j*3+0] * VERTEX_SCALE;
+			 verts[1] = topo->TopoVertex[j*3+1] * VERTEX_SCALE;
+			 verts[2] = topo->TopoVertex[j*3+2] * VERTEX_SCALE;
+			 norms[0] = topo->TopoNormal[j*3+0] * NORMAL_SCALE;
+			 norms[1] = topo->TopoNormal[j*3+1] * NORMAL_SCALE;
+			 norms[2] = topo->TopoNormal[j*3+2] * NORMAL_SCALE;
+			 verts += 3, norms += 3;
         }
     }
 
 
 
-    if (dtx->DisplayTopoBase)
+  if (topo->DisplayTopoBase)
     {
-        float           z;
-        int_2           base_z;
-        int_1           norm_0 = 0.0 * NORMAL_SCALE;
-        int_1           norm_1 = 1.0 * NORMAL_SCALE;
-
-
-        if (dtx->TopoBaseLev <= 0.0)
+		float           z;
+		int_2           base_z;
+		int_1           norm_0 = 0.0 * NORMAL_SCALE;
+		int_1           norm_1 = 1.0 * NORMAL_SCALE;
+		
+		
+		if (topo->TopoBaseLev <= 0.0)
         {
-            z = dtx->Zmin -
-                (gridlevelPRIME_to_zPRIME (dtx, -1, -1, -dtx->TopoBaseLev) -
-                dtx->Zmin);
+			 z = dtx->Zmin -
+				(gridlevelPRIME_to_zPRIME (dtx, -1, -1, -topo->TopoBaseLev) -
+				 dtx->Zmin);
         }
-        else
+		else
         {
-            z = gridlevelPRIME_to_zPRIME (dtx, -1, -1, dtx->TopoBaseLev);
-
-            norm_1 = -norm_1;
+			 z = gridlevelPRIME_to_zPRIME (dtx, -1, -1, topo->TopoBaseLev);
+			 
+			 norm_1 = -norm_1;
         }
-        /* clamp z to keep from overflowing int_2 base_z */
-        z = (z < -3.0) ? -3.0 : (z > 3.0) ? 3.0 : z;
+		/* clamp z to keep from overflowing int_2 base_z */
+		z = (z < -3.0) ? -3.0 : (z > 3.0) ? 3.0 : z;
+		
+		base_z = z * VERTEX_SCALE;
+		
 
-        base_z = z * VERTEX_SCALE;
-
-
-        /* north side */
+		/* north side */
 
         i = 0;
         for (ic = 0; ic < nc; ic++, i++)
         {
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
-            verts[2] = dtx->TopoVertex[i*3+2] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[2] = topo->TopoVertex[i*3+2] * VERTEX_SCALE;
             norms[0] = norm_0;
             norms[1] = norm_1;
             norms[2] = norm_0;
             verts += 3, norms += 3;
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
             verts[2] = base_z;
             norms[0] = norm_0;
             norms[1] = norm_1;
@@ -207,15 +209,15 @@ int make_topo_strips (Display_Context dtx)
         i = (nr * nc) - 1;
         for (ic = 0; ic < nc; ic++, i--)
         {
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
-            verts[2] = dtx->TopoVertex[i*3+2] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[2] = topo->TopoVertex[i*3+2] * VERTEX_SCALE;
             norms[0] = norm_0;
             norms[1] = -norm_1;
             norms[2] = norm_0;
             verts += 3, norms += 3;
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
             verts[2] = base_z;
             norms[0] = norm_0;
             norms[1] = -norm_1;
@@ -228,15 +230,15 @@ int make_topo_strips (Display_Context dtx)
         i = (nr - 1) * nc;
         for (ir = 0; ir < nr; ir++, i -= nc)
         {
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
-            verts[2] = dtx->TopoVertex[i*3+2] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[2] = topo->TopoVertex[i*3+2] * VERTEX_SCALE;
             norms[0] = -norm_1;
             norms[1] = norm_0;
             norms[2] = norm_0;
             verts += 3, norms += 3;
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
             verts[2] = base_z;
             norms[0] = -norm_1;
             norms[1] = norm_0;
@@ -249,15 +251,15 @@ int make_topo_strips (Display_Context dtx)
         i = nc - 1;
         for (ir = 0; ir < nr; ir++, i += nc)
         {
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
-            verts[2] = dtx->TopoVertex[i*3+2] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[2] = topo->TopoVertex[i*3+2] * VERTEX_SCALE;
             norms[0] = norm_1;
             norms[1] = norm_0;
             norms[2] = norm_0;
             verts += 3, norms += 3;
-            verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-            verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
+            verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+            verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
             verts[2] = base_z;
             norms[0] = norm_1;
             norms[1] = norm_0;
@@ -273,15 +275,15 @@ int make_topo_strips (Display_Context dtx)
         {
             for (ic = 0; ic < nc; ic++, i--, j--)
             {
-                verts[0] = dtx->TopoVertex[i*3+0] * VERTEX_SCALE;
-                verts[1] = dtx->TopoVertex[i*3+1] * VERTEX_SCALE;
+                verts[0] = topo->TopoVertex[i*3+0] * VERTEX_SCALE;
+                verts[1] = topo->TopoVertex[i*3+1] * VERTEX_SCALE;
                 verts[2] = base_z;
                 norms[0] = norm_0;
                 norms[1] = norm_0;
                 norms[2] = -norm_1;
                 verts += 3, norms += 3;
-                verts[0] = dtx->TopoVertex[j*3+0] * VERTEX_SCALE;
-                verts[1] = dtx->TopoVertex[j*3+1] * VERTEX_SCALE;
+                verts[0] = topo->TopoVertex[j*3+0] * VERTEX_SCALE;
+                verts[1] = topo->TopoVertex[j*3+1] * VERTEX_SCALE;
                 verts[2] = base_z;
                 norms[0] = norm_0;
                 norms[1] = norm_0;
@@ -313,7 +315,7 @@ static int read_user_topo( Display_Context dtx, char *toponame )
  *  An example for this function can be found in user_data.c.
  */
 
-   free_topo (dtx);
+   free_topo (dtx->topo);
 
    iret = user_data_get_topo (dtx, toponame);
 
@@ -328,7 +330,7 @@ static int read_user_topo( Display_Context dtx, char *toponame )
  * Input:  filename - name of topo file.
  * Return:  0 if error, otherwise non-zero for success.
  */
-static int read_topo( Display_Context dtx, char *filename )
+int read_topo( struct Topo *topo, char *filename )
 {
    int f;
    int n;
@@ -342,20 +344,20 @@ static int read_topo( Display_Context dtx, char *filename )
 
    /* Read topo file header */
    read_bytes( f, id, 40 );
-   read_float4( f, &dtx->Topo_westlon );
-   read_float4( f, &dtx->Topo_eastlon );
-   read_float4( f, &dtx->Topo_northlat );
-   read_float4( f, &dtx->Topo_southlat );
-   read_int4( f, &dtx->Topo_rows );
-   read_int4( f, &dtx->Topo_cols );
+   read_float4( f, &topo->Topo_westlon );
+   read_float4( f, &topo->Topo_eastlon );
+   read_float4( f, &topo->Topo_northlat );
+   read_float4( f, &topo->Topo_southlat );
+   read_int4( f, &topo->Topo_rows );
+   read_int4( f, &topo->Topo_cols );
 
    if (strcmp(id,"TOPO")==0) {
       /* OLD STYLE: bounds given as ints, convert to floats */
       int *p;
-      p = (int *) &dtx->Topo_westlon;  dtx->Topo_westlon = (float) *p / 100.0;
-      p = (int *) &dtx->Topo_eastlon;  dtx->Topo_eastlon = (float) *p / 100.0;
-      p = (int *) &dtx->Topo_northlat; dtx->Topo_northlat = (float) *p / 100.0;
-      p = (int *) &dtx->Topo_southlat; dtx->Topo_southlat = (float) *p / 100.0;
+      p = (int *) &topo->Topo_westlon;  topo->Topo_westlon = (float) *p / 100.0;
+      p = (int *) &topo->Topo_eastlon;  topo->Topo_eastlon = (float) *p / 100.0;
+      p = (int *) &topo->Topo_northlat; topo->Topo_northlat = (float) *p / 100.0;
+      p = (int *) &topo->Topo_southlat; topo->Topo_southlat = (float) *p / 100.0;
    }
    else if (strcmp(id,"TOPO2")==0) {
       /* OK */
@@ -366,21 +368,22 @@ static int read_topo( Display_Context dtx, char *filename )
       return 0;
    }
 
-   dtx->TopoData = (short *) malloc(dtx->Topo_rows * dtx->Topo_cols * sizeof(short));
+   topo->TopoData = (short *) malloc(topo->Topo_rows * topo->Topo_cols * sizeof(short));
 
    /* dtx->TopoData = (short *) allocate( dtx, dtx->Topo_rows * dtx->Topo_cols
                                        * sizeof(short) ); */
-   if (!dtx->TopoData) {
-      close(f);
-      return 0;
+   if (!topo->TopoData) {
+	  printf("ERROR: Failed to allocate space for topo data\n");
+	  close(f);
+	  return 0;
    }
 
 
-   n = dtx->Topo_rows * dtx->Topo_cols;
-   if (read_int2_array( f, dtx->TopoData, n) < n) {
-      free( dtx->TopoData);
-      /* deallocate( dtx, dtx->TopoData, n*sizeof(short) ); */
-      dtx->TopoData = NULL;
+   n = topo->Topo_rows * topo->Topo_cols;
+   if (read_int2_array( f, topo->TopoData, n) < n) {
+	  printf("ERROR: could not read data file or premature end of file\n");
+      free( topo->TopoData);
+      topo->TopoData = NULL;
       close(f);
       return 0;
    }
@@ -394,13 +397,12 @@ static int read_topo( Display_Context dtx, char *filename )
 /*
  * Free the memory used to store the topography data
  */
-void free_topo( dtx )
-Display_Context dtx;
+void free_topo( struct Topo *topo )
 {
-   if (dtx->TopoData) {
-      free( dtx->TopoData);
-      /* deallocate( dtx, dtx->TopoData, dtx->Topo_rows*dtx->Topo_cols*sizeof(short) ); */
-      dtx->TopoData = NULL;
+  /* surely we should free more than this.*/
+   if (topo->TopoData) {
+      free( topo->TopoData);
+      topo->TopoData = NULL;
    }
 }
 
@@ -415,7 +417,7 @@ Display_Context dtx;
  * Output:  water - set to 1 if water, 0 if land.
  * Returned:  elevation in meters at (lat,lon) or 0 if error.
  */
-float elevation( Display_Context dtx, float lat, float lon, int *water )
+float elevation( Display_Context dtx, struct Topo *topo, float lat, float lon, int *water )
 {
    float fr, fc;
    int rowa, cola, rowb, colb;
@@ -424,11 +426,11 @@ float elevation( Display_Context dtx, float lat, float lon, int *water )
    int val, watcount;
 
    /* MJK 12.02.98 begin */
-   if ((dtx->Topo_cols == dtx->Nc) && (dtx->Topo_rows == dtx->Nr))
+   if (dtx!=NULL && (topo->Topo_cols == dtx->Nc) && (topo->Topo_rows == dtx->Nr))
    {
        float    x, y, z, hgt;
 
-       if (!dtx->TopoData)
+       if (!topo->TopoData)
        {
            if (water) *water = 0.0;
            return 0.0;
@@ -443,10 +445,10 @@ float elevation( Display_Context dtx, float lat, float lon, int *water )
    }
    else{
       /* make sure longitude is in [-180,180] */
-      if (lon>dtx->Topo_westlon) {
+      if (lon>topo->Topo_westlon) {
          lon -= 360.0;
       }
-      if (lon<dtx->Topo_eastlon) {
+      if (lon<topo->Topo_eastlon) {
          lon += 360.0;
       }
 
@@ -457,17 +459,17 @@ float elevation( Display_Context dtx, float lat, float lon, int *water )
          lat -= 180.0;
       }
 
-      if (!dtx->TopoData || lon<dtx->Topo_eastlon || lon>dtx->Topo_westlon
-          || lat<dtx->Topo_southlat || lat>dtx->Topo_northlat) {
+      if (!topo->TopoData || lon<topo->Topo_eastlon || lon>topo->Topo_westlon
+          || lat<topo->Topo_southlat || lat>topo->Topo_northlat) {
          if (water)
             *water = 0;
          return 0.0;
       }
 
-      fr = (dtx->Topo_rows - 1) * (lat - dtx->Topo_northlat)
-              / (dtx->Topo_southlat - dtx->Topo_northlat);
-      fc = (dtx->Topo_cols - 1) * (lon - dtx->Topo_westlon)
-              / (dtx->Topo_eastlon - dtx->Topo_westlon);
+      fr = (topo->Topo_rows - 1) * (lat - topo->Topo_northlat)
+              / (topo->Topo_southlat - topo->Topo_northlat);
+      fc = (topo->Topo_cols - 1) * (lon - topo->Topo_westlon)
+              / (topo->Topo_eastlon - topo->Topo_westlon);
    }
    /* MJK 12.02.98 end */
 
@@ -476,20 +478,20 @@ float elevation( Display_Context dtx, float lat, float lon, int *water )
    /* values centered at that location. */
 
    /* calculate range of rows */
-   rowa = (int) fr - dtx->LatSample/2;
-   rowb = rowa + dtx->LatSample;
+   rowa = (int) fr - topo->LatSample/2;
+   rowb = rowa + topo->LatSample;
    if (rowa<0)
       rowa = 0;
-   if (rowb>=dtx->Topo_rows)
-      rowb = dtx->Topo_rows - 1;
+   if (rowb>=topo->Topo_rows)
+      rowb = topo->Topo_rows - 1;
 
    /* calculate range of columns */
-   cola = (int) fc - dtx->LonSample/2;
-   colb = cola + dtx->LonSample;
+   cola = (int) fc - topo->LonSample/2;
+   colb = cola + topo->LonSample;
    if (cola<0)
       cola = 0;
-   if (colb>=dtx->Topo_cols)
-      colb = dtx->Topo_cols - 1;
+   if (colb>=topo->Topo_cols)
+      colb = topo->Topo_cols - 1;
 
 
 
@@ -506,7 +508,7 @@ float elevation( Display_Context dtx, float lat, float lon, int *water )
    count = watcount = 0;
    for (r=rowa;r<=rowb;r++) {
       for (c=cola;c<=colb;c++) {
-         val = dtx->TopoData[r*dtx->Topo_cols+c];
+         val = topo->TopoData[r*topo->Topo_cols+c];
          if (val&1)
             watcount++;
          hgt += (float) (val / 2);
@@ -633,7 +635,7 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
    int topoflag = -1;
    int qr, qc;
    uint_1 *indexes;
-
+   struct Topo *topo;
 
 
    /* MJK 12.02.98 begin */
@@ -644,8 +646,9 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
 
 
    if (topoflag == -1) {
-      topoflag = read_topo( dtx, toponame );
+      topoflag = read_topo( dtx->topo, toponame );
    }
+   topo = dtx->topo;  
    /* MJK 12.02.98 end */
 
 
@@ -655,10 +658,10 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
    }
    
    /* qrows, qcols - size of topography quadmesh in rows and columns */
-   if (dtx->Topo_cols==dtx->Nc && dtx->Topo_rows==dtx->Nr) {
+   if (topo->Topo_cols==dtx->Nc && topo->Topo_rows==dtx->Nr) {
       /* use same topography resolution as grid resolution */
-      qc = dtx->Topo_cols;
-      qr = dtx->Topo_rows;
+      qc = topo->Topo_cols;
+      qr = topo->Topo_rows;
    }
    else {
       int maxverts = hi_res ? HI_RES_VERTS : LO_RES_VERTS;
@@ -676,32 +679,32 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
 
    }
    /* allocate space for topography vertex and color arrays */
-   if (dtx->TopoVertex){
-      free(dtx->TopoVertex);
-      free(dtx->TopoNormal);
-      free(dtx->TopoTexcoord);
-      free(dtx->TopoFlatVertex);
+   if (topo->TopoVertex){
+      free(topo->TopoVertex);
+      free(topo->TopoNormal);
+      free(topo->TopoTexcoord);
+      free(topo->TopoFlatVertex);
       /* MJK 12.02.98 begin */
       for (i = 0; i <= MAXTIMES; i++)
       {
-         if (dtx->TopoIndexes[i] != NULL)
-            free (dtx->TopoIndexes[i]), dtx->TopoIndexes[i] = NULL;
+         if (topo->TopoIndexes[i] != NULL)
+            free (topo->TopoIndexes[i]), topo->TopoIndexes[i] = NULL;
       }
       /* MJK 12.02.98 end */
 
 
       /*
-      free(dtx->TopoIndexes[MAXTIMES]);
+      free(topo->TopoIndexes[MAXTIMES]);
       */
    }
-   dtx->TopoVertex     = (float *) malloc( qr*qc*3*sizeof(float) );
-   dtx->TopoNormal     = (float *) malloc( qr*qc*3*sizeof(float) );
-   dtx->TopoTexcoord   = (float *) malloc( qr*qc*2*sizeof(float) );
-   dtx->TopoFlatVertex = (float *) malloc( qr*qc*3*sizeof(float) );
+   topo->TopoVertex     = (float *) malloc( qr*qc*3*sizeof(float) );
+   topo->TopoNormal     = (float *) malloc( qr*qc*3*sizeof(float) );
+   topo->TopoTexcoord   = (float *) malloc( qr*qc*2*sizeof(float) );
+   topo->TopoFlatVertex = (float *) malloc( qr*qc*3*sizeof(float) );
    topoheight = (float *) malloc( qr*qc*sizeof(float) );
    /* topoheight = (float *) allocate( dtx, qr*qc*sizeof(float) ); */
    indexes = malloc( qr*qc*1*sizeof(uint_1) );
-   dtx->TopoIndexes[MAXTIMES] = indexes;
+   topo->TopoIndexes[MAXTIMES] = indexes;
 
    /*
     * Compute topography vertices.
@@ -721,16 +724,15 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
       delta_t = 1.0 / (float) (qr-1);
 
       /* calculate sampling size */
-      if (dtx->Topo_cols==dtx->Nc && dtx->Topo_rows==dtx->Nr) {
-         dtx->LatSample = dtx->LonSample = 1;
+      if (topo->Topo_cols==dtx->Nc && topo->Topo_rows==dtx->Nr) {
+         topo->LatSample = topo->LonSample = 1;
       }
       else {
-         topo_dlat = (dtx->Topo_northlat-dtx->Topo_southlat) / dtx->Topo_rows;
-         dtx->LatSample = CLAMP( (int) (2.0*dy/topo_dlat), 2, 20 );
-         topo_dlon = (dtx->Topo_westlon-dtx->Topo_eastlon) / dtx->Topo_cols;
-         dtx->LonSample = CLAMP( (int) (2.0*dx/topo_dlon), 2, 20 );
+         topo_dlat = (topo->Topo_northlat-topo->Topo_southlat) / topo->Topo_rows;
+         topo->LatSample = CLAMP( (int) (2.0*dy/topo_dlat), 2, 20 );
+         topo_dlon = (topo->Topo_westlon-topo->Topo_eastlon) / topo->Topo_cols;
+         topo->LonSample = CLAMP( (int) (2.0*dx/topo_dlon), 2, 20 );
       }
-
       k = 0;
       yy = dtx->Ymax;
       texture_t = 0.0;
@@ -744,7 +746,7 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
 
             x = xx;
             xyzPRIME_to_geo( dtx, -1, -1, x, y, 0.0, &lat, &lon, &hgt );
-            hgt = elevation( dtx, lat, lon, &water ) / 1000.0;  /* hgt in km */
+            hgt = elevation( dtx, dtx->topo, lat, lon, &water ) / 1000.0;  /* hgt in km */
 /* MJK 2.17.99
             z = height_to_zPRIME( dtx, hgt );
 */
@@ -758,20 +760,20 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
             }
 
             z = ABS(dtx->Zmin - z) < 0.01 ? dtx->Zmin+0.01 : z;
-            dtx->TopoVertex[k*3+0] = x;
-            dtx->TopoVertex[k*3+1] = y;
-            dtx->TopoVertex[k*3+2] = z;
+            topo->TopoVertex[k*3+0] = x;
+            topo->TopoVertex[k*3+1] = y;
+            topo->TopoVertex[k*3+2] = z;
 
             topoheight[k] = hgt;  /* save topo height at this vertex */
             /* if water flag is set, index will be 255 */
             indexes[k] = (water) ? 255 : 0;
 
-            dtx->TopoFlatVertex[k*3+0] = x;
-            dtx->TopoFlatVertex[k*3+1] = y;
-            dtx->TopoFlatVertex[k*3+2] = dtx->Zmin;
+            topo->TopoFlatVertex[k*3+0] = x;
+            topo->TopoFlatVertex[k*3+1] = y;
+            topo->TopoFlatVertex[k*3+2] = dtx->Zmin;
 
-            dtx->TopoTexcoord[k*2+0] = texture_s;
-            dtx->TopoTexcoord[k*2+1] = texture_t;
+            topo->TopoTexcoord[k*2+0] = texture_s;
+            topo->TopoTexcoord[k*2+1] = texture_t;
 
             k++;
             xx += dx;
@@ -809,14 +811,14 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
             float hgt, x, y, z;
 
             lon = lonlon;
-            hgt = elevation( dtx, lat, lon, &water ) / 1000.0;  /* hgt in km */
+            hgt = elevation( dtx, dtx->topo, lat, lon, &water ) / 1000.0;  /* hgt in km */
 /* MJK 2.17.99
             geo_to_xyzPRIME( dtx, -1, -1, 1, &lat, &lon, &hgt, &x, &y, &z );
 */
             geo_to_xyzTOPO( dtx, -1, -1, 1, &lat, &lon, &hgt, &x, &y, &z );
-            dtx->TopoVertex[k*3+0] = x;
-            dtx->TopoVertex[k*3+1] = y;
-            dtx->TopoVertex[k*3+2] = z;
+            topo->TopoVertex[k*3+0] = x;
+            topo->TopoVertex[k*3+1] = y;
+            topo->TopoVertex[k*3+2] = z;
 
             topoheight[k] = hgt;
             /* if water flag is set, index will be 255 */
@@ -827,12 +829,12 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
             geo_to_xyzPRIME( dtx, -1, -1, 1, &lat, &lon, &hgt, &x, &y, &z );
 */
             geo_to_xyzTOPO( dtx, -1, -1, 1, &lat, &lon, &hgt, &x, &y, &z );
-            dtx->TopoFlatVertex[k*3+0] = x;
-            dtx->TopoFlatVertex[k*3+1] = y;
-            dtx->TopoFlatVertex[k*3+2] = z;
+            topo->TopoFlatVertex[k*3+0] = x;
+            topo->TopoFlatVertex[k*3+1] = y;
+            topo->TopoFlatVertex[k*3+2] = z;
 
-            dtx->TopoTexcoord[k*2+0] = texture_s;
-            dtx->TopoTexcoord[k*2+1] = texture_t;
+            topo->TopoTexcoord[k*2+0] = texture_s;
+            topo->TopoTexcoord[k*2+1] = texture_t;
 
             k++;
             lonlon -= dlon;
@@ -845,14 +847,14 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
    }
 
    /* Find MinTopoHgt and MaxTopoHgt */
-   dtx->MinTopoHgt = 10000.0;
-   dtx->MaxTopoHgt = -10000.0;
+   topo->MinTopoHgt = 10000.0;
+   topo->MaxTopoHgt = -10000.0;
    for (i=0;i<qr*qc;i++) {
-      if (topoheight[i]<dtx->MinTopoHgt) {
-         dtx->MinTopoHgt = topoheight[i];
+      if (topoheight[i]<topo->MinTopoHgt) {
+         topo->MinTopoHgt = topoheight[i];
       }
-      if (topoheight[i]>dtx->MaxTopoHgt) {
-         dtx->MaxTopoHgt = topoheight[i];
+      if (topoheight[i]>topo->MaxTopoHgt) {
+         topo->MaxTopoHgt = topoheight[i];
       }
    }
 
@@ -860,13 +862,13 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
    for (i=0;i<qr*qc;i++) {
       float hgt = topoheight[i];
       if (indexes[i]!=255) {   /* if not water */
-         if (dtx->MinTopoHgt==dtx->MaxTopoHgt) {
+         if (topo->MinTopoHgt==topo->MaxTopoHgt) {
             indexes[i] = 0;
          }
          else {
             int index;
-            index = (int) ( (hgt-dtx->MinTopoHgt)
-                           / (dtx->MaxTopoHgt-dtx->MinTopoHgt) * 254.0 );
+            index = (int) ( (hgt-topo->MinTopoHgt)
+                           / (topo->MaxTopoHgt-topo->MinTopoHgt) * 254.0 );
             indexes[i] = CLAMP( index, 0, 254 );
          }
       }
@@ -891,12 +893,12 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
 
             index = (i*qc+j)*3;
             /* a is the down vector, b is the right vector */
-            a[0] = dtx->TopoVertex[index+qc*3+0] - dtx->TopoVertex[index+0];
-            a[1] = dtx->TopoVertex[index+qc*3+1] - dtx->TopoVertex[index+1];
-            a[2] = dtx->TopoVertex[index+qc*3+2] - dtx->TopoVertex[index+2];
-            b[0] = dtx->TopoVertex[index+3+0] - dtx->TopoVertex[index+0];
-            b[1] = dtx->TopoVertex[index+3+1] - dtx->TopoVertex[index+1];
-            b[2] = dtx->TopoVertex[index+3+2] - dtx->TopoVertex[index+2];
+            a[0] = topo->TopoVertex[index+qc*3+0] - topo->TopoVertex[index+0];
+            a[1] = topo->TopoVertex[index+qc*3+1] - topo->TopoVertex[index+1];
+            a[2] = topo->TopoVertex[index+qc*3+2] - topo->TopoVertex[index+2];
+            b[0] = topo->TopoVertex[index+3+0] - topo->TopoVertex[index+0];
+            b[1] = topo->TopoVertex[index+3+1] - topo->TopoVertex[index+1];
+            b[2] = topo->TopoVertex[index+3+2] - topo->TopoVertex[index+2];
             /* a cross b is the quad's facet normal */
             qnorm[index+0] =  a[1]*b[2]-a[2]*b[1];
             qnorm[index+1] = -a[0]*b[2]+a[2]*b[0];
@@ -942,9 +944,9 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
             mag = sqrt( n[0]*n[0] + n[1]*n[1] + n[2]*n[2] );
             if (mag>0.0) {
                mag = 1.0 / mag;
-               dtx->TopoNormal[index+0] = n[0] * mag;
-               dtx->TopoNormal[index+1] = n[1] * mag;
-               dtx->TopoNormal[index+2] = n[2] * mag;
+               topo->TopoNormal[index+0] = n[0] * mag;
+               topo->TopoNormal[index+1] = n[1] * mag;
+               topo->TopoNormal[index+2] = n[2] * mag;
             }
          }
       }
@@ -953,13 +955,13 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
       /* deallocate( dtx, qnorm, qc * qr * 3 * sizeof(float) ); */
    }
 
-   dtx->qcols = qc;
-   dtx->qrows = qr;
+   topo->qcols = qc;
+   topo->qrows = qr;
 
    /* Define the initial quadmesh vertex colors */
-   init_topo_color_table( dtx->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
-                          dtx->MinTopoHgt, dtx->MaxTopoHgt );
-   dtx->TopoColorVar = -1;
+   init_topo_color_table( topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS], 256,
+                          topo->MinTopoHgt, topo->MaxTopoHgt );
+   topo->TopoColorVar = -1;
 
 
    /* MJK 12.02.98 */
@@ -969,6 +971,16 @@ int init_topo( Display_Context dtx, char *toponame, int textureflag, int hi_res 
    return 1;
    
 }
+
+
+void set_topo_sampling(struct Topo *topo, float latres, float lonres )
+{
+   topo->LatSample = (int) (latres / ((topo->Topo_northlat-topo->Topo_southlat) / (topo->Topo_rows-1)));
+   topo->LonSample = (int) (lonres / ((topo->Topo_westlon-topo->Topo_eastlon) / (topo->Topo_cols-1)));
+   if (topo->LatSample<=0)  topo->LatSample = 1;
+   if (topo->LonSample<=0)  topo->LonSample = 1;
+}
+
 
 
 
@@ -988,16 +1000,20 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
    uint_1      *color;
    /* MJK 12.02.98 end */
 
+	struct Topo *topo;
+	topo = dtx->topo;
+
+
    set_color( 0xffffffff );
 
    if (flat_flag) {
       if (texture_flag) {
          /* flat texture map */
          use_texture( dtx, time );
-         texture_quadmeshnorm( dtx->qrows, dtx->qcols,
-                               (void*) dtx->TopoFlatVertex,
+         texture_quadmeshnorm( topo->qrows, topo->qcols,
+                               (void*) topo->TopoFlatVertex,
                                NULL,  
-                               (void*) dtx->TopoTexcoord ); 
+                               (void*) topo->TopoTexcoord ); 
       }
       else {
          /* draw nothing */
@@ -1007,38 +1023,38 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
       if (texture_flag) {
          /* textured topo */
          use_texture( dtx, time );
-         texture_quadmeshnorm( dtx->qrows, dtx->qcols,
-                               (void*) dtx->TopoVertex,
-                               (void*) dtx->TopoNormal,
-                               (void*) dtx->TopoTexcoord ); 
+         texture_quadmeshnorm( topo->qrows, topo->qcols,
+                               (void*) topo->TopoVertex,
+                               (void*) topo->TopoNormal,
+                               (void*) topo->TopoTexcoord ); 
       }
       else {
          /* untextured topo */
          uint_1 *indexes;
          unsigned int *color_table;
 
-         if (dtx->TopoColorVar<0) {
+         if (topo->TopoColorVar<0) {
             int yo;
 
-            color_table = dtx->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS];
-            indexes = dtx->TopoIndexes[MAXTIMES];
+            color_table = topo->TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS];
+            indexes = topo->TopoIndexes[MAXTIMES];
          }
          else {
-            color_table = dtx->TopoColorTable[ dtx->TopoColorVarOwner * MAXVARS + dtx->TopoColorVar ];
-            indexes = dtx->TopoIndexes[time];
+            color_table = topo->TopoColorTable[ topo->TopoColorVarOwner * MAXVARS + topo->TopoColorVar ];
+            indexes = topo->TopoIndexes[time];
             if (!indexes) {
-               indexes = dtx->TopoIndexes[MAXTIMES];
+               indexes = topo->TopoIndexes[MAXTIMES];
             }
          }
 
          /* MJK 12.02.98 begin */
-         if (dtx->TopoStripsVerts == NULL) return;
-         if (dtx->TopoStripsNorms == NULL) return;
+         if (topo->TopoStripsVerts == NULL) return;
+         if (topo->TopoStripsNorms == NULL) return;
 
-         verts = dtx->TopoStripsVerts;
-         norms = dtx->TopoStripsNorms;
-         nr    = dtx->qrows;
-         nc    = dtx->qcols;
+         verts = topo->TopoStripsVerts;
+         norms = topo->TopoStripsNorms;
+         nr    = topo->qrows;
+         nc    = topo->qcols;
          nr2   = nr * 2;
          nc2   = nc * 2;
 
@@ -1066,7 +1082,7 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
              verts += nc2 * 3;
              norms += nc2 * 3;
          }
-         if (dtx->DisplayTopoBase)
+         if (topo->DisplayTopoBase)
          {
              unsigned int    base_color = TOPO_BASE_COLOR;
              int             norm_dir = 1;
@@ -1079,16 +1095,16 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
              memset (color, 0, (n * 2 * sizeof (uint_1)));
 
 /* MJK reversed this 2.16.99
-             norm_dir = (dtx->TopoBaseLev < 0.0) ? -1 : 1;
+             norm_dir = (topo->TopoBaseLev < 0.0) ? -1 : 1;
 */
 /* MJK 3.29.99 don't know why this is here
-             norm_dir = (dtx->TopoBaseLev < 0.0) ? -1 : 1; 
+             norm_dir = (topo->TopoBaseLev < 0.0) ? -1 : 1; 
 */
              norm_dir = 1;
 
              /* north side */
 
-             if ((check_face_norm (dtx, verts) * norm_dir > 0))
+             if ((check_face_norm(verts) * norm_dir > 0))
                  draw_colored_triangle_strip (nc2,
                                               (void *) verts,
                                               (void *) norms,
@@ -1098,7 +1114,7 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
 
              /* south side */
 
-             if ((check_face_norm (dtx, verts) * norm_dir) > 0)
+             if ((check_face_norm(verts) * norm_dir) > 0)
                  draw_colored_triangle_strip (nc2,
                                               (void *) verts,
                                               (void *) norms,
@@ -1108,7 +1124,7 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
 
              /* west side */
 
-             if ((check_face_norm (dtx, verts) * norm_dir) > 0)
+             if ((check_face_norm(verts) * norm_dir) > 0)
                  draw_colored_triangle_strip (nr2,
                                               (void *) verts,
                                               (void *) norms,
@@ -1118,7 +1134,7 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
 
              /* east side */
 
-             if ((check_face_norm (dtx, verts) * norm_dir) > 0)
+             if ((check_face_norm(verts) * norm_dir) > 0)
                  draw_colored_triangle_strip (nr2,
                                               (void *) verts,
                                               (void *) norms,
@@ -1128,7 +1144,7 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
 
              /* bottom */
 
-             if ((check_face_norm (dtx, verts) * norm_dir) > 0)
+             if ((check_face_norm(verts) * norm_dir) > 0)
              {
                  float       r, g, b, a, fac = 0.90;
 

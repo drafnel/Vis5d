@@ -80,8 +80,8 @@ float   get_z_off (Display_Context dtx, float zmin, float zmax)
 
     if (zmin > zmax)
     {
-        zmin = height_to_zPRIME (dtx, dtx->MinTopoHgt);
-        zmax = height_to_zPRIME (dtx, dtx->MaxTopoHgt);
+        zmin = height_to_zPRIME (dtx, dtx->topo->MinTopoHgt);
+        zmax = height_to_zPRIME (dtx, dtx->topo->MaxTopoHgt);
     }
 
     zoff = sqrt (((dtx->Xmax-dtx->Xmin)*(dtx->Xmax-dtx->Xmin)) +
@@ -184,8 +184,8 @@ int     bend_line_to_fit_topo (Display_Context dtx, float *xyz_in, int n_in,
 
 
 
-    if (!dtx->TopoFlag) return 0;
-    if (dtx->TopoVertex == NULL) return 0;
+    if (!dtx->topo->TopoFlag) return 0;
+    if (dtx->topo->TopoVertex == NULL) return 0;
     if (xyz_in  == NULL) return 0;
     if (n_in    <=    1) return 0;
     if (xyz_out == NULL) return 0;
@@ -195,7 +195,7 @@ int     bend_line_to_fit_topo (Display_Context dtx, float *xyz_in, int n_in,
     zoff = get_z_off (dtx, 1.0, 0.0);
 
 
-    nnew = bend_line_to_fit_surf (dtx->TopoVertex, dtx->qcols, dtx->qrows,
+    nnew = bend_line_to_fit_surf (dtx->topo->TopoVertex, dtx->topo->qcols, dtx->topo->qrows,
                                   INTERP_TRIANGULAR_GRID_SCHEME_NORMAL,
                                   dtx->Xmin, dtx->Ymin, dtx->Xmax, dtx->Ymax,
                                   zoff, xyz_in, n_in, xyz_out);
@@ -219,8 +219,8 @@ void bend_map_seg_to_fit_topo (Display_Context dtx)
 
 
 
-    if (!dtx->TopoFlag) return;
-    if (dtx->TopoVertex == NULL) return;
+    if (!dtx->topo->TopoFlag) return;
+    if (dtx->topo->TopoVertex == NULL) return;
 
 
     ibeg = dtx->VertCount - 2;
@@ -722,13 +722,13 @@ int init_map( Display_Context dtx, char *mapname )
             if (j==0) {
                prevlat = (float) verts[j*2] * 0.0001;
                prevlon = (float) verts[j*2+1] * 0.0001 + lon_shift;
-               prevhgt = elevation(dtx,prevlat,prevlon,NULL) / 1000.0;
+               prevhgt = elevation(dtx,dtx->topo,prevlat,prevlon,NULL) / 1000.0;
                new = 1;
             }
             else {
                lat = (float) verts[j*2] * 0.0001;
                lon = (float) verts[j*2+1] * 0.0001 + lon_shift;
-               hgt = elevation(dtx,lat,lon,NULL) / 1000.0;
+               hgt = elevation(dtx,dtx->topo,lat,lon,NULL) / 1000.0;
                if (hgt!=hgt) {
                   printf("nan hgt!\n");
                }

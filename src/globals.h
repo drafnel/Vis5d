@@ -484,6 +484,41 @@ struct varlink{
 extern struct varlink var_link[MAXVARS * MAXTYPES * VIS5D_MAX_CONTEXTS];
 extern struct varlink group_var_link[MAXVARS * MAXTYPES * VIS5D_MAX_CONTEXTS];
 
+struct Topo{
+  int DisplayTopo;      /* display topography? */
+  int DisplayTopoBase;    /* display a base under topography */  
+  float TopoBaseLev;           /* level value of the topo base */
+  int_2 *TopoStripsVerts;      /* Topo triangle strip vertices */
+  int_1 *TopoStripsNorms;      /* Topo triangle strip normals */
+
+  /*** Topography File Data (use from topo.c only) ***/
+  char TopoName[1000];
+  int HiResTopo;
+  float Topo_westlon, Topo_eastlon, Topo_northlat, Topo_southlat;
+  int Topo_rows, Topo_cols;
+  short *TopoData;
+  int LatSample, LonSample;
+  int TopoFlag;        /* is topography available? */
+  
+  /*** Topography Graphics (use from topo.c only ***/
+  /* Topography quadmesh data: */
+  int qrows, qcols;           /* Rows and columns */
+  float *TopoVertex;          /* Vertices */
+  float *TopoNormal;          /* Normal vectors */
+  float *TopoTexcoord;        /* Texture coordinates */
+  float *TopoFlatVertex;      /* Flat topography vertices */
+  
+  int TopoColorVar;           /* which variable colors the topo (or -1) */
+  int TopoColorVarOwner;      /* vis5d ctx where TopoColorVar is located */
+  uint_1 *TopoIndexes[MAXTIMES+1];  /* Maps topo heights or data */
+  /* values to color table indexes */
+   float MinTopoHgt, MaxTopoHgt;        /* Min and max heights visible */
+   unsigned int TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS+1][256];
+   float TopoColorParams[MAXVARS*VIS5D_MAX_CONTEXTS+1][10];
+
+};
+
+
 
 struct display_context {
    int dpy_context_index;           /*index if this display context*/
@@ -534,27 +569,6 @@ struct display_context {
    XImage *cache[MAXTIMES];
    int all_invalid;
 
-   /*** Topography File Data (use from topo.c only) ***/
-   char TopoName[1000];
-   int HiResTopo;
-   float Topo_westlon, Topo_eastlon, Topo_northlat, Topo_southlat;
-   int Topo_rows, Topo_cols;
-   short *TopoData;
-   int LatSample, LonSample;
-   int TopoFlag;        /* is topography available? */
-
-   /*** Topography Graphics (use from topo.c only ***/
-                               /* Topography quadmesh data: */
-   int qrows, qcols;           /* Rows and columns */
-   float *TopoVertex;          /* Vertices */
-   float *TopoNormal;          /* Normal vectors */
-   float *TopoTexcoord;        /* Texture coordinates */
-   float *TopoFlatVertex;      /* Flat topography vertices */
-
-   int TopoColorVar;           /* which variable colors the topo (or -1) */
-   int TopoColorVarOwner;      /* vis5d ctx where TopoColorVar is located */
-   uint_1 *TopoIndexes[MAXTIMES+1];  /* Maps topo heights or data */
-                                     /* values to color table indexes */
 
 /*************************************************************************************/
 /*************************************************************************************/
@@ -563,7 +577,6 @@ struct display_context {
 /*************************************************************************************/
 
    int VolRender;
-   float MinTopoHgt, MaxTopoHgt;        /* Min and max heights visible */
    int TextureFlag;                     /* Texture maps available? */
    char TextureName[100];               /* Name of texture image file */
    char SequenceName[100];              /* Name of texture sequence file */
@@ -608,7 +621,6 @@ struct display_context {
    unsigned int CVSliceColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];  /* data value --> color LUT */
    unsigned int VolumeColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];    /* data value --> color LUT */
    unsigned int TrajColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];  /*trajectory color tables */
-   unsigned int TopoColorTable[MAXVARS*VIS5D_MAX_CONTEXTS+1][256];
    unsigned int TextPlotColors[MAXVARS*VIS5D_MAX_CONTEXTS][256];
 
    /*** colorbar parameters for sine, cosine curves ***/
@@ -617,7 +629,7 @@ struct display_context {
    float IsoColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
    float VolumeColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
    float TrajColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
-   float TopoColorParams[MAXVARS*VIS5D_MAX_CONTEXTS+1][10];
+
    float TextPlotColorParams[MAXVARS*VIS5D_MAX_CONTEXTS][10];
 
    /*** 3-D bounding box ***/
@@ -901,7 +913,7 @@ struct display_context {
 
    int VolumeFlag;
    int ContnumFlag;      /* display contour numbers? */
-   int DisplayTopo;      /* display topography? */
+
    int DisplayMap;       /* display map? */
    int DisplayTexture;   /* display texture images? */
    int CoordFlag;        /* coordinate display units:  0=geographic, 1=grid */
@@ -937,11 +949,9 @@ struct display_context {
 
 
    /* MJK 12.02.98 begin */
-   int DisplayTopoBase;         /* display a base under topography */
-   float TopoBaseLev;           /* level value of the topo base */
-   int_2 *TopoStripsVerts;      /* Topo triangle strip vertices */
-   int_1 *TopoStripsNorms;      /* Topo triangle strip normals */
-   char DisplaySfcMap;          /* display surface map */
+  /*JPE  try to move topo out */
+  struct Topo *topo;
+  char DisplaySfcMap;          /* display surface map */
    /* MJK 12.02.98 end */
 
 };

@@ -20,7 +20,7 @@ AM_ENABLE_SHARED(yes)
 # It does *not* correspond to the release number, and has a technical
 # meaning (CURRENT:REVISION:AGE) that indicates the compatibility of
 # different library versions (see the libtool manual):
-SHARED_VERSION_INFO="1:2:0"
+SHARED_VERSION_INFO="2:0:0"
 AC_SUBST(SHARED_VERSION_INFO)
 
 ##########################################################################

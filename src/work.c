@@ -655,25 +655,13 @@ static float* extract_hslice( Context ctx, float *grid, int var,
       float a, b, g1, g2;
       int i, j;
 
-/* WLH 15 Oct 98
-      level -= lowlev;
-      if (level < 0 || level > nl-1) {
-        for (i=0; i<nr*nc; i++) slice[i] = MISSING;
-        return slice;
-      }
-      lower = (int) level;
-      upper = lower + 1;
-      if (upper>nl-1)
-         upper = nl - 1;
-      a = level - (float) lower;
-      b = 1.0 - a;
-*/
       /* WLH 15 Oct 98 */
       level -= ctx->LowLev[var];
       if (level < 0 || level > ctx->Nl[var]-1) {
         for (i=0; i<nr*nc; i++) slice[i] = MISSING;
         return slice;
       }
+
       lower = (int) level;
       upper = lower + 1;
       if (upper>ctx->Nl[var]-1)
@@ -872,9 +860,9 @@ static float* extract_hslicePRIME( Context ctx, float *grid, int time, int var,
       float a, b, g1, g2;
       int i, j;
 
-      /* WLH 6-30-95 */
-      level -= lowlev;
-      if (level < 0 || level > nl-1) {
+      /* WLH 15 Oct 98 */
+      level -= ctx->LowLev[var];
+      if (level < 0 || level > ctx->Nl[var]-1) {
         for (i=0; i<nr*nc; i++) slice[i] = MISSING;
         return slice;
       }

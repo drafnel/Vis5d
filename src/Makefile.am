@@ -4,7 +4,7 @@
 bin_PROGRAMS = vis5d
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
-lib_LTLIBRARIES = libv5d.la libvis5d.la
+lib_LTLIBRARIES = libvis5d.la
 
 CPPFLAGS = @CPPFLAGS@ # -I flags
 
@@ -30,15 +30,12 @@ AUXSRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
 
 HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour.h cursor.h displaywidget.h etableP.h file.h file_i.h fsl.h gl_to_ppm.h globals.h graphics.h grid.h grid_i.h groupchrono.h gui.h gui_i.h iapi.h igui.h image.h imain.h imemory.h irregular_api.h irregular_v5d.h isocolor.h labels.h linterp.h main_i.h map.h matrix.h memory.h memory_i.h misc.h misc_i.h model_i.h mwmborder.h netcdf.h netcdf_i.h output_i.h pipe.h proj.h proj_i.h projlist_i.h queue.h read_epa_i.h read_gr3d_i.h read_grads_i.h read_grid_i.h read_uwvis_i.h read_v5d_i.h record.h render.h resample_i.h rgb.h rgbsliders.h save.h script.h select_i.h slice.h socketio.h sounding.h soundingGUI.h stream.h sync.h tclsave.h textplot.h tokenize_i.h topo.h topo_i.h traj.h ui_i.h user_data.h uvwwidget.h vertplot.h vis5d.h volume.h vtmcP.h work.h xdump.h
 
-libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
-libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
-
-libvis5d_la_SOURCES = $(API_SRC) $(SRC_I) $(AUXSRC) api.h
+libvis5d_la_SOURCES =  v5d.c binio.c v5d.h binio.h v5df.h $(API_SRC) $(SRC_I) $(AUXSRC) api.h
 libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
 vis5d_SOURCES = $(GUI_SRC) main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files
-vis5d_LDADD = libvis5d.la ../lui5/liblui.a libv5d.la \
+vis5d_LDADD = libvis5d.la ../lui5/liblui.a \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@
 

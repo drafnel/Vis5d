@@ -300,6 +300,18 @@ extern int vis5d_check_dtx_same_as_ctx( int dindex, int vindex );
 
 extern int vis5d_set_dtx_values( int index, v5dstruct *v5d);
 
+
+extern int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
+											int nr, int nc, const int nl[],
+											const char varname[MAXVARS][10],
+											const int timestamp[], const int datestamp[],
+											int compressmode,
+											int projection,
+											const float proj_args[],
+											int vertical,
+											const float vert_args[] );
+
+
 /* New 5.2 */
 extern int vis5d_init_display_values( int index, int iindex, int display );
 

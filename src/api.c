@@ -2174,10 +2174,26 @@ int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
                int vertical,
                const float vert_args[] )
 {
-  CONTEXT("vis5d_set_ctx_values")
+  Context ctx; 
+  /*printf("in c %s\n",msg);*/ 
+  if (index<0 || index>=VIS5D_MAX_CONTEXTS) { 
+    debugstuff(); 
+    printf("bad context in vis5d_set_ctx_values %d\n",index); 
+    return VIS5D_BAD_CONTEXT; 
+  }
+  if((ctx = ctx_table[index])==NULL) {
+	 ctx = ctx_table[index] = new_context();
+	 init_context( ctx );
+	 ctx->context_index = index;
+	 ctx->InsideInit = 1;  /* not sure if this is good */
+	 ctx->LogFlag = 0;
 
+  }
   v5dCreateStruct(&ctx->G,numtimes,numvars,nr,nc,nl,varname,timestamp,datestamp,
 							 compressmode,projection,proj_args,vertical,vert_args);
+
+
+
 
   return set_ctx_from_internalv5d(ctx);
 
@@ -3074,10 +3090,10 @@ int vis5d_map_sndwindow( int index)
    DPY_CONTEXT("vis5d_map_sndwindow");
 
    XSynchronize(SndDpy, 1);
-   if (dtx->Sound.SoundCtrlWindow){
+	if (dtx->Sound.SoundCtrlWindow){
       extern Display *GuiDpy;
       XMapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
-   }
+	}
    XMapWindow( SndDpy, dtx->Sound.soundwin);
    XSynchronize(SndDpy, 0);
    return 0;
@@ -3086,10 +3102,10 @@ int vis5d_map_sndwindow( int index)
 int vis5d_unmap_sndwindow( int index )
 {
    DPY_CONTEXT("vis5d_map_sndwindow");
-   if (dtx->Sound.SoundCtrlWindow){
-      extern Display *GuiDpy;
-      XUnmapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
-   }
+	if (dtx->Sound.SoundCtrlWindow){
+	  extern Display *GuiDpy;
+	  XUnmapWindow( GuiDpy, dtx->Sound.SoundCtrlWindow);
+	}
    XUnmapWindow( SndDpy, dtx->Sound.soundwin);
    return 0;
 }

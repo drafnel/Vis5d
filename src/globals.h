@@ -440,6 +440,7 @@ struct label {
    int state;                   /* 1=being edited, 0=static */
    struct label *next;          /* pointer to next label in list */
    int id;                      /* a unique handle ID */
+  unsigned int LabelColor;     /* Moved from Display Context */
 };
 
 
@@ -588,7 +589,6 @@ struct display_context {
    unsigned int *CursorColor;
    unsigned int BoxColor;
    unsigned int BgColor;
-   unsigned int LabelColor;
    unsigned int LightMapColor;
    unsigned int DarkMapColor;
    unsigned int TextPlotColor[MAXVARS*VIS5D_MAX_CONTEXTS];

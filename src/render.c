@@ -1782,6 +1782,14 @@ static void render_text_labels( Display_Context dtx )
    struct label *lab;
 
   for (lab=dtx->FirstLabel; lab; lab=lab->next) {
+
+	 if (dtx->Reversed  && lab->LabelColor==PACK_COLOR(255,255,255,255)){
+      set_color( PACK_COLOR(0,0,0,255) );
+	 }
+	 else{
+      set_color( lab->LabelColor );
+	 }
+
     draw_text( lab->x, lab->y, lab->text );
     if (lab->state) {
        /* being edited -> draw cursor */
@@ -2594,13 +2602,14 @@ void render_2d_only( Display_Context dtx )
    }
 
    /* MJK 3.29.99 */
+   /*  Moved to render_text_labels  JPE 
    if (dtx->Reversed){
       set_color( PACK_COLOR(0,0,0,255) );
    }
    else{
       set_color( dtx->LabelColor );
    }
-
+	*/
 
    render_text_labels(dtx);
 

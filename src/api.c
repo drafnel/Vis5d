@@ -613,7 +613,7 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
    dtx->CursorColor = &dtx->TrajColor[0];
    dtx->BoxColor = PACK_COLOR(255,255,255,255);
    dtx->BgColor = PACK_COLOR(0,0,0,255);
-   dtx->LabelColor = PACK_COLOR(255,255,255,255);
+	/*   dtx->LabelColor = PACK_COLOR(255,255,255,255); */
    dtx->LightMapColor = PACK_COLOR(255,255,255,255);
    dtx->DarkMapColor = PACK_COLOR(0,0,0,255);
    
@@ -6565,7 +6565,16 @@ static int get_graphics_color_address( int index, int type, int number,
       *color = &dtx->BgColor;
       break;
     case VIS5D_LABEL:
-      *color = &dtx->LabelColor;
+		/* *color = &dtx->LabelColor; */
+      {
+		  struct label *lab;
+		  for (lab=dtx->FirstLabel; lab; lab=lab->next) {
+			 if (lab->id==number) {
+				*color = &lab->LabelColor;
+			 }
+		  }
+		}
+
       break;
     case VIS5D_TEXTPLOT:
       *color = &dtx->TextPlotColor[number];
@@ -8840,6 +8849,7 @@ static struct label *alloc_label( Display_Context dtx )
    l = (struct label *) malloc( sizeof(struct label) );
    if (l) {
       l->id = LabelID++;
+		l->LabelColor =  PACK_COLOR(255,255,255,255);
       if (dtx->FirstLabel && dtx->FirstLabel->state) {
          /* disable editing of prev label */
          if (dtx->FirstLabel->len==0) {
@@ -8869,7 +8879,6 @@ static void compute_label_bounds( Display_Context dtx, struct label *lab )
 }
 
 
-
 /*
  * Make a complete text label at position (x,y).
  */
@@ -8886,7 +8895,7 @@ int vis5d_make_label( int index, int x, int y, char *text )
       l->y = y;
       l->state = 0;
       compute_label_bounds( dtx, l );
-      return 0;
+      return l->id;
    }
    return VIS5D_OUT_OF_MEMORY;
 }

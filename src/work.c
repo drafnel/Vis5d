@@ -2544,6 +2544,9 @@ static void calc_vslice( Context ctx, int time, int var,
    vslice->r2 = r2;
    vslice->c2 = c2;
 #else
+#  ifdef USE_SYSTEM_FONTS
+	  vslice->labels = labels;
+#  endif
    /* deallocate existing slice, if any */
    free_vslice( ctx, time, var );
 
@@ -6562,7 +6565,7 @@ int do_one_task( int threadnum )
 							ctx->Variable[var]->HSliceRequest->Level, threadnum );
          break;
       case TASK_VSLICE:
-         /* calculate a horizontal contour line slice. */
+         /* calculate a vertical contour line slice. */
          calc_vslice( ctx, time, var, ctx->Variable[var]->VSliceRequest->Interval,
                       ctx->Variable[var]->VSliceRequest->LowLimit, ctx->Variable[var]->VSliceRequest->HighLimit,
                       ctx->Variable[var]->VSliceRequest->R1, ctx->Variable[var]->VSliceRequest->R2,

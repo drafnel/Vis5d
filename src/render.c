@@ -1204,6 +1204,7 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
                                     (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] , NULL, 0);
+					glDisable(GL_LINE_STIPPLE);
 					plot_strings( ctx->Variable[var]->VSliceTable[time]->num3,
 									  ctx->Variable[var]->VSliceTable[time]->labels,
 									  (void*) ctx->Variable[var]->VSliceTable[time]->verts3,

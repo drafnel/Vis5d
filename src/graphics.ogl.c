@@ -2082,6 +2082,9 @@ void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuin
   int len;
   /* TODO: How to make the area behind the string opaque? */
 
+  if(str==NULL) 
+	 return;
+
   glColor4ubv( (GLubyte *) &color );
   glPushMatrix();
   glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );

@@ -59,7 +59,9 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
   add_pixmap_directory (VIS5D_SOURCE_DIR "/pixmaps");
 
   window3D = create_window3D();
-
+  /*
+  printf("Window3D defined 0x%x 0x%x\n",window3D, oldwindow3D);
+  */
   if(oldwindow3D){
 	 delete_frame = lookup_widget(oldwindow3D,"delete_frame1");
 	 gtk_widget_set_sensitive(delete_frame,TRUE);
@@ -69,15 +71,12 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
 	 gtk_widget_set_sensitive(delete_frame,TRUE);
 
   }
-  printf("Start the window\n");
 
   window3Dlist = g_list_append(window3Dlist,(gpointer) window3D);
   gtk_object_set_data(GTK_OBJECT(window3D),"window3Dlist",(gpointer) window3Dlist);
 
   if(oldwindow3D)
 	 gtk_object_set_data(GTK_OBJECT(oldwindow3D),"window3Dlist",(gpointer) window3Dlist);
-	 
-  printf("Show the window\n");
 
   gtk_widget_show (window3D);
 
@@ -473,8 +472,6 @@ on_setview_activate              (GtkMenuItem     *menuitem,
 
   label = GTK_LABEL(GTK_BIN(menuitem)->child);
   gtk_label_get(label, &label_str);
-
-  printf("here %s\n",label_str);
 
 }
 
@@ -980,35 +977,6 @@ on_window_3d1_activate                 (GtkMenuItem     *menuitem,
 
 }
 
-#ifdef HAVE_LIBNETCDF
-void
-on_irreg_variable_activate                   (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-  gint i;
-  GtkWidget *window3D;
-  v5d_var_info *vinfo = (v5d_var_info *) user_data;
-  
-  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
-
-  if(GTK_CHECK_MENU_ITEM(menuitem)->active ){
-	 vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_ON);
-	 vis5d_set_text_plot( vinfo->v5d_data_context, vinfo->varid, 1.,10.,10.,1.);
-	 for(i=0;i<vinfo->numtimes;i++)
-		vis5d_make_text_plot( vinfo->v5d_data_context,i, i==vinfo->info->timestep);
-
-	 gtk_object_set_data(GTK_OBJECT(window3D),"itx_context",
-								GINT_TO_POINTER(vinfo->v5d_data_context));
-
-  }else{
-	 vis5d_enable_irregular_graphics(vinfo->v5d_data_context,VIS5D_TEXTPLOT ,VIS5D_OFF);
-
-	 gtk_object_remove_data(GTK_OBJECT(window3D),"itx_context");
-
-  }
-}
-#endif
-
 void
 on_variable_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
@@ -1074,6 +1042,34 @@ GtkWidget *create_variables_menu(GtkWidget *window3D, GtkWidget *parent, const g
   return variables_menu;
 }
 
+void
+variable_menu_add_irregular_variable(GtkWidget *window3D, v5d_var_info *vinfo)
+{
+  GtkWidget *TextPlotDialog, *menu;
+
+  TextPlotDialog = gtk_object_get_data(GTK_OBJECT(window3D),"TextPlotDialog");
+  if(! TextPlotDialog){
+	 GtkWidget *new_TextPlotDialog(GtkWidget *window);
+	 
+	 TextPlotDialog = new_TextPlotDialog(window3D);
+	 gtk_object_set_data_full(GTK_OBJECT(TextPlotDialog),
+									  "window3D",window3D,
+									  (GtkDestroyNotify) gtk_widget_unref );
+	 
+	 gtk_object_set_data(GTK_OBJECT(TextPlotDialog),"GtkGlArea",
+								vinfo->info->GtkGlArea);
+
+	 gtk_object_set_data(GTK_OBJECT(TextPlotDialog),"itx_index",
+								GINT_TO_POINTER(vinfo->v5d_data_context));
+
+
+	 menu = lookup_widget(window3D,"irregular");
+	 gtk_widget_set_sensitive(menu,TRUE);
+	 gtk_widget_show(menu);
+  }
+  TextPlotDialog_add_variable(TextPlotDialog,vinfo);
+  return;
+}
 
 void
 variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
@@ -1092,7 +1088,8 @@ variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
 
   switch (vinfo->maxlevel){
   case 0:
-    myvtype = VIRREG;
+	 variable_menu_add_irregular_variable(window3D,vinfo);
+	 return;
     break;
   case 1:
     myvtype = V2D;
@@ -1101,33 +1098,18 @@ variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
     myvtype = V3D;
     break;
   }
-  /* Do I need this 
-  vis5d_get_num_of_data_sets_in_display(vinfo->info->v5d_display_context, ctxcnt);
-  */
+
   variables_menu = gtk_object_get_data(GTK_OBJECT(window3D),menus[myvtype]);
-  
+
   if(!variables_menu){
 	 menu = lookup_widget(window3D,vars[myvtype]);
+	 
 	 if(!menu){
 		printf("ERROR: this widget should be here %s\n",vars[myvtype]);
 		exit(-1);
 	 }
 	 gtk_widget_set_sensitive(menu,TRUE);
-
 	 gtk_widget_show(menu);
-
-	 if(myvtype == VIRREG){
-		GtkWidget *new_TextPlotDialog(GtkWidget *window);
-		GtkWidget *TextPlotDialog = new_TextPlotDialog(window3D);
-
-		gtk_object_set_data_full(GTK_OBJECT(TextPlotDialog),
-										 "window3D",window3D,
-										 (GtkDestroyNotify) gtk_widget_unref );
-		TextPlotDialog_add_variable(TextPlotDialog,vinfo);
-		/* since only textplots are allowed for irregular data
-			we can return here */
-		return;
-	 }
 
 	 variables_menu = create_variables_menu(window3D,menu,menus[myvtype]);
 	 gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu), variables_menu);
@@ -1136,30 +1118,14 @@ variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo)
 	 gtk_widget_ref(tearoff);
 	 gtk_widget_show(tearoff);
 	 gtk_container_add (GTK_CONTAINER (variables_menu), tearoff);
-  }else{
-	 variables_menu = GTK_WIDGET(variables_menu);
   }
 
   
-  if(myvtype == VIRREG){
-	 GtkWidget *TextPlotDialog = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(window3D),"TextPlotDialog"));
-	 TextPlotDialog_add_variable(TextPlotDialog,vinfo);
-
-	 return;
-	 /*	 
-	 variable = gtk_check_menu_item_new_with_label (vinfo->vname);
-	 gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM (variable), TRUE);
-	 gtk_signal_connect (GTK_OBJECT (variable), "activate",
-								GTK_SIGNAL_FUNC (on_irreg_variable_activate),
-								(gpointer) vinfo);
-	 */
-  }else{
-	 variable = gtk_menu_item_new_with_label (vinfo->vname);
-	 gtk_signal_connect (GTK_OBJECT (variable), "activate",
-								GTK_SIGNAL_FUNC (on_variable_activate),
-								(gpointer) vinfo);
-  }
-
+  variable = gtk_menu_item_new_with_label (vinfo->vname);
+  gtk_signal_connect (GTK_OBJECT (variable), "activate",
+							 GTK_SIGNAL_FUNC (on_variable_activate),
+							 (gpointer) vinfo);
+  
   gtk_widget_ref (variable);
   gtk_widget_show (variable);
   gtk_container_add (GTK_CONTAINER (variables_menu), variable);
@@ -1210,11 +1176,13 @@ on_irregular_activate                  (GtkMenuItem     *menuitem,
   /* irregular data in vis5d is limited to textplots at this time */
 
   GtkWidget *textplotdialog, *window3D;
-  /*  
-  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
-  */
+
   textplotdialog = lookup_widget(GTK_WIDGET(menuitem),"TextPlotDialog");
-  gtk_widget_show(textplotdialog);
+  if(! textplotdialog){
+	 printf("ERROR: TextPlotDialog should be defined at %s line %d\n",__FILE__, __LINE__);
+	 
+  }else
+	 gtk_widget_show(textplotdialog);
 
 }
 

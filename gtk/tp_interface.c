@@ -42,8 +42,8 @@ create_TextPlotDialog (void)
   GtkWidget *textplot_variables_menu;
   GtkWidget *dialog_action_area1;
   GtkWidget *hbuttonbox1;
-  GtkWidget *okay;
-  GtkWidget *cancel;
+  GtkWidget *tpokay;
+  GtkWidget *tpcancel;
 
   TextPlotDialog = gtk_dialog_new ();
   gtk_widget_set_name (TextPlotDialog, "TextPlotDialog");
@@ -114,8 +114,8 @@ create_TextPlotDialog (void)
   gtk_misc_set_alignment (GTK_MISC (label4), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label4), 5, 0);
 
-  size_sb_adj = gtk_adjustment_new (1, 0, 100, 1, 10, 10);
-  size_sb = gtk_spin_button_new (GTK_ADJUSTMENT (size_sb_adj), 1, 0);
+  size_sb_adj = gtk_adjustment_new (1, 0.01, 100, 1, 10, 10);
+  size_sb = gtk_spin_button_new (GTK_ADJUSTMENT (size_sb_adj), 1, 2);
   gtk_widget_set_name (size_sb, "size_sb");
   gtk_widget_ref (size_sb);
   gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "size_sb", size_sb,
@@ -124,6 +124,7 @@ create_TextPlotDialog (void)
   gtk_table_attach (GTK_TABLE (table1), size_sb, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (size_sb), TRUE);
 
   spacing_sb_adj = gtk_adjustment_new (1, 0, 100, 1, 10, 10);
   spacing_sb = gtk_spin_button_new (GTK_ADJUSTMENT (spacing_sb_adj), 1, 0);
@@ -189,6 +190,8 @@ create_TextPlotDialog (void)
   gtk_table_attach (GTK_TABLE (table1), textplot_variables, 1, 2, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_usize (textplot_variables, 150, 40);
+  gtk_container_set_border_width (GTK_CONTAINER (textplot_variables), 5);
   textplot_variables_menu = gtk_menu_new ();
   gtk_option_menu_set_menu (GTK_OPTION_MENU (textplot_variables), textplot_variables_menu);
 
@@ -206,23 +209,45 @@ create_TextPlotDialog (void)
   gtk_widget_show (hbuttonbox1);
   gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbuttonbox1, TRUE, TRUE, 0);
 
-  okay = gtk_button_new_with_label (_("Okay"));
-  gtk_widget_set_name (okay, "okay");
-  gtk_widget_ref (okay);
-  gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "okay", okay,
+  tpokay = gtk_button_new_with_label (_("Okay"));
+  gtk_widget_set_name (tpokay, "tpokay");
+  gtk_widget_ref (tpokay);
+  gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "tpokay", tpokay,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (okay);
-  gtk_container_add (GTK_CONTAINER (hbuttonbox1), okay);
-  GTK_WIDGET_SET_FLAGS (okay, GTK_CAN_DEFAULT);
+  gtk_widget_show (tpokay);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox1), tpokay);
+  GTK_WIDGET_SET_FLAGS (tpokay, GTK_CAN_DEFAULT);
 
-  cancel = gtk_button_new_with_label (_("Cancel"));
-  gtk_widget_set_name (cancel, "cancel");
-  gtk_widget_ref (cancel);
-  gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "cancel", cancel,
+  tpcancel = gtk_button_new_with_label (_("Cancel"));
+  gtk_widget_set_name (tpcancel, "tpcancel");
+  gtk_widget_ref (tpcancel);
+  gtk_object_set_data_full (GTK_OBJECT (TextPlotDialog), "tpcancel", tpcancel,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (cancel);
-  gtk_container_add (GTK_CONTAINER (hbuttonbox1), cancel);
-  GTK_WIDGET_SET_FLAGS (cancel, GTK_CAN_DEFAULT);
+  gtk_widget_show (tpcancel);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox1), tpcancel);
+  GTK_WIDGET_SET_FLAGS (tpcancel, GTK_CAN_DEFAULT);
+
+  gtk_signal_connect (GTK_OBJECT (size_sb), "changed",
+                      GTK_SIGNAL_FUNC (on_tp_sb_changed),
+                      GINT_TO_POINTER(0));
+  gtk_signal_connect (GTK_OBJECT (spacing_sb), "changed",
+                      GTK_SIGNAL_FUNC (on_tp_sb_changed),
+                      GINT_TO_POINTER(1));
+  gtk_signal_connect (GTK_OBJECT (fontx_sb), "changed",
+                      GTK_SIGNAL_FUNC (on_tp_sb_changed),
+                      GINT_TO_POINTER(2));
+  gtk_signal_connect (GTK_OBJECT (fonty_sb), "changed",
+                      GTK_SIGNAL_FUNC (on_tp_sb_changed),
+                      GINT_TO_POINTER(3));
+  gtk_signal_connect (GTK_OBJECT (Color), "clicked",
+                      GTK_SIGNAL_FUNC (on_Color_clicked),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (tpokay), "clicked",
+                      GTK_SIGNAL_FUNC (on_tpokay_clicked),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (tpcancel), "clicked",
+                      GTK_SIGNAL_FUNC (on_tpcancel_clicked),
+                      NULL);
 
   return TextPlotDialog;
 }

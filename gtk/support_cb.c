@@ -53,7 +53,7 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
   
   v5d_var_info *vinfo;
   v5d_info *info;
-  
+
   /* todo: should check for errors here */
   info = (v5d_info *) lookup_widget(window3D,"v5d_info");
   i = strlen(filename);
@@ -125,7 +125,7 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 		vis5d_get_itx_numtimes(dc, &vinfo->numtimes);
 		g_ptr_array_add(info->vinfo_array,(gpointer) vinfo);
 		
-		variable_menu_add_variable(window3D, vinfo);
+		variable_menu_add_irregular_variable(window3D, vinfo);
 		
 	 }
 	 

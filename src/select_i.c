@@ -52,6 +52,10 @@ static void set_cell_selection( struct grid_db *db, int time, int var,
    while (g) {
       if (state) {
          g->SelectBits |= bitmask;
+			if(bitmask==VAR_BIT){
+			  g->SelectBits |= VCS_BIT;
+			  g->SelectBits |= PROJ_BIT;
+			}			  
       }
       else {
          g->SelectBits &= ~bitmask;

@@ -3,8 +3,8 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: VIS5D+
-Description: VIS5D OpenGL multidimensional visualization tool
+Name: Vis5d+
+Description: Vis5d OpenGL multidimensional visualization tool
 Version: @VERSION@
 Requires: 
 Libs: -L${libdir} -lvis5d -lv5d @LIBS@ @V5D_LIBS_AUX@ @GLLIBS@ @XLIBS@

@@ -6504,3 +6504,54 @@ void *work( void *threadnum )
    return NULL;
 #endif
 }
+
+
+/* computes reasonable contour min, max and interval based on the actual 
+   data in the slice over time */ 
+
+void set_hslice_pos(Context ctx, int var, float level)
+{
+  int i, t;
+  Display_Context dtx;
+
+  dtx = ctx->dpy_ctx;
+
+  ctx->HSliceLevel[var] = level;
+
+  new_hslice_pos( ctx, ctx->HSliceLevel[var], &ctx->HSliceZ[var],
+						&ctx->HSliceHgt[var] );
+
+  if (ctx->MinVal[var] > ctx->MaxVal[var]) {
+	 ctx->HSliceInterval[var] = 0.0;
+	 ctx->HSliceLowLimit[var] = ctx->MinVal[var];
+	 ctx->HSliceHighLimit[var] = ctx->MaxVal[var];
+  }
+  else {
+	 ctx->HSliceLowLimit[var] = ctx->MaxVal[var]+1;
+	 ctx->HSliceHighLimit[var] = ctx->MinVal[var]-1;
+	 for(t=0;t<ctx->NumTimes;t++){
+		float *slicedata;
+		if (ctx->DisplaySfcHSlice[var]){
+		  slicedata = extract_sfc_slice (ctx, t, var, dtx->Nr, dtx->Nc, get_grid(ctx,t,var), 1);
+		}else if (ctx->GridSameAsGridPRIME){
+		  slicedata = extract_hslice( ctx, get_grid(ctx,t,var), var, dtx->Nr, dtx->Nc, dtx->Nl,
+												dtx->LowLev, level, 1 );
+		}else{
+		  slicedata = extract_hslicePRIME( ctx, get_grid(ctx,t,var), t, var, dtx->Nr, dtx->Nc, dtx->Nl,
+													  dtx->LowLev, level, 1 );
+		}
+
+		for(i=0;i<dtx->Nr*dtx->Nl;i++){
+		  ctx->HSliceLowLimit[var] = (slicedata[i]<ctx->HSliceLowLimit[var]) ?
+			 slicedata[i]: ctx->HSliceLowLimit[var];
+		  ctx->HSliceHighLimit[var] = (slicedata[i]>ctx->HSliceHighLimit[var]) ?
+			 slicedata[i]: ctx->HSliceHighLimit[var];
+		  
+		}
+	 }
+	 ctx->HSliceInterval[var] = round((ctx->HSliceHighLimit[var] - ctx->HSliceLowLimit[var])/5.0);
+  }
+}
+
+
+

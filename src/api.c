@@ -8112,6 +8112,18 @@ int vis5d_set_hslice( int index, int var, float interval,
       level = maxlev;
    }
 
+   /* added 11-08-2000 JPE to compute reasonable contour values 
+		based on the values in the slice to be contoured. */
+
+	if(interval==0){
+	  void set_hslice_pos(Context ctx, int var, float level); /* in work.c */
+	  set_hslice_pos(ctx,var,level);
+	  printf("hslice_pos %f %f %f\n",ctx->HSliceInterval[var],
+				ctx->HSliceLowLimit[var],ctx->HSliceHighLimit[var]);
+	  return 0;
+	}
+	/* end of JPE */
+
    ctx->HSliceInterval[var] = interval;
    ctx->HSliceLowLimit[var] = low;
    ctx->HSliceHighLimit[var] = high;

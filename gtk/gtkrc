@@ -1,0 +1,9 @@
+#
+# Sets the clist attached to the glarea to black background which matchs
+# the glarea background
+#
+style "blackbase"
+{
+  base[NORMAL]={ 0.0, 0.0, 0.0 }
+}
+widget "window3D.*.Graphs_CList" style "blackbase"

@@ -23,9 +23,11 @@ main (int argc, char *argv[])
 #endif
   gtk_set_locale ();
 
-  /* TODO: need to look for rc file 
-	  gtk_rc_add_default_file();
+  /* TODO: need to look for gtkrc file, currently we just look in 
+	  the source dir since we don't install this version anyway
   */
+  gtk_rc_add_default_file(VIS5D_SOURCE_DIR "/gtk/gtkrc");
+
 
   gtk_init (&argc, &argv);
 

@@ -1,32 +1,8 @@
 Summary of changes for each release of Vis5d+:
 
-  * Patch submitted by 
-       Jaakko Hyvätti <Jaakko.Hyvatti@foreca.com>
-    - Year 2000 problem (you can now optionally specify year with 4 digits)
-    ..now gets the weekday right.
-    - Year 2100 problem: it is not a leap year.
-    - Timestamp comparison was wrong, it would accept date1 < date0
-      if time1 > time0.
-
-    In the fortran callable V5DSETUNITS units were not stripped of trailing
-    white space.  Maybe you can comment on if this is a good fix.
-
-    I added fortran-callable functions V5DUPDATE and V5DUPDATETIMES,
-    as the functionality was available in C also.  I have not tested those
-    though.  My idea is to incrementally append to a v5d file as the
-    model run creating the data advances, so I can check the early results
-    as soon as they are available..
-
 Vis5d+ 1.1
 
-  * Fixed non-working --with-memory configure option, thanks to Andrew Woolf.
-
-  * Fixed (hopefully) some problems compiling the Fortran utilities
-    under Tru64 Unix, reported by Frederic Chagnon.
-
   * The API (i.e. the libvis5d library) is now properly independent of the GUI.
-
-  * Fixed crashing bug in vertical levels interpolation code.
 
   * Better GrADS support in v5dimport (case-insensitive keywords, support
     for the PDEF statement, and template and byteswapped options).
@@ -41,13 +17,29 @@ Vis5d+ 1.1
     edit the source code for them to be useful.  Thanks to Markus
     Neteler for the suggestion.
 
-  * Possible bug fix when reading profiles from NetCDF files.
-
-  * Eliminate gcc compiler warnings; many code cleanups.
-
   * v5dimport now looks for EARTH.topo in the installation prefix, or
     in the VIS5D_PATH/VIS5D_TOPO environment variables if one of those
     are defined.
+
+  * Synchronized with mainline tree as of April 2, 2001.
+
+  * You can now optionally specify the year with 4 digits, and the
+    weekday is now correct.  Also fixed year 2100 problem (not a
+    leap year).  Thanks to Jaakko Hyvätti for the patch.
+
+  * Added fortran-callable functions V5DUPDATE and V5DUPDATETIMES,
+    similar to the C interface; thanks to Jaakko Hyvätti.
+
+  * Eliminate gcc compiler warnings; many code cleanups.
+
+  * Fixed non-working --with-memory configure option, thanks to Andrew Woolf.
+
+  * Fixed some problems compiling the Fortran utilities under Tru64 Unix,
+    reported by Frederic Chagnon.
+
+  * Fixed possible crashing bug in vertical levels interpolation code.
+
+  * Possible bug fix when reading profiles from NetCDF files.
 
   * Fixed a bug in v5dimport so that it properly handles the lowest level
     setting in the vertical coordinate system.  For example, if a vcs
@@ -55,8 +47,6 @@ Vis5d+ 1.1
     that variable should be defined on levels 1000 750 and 500, but
     v5dimport was ignoring the lowlev and using levels 1012 1000 and
     750.
-
-  * Synchronized with mainline tree as of April 2, 2001.
 
 Vis5d+ 1.0.2
 

@@ -16,8 +16,11 @@ Mike Stroyan of HP for the PEX support
 
 Vis5d+:
 
-Steven G. Johnson <stevenj@alum.mit.edu> of MIT, maintainer.
-
-Axel Reimann of Humboldt Univ. (converted the manual to DocBook).
+Steven G. Johnson <stevenj@alum.mit.edu> of MIT.
 Jim Edwards of INMET (Instituto Nacional de Meteorologia Brasil).
+Axel Reimann of Humboldt Univ. (converted the manual to DocBook).
 Conrad Poelman of Stellar Science Ltd. Co. (improved v5dimport, etc.).
+
+with additional thanks to:
+
+Jaakko Hyvätti of Foreca Ltd. (date-handling patches).

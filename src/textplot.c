@@ -1336,8 +1336,8 @@ int create_color_num_textplot( Irregular_Context itx, int time, float xs[],
    var = itx->TextPlotVar;
 
    vcount = 0;
-   min = itx->MinVal[var];
-   max = itx->MaxVal[var];
+   min = itx->Variable[var]->MinVal;
+   max = itx->Variable[var]->MaxVal;
    valscale = 254.0 / (max - min);
 
    for (i = 0; i < itx->NumRecs[time]; i++){
@@ -1418,7 +1418,7 @@ int create_letter_textplot( Irregular_Context itx, int time, float xs[],
    }
    for (i = 0; i < itx->NumRecs[time]; i++){
       if (ploton[i]){
-         for (l = 0; l < itx->CharVarLength[var]; l++){
+         for (l = 0; l < itx->Variable[var]->CharVarLength; l++){
             tempword[l] = chardata[ccount+l];
          }  
          tempword[l] = 0;
@@ -1440,7 +1440,7 @@ int create_letter_textplot( Irregular_Context itx, int time, float xs[],
                return -1;
             }  
          }
-         ccount += itx->CharVarLength[var];
+         ccount += itx->Variable[var]->CharVarLength;
       }
    }  
  

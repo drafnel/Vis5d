@@ -254,60 +254,78 @@ void init_graphics_pos( Context ctx, int var )
    Display_Context dtx;
    float l;
 
+	/* TODO: This should be split into initialization functions for each graph type and variable */
+
    dtx = ctx->dpy_ctx;
-   ctx->IsoLevel[var] = ctx->MinVal[var];
+   ctx->IsoLevel[var] = ctx->Variable[var]->MinVal;
 
    l =  ((float) dtx->LowLev + (float) (dtx->Nl-1) / 2);
 
-   ctx->HSliceLevel[var] = l;
-   new_hslice_pos( ctx, ctx->HSliceLevel[var], &ctx->HSliceZ[var],
-                   &ctx->HSliceHgt[var] );
-   if (ctx->MinVal[var] > ctx->MaxVal[var]) {
-      ctx->HSliceInterval[var] = 0.0;
+	if(! ctx->Variable[var]->HSliceRequest){
+	  ctx->Variable[var]->HSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
+	}
+
+   ctx->Variable[var]->HSliceRequest->Level = l;
+   new_hslice_pos( ctx, ctx->Variable[var]->HSliceRequest->Level, &ctx->Variable[var]->HSliceRequest->Z,
+                   &ctx->Variable[var]->HSliceRequest->Hgt );
+   if (ctx->Variable[var]->MinVal > ctx->Variable[var]->MaxVal) {
+      ctx->Variable[var]->HSliceRequest->Interval = 0.0;
    }
    else {
-      ctx->HSliceInterval[var] = round( (ctx->MaxVal[var] - ctx->MinVal[var])
+      ctx->Variable[var]->HSliceRequest->Interval = round( (ctx->Variable[var]->MaxVal - ctx->Variable[var]->MinVal)
                                         / 10.0 );
    }
 
-   ctx->HSliceLowLimit[var] = ctx->MinVal[var];
-   ctx->HSliceHighLimit[var] = ctx->MaxVal[var];
+   ctx->Variable[var]->HSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
+   ctx->Variable[var]->HSliceRequest->HighLimit = ctx->Variable[var]->MaxVal;
 
-   ctx->CHSliceLevel[var] = l;
-   new_hslice_pos( ctx, ctx->CHSliceLevel[var],
-                   &ctx->CHSliceZ[var], &ctx->CHSliceHgt[var] );
+	if(! ctx->Variable[var]->CHSliceRequest){
+	  ctx->Variable[var]->CHSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
+	}
+   ctx->Variable[var]->CHSliceRequest->Level = l;
 
-   ctx->VSliceR1[var] = (float) (dtx->Nr-1) / 2.0;
-   ctx->VSliceC1[var] = 0.0;
-   ctx->VSliceR2[var] = (float) (dtx->Nr-1) / 2.0;
-   ctx->VSliceC2[var] = (float) (dtx->Nc-1);
-   if (ctx->MinVal[var] > ctx->MaxVal[var]) {
-      ctx->VSliceInterval[var] = 0.0;
+   new_hslice_pos( ctx, ctx->Variable[var]->CHSliceRequest->Level,
+                   &ctx->Variable[var]->CHSliceRequest->Z, &ctx->Variable[var]->CHSliceRequest->Hgt );
+
+	if(! ctx->Variable[var]->VSliceRequest){
+	  ctx->Variable[var]->VSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
+	}
+
+   ctx->Variable[var]->VSliceRequest->R1 = (float) (dtx->Nr-1) / 2.0;
+   ctx->Variable[var]->VSliceRequest->R2 = 0.0;
+   ctx->Variable[var]->VSliceRequest->C1 = (float) (dtx->Nr-1) / 2.0;
+   ctx->Variable[var]->VSliceRequest->C2 = (float) (dtx->Nc-1);
+   if (ctx->Variable[var]->MinVal > ctx->Variable[var]->MaxVal) {
+      ctx->Variable[var]->VSliceRequest->Interval = 0.0;
    }
    else {
-      ctx->VSliceInterval[var] = round( (ctx->MaxVal[var] - ctx->MinVal[var])
+      ctx->Variable[var]->VSliceRequest->Interval = round( (ctx->Variable[var]->MaxVal - ctx->Variable[var]->MinVal)
                                         / 10.0 );
    }
 
-   ctx->VSliceLowLimit[var] = ctx->MinVal[var];
-   ctx->VSliceHighLimit[var] = ctx->MaxVal[var];
-   new_vslice_pos( ctx, ctx->VSliceR1[var], ctx->VSliceC1[var],
-                   &ctx->VSliceX1[var], &ctx->VSliceY1[var],
-                   &ctx->VSliceLat1[var], &ctx->VSliceLon1[var] );
-   new_vslice_pos( ctx, ctx->VSliceR2[var], ctx->VSliceC2[var],
-                   &ctx->VSliceX2[var], &ctx->VSliceY2[var],
-                   &ctx->VSliceLat2[var], &ctx->VSliceLon2[var] );
+   ctx->Variable[var]->VSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
+   ctx->Variable[var]->VSliceRequest->HighLimit = ctx->Variable[var]->MaxVal;
+   new_vslice_pos( ctx, ctx->Variable[var]->VSliceRequest->R1, ctx->Variable[var]->VSliceRequest->R2,
+                   &ctx->Variable[var]->VSliceRequest->X1, &ctx->Variable[var]->VSliceRequest->Y1,
+                   &ctx->Variable[var]->VSliceRequest->Lat1, &ctx->Variable[var]->VSliceRequest->Lon1 );
+   new_vslice_pos( ctx, ctx->Variable[var]->VSliceRequest->C1, ctx->Variable[var]->VSliceRequest->C2,
+                   &ctx->Variable[var]->VSliceRequest->X2, &ctx->Variable[var]->VSliceRequest->Y2,
+                   &ctx->Variable[var]->VSliceRequest->Lat2, &ctx->Variable[var]->VSliceRequest->Lon2 );
 
-   ctx->CVSliceR1[var] = ctx->VSliceR1[var];
-   ctx->CVSliceC1[var] = ctx->VSliceC1[var]; 
-   ctx->CVSliceR2[var] = ctx->VSliceR2[var];
-   ctx->CVSliceC2[var] = ctx->VSliceC2[var];
-   new_vslice_pos( ctx, ctx->CVSliceR1[var], ctx->CVSliceC1[var],
-                   &ctx->CVSliceX1[var], &ctx->CVSliceY1[var],
-                   &ctx->CVSliceLat1[var], &ctx->CVSliceLon1[var] );
-   new_vslice_pos( ctx, ctx->CVSliceR2[var], ctx->CVSliceC2[var],
-                   &ctx->CVSliceX2[var], &ctx->CVSliceY2[var],
-                   &ctx->CVSliceLat2[var], &ctx->CVSliceLon2[var] );
+	if(! ctx->Variable[var]->CVSliceRequest){
+	  ctx->Variable[var]->CVSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
+	}
+
+   ctx->Variable[var]->CVSliceRequest->R1 = ctx->Variable[var]->VSliceRequest->R1;
+   ctx->Variable[var]->CVSliceRequest->R2 = ctx->Variable[var]->VSliceRequest->R2; 
+   ctx->Variable[var]->CVSliceRequest->C1 = ctx->Variable[var]->VSliceRequest->C1;
+   ctx->Variable[var]->CVSliceRequest->C2 = ctx->Variable[var]->VSliceRequest->C2;
+   new_vslice_pos( ctx, ctx->Variable[var]->CVSliceRequest->R1, ctx->Variable[var]->CVSliceRequest->R2,
+                   &ctx->Variable[var]->CVSliceRequest->X1, &ctx->Variable[var]->CVSliceRequest->Y1,
+                   &ctx->Variable[var]->CVSliceRequest->Lat1, &ctx->Variable[var]->CVSliceRequest->Lon1 );
+   new_vslice_pos( ctx, ctx->Variable[var]->CVSliceRequest->C1, ctx->Variable[var]->CVSliceRequest->C2,
+                   &ctx->Variable[var]->CVSliceRequest->X2, &ctx->Variable[var]->CVSliceRequest->Y2,
+                   &ctx->Variable[var]->CVSliceRequest->Lat2, &ctx->Variable[var]->CVSliceRequest->Lon2 );
 }
 
 
@@ -419,37 +437,37 @@ int free_isosurface( Context ctx, int time, int var )
          ctime = dtx->TimeStep[t].ownerstimestep[return_ctx_index_pos(dtx,
                                                  ctx->context_index)];
          if ( ctime==ftime){
-            if (ctx->SurfTable[var][time].valid) {
+            if (ctx->Variable[var]->SurfTable[time]->valid) {
                int b1, b2, b3, b4;
                /* vertices */
-               b1 = ctx->SurfTable[var][time].numverts * sizeof(int_2) * 3;
+               b1 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(int_2) * 3;
                if (b1) {
-                  deallocate( ctx, ctx->SurfTable[var][time].verts, b1 );
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->verts, b1 );
                }
                /* normals */
-               b2 = ctx->SurfTable[var][time].numverts * sizeof(int_1) * 3;
+               b2 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(int_1) * 3;
                if (b2) {
-                  deallocate( ctx, ctx->SurfTable[var][time].norms, b2 );
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->norms, b2 );
                }
                /* indices */
 #ifdef          BIG_GFX
-               b3 = ctx->SurfTable[var][time].numindex * sizeof(uint_4);
+               b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_4);
 #else
-               b3 = ctx->SurfTable[var][time].numindex * sizeof(uint_2);
+               b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_2);
 #endif
                if (b3) {
-                  deallocate( ctx, ctx->SurfTable[var][time].index, b3 );
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->index, b3 );
                }
                /* colors */
-               if (ctx->SurfTable[var][time].colors) {
-                  b4 = ctx->SurfTable[var][time].numverts * sizeof(uint_1);
-                  deallocate( ctx, ctx->SurfTable[var][time].colors, b4 );
-                  ctx->SurfTable[var][time].colors = NULL;
+               if (ctx->Variable[var]->SurfTable[time]->colors) {
+                  b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
+                  deallocate( ctx, ctx->Variable[var]->SurfTable[time]->colors, b4 );
+                  ctx->Variable[var]->SurfTable[time]->colors = NULL;
                }
                else {
                   b4 = 0;
                }
-               ctx->SurfTable[var][time].valid = 0;
+               ctx->Variable[var]->SurfTable[time]->valid = 0;
                total += b1 + b2 + b3 + b4;
             }
          }
@@ -458,37 +476,37 @@ int free_isosurface( Context ctx, int time, int var )
    }
    
    else{
-      if (ctx->SurfTable[var][time].valid) {
+      if (ctx->Variable[var]->SurfTable[time]->valid) {
          int b1, b2, b3, b4;
          /* vertices */
-         b1 = ctx->SurfTable[var][time].numverts * sizeof(int_2) * 3;
+         b1 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(int_2) * 3;
          if (b1) {
-            deallocate( ctx, ctx->SurfTable[var][time].verts, b1 );
+            deallocate( ctx, ctx->Variable[var]->SurfTable[time]->verts, b1 );
          }
          /* normals */
-         b2 = ctx->SurfTable[var][time].numverts * sizeof(int_1) * 3;
+         b2 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(int_1) * 3;
          if (b2) {
-            deallocate( ctx, ctx->SurfTable[var][time].norms, b2 );
+            deallocate( ctx, ctx->Variable[var]->SurfTable[time]->norms, b2 );
          }
          /* indices */
 #ifdef    BIG_GFX
-         b3 = ctx->SurfTable[var][time].numindex * sizeof(uint_4);
+         b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_4);
 #else
-         b3 = ctx->SurfTable[var][time].numindex * sizeof(uint_2);
+         b3 = ctx->Variable[var]->SurfTable[time]->numindex * sizeof(uint_2);
 #endif
          if (b3) {
-            deallocate( ctx, ctx->SurfTable[var][time].index, b3 );
+            deallocate( ctx, ctx->Variable[var]->SurfTable[time]->index, b3 );
          }
          /* colors */
-         if (ctx->SurfTable[var][time].colors) {
-            b4 = ctx->SurfTable[var][time].numverts * sizeof(uint_1);
-            deallocate( ctx, ctx->SurfTable[var][time].colors, b4 );
-            ctx->SurfTable[var][time].colors = NULL;
+         if (ctx->Variable[var]->SurfTable[time]->colors) {
+            b4 = ctx->Variable[var]->SurfTable[time]->numverts * sizeof(uint_1);
+            deallocate( ctx, ctx->Variable[var]->SurfTable[time]->colors, b4 );
+            ctx->Variable[var]->SurfTable[time]->colors = NULL;
          }
          else {
             b4 = 0;
          }
-         ctx->SurfTable[var][time].valid = 0;
+         ctx->Variable[var]->SurfTable[time]->valid = 0;
          return b1 + b2 + b3 + b4;
       }
       else {
@@ -525,26 +543,27 @@ int free_textplot( Irregular_Context itx, int time)
 
 int free_hslice( Context ctx, int time, int var )
 {
-   if (ctx->HSliceTable[var][time].valid) {
+   if (ctx->Variable[var]->HSliceTable[time] && ctx->Variable[var]->HSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
-      b1 = ctx->HSliceTable[var][time].num1 * sizeof(int_2) * 3;
+      b1 = ctx->Variable[var]->HSliceTable[time]->num1 * sizeof(int_2) * 3;
       if (b1) {
-         deallocate( ctx, ctx->HSliceTable[var][time].verts1, b1 );
+         deallocate( ctx, ctx->Variable[var]->HSliceTable[time]->verts1, b1 );
       }
-      b2 = ctx->HSliceTable[var][time].num2 * sizeof(int_2) * 3;
+      b2 = ctx->Variable[var]->HSliceTable[time]->num2 * sizeof(int_2) * 3;
       if (b2) {
-         deallocate( ctx, ctx->HSliceTable[var][time].verts2, b2 );
+         deallocate( ctx, ctx->Variable[var]->HSliceTable[time]->verts2, b2 );
       }
-      b3 = ctx->HSliceTable[var][time].num3 * sizeof(int_2) * 3;
+      b3 = ctx->Variable[var]->HSliceTable[time]->num3 * sizeof(int_2) * 3;
       if (b3) {
-         deallocate( ctx, ctx->HSliceTable[var][time].verts3, b3 );
+         deallocate( ctx, ctx->Variable[var]->HSliceTable[time]->verts3, b3 );
       }
-      b4 = ctx->HSliceTable[var][time].numboxverts * 3 * sizeof(float);
+      b4 = ctx->Variable[var]->HSliceTable[time]->numboxverts * 3 * sizeof(float);
       if (b4) {
-         deallocate( ctx, ctx->HSliceTable[var][time].boxverts, b4 );
+         deallocate( ctx, ctx->Variable[var]->HSliceTable[time]->boxverts, b4 );
       }
-      ctx->HSliceTable[var][time].valid = 0;
+      ctx->Variable[var]->HSliceTable[time]->valid = 0;
+
       return b1 + b2 + b3 + b4;
    }
    else {
@@ -557,29 +576,29 @@ int free_hslice( Context ctx, int time, int var )
 
 int free_vslice( Context ctx, int time, int var )
 {
-   if (ctx->VSliceTable[var][time].valid) {
+   if (ctx->Variable[var]->VSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
-      if (ctx->VSliceTable[var][time].valid
-          && ctx->VSliceTable[var][time].num1) {
-         b1 = ctx->VSliceTable[var][time].num1 * sizeof(int_2) * 3;
-         deallocate( ctx, ctx->VSliceTable[var][time].verts1, b1 );
+      if (ctx->Variable[var]->VSliceTable[time]->valid
+          && ctx->Variable[var]->VSliceTable[time]->num1) {
+         b1 = ctx->Variable[var]->VSliceTable[time]->num1 * sizeof(int_2) * 3;
+         deallocate( ctx, ctx->Variable[var]->VSliceTable[time]->verts1, b1 );
       }
-      if (ctx->VSliceTable[var][time].valid
-          && ctx->VSliceTable[var][time].num2) {
-         b2 = ctx->VSliceTable[var][time].num2 * sizeof(int_2) * 3;
-         deallocate( ctx, ctx->VSliceTable[var][time].verts2, b2 );
+      if (ctx->Variable[var]->VSliceTable[time]->valid
+          && ctx->Variable[var]->VSliceTable[time]->num2) {
+         b2 = ctx->Variable[var]->VSliceTable[time]->num2 * sizeof(int_2) * 3;
+         deallocate( ctx, ctx->Variable[var]->VSliceTable[time]->verts2, b2 );
       }
-      if (ctx->VSliceTable[var][time].valid
-          && ctx->VSliceTable[var][time].num3) {
-         b3 = ctx->VSliceTable[var][time].num3 * sizeof(int_2) * 3;
-         deallocate( ctx, ctx->VSliceTable[var][time].verts3, b3 );
+      if (ctx->Variable[var]->VSliceTable[time]->valid
+          && ctx->Variable[var]->VSliceTable[time]->num3) {
+         b3 = ctx->Variable[var]->VSliceTable[time]->num3 * sizeof(int_2) * 3;
+         deallocate( ctx, ctx->Variable[var]->VSliceTable[time]->verts3, b3 );
       }
-      b4 = ctx->VSliceTable[var][time].numboxverts * 3 * sizeof(float);
+      b4 = ctx->Variable[var]->VSliceTable[time]->numboxverts * 3 * sizeof(float);
       if (b4) {
-         deallocate( ctx, ctx->VSliceTable[var][time].boxverts, b4 );
+         deallocate( ctx, ctx->Variable[var]->VSliceTable[time]->boxverts, b4 );
       }
-      ctx->VSliceTable[var][time].valid = 0;
+      ctx->Variable[var]->VSliceTable[time]->valid = 0;
       return b1 + b2 + b3 + b4;
    }
    else {
@@ -591,15 +610,15 @@ int free_vslice( Context ctx, int time, int var )
 
 int free_chslice( Context ctx, int time, int var )
 {
-   if (ctx->CHSliceTable[var][time].valid) {
+   if (ctx->Variable[var]->CHSliceTable[time]->valid) {
       int nrnc, b1, b2;
-      nrnc = ctx->CHSliceTable[var][time].rows
-           * ctx->CHSliceTable[var][time].columns;
+      nrnc = ctx->Variable[var]->CHSliceTable[time]->rows
+           * ctx->Variable[var]->CHSliceTable[time]->columns;
       b1 = nrnc * sizeof(uint_1);
-      deallocate( ctx, ctx->CHSliceTable[var][time].color_indexes, b1 );
+      deallocate( ctx, ctx->Variable[var]->CHSliceTable[time]->color_indexes, b1 );
       b2 = 3 * nrnc * sizeof(int_2);
-      deallocate( ctx, ctx->CHSliceTable[var][time].verts, b2 );
-      ctx->CHSliceTable[var][time].valid = 0;
+      deallocate( ctx, ctx->Variable[var]->CHSliceTable[time]->verts, b2 );
+      ctx->Variable[var]->CHSliceTable[time]->valid = 0;
       return b1 + b2;
    }
    else {
@@ -613,15 +632,15 @@ int free_chslice( Context ctx, int time, int var )
 int free_cvslice( Context ctx, int time, int var )
 {
 
-   if (ctx->CVSliceTable[var][time].valid) {
+   if (ctx->Variable[var]->CVSliceTable[time]->valid) {
       int nrnc, b1, b2;
-      nrnc = ctx->CVSliceTable[var][time].rows
-           * ctx->CVSliceTable[var][time].columns;
+      nrnc = ctx->Variable[var]->CVSliceTable[time]->rows
+           * ctx->Variable[var]->CVSliceTable[time]->columns;
       b1 = nrnc * sizeof(uint_1);
-      deallocate( ctx, ctx->CVSliceTable[var][time].color_indexes, b1 );
+      deallocate( ctx, ctx->Variable[var]->CVSliceTable[time]->color_indexes, b1 );
       b2 = 3 * nrnc * sizeof(int_2);
-      deallocate( ctx, ctx->CVSliceTable[var][time].verts, b2 );
-      ctx->CVSliceTable[var][time].valid = 0;
+      deallocate( ctx, ctx->Variable[var]->CVSliceTable[time]->verts, b2 );
+      ctx->Variable[var]->CVSliceTable[time]->valid = 0;
       return b1 + b2;
    }
    else {

@@ -680,7 +680,7 @@ int trace( Context ctx, float row0, float col0, float lev0,
    maxr = (float) (ctx->Nr-1);
    maxc = (float) (ctx->Nc-1);
    maxl = (float) (ctx->Nl[ctx->dpy_ctx->TrajU]-1);
-   minl = (float) ctx->LowLev[ctx->dpy_ctx->TrajU];
+   minl = (float) ctx->Variable[ctx->dpy_ctx->TrajU]->LowLev;
 
    /* allow trajs to work if u&v in one level only */
    if (maxl == 0 && lev0 == minl){

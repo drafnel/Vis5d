@@ -216,30 +216,30 @@ static int save_isosurfaces( Context ctx, FILE *f )
 
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
-         if (ctx->SurfTable[iv][it].valid) {
+         if (ctx->Variable[iv]->SurfTable[it]->valid) {
             int numverts, numindex;
 
             begin_block( f, TAG_COLORED_ISOSURF );
 
-            numverts = ctx->SurfTable[iv][it].numverts;
-            numindex = ctx->SurfTable[iv][it].numindex;
+            numverts = ctx->Variable[iv]->SurfTable[it]->numverts;
+            numindex = ctx->Variable[iv]->SurfTable[it]->numindex;
 
             /* isosurface data */
             FWRITE( &iv, INT_SIZE, 1, f );  /* parm */
             FWRITE( &it, INT_SIZE, 1, f );  /* time */
-            FWRITE( &ctx->SurfTable[iv][it].isolevel, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->SurfTable[it]->isolevel, FLOAT_SIZE, 1, f );
             FWRITE( &numverts, INT_SIZE, 1, f );  /* number of vertices */
             FWRITE( &numindex, INT_SIZE, 1, f );
-            FWRITE( ctx->SurfTable[iv][it].verts, INT_2_SIZE, 3*numverts, f );
-            FWRITE( ctx->SurfTable[iv][it].norms, INT_1_SIZE, 3*numverts, f );
+            FWRITE( ctx->Variable[iv]->SurfTable[it]->verts, INT_2_SIZE, 3*numverts, f );
+            FWRITE( ctx->Variable[iv]->SurfTable[it]->norms, INT_1_SIZE, 3*numverts, f );
 #ifdef BIG_GFX
-            FWRITE( ctx->SurfTable[iv][it].index, UINT_4_SIZE, numindex, f );
+            FWRITE( ctx->Variable[iv]->SurfTable[it]->index, UINT_4_SIZE, numindex, f );
 #else
-            FWRITE( ctx->SurfTable[iv][it].index, UINT_2_SIZE, numindex, f );
+            FWRITE( ctx->Variable[iv]->SurfTable[it]->index, UINT_2_SIZE, numindex, f );
 #endif
-            if (ctx->SurfTable[iv][it].colors) {
-               FWRITE( &ctx->SurfTable[iv][it].colorvar, INT_SIZE, 1, f );
-               FWRITE( ctx->SurfTable[iv][it].colors, UINT_1_SIZE,
+            if (ctx->Variable[iv]->SurfTable[it]->colors) {
+               FWRITE( &ctx->Variable[iv]->SurfTable[it]->colorvar, INT_SIZE, 1, f );
+               FWRITE( ctx->Variable[iv]->SurfTable[it]->colors, UINT_1_SIZE,
                        numverts, f );
             }
             else {
@@ -298,27 +298,27 @@ static int save_hslices( Context ctx, FILE *f )
 
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
-         if (ctx->HSliceTable[iv][it].valid) {
+         if (ctx->Variable[iv]->HSliceTable[it] && ctx->Variable[iv]->HSliceTable[it]->valid) {
             begin_block( f, TAG_HSLICE );
-            num1 = ctx->HSliceTable[iv][it].num1;
-            num2 = ctx->HSliceTable[iv][it].num2;
-            num3 = ctx->HSliceTable[iv][it].num3;
-            num4 = ctx->HSliceTable[iv][it].numboxverts;
+            num1 = ctx->Variable[iv]->HSliceTable[it]->num1;
+            num2 = ctx->Variable[iv]->HSliceTable[it]->num2;
+            num3 = ctx->Variable[iv]->HSliceTable[it]->num3;
+            num4 = ctx->Variable[iv]->HSliceTable[it]->numboxverts;
             /* contour line data */
             FWRITE( &iv, INT_SIZE, 1, f );  /* parm */
             FWRITE( &it, INT_SIZE, 1, f );  /* time */
-            FWRITE( &ctx->HSliceTable[iv][it].interval, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->HSliceTable[iv][it].lowlimit, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->HSliceTable[iv][it].highlimit, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->HSliceTable[iv][it].level, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->HSliceTable[it]->interval, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->HSliceTable[it]->lowlimit, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->HSliceTable[it]->highlimit, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->HSliceTable[it]->level, FLOAT_SIZE, 1, f );
             FWRITE( &num1, INT_SIZE, 1, f );
-            FWRITE( ctx->HSliceTable[iv][it].verts1, INT_2_SIZE, 3*num1, f );
+            FWRITE( ctx->Variable[iv]->HSliceTable[it]->verts1, INT_2_SIZE, 3*num1, f );
             FWRITE( &num2, INT_SIZE, 1, f );
-            FWRITE( ctx->HSliceTable[iv][it].verts2, INT_2_SIZE, 3*num2, f );
+            FWRITE( ctx->Variable[iv]->HSliceTable[it]->verts2, INT_2_SIZE, 3*num2, f );
             FWRITE( &num3, INT_SIZE, 1, f );
-            FWRITE( ctx->HSliceTable[iv][it].verts3, INT_2_SIZE, 3*num3, f );
+            FWRITE( ctx->Variable[iv]->HSliceTable[it]->verts3, INT_2_SIZE, 3*num3, f );
             FWRITE( &num4, INT_SIZE, 1, f );
-            FWRITE( ctx->HSliceTable[iv][it].boxverts, 3*FLOAT_SIZE, num4, f );
+            FWRITE( ctx->Variable[iv]->HSliceTable[it]->boxverts, 3*FLOAT_SIZE, num4, f );
             end_block(f);
          }
       }
@@ -349,10 +349,10 @@ static int save_hslice_pos( Context ctx, FILE *f )
    for (iv=0;iv<ctx->NumVars;iv++) {
       begin_block( f, TAG_HSLICE_POS );
       WRITE_INTS( f, &iv, 1 );
-      WRITE_FLOATS( f, &ctx->HSliceInterval[iv], 1 );
-      WRITE_FLOATS( f, &ctx->HSliceLowLimit[iv], 1 );
-      WRITE_FLOATS( f, &ctx->HSliceHighLimit[iv], 1 );
-      WRITE_FLOATS( f, &ctx->HSliceLevel[iv], 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->HSliceRequest->Interval, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->HSliceRequest->LowLimit, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->HSliceRequest->HighLimit, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->HSliceRequest->Level, 1 );
       end_block(f);
    }
    return 0;
@@ -366,30 +366,30 @@ static int save_vslices( Context ctx, FILE *f )
      
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
-         if (ctx->VSliceTable[iv][it].valid) {
+         if (ctx->Variable[iv]->VSliceTable[it]->valid) {
             begin_block( f, TAG_VSLICE );
-            num1 = ctx->VSliceTable[iv][it].num1;
-            num2 = ctx->VSliceTable[iv][it].num2;
-            num3 = ctx->VSliceTable[iv][it].num3;
-            num4 = ctx->VSliceTable[iv][it].numboxverts;
+            num1 = ctx->Variable[iv]->VSliceTable[it]->num1;
+            num2 = ctx->Variable[iv]->VSliceTable[it]->num2;
+            num3 = ctx->Variable[iv]->VSliceTable[it]->num3;
+            num4 = ctx->Variable[iv]->VSliceTable[it]->numboxverts;
             /* contour line data */
             FWRITE( &iv, INT_SIZE, 1, f );  /* parm */
             FWRITE( &it, INT_SIZE, 1, f );  /* time */
-            FWRITE( &ctx->VSliceTable[iv][it].interval, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->VSliceTable[iv][it].lowlimit, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->VSliceTable[iv][it].highlimit, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->VSliceTable[iv][it].r1, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->VSliceTable[iv][it].c1, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->VSliceTable[iv][it].r2, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->VSliceTable[iv][it].c2, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->VSliceTable[it]->interval, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->VSliceTable[it]->lowlimit, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->VSliceTable[it]->highlimit, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->VSliceTable[it]->r1, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->VSliceTable[it]->c1, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->VSliceTable[it]->r2, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->VSliceTable[it]->c2, FLOAT_SIZE, 1, f );
             FWRITE( &num1, INT_SIZE, 1, f );
-            FWRITE( ctx->VSliceTable[iv][it].verts1, INT_2_SIZE, 3*num1, f );
+            FWRITE( ctx->Variable[iv]->VSliceTable[it]->verts1, INT_2_SIZE, 3*num1, f );
             FWRITE( &num2, INT_SIZE, 1, f );
-            FWRITE( ctx->VSliceTable[iv][it].verts2, INT_2_SIZE, 3*num2, f );
+            FWRITE( ctx->Variable[iv]->VSliceTable[it]->verts2, INT_2_SIZE, 3*num2, f );
             FWRITE( &num3, INT_SIZE, 1, f );
-            FWRITE( ctx->VSliceTable[iv][it].verts3, INT_2_SIZE, 3*num3, f );
+            FWRITE( ctx->Variable[iv]->VSliceTable[it]->verts3, INT_2_SIZE, 3*num3, f );
             FWRITE( &num4, INT_SIZE, 1, f );
-            FWRITE( ctx->VSliceTable[iv][it].boxverts, 3*FLOAT_SIZE, num4, f );
+            FWRITE( ctx->Variable[iv]->VSliceTable[it]->boxverts, 3*FLOAT_SIZE, num4, f );
             end_block(f);
          }
       }
@@ -422,13 +422,13 @@ static int save_vslice_pos( Context ctx, FILE *f )
    for (iv=0;iv<ctx->NumVars;iv++) {
       begin_block( f, TAG_VSLICE_POS );
       WRITE_INTS( f, &iv, 1 );
-      WRITE_FLOATS( f, &ctx->VSliceInterval[iv], 1 );
-      WRITE_FLOATS( f, &ctx->VSliceLowLimit[iv], 1 );
-      WRITE_FLOATS( f, &ctx->VSliceHighLimit[iv], 1 );
-      WRITE_FLOATS( f, &ctx->VSliceR1[iv], 1 );
-      WRITE_FLOATS( f, &ctx->VSliceC1[iv], 1 );
-      WRITE_FLOATS( f, &ctx->VSliceR2[iv], 1 );
-      WRITE_FLOATS( f, &ctx->VSliceC2[iv], 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->VSliceRequest->Interval, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->VSliceRequest->LowLimit, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->VSliceRequest->HighLimit, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->VSliceRequest->R1, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->VSliceRequest->R2, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->VSliceRequest->C1, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->VSliceRequest->C2, 1 );
       end_block(f);
    }
    return 0;
@@ -442,18 +442,18 @@ static int save_chslices( Context ctx, FILE *f )
 
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
-         if (ctx->CHSliceTable[iv][it].valid) {
+         if (ctx->Variable[iv]->CHSliceTable[it]->valid) {
             int num;
             begin_block( f, TAG_CHSLICE );
-            num = ctx->CHSliceTable[iv][it].rows
-                * ctx->CHSliceTable[iv][it].columns;
+            num = ctx->Variable[iv]->CHSliceTable[it]->rows
+                * ctx->Variable[iv]->CHSliceTable[it]->columns;
             FWRITE( &iv, INT_SIZE, 1, f );  
             FWRITE( &it, INT_SIZE, 1, f );  
-            FWRITE( &ctx->CHSliceTable[iv][it].level, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->CHSliceTable[iv][it].rows, INT_SIZE, 1, f );
-            FWRITE( &ctx->CHSliceTable[iv][it].columns, INT_SIZE, 1, f );
-            FWRITE( ctx->CHSliceTable[iv][it].verts, INT_2_SIZE, 3*num, f );
-            FWRITE( ctx->CHSliceTable[iv][it].color_indexes, UINT_1_SIZE, num, f );
+            FWRITE( &ctx->Variable[iv]->CHSliceTable[it]->level, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->CHSliceTable[it]->rows, INT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->CHSliceTable[it]->columns, INT_SIZE, 1, f );
+            FWRITE( ctx->Variable[iv]->CHSliceTable[it]->verts, INT_2_SIZE, 3*num, f );
+            FWRITE( ctx->Variable[iv]->CHSliceTable[it]->color_indexes, UINT_1_SIZE, num, f );
             end_block(f);
          }
       }
@@ -491,7 +491,7 @@ static int save_chslice_pos( Context ctx, FILE *f )
    for (iv=0;iv<ctx->NumVars;iv++) {
       begin_block( f, TAG_CHSLICE_POS );
       WRITE_INTS( f, &iv, 1 );  
-      WRITE_FLOATS( f, &ctx->CHSliceLevel[iv], 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->CHSliceRequest->Level, 1 );
       end_block(f);
    }
    return 0;
@@ -505,21 +505,21 @@ static int save_cvslices( Context ctx, FILE *f )
 
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
-         if (ctx->CVSliceTable[iv][it].valid) {
+         if (ctx->Variable[iv]->CVSliceTable[it]->valid) {
             int num;
             begin_block( f, TAG_CVSLICE );
-            num = ctx->CVSliceTable[iv][it].rows
-                * ctx->CVSliceTable[iv][it].columns;
+            num = ctx->Variable[iv]->CVSliceTable[it]->rows
+                * ctx->Variable[iv]->CVSliceTable[it]->columns;
             FWRITE( &iv, INT_SIZE, 1, f );
             FWRITE( &it, INT_SIZE, 1, f );  
-            FWRITE( &ctx->CVSliceTable[iv][it].r1, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->CVSliceTable[iv][it].c1, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->CVSliceTable[iv][it].r2, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->CVSliceTable[iv][it].c2, FLOAT_SIZE, 1, f );
-            FWRITE( &ctx->CVSliceTable[iv][it].rows, INT_SIZE, 1, f );
-            FWRITE( &ctx->CVSliceTable[iv][it].columns, INT_SIZE, 1, f );
-            FWRITE( ctx->CVSliceTable[iv][it].verts, INT_2_SIZE, 3*num, f );
-            FWRITE( ctx->CVSliceTable[iv][it].color_indexes, UINT_1_SIZE, num, f );
+            FWRITE( &ctx->Variable[iv]->CVSliceTable[it]->r1, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->CVSliceTable[it]->c1, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->CVSliceTable[it]->r2, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->CVSliceTable[it]->c2, FLOAT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->CVSliceTable[it]->rows, INT_SIZE, 1, f );
+            FWRITE( &ctx->Variable[iv]->CVSliceTable[it]->columns, INT_SIZE, 1, f );
+            FWRITE( ctx->Variable[iv]->CVSliceTable[it]->verts, INT_2_SIZE, 3*num, f );
+            FWRITE( ctx->Variable[iv]->CVSliceTable[it]->color_indexes, UINT_1_SIZE, num, f );
             end_block(f);
          }
       }
@@ -557,10 +557,10 @@ static int save_cvslice_pos( Context ctx, FILE *f )
    for (iv=0;iv<ctx->NumVars;iv++) {
       begin_block( f, TAG_CVSLICE_POS );
       WRITE_INTS( f, &iv, 1 );
-      WRITE_FLOATS( f, &ctx->CVSliceR1[iv], 1 );
-      WRITE_FLOATS( f, &ctx->CVSliceC1[iv], 1 );
-      WRITE_FLOATS( f, &ctx->CVSliceR2[iv], 1 );
-      WRITE_FLOATS( f, &ctx->CVSliceC2[iv], 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->CVSliceRequest->R1, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->CVSliceRequest->R2, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->CVSliceRequest->C1, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->CVSliceRequest->C2, 1 );
       end_block(f);
    }
    return 0;
@@ -878,21 +878,28 @@ int save( Context ctx, char *savefile, int save_gfx, int save_traj )
 
    begin_block( f, TAG_VAR_TABLE );
    WRITE_INTS( f, &num, 1 );
-   WRITE_INTS( f, ctx->VarType, num );
-   WRITE_INTS( f, ctx->CloneTable, num );
+
    for (iv=0;iv<num;iv++) {
-      WRITE_FLOATS( f, &ctx->MinVal[iv], 1 );
-      WRITE_FLOATS( f, &ctx->MaxVal[iv], 1 );
-      WRITE_BYTES( f, ctx->VarName[iv], 10 );
+	  /*JPE: loop required for backword compatibility */
+	  WRITE_INTS( f, &ctx->Variable[iv]->VarType, 1 );
+	}
+   for (iv=0;iv<num;iv++) {
+	  /*JPE: loop required for backword compatibility */
+	  WRITE_INTS( f, &ctx->Variable[iv]->CloneTable, 1 );
+	}
+   for (iv=0;iv<num;iv++) {
+      WRITE_FLOATS( f, &ctx->Variable[iv]->MinVal, 1 );
+      WRITE_FLOATS( f, &ctx->Variable[iv]->MaxVal, 1 );
+      WRITE_BYTES( f, ctx->Variable[iv]->VarName, 10 );
       WRITE_INTS( f, &ctx->Nl[iv], 1 );
-      WRITE_INTS( f, &ctx->LowLev[iv], 1 );
+      WRITE_INTS( f, &ctx->Variable[iv]->LowLev, 1 );
    }
    end_block(f);
 
 /*NEW*/
    /* always save external function variables */
    for (iv=0;iv<ctx->NumVars;iv++) {
-      if (ctx->VarType[iv]==VIS5D_EXT_FUNC) {
+      if (ctx->Variable[iv]->VarType==VIS5D_EXT_FUNC) {
          begin_block( f, TAG_EXT_FUNC );
          WRITE_INTS( f, &iv, 1 );
          WRITE_INTS( f, &ctx->NumTimes, 1 );
@@ -908,10 +915,14 @@ int save( Context ctx, char *savefile, int save_gfx, int save_traj )
 /*NEW*/
    /* always save type-in function variables */
    for (iv=0;iv<ctx->NumVars;iv++) {
-      if (ctx->VarType[iv]==VIS5D_EXPRESSION) {
+      if (ctx->Variable[iv]->VarType==VIS5D_EXPRESSION) {
          begin_block( f, TAG_EXPRESSION );
          WRITE_INTS( f, &iv, 1 );
-         WRITE_BYTES( f, ctx->ExpressionList[iv], 500 );
+
+			/* JPE: ExpressionList is no longer fixed at 500 bytes */
+			/* this may cause an error */
+         WRITE_BYTES( f, ctx->Variable[iv]->ExpressionList, 500 );
+
          WRITE_INTS( f, &ctx->NumTimes, 1 );
          for (it=0;it<ctx->NumTimes;it++) {
             float *griddata;
@@ -1039,29 +1050,29 @@ static void restore_isosurf( Context ctx, FILE *f, int maxparm,
    }
    recent( ctx, ISOSURF, iv );
 
-   wait_read_lock( &ctx->SurfTable[iv][it].lock );
+   wait_read_lock( &ctx->Variable[iv]->SurfTable[it]->lock );
 
    /* deallocate old surface, if any */
    free_isosurface( ctx, it, iv );
 
    /* read isosurface */
-   ctx->SurfTable[iv][it].verts = alloc_and_read(ctx,f,3*numverts*INT_2_SIZE);
-   ctx->SurfTable[iv][it].norms = alloc_and_read(ctx,f,3*numverts*INT_1_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->verts = alloc_and_read(ctx,f,3*numverts*INT_2_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->norms = alloc_and_read(ctx,f,3*numverts*INT_1_SIZE);
 
 #ifdef BIG_GFX
-   ctx->SurfTable[iv][it].index = alloc_and_read(ctx,f,numindex*UINT_4_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->index = alloc_and_read(ctx,f,numindex*UINT_4_SIZE);
 #else
-   ctx->SurfTable[iv][it].index = alloc_and_read(ctx,f,numindex*UINT_2_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->index = alloc_and_read(ctx,f,numindex*UINT_2_SIZE);
 #endif
-   ctx->SurfTable[iv][it].isolevel = level;
-   ctx->SurfTable[iv][it].numverts = numverts;
-   ctx->SurfTable[iv][it].numindex = numindex;
-   ctx->SurfTable[iv][it].colorvar = -1;
-   ctx->SurfTable[iv][it].colors = NULL;
-   ctx->SurfTable[iv][it].valid = 1;
+   ctx->Variable[iv]->SurfTable[it]->isolevel = level;
+   ctx->Variable[iv]->SurfTable[it]->numverts = numverts;
+   ctx->Variable[iv]->SurfTable[it]->numindex = numindex;
+   ctx->Variable[iv]->SurfTable[it]->colorvar = -1;
+   ctx->Variable[iv]->SurfTable[it]->colors = NULL;
+   ctx->Variable[iv]->SurfTable[it]->valid = 1;
    ctx->IsoLevel[iv] = level;
      
-   done_read_lock( &ctx->SurfTable[iv][it].lock );
+   done_read_lock( &ctx->Variable[iv]->SurfTable[it]->lock );
    return;
 }
 
@@ -1093,35 +1104,35 @@ static void restore_colored_isosurf( Context ctx, FILE *f, int maxparm,
    }
    recent( ctx, ISOSURF, iv );
 
-   wait_read_lock( &ctx->SurfTable[iv][it].lock );
+   wait_read_lock( &ctx->Variable[iv]->SurfTable[it]->lock );
 
    /* deallocate old surface, if any */
    free_isosurface( ctx, it, iv );
 
    /* read isosurface */
-   ctx->SurfTable[iv][it].verts = alloc_and_read(ctx,f,3*numverts*INT_2_SIZE);
-   ctx->SurfTable[iv][it].norms = alloc_and_read(ctx,f,3*numverts*INT_1_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->verts = alloc_and_read(ctx,f,3*numverts*INT_2_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->norms = alloc_and_read(ctx,f,3*numverts*INT_1_SIZE);
 
 #ifdef BIG_GFX
-   ctx->SurfTable[iv][it].index = alloc_and_read(ctx,f,numindex*UINT_4_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->index = alloc_and_read(ctx,f,numindex*UINT_4_SIZE);
 #else
-   ctx->SurfTable[iv][it].index = alloc_and_read(ctx,f,numindex*UINT_2_SIZE);
+   ctx->Variable[iv]->SurfTable[it]->index = alloc_and_read(ctx,f,numindex*UINT_2_SIZE);
 #endif
-   fread( &ctx->SurfTable[iv][it].colorvar, INT_SIZE, 1, f );
-   if (ctx->SurfTable[iv][it].colorvar>-1) {
-      ctx->SurfTable[iv][it].colors = alloc_and_read(ctx,f,numverts*UINT_1_SIZE);
+   fread( &ctx->Variable[iv]->SurfTable[it]->colorvar, INT_SIZE, 1, f );
+   if (ctx->Variable[iv]->SurfTable[it]->colorvar>-1) {
+      ctx->Variable[iv]->SurfTable[it]->colors = alloc_and_read(ctx,f,numverts*UINT_1_SIZE);
    }
    else {
-      ctx->SurfTable[iv][it].colors = NULL;
+      ctx->Variable[iv]->SurfTable[it]->colors = NULL;
    }
 
-   ctx->SurfTable[iv][it].isolevel = level;
-   ctx->SurfTable[iv][it].numverts = numverts;
-   ctx->SurfTable[iv][it].numindex = numindex;
-   ctx->SurfTable[iv][it].valid = 1;
+   ctx->Variable[iv]->SurfTable[it]->isolevel = level;
+   ctx->Variable[iv]->SurfTable[it]->numverts = numverts;
+   ctx->Variable[iv]->SurfTable[it]->numindex = numindex;
+   ctx->Variable[iv]->SurfTable[it]->valid = 1;
    ctx->IsoLevel[iv] = level;
      
-   done_read_lock( &ctx->SurfTable[iv][it].lock );
+   done_read_lock( &ctx->Variable[iv]->SurfTable[it]->lock );
    return;
 }
 
@@ -1148,40 +1159,46 @@ static void restore_hslice( Context ctx, FILE *f, int maxparm,
    fread( &level, FLOAT_SIZE, 1, f );
 
    recent( ctx, HSLICE, iv );
-   wait_read_lock( &ctx->HSliceTable[iv][it].lock );
+
+	if(!ctx->Variable[iv]->HSliceTable[it]){
+	  printf("Error HSlice not allocated for var=%d time=%d\n",iv,it);
+	  return;
+	}
+
+   wait_read_lock( &ctx->Variable[iv]->HSliceTable[it]->lock );
 
    /* deallocate old slice, if any */
    free_hslice( ctx, it, iv );
             
    fread( &num1, INT_SIZE, 1, f );
-   ctx->HSliceTable[iv][it].num1 = num1;
-   ctx->HSliceTable[iv][it].verts1 = alloc_and_read(ctx,f,3*num1*INT_2_SIZE);
+   ctx->Variable[iv]->HSliceTable[it]->num1 = num1;
+   ctx->Variable[iv]->HSliceTable[it]->verts1 = alloc_and_read(ctx,f,3*num1*INT_2_SIZE);
 
    fread( &num2, INT_SIZE, 1, f );
-   ctx->HSliceTable[iv][it].num2 = num2;
-   ctx->HSliceTable[iv][it].verts2 = alloc_and_read(ctx,f,3*num2*INT_2_SIZE);
+   ctx->Variable[iv]->HSliceTable[it]->num2 = num2;
+   ctx->Variable[iv]->HSliceTable[it]->verts2 = alloc_and_read(ctx,f,3*num2*INT_2_SIZE);
             
    fread( &num3, INT_SIZE, 1, f );
-   ctx->HSliceTable[iv][it].num3 = num3;
-   ctx->HSliceTable[iv][it].verts3 = alloc_and_read(ctx,f,3*num3*INT_2_SIZE);
+   ctx->Variable[iv]->HSliceTable[it]->num3 = num3;
+   ctx->Variable[iv]->HSliceTable[it]->verts3 = alloc_and_read(ctx,f,3*num3*INT_2_SIZE);
             
    fread( &num4, INT_SIZE, 1, f );
-   ctx->HSliceTable[iv][it].numboxverts = num4;
-   ctx->HSliceTable[iv][it].boxverts = alloc_and_read(ctx,f,num4*3*FLOAT_SIZE);
+   ctx->Variable[iv]->HSliceTable[it]->numboxverts = num4;
+   ctx->Variable[iv]->HSliceTable[it]->boxverts = alloc_and_read(ctx,f,num4*3*FLOAT_SIZE);
 
-   ctx->HSliceTable[iv][it].interval = interval;
-   ctx->HSliceTable[iv][it].lowlimit = low;
-   ctx->HSliceTable[iv][it].highlimit = high;
-   ctx->HSliceTable[iv][it].level = level;
-   ctx->HSliceTable[iv][it].valid = 1;
-   ctx->HSliceInterval[iv] = interval;
-   ctx->HSliceLowLimit[iv] = low;
-   ctx->HSliceHighLimit[iv] = high;
-   ctx->HSliceLevel[iv] = level;
+   ctx->Variable[iv]->HSliceTable[it]->interval = interval;
+   ctx->Variable[iv]->HSliceTable[it]->lowlimit = low;
+   ctx->Variable[iv]->HSliceTable[it]->highlimit = high;
+   ctx->Variable[iv]->HSliceTable[it]->level = level;
+   ctx->Variable[iv]->HSliceTable[it]->valid = 1;
+   ctx->Variable[iv]->HSliceRequest->Interval = interval;
+   ctx->Variable[iv]->HSliceRequest->LowLimit = low;
+   ctx->Variable[iv]->HSliceRequest->HighLimit = high;
+   ctx->Variable[iv]->HSliceRequest->Level = level;
 
-/* YO     new_hslice_pos( dtx, level, &ctx->HSliceZ[iv], &ctx->HSliceHgt[iv] );*/
+/* YO     new_hslice_pos( dtx, level, &ctx->Variable[iv]->HSliceRequest->Z, &ctx->Variable[iv]->HSliceRequest->Hgt );*/
 
-   done_read_lock( &ctx->HSliceTable[iv][it].lock );
+   done_read_lock( &ctx->Variable[iv]->HSliceTable[it]->lock );
    return;
 }
 
@@ -1208,49 +1225,49 @@ static void restore_vslice( Context ctx, FILE *f, int maxparm,
    fread( &c2, FLOAT_SIZE, 1, f );
              
    recent( ctx, VSLICE, iv );
-   wait_read_lock( &ctx->VSliceTable[iv][it].lock );
+   wait_read_lock( &ctx->Variable[iv]->VSliceTable[it]->lock );
 
    /* deallocate old slice, if any */
    free_vslice( ctx, it, iv );
              
    fread( &num1, INT_SIZE, 1, f );
-   ctx->VSliceTable[iv][it].num1 = num1;
-   ctx->VSliceTable[iv][it].verts1 = alloc_and_read(ctx,f,3*num1*INT_2_SIZE);
+   ctx->Variable[iv]->VSliceTable[it]->num1 = num1;
+   ctx->Variable[iv]->VSliceTable[it]->verts1 = alloc_and_read(ctx,f,3*num1*INT_2_SIZE);
      
    fread( &num2, INT_SIZE, 1, f );
-   ctx->VSliceTable[iv][it].num2 = num2;
-   ctx->VSliceTable[iv][it].verts2 = alloc_and_read(ctx,f,3*num2*INT_2_SIZE);
+   ctx->Variable[iv]->VSliceTable[it]->num2 = num2;
+   ctx->Variable[iv]->VSliceTable[it]->verts2 = alloc_and_read(ctx,f,3*num2*INT_2_SIZE);
              
    fread( &num3, INT_SIZE, 1, f );
-   ctx->VSliceTable[iv][it].num3 = num3;
-   ctx->VSliceTable[iv][it].verts3 = alloc_and_read(ctx,f,3*num3*INT_2_SIZE);
+   ctx->Variable[iv]->VSliceTable[it]->num3 = num3;
+   ctx->Variable[iv]->VSliceTable[it]->verts3 = alloc_and_read(ctx,f,3*num3*INT_2_SIZE);
 
    fread( &num4, INT_SIZE, 1, f );
-   ctx->VSliceTable[iv][it].numboxverts = num4;
-   ctx->VSliceTable[iv][it].boxverts = alloc_and_read(ctx,f,num4*3*FLOAT_SIZE);
+   ctx->Variable[iv]->VSliceTable[it]->numboxverts = num4;
+   ctx->Variable[iv]->VSliceTable[it]->boxverts = alloc_and_read(ctx,f,num4*3*FLOAT_SIZE);
 
-   ctx->VSliceTable[iv][it].r1 = r1;
-   ctx->VSliceTable[iv][it].c1 = c1;
-   ctx->VSliceTable[iv][it].r2 = r2;
-   ctx->VSliceTable[iv][it].c2 = c2;
-   ctx->VSliceTable[iv][it].interval = interval;
-   ctx->VSliceTable[iv][it].lowlimit = low;
-   ctx->VSliceTable[iv][it].highlimit = high;
-   ctx->VSliceTable[iv][it].valid = 1;
-   ctx->VSliceInterval[iv] = interval;
-   ctx->VSliceLowLimit[iv] = low;
-   ctx->VSliceHighLimit[iv] = high;
-   ctx->VSliceR1[iv] = r1;
-   ctx->VSliceC1[iv] = c1;
-   ctx->VSliceR2[iv] = r2;
-   ctx->VSliceC2[iv] = c2;
+   ctx->Variable[iv]->VSliceTable[it]->r1 = r1;
+   ctx->Variable[iv]->VSliceTable[it]->c1 = c1;
+   ctx->Variable[iv]->VSliceTable[it]->r2 = r2;
+   ctx->Variable[iv]->VSliceTable[it]->c2 = c2;
+   ctx->Variable[iv]->VSliceTable[it]->interval = interval;
+   ctx->Variable[iv]->VSliceTable[it]->lowlimit = low;
+   ctx->Variable[iv]->VSliceTable[it]->highlimit = high;
+   ctx->Variable[iv]->VSliceTable[it]->valid = 1;
+   ctx->Variable[iv]->VSliceRequest->Interval = interval;
+   ctx->Variable[iv]->VSliceRequest->LowLimit = low;
+   ctx->Variable[iv]->VSliceRequest->HighLimit = high;
+   ctx->Variable[iv]->VSliceRequest->R1 = r1;
+   ctx->Variable[iv]->VSliceRequest->R2 = c1;
+   ctx->Variable[iv]->VSliceRequest->C1 = r2;
+   ctx->Variable[iv]->VSliceRequest->C2 = c2;
 
-   new_vslice_pos( ctx, r1, c1, &ctx->VSliceX1[iv], &ctx->VSliceY1[iv],
-                   &ctx->VSliceLat1[iv], &ctx->VSliceLon1[iv] );
-   new_vslice_pos( ctx, r2, c2, &ctx->VSliceX2[iv], &ctx->VSliceY2[iv],
-                   &ctx->VSliceLat2[iv], &ctx->VSliceLon2[iv] );
+   new_vslice_pos( ctx, r1, c1, &ctx->Variable[iv]->VSliceRequest->X1, &ctx->Variable[iv]->VSliceRequest->Y1,
+                   &ctx->Variable[iv]->VSliceRequest->Lat1, &ctx->Variable[iv]->VSliceRequest->Lon1 );
+   new_vslice_pos( ctx, r2, c2, &ctx->Variable[iv]->VSliceRequest->X2, &ctx->Variable[iv]->VSliceRequest->Y2,
+                   &ctx->Variable[iv]->VSliceRequest->Lat2, &ctx->Variable[iv]->VSliceRequest->Lon2 );
 
-   done_read_lock( &ctx->VSliceTable[iv][it].lock );
+   done_read_lock( &ctx->Variable[iv]->VSliceTable[it]->lock );
    return;
 }
 
@@ -1271,27 +1288,27 @@ static void restore_chslice( Context ctx, FILE *f, int maxparm,
    }
    fread( &it, INT_SIZE, 1, f );
    recent( ctx, CHSLICE, iv );
-   wait_read_lock( &ctx->CHSliceTable[iv][it].lock );
+   wait_read_lock( &ctx->Variable[iv]->CHSliceTable[it]->lock );
 
    /* deallocate old slice */
    free_chslice( ctx, it, iv );
 
-   fread( &ctx->CHSliceTable[iv][it].level, FLOAT_SIZE, 1, f );
-   fread( &ctx->CHSliceTable[iv][it].rows, INT_SIZE, 1, f );
-   fread( &ctx->CHSliceTable[iv][it].columns, INT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CHSliceTable[it]->level, FLOAT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CHSliceTable[it]->rows, INT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CHSliceTable[it]->columns, INT_SIZE, 1, f );
 
-   num = ctx->CHSliceTable[iv][it].rows * ctx->CHSliceTable[iv][it].columns;
-   ctx->CHSliceTable[iv][it].verts = alloc_and_read(ctx,f,3*num*INT_2_SIZE);
-   ctx->CHSliceTable[iv][it].color_indexes =
+   num = ctx->Variable[iv]->CHSliceTable[it]->rows * ctx->Variable[iv]->CHSliceTable[it]->columns;
+   ctx->Variable[iv]->CHSliceTable[it]->verts = alloc_and_read(ctx,f,3*num*INT_2_SIZE);
+   ctx->Variable[iv]->CHSliceTable[it]->color_indexes =
                                        alloc_and_read(ctx,f,num*UINT_1_SIZE);
 
-   ctx->CHSliceTable[iv][it].valid = 1;
-   ctx->CHSliceLevel[iv] = ctx->CHSliceTable[iv][it].level;
+   ctx->Variable[iv]->CHSliceTable[it]->valid = 1;
+   ctx->Variable[iv]->CHSliceRequest->Level = ctx->Variable[iv]->CHSliceTable[it]->level;
 
-/* YO     new_hslice_pos( dtx, ctx->CHSliceTable[iv][it].level,*/
-/* YO                     &ctx->CHSliceZ[iv], &ctx->CHSliceHgt[iv]);*/
+/* YO     new_hslice_pos( dtx, ctx->Variable[iv]->CHSliceTable[it]->level,*/
+/* YO                     &ctx->Variable[iv]->CHSliceRequest->Z, &ctx->Variable[iv]->CHSliceRequest->Hgt);*/
 
-   done_read_lock( &ctx->CHSliceTable[iv][it].lock );
+   done_read_lock( &ctx->Variable[iv]->CHSliceTable[it]->lock );
    return;
 }
 
@@ -1311,38 +1328,38 @@ static void restore_cvslice( Context ctx, FILE *f, int maxparm,
    }
    fread( &it, INT_SIZE, 1, f );
    recent( ctx, CVSLICE, iv );
-   wait_read_lock( &ctx->CVSliceTable[iv][it].lock );
+   wait_read_lock( &ctx->Variable[iv]->CVSliceTable[it]->lock );
 
    /* deallocate old slice */
    free_cvslice( ctx, it, iv );
 
-   fread( &ctx->CVSliceTable[iv][it].r1, FLOAT_SIZE, 1, f );
-   fread( &ctx->CVSliceTable[iv][it].c1, FLOAT_SIZE, 1, f );
-   fread( &ctx->CVSliceTable[iv][it].r2, FLOAT_SIZE, 1, f );
-   fread( &ctx->CVSliceTable[iv][it].c2, FLOAT_SIZE, 1, f );
-   fread( &ctx->CVSliceTable[iv][it].rows, INT_SIZE, 1, f );
-   fread( &ctx->CVSliceTable[iv][it].columns, INT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CVSliceTable[it]->r1, FLOAT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CVSliceTable[it]->c1, FLOAT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CVSliceTable[it]->r2, FLOAT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CVSliceTable[it]->c2, FLOAT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CVSliceTable[it]->rows, INT_SIZE, 1, f );
+   fread( &ctx->Variable[iv]->CVSliceTable[it]->columns, INT_SIZE, 1, f );
 
-   num = ctx->CVSliceTable[iv][it].rows * ctx->CVSliceTable[iv][it].columns;
-   ctx->CVSliceTable[iv][it].verts = alloc_and_read(ctx,f,3*num*INT_2_SIZE);
-   ctx->CVSliceTable[iv][it].color_indexes =
+   num = ctx->Variable[iv]->CVSliceTable[it]->rows * ctx->Variable[iv]->CVSliceTable[it]->columns;
+   ctx->Variable[iv]->CVSliceTable[it]->verts = alloc_and_read(ctx,f,3*num*INT_2_SIZE);
+   ctx->Variable[iv]->CVSliceTable[it]->color_indexes =
                                        alloc_and_read(ctx,f,num*UINT_1_SIZE);
-   ctx->CVSliceTable[iv][it].valid = 1;
-   ctx->CVSliceR1[iv] = ctx->CVSliceTable[iv][it].r1;
-   ctx->CVSliceC1[iv] = ctx->CVSliceTable[iv][it].c1;
-   ctx->CVSliceR2[iv] = ctx->CVSliceTable[iv][it].r2;
-   ctx->CVSliceC2[iv] = ctx->CVSliceTable[iv][it].c2;
+   ctx->Variable[iv]->CVSliceTable[it]->valid = 1;
+   ctx->Variable[iv]->CVSliceRequest->R1 = ctx->Variable[iv]->CVSliceTable[it]->r1;
+   ctx->Variable[iv]->CVSliceRequest->R2 = ctx->Variable[iv]->CVSliceTable[it]->c1;
+   ctx->Variable[iv]->CVSliceRequest->C1 = ctx->Variable[iv]->CVSliceTable[it]->r2;
+   ctx->Variable[iv]->CVSliceRequest->C2 = ctx->Variable[iv]->CVSliceTable[it]->c2;
 
-   new_vslice_pos( ctx, ctx->CVSliceTable[iv][it].r1,
-                   ctx->CVSliceTable[iv][it].c1,
-                   &ctx->CVSliceX1[iv], &ctx->CVSliceY1[iv],
-                   &ctx->CVSliceLat1[iv], &ctx->CVSliceLon1[iv] );
-   new_vslice_pos( ctx, ctx->CVSliceTable[iv][it].r2,
-                   ctx->CVSliceTable[iv][it].c2,
-                   &ctx->CVSliceX2[iv], &ctx->CVSliceY2[iv],
-                   &ctx->CVSliceLat2[iv], &ctx->CVSliceLon2[iv] );
+   new_vslice_pos( ctx, ctx->Variable[iv]->CVSliceTable[it]->r1,
+                   ctx->Variable[iv]->CVSliceTable[it]->c1,
+                   &ctx->Variable[iv]->CVSliceRequest->X1, &ctx->Variable[iv]->CVSliceRequest->Y1,
+                   &ctx->Variable[iv]->CVSliceRequest->Lat1, &ctx->Variable[iv]->CVSliceRequest->Lon1 );
+   new_vslice_pos( ctx, ctx->Variable[iv]->CVSliceTable[it]->r2,
+                   ctx->Variable[iv]->CVSliceTable[it]->c2,
+                   &ctx->Variable[iv]->CVSliceRequest->X2, &ctx->Variable[iv]->CVSliceRequest->Y2,
+                   &ctx->Variable[iv]->CVSliceRequest->Lat2, &ctx->Variable[iv]->CVSliceRequest->Lon2 );
 
-   done_read_lock( &ctx->CVSliceTable[iv][it].lock );
+   done_read_lock( &ctx->Variable[iv]->CVSliceTable[it]->lock );
    return;
 }
 
@@ -1551,7 +1568,7 @@ int restore( Context ctx, char *savefile )
    /* We can only restore cloned/computed variables if we haven't made any */
    /* such variables yet in the current session. */
    for (var=0;var<ctx->NumVars;var++) {
-      if (ctx->VarType[var]!=VIS5D_REGULAR) {
+      if (ctx->Variable[var]->VarType!=VIS5D_REGULAR) {
          break;
       }
    }
@@ -1592,14 +1609,21 @@ int restore( Context ctx, char *savefile )
             int np;
             if (add_parms) {
                READ_INTS( f, &np, 1 );
-               READ_INTS( f, ctx->VarType, np );
-               READ_INTS( f, ctx->CloneTable, np );
+
                for (var=0;var<np;var++) {
-                  READ_FLOATS( f, &ctx->MinVal[var], 1 );
-                  READ_FLOATS( f, &ctx->MaxVal[var], 1 );
-                  READ_BYTES( f, ctx->VarName[var], 10 );
+					  /* JPE: Loop required for backword compatibility */
+					  READ_INTS( f, &ctx->Variable[var]->VarType, 1 );
+					}
+               for (var=0;var<np;var++) {
+					  /* JPE: Loop required for backword compatibility */
+					  READ_INTS( f, &ctx->Variable[var]->CloneTable, 1 );
+					}
+               for (var=0;var<np;var++) {
+                  READ_FLOATS( f, &ctx->Variable[var]->MinVal, 1 );
+                  READ_FLOATS( f, &ctx->Variable[var]->MaxVal, 1 );
+                  READ_BYTES( f, ctx->Variable[var]->VarName, 10 );
                   READ_INTS( f, &ctx->Nl[var], 1 );
-                  ctx->LowLev[var] = 0;
+                  ctx->Variable[var]->LowLev = 0;
                }
                ctx->NumVars = np;
             }
@@ -1612,14 +1636,21 @@ int restore( Context ctx, char *savefile )
             int np;
             if (add_parms) {
                READ_INTS( f, &np, 1 );
-               READ_INTS( f, ctx->VarType, np );
-               READ_INTS( f, ctx->CloneTable, np );
                for (var=0;var<np;var++) {
-                  READ_FLOATS( f, &ctx->MinVal[var], 1 );
-                  READ_FLOATS( f, &ctx->MaxVal[var], 1 );
-                  READ_BYTES( f, ctx->VarName[var], 10 );
+					  /* JPE: Loop required for backword compatibility */
+					  READ_INTS( f, &ctx->Variable[var]->VarType, 1 );
+					}
+               for (var=0;var<np;var++) {
+					  /* JPE: Loop required for backword compatibility */
+					  READ_INTS( f, &ctx->Variable[var]->CloneTable, 1 );
+					}
+
+               for (var=0;var<np;var++) {
+                  READ_FLOATS( f, &ctx->Variable[var]->MinVal, 1 );
+                  READ_FLOATS( f, &ctx->Variable[var]->MaxVal, 1 );
+                  READ_BYTES( f, ctx->Variable[var]->VarName, 10 );
                   READ_INTS( f, &ctx->Nl[var], 1 );
-                  READ_INTS( f, &ctx->LowLev[var], 1 );
+                  READ_INTS( f, &ctx->Variable[var]->LowLev, 1 );
                }
                ctx->NumVars = np;
             }
@@ -1639,7 +1670,7 @@ int restore( Context ctx, char *savefile )
                for (it=0;it<ntimes;it++) {
                   READ_FLOATS( f, grid, ctx->Nr*ctx->Nc*ctx->Nl[var] );
                   install_new_grid( ctx, it, var, grid, ctx->Nl[var],
-                                    ctx->LowLev[var] );
+                                    ctx->Variable[var]->LowLev );
                }
                deallocate(ctx,grid,ctx->Nr*ctx->Nc*ctx->Nl[var]*FLOAT_SIZE );
             }
@@ -1654,13 +1685,17 @@ int restore( Context ctx, char *savefile )
             float *grid;
             if (add_parms) {
                READ_INTS( f, &var, 1 );
-               READ_BYTES( f, ctx->ExpressionList[var], 500 );
+
+					/* needs to be 500 for backward compatibility */
+					ctx->Variable[var]->ExpressionList = (char *) malloc(500);
+               READ_BYTES( f, ctx->Variable[var]->ExpressionList, 500 );
+
                READ_INTS( f, &ntimes, 1 );
                grid = allocate( ctx, ctx->Nr*ctx->Nc*ctx->Nl[var]*FLOAT_SIZE );
                for (it=0;it<ntimes;it++) {
                   READ_FLOATS( f, grid, ctx->Nr*ctx->Nc*ctx->Nl[var] );
                   install_new_grid( ctx, it, var, grid, ctx->Nl[var],
-                                    ctx->LowLev[var]);
+                                    ctx->Variable[var]->LowLev);
                }
                deallocate( ctx, grid,
                            ctx->Nr*ctx->Nc*ctx->Nl[var]*FLOAT_SIZE );
@@ -1735,12 +1770,12 @@ int restore( Context ctx, char *savefile )
             READ_FLOATS( f, &high, 1 );
             READ_FLOATS( f, &level, 1 );
             if (var<maxparm) {
-               ctx->HSliceInterval[var] = interval;
-               ctx->HSliceLowLimit[var] = low;
-               ctx->HSliceHighLimit[var] = high;
-               ctx->HSliceLevel[var] = level;
-/* YO                 new_hslice_pos( ctx, level, &ctx->HSliceZ[var],*/
-/* YO                                 &ctx->HSliceHgt[var] );*/
+               ctx->Variable[var]->HSliceRequest->Interval = interval;
+               ctx->Variable[var]->HSliceRequest->LowLimit = low;
+               ctx->Variable[var]->HSliceRequest->HighLimit = high;
+               ctx->Variable[var]->HSliceRequest->Level = level;
+/* YO                 new_hslice_pos( ctx, level, &ctx->Variable[var]->HSliceRequest->Z,*/
+/* YO                                 &ctx->Variable[var]->HSliceRequest->Hgt );*/
             }
          } break;
 
@@ -1772,19 +1807,19 @@ int restore( Context ctx, char *savefile )
             READ_FLOATS( f, &r2, 1 );
             READ_FLOATS( f, &c2, 1 );
             if (var<maxparm) {
-               ctx->VSliceInterval[var] = interval;
-               ctx->VSliceLowLimit[var] = low;
-               ctx->VSliceHighLimit[var] = high;
-               ctx->VSliceR1[var] = r1;
-               ctx->VSliceC1[var] = c1;
+               ctx->Variable[var]->VSliceRequest->Interval = interval;
+               ctx->Variable[var]->VSliceRequest->LowLimit = low;
+               ctx->Variable[var]->VSliceRequest->HighLimit = high;
+               ctx->Variable[var]->VSliceRequest->R1 = r1;
+               ctx->Variable[var]->VSliceRequest->R2 = c1;
                new_vslice_pos( ctx, r1, c1,
-                               &ctx->VSliceX1[var], &ctx->VSliceY1[var],
-                               &ctx->VSliceLat1[var], &ctx->VSliceLon1[var] );
-               ctx->VSliceR2[var] = r2;
-               ctx->VSliceC2[var] = c2;
+                               &ctx->Variable[var]->VSliceRequest->X1, &ctx->Variable[var]->VSliceRequest->Y1,
+                               &ctx->Variable[var]->VSliceRequest->Lat1, &ctx->Variable[var]->VSliceRequest->Lon1 );
+               ctx->Variable[var]->VSliceRequest->C1 = r2;
+               ctx->Variable[var]->VSliceRequest->C2 = c2;
                new_vslice_pos( ctx, r2, c2,
-                               &ctx->VSliceX2[var], &ctx->VSliceY2[var],
-                               &ctx->VSliceLat2[var], &ctx->VSliceLon2[var] );
+                               &ctx->Variable[var]->VSliceRequest->X2, &ctx->Variable[var]->VSliceRequest->Y2,
+                               &ctx->Variable[var]->VSliceRequest->Lat2, &ctx->Variable[var]->VSliceRequest->Lon2 );
             }
          } break;
 
@@ -1815,9 +1850,9 @@ int restore( Context ctx, char *savefile )
             READ_INTS( f, &var, 1 );
             READ_FLOATS( f, &level, 1 );
             if (var<maxparm) {
-               ctx->CHSliceLevel[var] = level;
-/* YO                 new_hslice_pos( ctx, level, &ctx->CHSliceZ[var],*/
-/* YO                                 &ctx->CHSliceHgt[var] );*/
+               ctx->Variable[var]->CHSliceRequest->Level = level;
+/* YO                 new_hslice_pos( ctx, level, &ctx->Variable[var]->CHSliceRequest->Z,*/
+/* YO                                 &ctx->Variable[var]->CHSliceRequest->Hgt );*/
             }
          } break;
 
@@ -1851,16 +1886,16 @@ int restore( Context ctx, char *savefile )
             READ_FLOATS( f, &r2, 1 );
             READ_FLOATS( f, &c2, 1 );
             if (var<maxparm) {
-               ctx->CVSliceR1[var] = r1;
-               ctx->CVSliceC1[var] = c1;
+               ctx->Variable[var]->CVSliceRequest->R1 = r1;
+               ctx->Variable[var]->CVSliceRequest->R2 = c1;
                new_vslice_pos( ctx, r1, c1,
-                               &ctx->CVSliceX1[var], &ctx->CVSliceY1[var],
-                               &ctx->CVSliceLat1[var], &ctx->CVSliceLon1[var] );
-               ctx->CVSliceR2[var] = r2;
-               ctx->CVSliceC2[var] = c2;
+                               &ctx->Variable[var]->CVSliceRequest->X1, &ctx->Variable[var]->CVSliceRequest->Y1,
+                               &ctx->Variable[var]->CVSliceRequest->Lat1, &ctx->Variable[var]->CVSliceRequest->Lon1 );
+               ctx->Variable[var]->CVSliceRequest->C1 = r2;
+               ctx->Variable[var]->CVSliceRequest->C2 = c2;
                new_vslice_pos( ctx,r2, c2,
-                               &ctx->CVSliceX2[var], &ctx->CVSliceY2[var],
-                               &ctx->CVSliceLat2[var], &ctx->CVSliceLon2[var] );
+                               &ctx->Variable[var]->CVSliceRequest->X2, &ctx->Variable[var]->CVSliceRequest->Y2,
+                               &ctx->Variable[var]->CVSliceRequest->Lat2, &ctx->Variable[var]->CVSliceRequest->Lon2 );
             }
          } break;
 

@@ -155,7 +155,7 @@ static int find_variable( Context ctx, char *name )
       return USETIME;
    }
    for (var=0;var<ctx->NumVars;var++) {
-      if (strcmp( ctx->VarName[var], name )==0) {
+      if (strcmp( ctx->Variable[var]->VarName, name )==0) {
          return var;
       }
    }
@@ -756,7 +756,7 @@ static int parse( Display_Context dtx, struct compute_state *state,
   *var = find_variable(ctx, namevar);
 
   if (*var >= 0) {
-    if (ctx->VarType[*var] != VIS5D_EXPRESSION) {
+    if (ctx->Variable[*var]->VarType != VIS5D_EXPRESSION) {
       sprintf(mess, "Error:  destination variable name  %s  already used",
               namevar);
       return -1;
@@ -902,11 +902,11 @@ int compute_var( Display_Context dtx, char *expression, int *expressionowner,
        lowlev = 0;
     }
     else if (state->varownerlist[i] == ctx->context_index){
-      if (ctx->Nl[state->varlist[i]] + ctx->LowLev[state->varlist[i]] < toplev) {
-        toplev = ctx->Nl[state->varlist[i]] + ctx->LowLev[state->varlist[i]];
+      if (ctx->Nl[state->varlist[i]] + ctx->Variable[state->varlist[i]]->LowLev < toplev) {
+        toplev = ctx->Nl[state->varlist[i]] + ctx->Variable[state->varlist[i]]->LowLev;
       }
-      if (ctx->LowLev[state->varlist[i]] > lowlev) {
-        lowlev = ctx->LowLev[state->varlist[i]];
+      if (ctx->Variable[state->varlist[i]]->LowLev > lowlev) {
+        lowlev = ctx->Variable[state->varlist[i]]->LowLev;
       }
     }
   }
@@ -985,7 +985,7 @@ int compute_var( Display_Context dtx, char *expression, int *expressionowner,
                                   state->args[state->curop]);
                      a = (float *) allocate(ctx, length * sizeof(float));
                      /* adjust to align lowest levels of grids */
-                     offset = (lowlev - ctx->LowLev[state->args[state->curop]]) * layer;
+                     offset = (lowlev - ctx->Variable[state->args[state->curop]]->LowLev) * layer;
                      for (i=0; i<length; i++) a[i] = g[i + offset];
                      release_grid(ctx, time+state->args3[state->curop],
                                   state->args[state->curop], g);
@@ -1027,7 +1027,7 @@ int compute_var( Display_Context dtx, char *expression, int *expressionowner,
                   g = get_grid(ctx, time, state->args[state->curop]);
                   a = (float *) allocate(ctx, length * sizeof(float));
                   /* adjust to align lowest levels of grids */
-                  offset = (lowlev - ctx->LowLev[state->args[state->curop]]) * layer;
+                  offset = (lowlev - ctx->Variable[state->args[state->curop]]->LowLev) * layer;
                   for (i=0; i<length; i++) a[i] = g[i + offset];
                   release_grid(ctx, time, state->args[state->curop], g);
                   state->sgrid[state->stop] = a;

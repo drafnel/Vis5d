@@ -157,14 +157,14 @@ int check_view_side (Context ctx, int type, int num)
     {
 /* Need to work on non-vertical slices */
         case VSLICE:
-            xyz[0][0] = ctx->VSliceX2[num];
-            xyz[0][1] = ctx->VSliceY2[num];
+            xyz[0][0] = ctx->Variable[num]->VSliceRequest->X2;
+            xyz[0][1] = ctx->Variable[num]->VSliceRequest->Y2;
             xyz[0][2] = ctx->dpy_ctx->Zmin;
-            xyz[1][0] = ctx->VSliceX1[num];
-            xyz[1][1] = ctx->VSliceY1[num];
+            xyz[1][0] = ctx->Variable[num]->VSliceRequest->X1;
+            xyz[1][1] = ctx->Variable[num]->VSliceRequest->Y1;
             xyz[1][2] = ctx->dpy_ctx->Zmin;
-            xyz[2][0] = ctx->VSliceX1[num];
-            xyz[2][1] = ctx->VSliceY1[num];
+            xyz[2][0] = ctx->Variable[num]->VSliceRequest->X1;
+            xyz[2][1] = ctx->Variable[num]->VSliceRequest->Y1;
             xyz[2][2] = ctx->dpy_ctx->Zmax;
             break;
 
@@ -192,24 +192,24 @@ int flip_vslice_end_for_end (Context ctx, int time, int var)
 {
    float        x;
 
-   x = ctx->VSliceR1[var];
-   ctx->VSliceR1[var] = ctx->VSliceR2[var];
-   ctx->VSliceR2[var] = x;
-   x = ctx->VSliceC1[var];
-   ctx->VSliceC1[var] = ctx->VSliceC2[var];
-   ctx->VSliceC2[var] = x;
-   x = ctx->VSliceX1[var];
-   ctx->VSliceX1[var] = ctx->VSliceX2[var];
-   ctx->VSliceX2[var] = x;
-   x = ctx->VSliceY1[var];
-   ctx->VSliceY1[var] = ctx->VSliceY2[var];
-   ctx->VSliceY2[var] = x;
-   x = ctx->VSliceLat1[var];
-   ctx->VSliceLat1[var] = ctx->VSliceLat2[var];
-   ctx->VSliceLat2[var] = x;
-   x = ctx->VSliceLon1[var];
-   ctx->VSliceLon1[var] = ctx->VSliceLon2[var];
-   ctx->VSliceLon2[var] = x;
+   x = ctx->Variable[var]->VSliceRequest->R1;
+   ctx->Variable[var]->VSliceRequest->R1 = ctx->Variable[var]->VSliceRequest->C1;
+   ctx->Variable[var]->VSliceRequest->C1 = x;
+   x = ctx->Variable[var]->VSliceRequest->R2;
+   ctx->Variable[var]->VSliceRequest->R2 = ctx->Variable[var]->VSliceRequest->C2;
+   ctx->Variable[var]->VSliceRequest->C2 = x;
+   x = ctx->Variable[var]->VSliceRequest->X1;
+   ctx->Variable[var]->VSliceRequest->X1 = ctx->Variable[var]->VSliceRequest->X2;
+   ctx->Variable[var]->VSliceRequest->X2 = x;
+   x = ctx->Variable[var]->VSliceRequest->Y1;
+   ctx->Variable[var]->VSliceRequest->Y1 = ctx->Variable[var]->VSliceRequest->Y2;
+   ctx->Variable[var]->VSliceRequest->Y2 = x;
+   x = ctx->Variable[var]->VSliceRequest->Lat1;
+   ctx->Variable[var]->VSliceRequest->Lat1 = ctx->Variable[var]->VSliceRequest->Lat2;
+   ctx->Variable[var]->VSliceRequest->Lat2 = x;
+   x = ctx->Variable[var]->VSliceRequest->Lon1;
+   ctx->Variable[var]->VSliceRequest->Lon1 = ctx->Variable[var]->VSliceRequest->Lon2;
+   ctx->Variable[var]->VSliceRequest->Lon2 = x;
 
    request_vslice (ctx, time, var, (time == ctx->CurTime));
    return 0;
@@ -826,6 +826,7 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
    int time, colorvar, cvowner;
 
    dtx = ctx->dpy_ctx;
+
    for (var=0;var<ctx->NumVars;var++) {
       if (ctx->SameIsoColorVarOwner[var] ||
           ctx->IsoColorVar[var] < 0){
@@ -834,20 +835,26 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
       else{
          time = dtxtime;
       }
-      if (ctx->DisplaySurf[var] && ctx->SurfTable[var][time].valid) {
+
+		if(ctx->DisplaySurf[var] && !ctx->Variable[var]->SurfTable[time]){
+		  ctx->Variable[var]->SurfTable[time] = (struct isosurface *) allocate(ctx,sizeof(struct isosurface));
+		  memset(ctx->Variable[var]->SurfTable[time], 0, sizeof(struct isosurface));
+		}	
+
+      if (ctx->DisplaySurf[var] && ctx->Variable[var]->SurfTable[time]->valid) {
          if (animflag) {
-            lock = cond_read_lock( &ctx->SurfTable[var][time].lock );
+            lock = cond_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
          }
          else {
-            wait_read_lock( &ctx->SurfTable[var][time].lock );
+            wait_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
             lock = 1;
          }
          if (lock) {
             recent( ctx, ISOSURF, var );
-            colorvar = ctx->SurfTable[var][time].colorvar;
-            cvowner = ctx->SurfTable[var][time].cvowner;
+            colorvar = ctx->Variable[var]->SurfTable[time]->colorvar;
+            cvowner = ctx->Variable[var]->SurfTable[time]->cvowner;
             /* Determine alpha for surface:  -1=variable, 0..255=constant */
-            if (ctx->SurfTable[var][time].colors) {
+            if (ctx->Variable[var]->SurfTable[time]->colors) {
                alpha = UNPACK_ALPHA( dtx->Color[ctx->context_index*MAXVARS+
                                      var][ISOSURF] ); 
                /* alpha = get_alpha( ctx->ColorTable[VIS5D_ISOSURF_CT]->Colors[colorvar], 255 ); WLH 16 Aug 97 */
@@ -857,21 +864,21 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
                                      var][ISOSURF] );
             }
             if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
-               if (ctx->SurfTable[var][time].colors) {
+               if (ctx->Variable[var]->SurfTable[time]->colors) {
                   draw_colored_isosurface(
-                                   ctx->SurfTable[var][time].numindex,
-                                   ctx->SurfTable[var][time].index,
-                                   (void *) ctx->SurfTable[var][time].verts,
-                                   (void *) ctx->SurfTable[var][time].norms,
-                                   (void *) ctx->SurfTable[var][time].colors,
+                                   ctx->Variable[var]->SurfTable[time]->numindex,
+                                   ctx->Variable[var]->SurfTable[time]->index,
+                                   (void *) ctx->Variable[var]->SurfTable[time]->verts,
+                                   (void *) ctx->Variable[var]->SurfTable[time]->norms,
+                                   (void *) ctx->Variable[var]->SurfTable[time]->colors,
                                    dtx->ColorTable[VIS5D_ISOSURF_CT]->Colors[cvowner*MAXVARS+colorvar],
                                    alpha );
                }
                else {
-                  draw_isosurface( ctx->SurfTable[var][time].numindex,
-                                   ctx->SurfTable[var][time].index,
-                                   (void *) ctx->SurfTable[var][time].verts,
-                                   (void *) ctx->SurfTable[var][time].norms,
+                  draw_isosurface( ctx->Variable[var]->SurfTable[time]->numindex,
+                                   ctx->Variable[var]->SurfTable[time]->index,
+                                   (void *) ctx->Variable[var]->SurfTable[time]->verts,
+                                   (void *) ctx->Variable[var]->SurfTable[time]->norms,
                                    dtx->Color[ctx->context_index*MAXVARS+var][0] );
 
 
@@ -879,7 +886,7 @@ static void render_isosurfaces( Context ctx, int dtxtime, int ctxtime, int tf, i
                
                }
             }
-            done_read_lock( &ctx->SurfTable[var][time].lock );
+            done_read_lock( &ctx->Variable[var]->SurfTable[time]->lock );
          }
       }
    }
@@ -998,38 +1005,39 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
    if(vis5d_verbose & VERBOSE_RENDER) printf("render_hslices %d %d %d\n",time,labels,animflag);
 
    for (var=0;var<ctx->NumVars;var++) {
-      if (ctx->DisplayHSlice[var] && ctx->HSliceTable[var][time].valid) {
+      if (ctx->DisplayHSlice[var] && ctx->Variable[var]->HSliceTable[time] && 
+			 ctx->Variable[var]->HSliceTable[time]->valid) {
          if (animflag) {
-            lock = cond_read_lock(&ctx->HSliceTable[var][time].lock);
+            lock = cond_read_lock(&(ctx->Variable[var]->HSliceTable[time]->lock));
          }
          else {
-            wait_read_lock(&ctx->HSliceTable[var][time].lock);
+            wait_read_lock(&(ctx->Variable[var]->HSliceTable[time]->lock));
             lock = 1;
          }
          if (lock) {
             recent( ctx, HSLICE, var );
 
             /* draw main contour lines */
-            draw_disjoint_lines( ctx->HSliceTable[var][time].num1,
-                                 (void *) ctx->HSliceTable[var][time].verts1,
+            draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num1,
+                                 (void *) ctx->Variable[var]->HSliceTable[time]->verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE] );
             if (labels) {
 #ifdef USE_SYSTEM_FONTS
 
                /* draw hidden contour lines */
-               draw_disjoint_lines( ctx->HSliceTable[var][time].num2,
-                                    (void *)ctx->HSliceTable[var][time].verts2,
+               draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
+                                    (void *)ctx->Variable[var]->HSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][HSLICE] );
 
-				  plot_strings( ctx->HSliceTable[var][time].num3, 
-									 ctx->HSliceTable[var][time].labels,
-									 ctx->HSliceTable[var][time].verts3,
+				  plot_strings( ctx->Variable[var]->HSliceTable[time]->num3, 
+									 ctx->Variable[var]->HSliceTable[time]->labels,
+									 ctx->Variable[var]->HSliceTable[time]->verts3,
 									 ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE],
 									 ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
 #else
-               draw_disjoint_lines( ctx->HSliceTable[var][time].num3,
-                                    (void *)ctx->HSliceTable[var][time].verts3,
+               draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num3,
+                                    (void *)ctx->Variable[var]->HSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS
                                     +var][HSLICE] );
 #endif
@@ -1037,8 +1045,8 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
             else {
 
                /* draw hidden contour lines */
-               draw_disjoint_lines( ctx->HSliceTable[var][time].num2,
-                                    (void *)ctx->HSliceTable[var][time].verts2,
+               draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
+                                    (void *)ctx->Variable[var]->HSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][HSLICE] );
             }
@@ -1046,11 +1054,11 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
             /* draw the bounding box */
             /* MJK 12.01.98 */
             if (!ctx->DisplaySfcHSlice[var]){
-               polyline( (void *) ctx->HSliceTable[var][time].boxverts,
-                              ctx->HSliceTable[var][time].numboxverts );
+               polyline( (void *) ctx->Variable[var]->HSliceTable[time]->boxverts,
+                              ctx->Variable[var]->HSliceTable[time]->numboxverts );
             }
 
-            done_read_lock( &ctx->HSliceTable[var][time].lock );
+            done_read_lock( &ctx->Variable[var]->HSliceTable[time]->lock );
          }
 
          /* draw position label */
@@ -1058,10 +1066,10 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
          if (!ctx->DisplaySfcHSlice[var]){
             if (ctx->dpy_ctx->DisplayBox && !ctx->dpy_ctx->CurvedBox) {
 				  float l, z;
-               l =  ctx->HSliceLevel[var];
-               z = height_to_zPRIME( ctx->dpy_ctx, ctx->HSliceHgt[var]);   
+               l =  ctx->Variable[var]->HSliceRequest->Level;
+               z = height_to_zPRIME( ctx->dpy_ctx, ctx->Variable[var]->HSliceRequest->Hgt);   
                clipping_off();
-               draw_horizontal_slice_tick( ctx->dpy_ctx,l, z, ctx->HSliceHgt[var]);
+               draw_horizontal_slice_tick( ctx->dpy_ctx,l, z, ctx->Variable[var]->HSliceRequest->Hgt);
                clipping_on();
             }
          }
@@ -1085,7 +1093,7 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
    float r1p, r2p, c1p, c2p, lp;
 
    for (var=0;var<ctx->NumVars;var++) {
-      if (ctx->DisplayVSlice[var] && ctx->VSliceTable[var][time].valid) {
+      if (ctx->DisplayVSlice[var] && ctx->Variable[var]->VSliceTable[time]->valid) {
 
          /* MJK 12.01.98 */
          if (labels)
@@ -1098,54 +1106,54 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
 
 
          if (animflag) {
-            lock = cond_read_lock(&ctx->VSliceTable[var][time].lock);
+            lock = cond_read_lock(&ctx->Variable[var]->VSliceTable[time]->lock);
          }
          else {
-            wait_read_lock(&ctx->VSliceTable[var][time].lock);
+            wait_read_lock(&ctx->Variable[var]->VSliceTable[time]->lock);
             lock = 1;
          }
          if (lock) {
             recent( ctx, VSLICE, var );
 
             /* draw main contour lines */
-            draw_disjoint_lines( ctx->VSliceTable[var][time].num1,
-                                 (void*) ctx->VSliceTable[var][time].verts1,
+            draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num1,
+                                 (void*) ctx->Variable[var]->VSliceTable[time]->verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                  var][VSLICE] );
 
             if (labels) {
 #ifdef USE_SYSTEM_FONTS
                /* draw hidden contour lines */
-               draw_disjoint_lines( ctx->VSliceTable[var][time].num2,
-                                    (void*) ctx->VSliceTable[var][time].verts2,
+               draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
+                                    (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] );
-					plot_strings( ctx->VSliceTable[var][time].num3,
-									  ctx->VSliceTable[var][time].labels,
-									  (void*) ctx->VSliceTable[var][time].verts3,
+					plot_strings( ctx->Variable[var]->VSliceTable[time]->num3,
+									  ctx->Variable[var]->VSliceTable[time]->labels,
+									  (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
 									  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE],
 									  ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
 #else
                /* draw contour labels */
-               draw_disjoint_lines( ctx->VSliceTable[var][time].num3,
-                                    (void*) ctx->VSliceTable[var][time].verts3,
+               draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num3,
+                                    (void*) ctx->Variable[var]->VSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] );
 #endif
             }
             else {
                /* draw hidden contour lines */
-               draw_disjoint_lines( ctx->VSliceTable[var][time].num2,
-                                    (void*) ctx->VSliceTable[var][time].verts2,
+               draw_disjoint_lines( ctx->Variable[var]->VSliceTable[time]->num2,
+                                    (void*) ctx->Variable[var]->VSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][VSLICE] );
             }
 
             /* draw the bounding box */
-            polyline( (void *) ctx->VSliceTable[var][time].boxverts,
-                           ctx->VSliceTable[var][time].numboxverts );
+            polyline( (void *) ctx->Variable[var]->VSliceTable[time]->boxverts,
+                           ctx->Variable[var]->VSliceTable[time]->numboxverts );
 
-            done_read_lock( &ctx->VSliceTable[var][time].lock );
+            done_read_lock( &ctx->Variable[var]->VSliceTable[time]->lock );
          }
 
          if (ctx->dpy_ctx->DisplayBox && !ctx->dpy_ctx->CurvedBox) {
@@ -1156,40 +1164,40 @@ static void render_vslices( Context ctx, int time, int labels, int animflag )
             ztop = gridlevelPRIME_to_zPRIME(ctx->dpy_ctx, time, var,
                                   (float) (ctx->dpy_ctx->Nl-1+ctx->dpy_ctx->LowLev));
             set_color( ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][VSLICE] );
-            r1p = ctx->VSliceR1[var];
-            c1p = ctx->VSliceC1[var];
-            r2p = ctx->VSliceR2[var];
-            c2p = ctx->VSliceC2[var];
+            r1p = ctx->Variable[var]->VSliceRequest->R1;
+            c1p = ctx->Variable[var]->VSliceRequest->R2;
+            r2p = ctx->Variable[var]->VSliceRequest->C1;
+            c2p = ctx->Variable[var]->VSliceRequest->C2;
             lp= 0.0;
             gridPRIME_to_xyzPRIME( ctx->dpy_ctx, time, var, 1, &r1p, &c1p, &lp, &x1, &y1, &z1);
             gridPRIME_to_xyzPRIME( ctx->dpy_ctx, time, var, 1, &r2p, &c2p, &lp, &x2, &y2, &z2);
             clipping_off();
             draw_vertical_slice_tick(ctx->dpy_ctx, r1p, c1p, x1, y1, 
-                                     ctx->VSliceLat1[var], ctx->VSliceLon1[var] );
+                                     ctx->Variable[var]->VSliceRequest->Lat1, ctx->Variable[var]->VSliceRequest->Lon1 );
             draw_vertical_slice_tick(ctx->dpy_ctx, r2p, c2p, x2, y2,
-                                     ctx->VSliceLat2[var],ctx->VSliceLon2[var] );
+                                     ctx->Variable[var]->VSliceRequest->Lat2,ctx->Variable[var]->VSliceRequest->Lon2 );
 /* 
-            draw_vertical_slice_tick( ctx->dpy_ctx, ctx->VSliceR1[var],
-                                      ctx->VSliceC1[var],
-                                      ctx->VSliceX1[var],
-                                      ctx->VSliceY1[var],
-                                      ctx->VSliceLat1[var],
-                                      ctx->VSliceLon1[var] );
-            draw_vertical_slice_tick( ctx->dpy_ctx, ctx->VSliceR2[var],
-                                      ctx->VSliceC2[var],
-                                      ctx->VSliceX2[var],
-                                      ctx->VSliceY2[var],
-                                      ctx->VSliceLat2[var],
-                                      ctx->VSliceLon2[var] );
+            draw_vertical_slice_tick( ctx->dpy_ctx, ctx->Variable[var]->VSliceRequest->R1,
+                                      ctx->Variable[var]->VSliceRequest->R2,
+                                      ctx->Variable[var]->VSliceRequest->X1,
+                                      ctx->Variable[var]->VSliceRequest->Y1,
+                                      ctx->Variable[var]->VSliceRequest->Lat1,
+                                      ctx->Variable[var]->VSliceRequest->Lon1 );
+            draw_vertical_slice_tick( ctx->dpy_ctx, ctx->Variable[var]->VSliceRequest->C1,
+                                      ctx->Variable[var]->VSliceRequest->C2,
+                                      ctx->Variable[var]->VSliceRequest->X2,
+                                      ctx->Variable[var]->VSliceRequest->Y2,
+                                      ctx->Variable[var]->VSliceRequest->Lat2,
+                                      ctx->Variable[var]->VSliceRequest->Lon2 );
 */
             /* draw small markers at midpoint of top and bottom edges */
             vert[0][0] = vert[1][0] = vert[2][0] = vert[3][0] = (x1 + x2)*0.5;
 /*
-                              (ctx->VSliceX1[var] + ctx->VSliceX2[var]) * 0.5;
+                              (ctx->Variable[var]->VSliceRequest->X1 + ctx->Variable[var]->VSliceRequest->X2) * 0.5;
 */
             vert[0][1] = vert[1][1] = vert[2][1] = vert[3][1] = (y1 +y2)*0.5;
 /*
-                              (ctx->VSliceY1[var] + ctx->VSliceY2[var]) * 0.5;
+                              (ctx->Variable[var]->VSliceRequest->Y1 + ctx->Variable[var]->VSliceRequest->Y2) * 0.5;
 */
             vert[0][2] = ztop+TICK_SIZE;
             vert[1][2] = ztop;
@@ -1224,12 +1232,12 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
    dtx = ctx->dpy_ctx;
    for (var=0;var<ctx->NumVars;var++) {
       if (ctx->DisplayCHSlice[var]) {
-         if (ctx->CHSliceTable[var][time].valid) {
+         if (ctx->Variable[var]->CHSliceTable[time]->valid) {
             if (animflag) {
-               lock = cond_read_lock( &ctx->CHSliceTable[var][time].lock );
+               lock = cond_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
             }
             else {
-               wait_read_lock( &ctx->CHSliceTable[var][time].lock );
+               wait_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
                lock = 1;
             }
             if (lock) {
@@ -1239,25 +1247,25 @@ static void render_chslices( Context ctx, int time, int tf, int animflag )
                                   255 );
 
                if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
-                  draw_color_quadmesh( ctx->CHSliceTable[var][time].rows,
-                                    ctx->CHSliceTable[var][time].columns,
-                                    (void *)ctx->CHSliceTable[var][time].verts,
-                                    ctx->CHSliceTable[var][time].color_indexes,
+                  draw_color_quadmesh( ctx->Variable[var]->CHSliceTable[time]->rows,
+                                    ctx->Variable[var]->CHSliceTable[time]->columns,
+                                    (void *)ctx->Variable[var]->CHSliceTable[time]->verts,
+                                    ctx->Variable[var]->CHSliceTable[time]->color_indexes,
                                     dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
                                      -1 );
                                  /* ctx->ColorTable[VIS5D_CHSLICE_CT]->Colors[var], alpha ); WLH 15 Aug 97 */
                }
 
-               done_read_lock( &ctx->CHSliceTable[var][time].lock );
+               done_read_lock( &ctx->Variable[var]->CHSliceTable[time]->lock );
             }
 
             /* draw position label */
             if (tf && dtx->DisplayBox && !dtx->CurvedBox) {
                set_color( dtx->Color[ctx->context_index*MAXVARS+var][CHSLICE] );
                clipping_off();
-               draw_horizontal_slice_tick( dtx, ctx->CHSliceLevel[var],
-                                           ctx->CHSliceZ[var],
-                                           ctx->CHSliceHgt[var] );
+               draw_horizontal_slice_tick( dtx, ctx->Variable[var]->CHSliceRequest->Level,
+                                           ctx->Variable[var]->CHSliceRequest->Z,
+                                           ctx->Variable[var]->CHSliceRequest->Hgt );
                clipping_on();
             }
          }
@@ -1284,12 +1292,12 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
 
    dtx = ctx->dpy_ctx;
    for (var=0;var<ctx->NumVars;var++) {
-      if (ctx->DisplayCVSlice[var] && ctx->CVSliceTable[var][time].valid) {
+      if (ctx->DisplayCVSlice[var] && ctx->Variable[var]->CVSliceTable[time]->valid) {
          if (animflag) {
-            lock = cond_read_lock(&ctx->CVSliceTable[var][time].lock);
+            lock = cond_read_lock(&ctx->Variable[var]->CVSliceTable[time]->lock);
          }
          else {
-            wait_read_lock(&ctx->CVSliceTable[var][time].lock);
+            wait_read_lock(&ctx->Variable[var]->CVSliceTable[time]->lock);
             lock = 1;
          }
          if (lock) {
@@ -1297,15 +1305,15 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
 
             alpha = get_alpha( dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var], 255 );
             if ( (tf && alpha==255) || (tf==0 && alpha<255) ) {
-               draw_color_quadmesh( ctx->CVSliceTable[var][time].rows,
-                                    ctx->CVSliceTable[var][time].columns,
-                                    (void *)ctx->CVSliceTable[var][time].verts,
-                                    ctx->CVSliceTable[var][time].color_indexes,
+               draw_color_quadmesh( ctx->Variable[var]->CVSliceTable[time]->rows,
+                                    ctx->Variable[var]->CVSliceTable[time]->columns,
+                                    (void *)ctx->Variable[var]->CVSliceTable[time]->verts,
+                                    ctx->Variable[var]->CVSliceTable[time]->color_indexes,
                                     dtx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
                                     -1 );
                                  /* ctx->ColorTable[VIS5D_CVSLICE_CT]->Colors[var], alpha ); WLH 15 Aug 97 */
             }
-            done_read_lock( &ctx->CVSliceTable[var][time].lock );
+            done_read_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
          }
 
          if (tf & dtx->DisplayBox && !dtx->CurvedBox) {
@@ -1316,32 +1324,32 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
             ztop = gridlevelPRIME_to_zPRIME(ctx->dpy_ctx, time, var,
                                   (float) (ctx->dpy_ctx->Nl-1+ctx->dpy_ctx->LowLev));
             set_color( dtx->Color[ctx->context_index*MAXVARS+var][CVSLICE] );
-            r1p = ctx->CVSliceR1[var];
-            c1p = ctx->CVSliceC1[var];
-            r2p = ctx->CVSliceR2[var];
-            c2p = ctx->CVSliceC2[var];
+            r1p = ctx->Variable[var]->CVSliceRequest->R1;
+            c1p = ctx->Variable[var]->CVSliceRequest->R2;
+            r2p = ctx->Variable[var]->CVSliceRequest->C1;
+            c2p = ctx->Variable[var]->CVSliceRequest->C2;
             lp= 0.0;
             gridPRIME_to_xyzPRIME( ctx->dpy_ctx, time, var, 1, &r1p, &c1p, &lp, &x1, &y1, &z1);
             gridPRIME_to_xyzPRIME( ctx->dpy_ctx, time, var, 1, &r2p, &c2p, &lp, &x2, &y2, &z2);
 
             clipping_off();
             draw_vertical_slice_tick(ctx->dpy_ctx, r1p, c1p, x1, y1,
-                                     ctx->CVSliceLat1[var], ctx->CVSliceLon1[var] );
+                                     ctx->Variable[var]->CVSliceRequest->Lat1, ctx->Variable[var]->CVSliceRequest->Lon1 );
             draw_vertical_slice_tick(ctx->dpy_ctx, r2p, c2p, x2, y2,
-                                     ctx->CVSliceLat2[var],ctx->CVSliceLon2[var] );
+                                     ctx->Variable[var]->CVSliceRequest->Lat2,ctx->Variable[var]->CVSliceRequest->Lon2 );
 /*
-            draw_vertical_slice_tick( dtx, ctx->CVSliceR1[var],
-                                      ctx->CVSliceC1[var],
-                                      ctx->CVSliceX1[var],
-                                      ctx->CVSliceY1[var],
-                                      ctx->CVSliceLat1[var],
-                                      ctx->CVSliceLon1[var] );
-            draw_vertical_slice_tick( dtx, ctx->CVSliceR2[var],
-                                      ctx->CVSliceC2[var],
-                                      ctx->CVSliceX2[var],
-                                      ctx->CVSliceY2[var],
-                                      ctx->CVSliceLat2[var],
-                                      ctx->CVSliceLon2[var] );
+            draw_vertical_slice_tick( dtx, ctx->Variable[var]->CVSliceRequest->R1,
+                                      ctx->Variable[var]->CVSliceRequest->R2,
+                                      ctx->Variable[var]->CVSliceRequest->X1,
+                                      ctx->Variable[var]->CVSliceRequest->Y1,
+                                      ctx->Variable[var]->CVSliceRequest->Lat1,
+                                      ctx->Variable[var]->CVSliceRequest->Lon1 );
+            draw_vertical_slice_tick( dtx, ctx->Variable[var]->CVSliceRequest->C1,
+                                      ctx->Variable[var]->CVSliceRequest->C2,
+                                      ctx->Variable[var]->CVSliceRequest->X2,
+                                      ctx->Variable[var]->CVSliceRequest->Y2,
+                                      ctx->Variable[var]->CVSliceRequest->Lat2,
+                                      ctx->Variable[var]->CVSliceRequest->Lon2 );
 */
 
             /* draw small markers at midpoint of top and bottom edges */
@@ -1350,9 +1358,9 @@ static void render_cvslices( Context ctx, int time, int tf, int animflag )
 /*
 
             vert[0][0] = vert[1][0] = vert[2][0] = vert[3][0] =
-                           (ctx->CVSliceX1[var] + ctx->CVSliceX2[var]) * 0.5;
+                           (ctx->Variable[var]->CVSliceRequest->X1 + ctx->Variable[var]->CVSliceRequest->X2) * 0.5;
             vert[0][1] = vert[1][1] = vert[2][1] = vert[3][1] =
-                           (ctx->CVSliceY1[var] + ctx->CVSliceY2[var]) * 0.5;
+                           (ctx->Variable[var]->CVSliceRequest->Y1 + ctx->Variable[var]->CVSliceRequest->Y2) * 0.5;
 */
             vert[0][2] = ztop+TICK_SIZE;
             vert[1][2] = ztop;
@@ -1945,8 +1953,8 @@ static void draw_probe( Display_Context dtx )
       x = -1;
       for (yo = 0; yo < dtx->numofctxs; yo++){
          for (var=0;var<dtx->ctxpointerarray[yo]->NumVars; var++) {
-            int w = text_width(dtx->gfx[WINDOW_3D_FONT]->font, dtx->ctxpointerarray[yo]->VarName[var] );
-            int l = strlen( dtx->ctxpointerarray[yo]->VarName[var] );
+            int w = text_width(dtx->gfx[WINDOW_3D_FONT]->font, dtx->ctxpointerarray[yo]->Variable[var]->VarName );
+            int l = strlen( dtx->ctxpointerarray[yo]->Variable[var]->VarName );
             if (w < 1) w = 11 * l;
             if (w>x)
                x = w;
@@ -1987,7 +1995,7 @@ static void draw_probe( Display_Context dtx )
                          dtx->CursorX, dtx->CursorY, dtx->CursorZ, &rr, &cc, &ll );
             xyzPRIME_to_gridPRIME( ctx->dpy_ctx, dtx->CurTime, var, dtx->CursorX,
                                    dtx->CursorY, dtx->CursorZ, &r, &c, &l);
-            if (ll < ctx->LowLev[var] || ll > ctx->Nl[var]-1 + ctx->LowLev[var] ||
+            if (ll < ctx->Variable[var]->LowLev || ll > ctx->Nl[var]-1 + ctx->Variable[var]->LowLev ||
                 rr < 0 || rr > ctx->Nr-1 || cc < 0 || cc > ctx->Nc-1 ||
                 !check_for_valid_time(ctx, dtx->CurTime)) {
                val = MISSING;
@@ -2004,7 +2012,7 @@ static void draw_probe( Display_Context dtx )
                   vis5d_gridPRIME_to_grid(ctx->context_index, ctx->CurTime, var,
                                           (float)(row), (float)(col), (float)(lev),
                                            &rr, &cc, &ll);
-                  if (ll < ctx->LowLev[var] || ll > ctx->Nl[var]-1 + ctx->LowLev[var] ||
+                  if (ll < ctx->Variable[var]->LowLev || ll > ctx->Nl[var]-1 + ctx->Variable[var]->LowLev ||
                       rr < 0 || rr > ctx->Nr-1 || cc < 0 || cc > ctx->Nc-1) {
                      val = MISSING;
                   }
@@ -2021,7 +2029,7 @@ static void draw_probe( Display_Context dtx )
                   val = interpolate_grid_value( ctx, ctx->CurTime, var, rr, cc, ll );
                }
             }
-            sprintf( str, "%-4s", ctx->VarName[var] );
+            sprintf( str, "%-4s", ctx->Variable[var]->VarName );
 
 
             if (dtx->numofctxs > 1){
@@ -2035,7 +2043,7 @@ static void draw_probe( Display_Context dtx )
             if (IS_MISSING(val))
               sprintf( str, " = MISSING" );
             else
-              sprintf( str, " = %.3g %s", val, ctx->Units[var] );
+              sprintf( str, " = %.3g %s", val, ctx->Variable[var]->Units );
             draw_text( x+10, y, str );
             y -= (dtx->gfx[WINDOW_3D_FONT]->FontHeight+VSPACE);
          }
@@ -2166,9 +2174,9 @@ int draw_legend( Context ctx, int varowner, int var, int type, int xleft, int yb
 
 
    /* Determine largest value physical variable can have */
-   label = ABS(colorctx->MaxVal[var]);
-   if (ABS(colorctx->MinVal[var]) > label)
-      label = ABS(colorctx->MinVal[var]);
+   label = ABS(colorctx->Variable[var]->MaxVal);
+   if (ABS(colorctx->Variable[var]->MinVal) > label)
+      label = ABS(colorctx->Variable[var]->MinVal);
 
    /* Create 'pretty' formatting string */
    sprintf(scrap, "% .0f", label); 
@@ -2195,7 +2203,7 @@ XSync( GfxDpy, 0 );
       ticky = ybot - tick * (legend_height-1) / (NUM_TICKS-1);
       texty = ybot - tick * (legend_height-dtx->gfx[WINDOW_3D_FONT]->FontHeight+dtx->gfx[WINDOW_3D_FONT]->FontDescent)
               / (NUM_TICKS-1);
-      value = colorctx->MinVal[var] + (colorctx->MaxVal[var]-colorctx->MinVal[var])*tick/4.0;
+      value = colorctx->Variable[var]->MinVal + (colorctx->Variable[var]->MaxVal-colorctx->Variable[var]->MinVal)*tick/4.0;
 
       cline[0][1] = cline[1][1] = ticky;
       polyline2d(cline, 2);
@@ -2208,13 +2216,13 @@ XSync( GfxDpy, 0 );
    }
 
    /* Print name of physical variable above legend */
-   if (colorctx->Units[var][0]) {
-      sprintf( scrap, "%s (%s)", colorctx->VarName[var], colorctx->Units[var] );
+   if (colorctx->Variable[var]->Units[0]) {
+      sprintf( scrap, "%s (%s)", colorctx->Variable[var]->VarName, colorctx->Variable[var]->Units );
       draw_text( xleft, ybot - legend_height - dtx->gfx[WINDOW_3D_FONT]->FontDescent-2, scrap );
    }
    else {
       draw_text( xleft, ybot - legend_height - dtx->gfx[WINDOW_3D_FONT]->FontDescent-2,
-                 colorctx->VarName[var]);
+                 colorctx->Variable[var]->VarName);
    }
 
    if (dtx->LegendPosition == VIS5D_BOTTOM ||

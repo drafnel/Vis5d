@@ -1236,12 +1236,12 @@ void draw_volume( Context ctx, int it, int ip, unsigned int *ctable )
       if (data) {
          if (ctx->GridSameAsGridPRIME){
             compute_volume( ctx, data, it, ip, ctx->Nr, ctx->Nc, ctx->Nl[ip],
-                            ctx->LowLev[ip], ctx->MinVal[ip], ctx->MaxVal[ip],
+                            ctx->Variable[ip]->LowLev, ctx->Variable[ip]->MinVal, ctx->Variable[ip]->MaxVal,
                             dir, ctx->Volume );
          }
          else{
             compute_volumePRIME( ctx, data, it, ip, dtx->Nr, dtx->Nc, dtx->Nl,
-                            dtx->LowLev, ctx->MinVal[ip], ctx->MaxVal[ip],
+                            dtx->LowLev, ctx->Variable[ip]->MinVal, ctx->Variable[ip]->MaxVal,
                             dir, ctx->Volume );
          }
          release_grid( ctx, it, ip, data );
@@ -1332,12 +1332,12 @@ void draw_volume( Context ctx, int it, int ip, unsigned int *ctable )
       if (data) {
          if (ctx->GridSameAsGridPRIME){
             compute_volume( ctx, data, it, ip, ctx->Nr, ctx->Nc, ctx->Nl[ip],
-                            ctx->LowLev[ip], ctx->MinVal[ip], ctx->MaxVal[ip],
+                            ctx->Variable[ip]->LowLev, ctx->Variable[ip]->MinVal, ctx->Variable[ip]->MaxVal,
                             dir, ctx->Volume );
          }
          else{
             compute_volumePRIME( ctx, data, it, ip, dtx->Nr, dtx->Nc, dtx->Nl,
-                            dtx->LowLev, ctx->MinVal[ip], ctx->MaxVal[ip],
+                            dtx->LowLev, ctx->Variable[ip]->MinVal, ctx->Variable[ip]->MaxVal,
                             dir, ctx->Volume );
          }
          release_grid( ctx, it, ip, data );

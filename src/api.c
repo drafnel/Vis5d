@@ -286,7 +286,7 @@ static void init_irregular_context( Irregular_Context itx )
    itx->TextPlotFontY = 10.0;
    itx->TextPlotFontSpace = 1.0;
    for (i = 0; i < MAXVARS; i++){
-      itx->TextPlotColorStatus[i] = VIS5D_OFF;
+      itx->Variable[i]->TextPlotColorStatus = VIS5D_OFF;
    }
 }
 
@@ -302,10 +302,15 @@ static Irregular_Context new_irregular_context (void )
 
 static void destroy_irregular_context( Irregular_Context itx )
 {
-   if (itx->mempool){
-      free( itx->mempool );
-   }
-   free( itx );
+  int n;
+
+  for(n=0;n<itx->NumVars;n++)
+	 free(itx->Variable[n]);
+
+  if (itx->mempool){
+	 free( itx->mempool );
+  }
+  free( itx );
 }
 
 Context vis5d_get_ctx( int index )
@@ -407,11 +412,11 @@ static void adjust_wind_level_info( Display_Context dtx, int varowner, int var )
    if (varowner >=0){
       ctx = vis5d_get_ctx(varowner);
       if (var>=0) {
-         if (ctx->LowLev[var] + ctx->Nl[var] < ctx->WindNl) {
-            dtx->WindNl = ctx->LowLev[var] + ctx->Nl[var];
+         if (ctx->Variable[var]->LowLev + ctx->Nl[var] < ctx->WindNl) {
+            dtx->WindNl = ctx->Variable[var]->LowLev + ctx->Nl[var];
          }
-         if (ctx->LowLev[var] > ctx->WindLow) {
-            dtx->WindLow = ctx->LowLev[var];
+         if (ctx->Variable[var]->LowLev > ctx->WindLow) {
+            dtx->WindLow = ctx->Variable[var]->LowLev;
          }
       }
    }
@@ -675,7 +680,7 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
 
 
 #ifdef HAVE_OPENGL
-	dtx->gfx[SOUND_FONT] = strdup(DEFAULT_SOUNDFONTNAME);
+	dtx->gfx[SOUND_FONT]->FontName = strdup(DEFAULT_SOUNDFONTNAME);
 	dtx->gfx[WINDOW_3D_FONT]->FontHeight = 20;
 #else
 #  ifndef PEX
@@ -773,8 +778,13 @@ static int init_display_context( Display_Context dtx ,int initXwindow)
  */
 static void destroy_context( Context ctx )
 {
-   free_all_graphics( ctx );
-   free_grid_cache( ctx );
+  int i;
+
+  free_all_graphics( ctx );
+  free_grid_cache( ctx );
+
+  for(i=0;i<ctx->NumVars;i++)
+	 free(ctx->Variable[i]);
 
 #ifdef CAVE
    if (cave_shmem) {
@@ -1161,8 +1171,8 @@ int vis5d_set_grp_var_values( int index )
          bigctx = vis5d_get_ctx(ctxloop);
          for (varloop = 0; varloop < bigctx->NumVars; varloop++){
             vis5d_get_ctx_var_name(ctxloop, varloop, thename);
-            minmin = bigctx->MinVal[varloop];
-            maxmax = bigctx->MaxVal[varloop]; 
+            minmin = bigctx->Variable[varloop]->MinVal;
+            maxmax = bigctx->Variable[varloop]->MaxVal; 
             /* first get the min and the max of the same vars*/
             for (yo = 0; yo < grp->numofdpys; yo++){
                dtx = grp->dpyarray[yo];
@@ -1170,8 +1180,8 @@ int vis5d_set_grp_var_values( int index )
                   good = vis5d_find_var(dtx->ctxarray[tor], thename);
                   if (good>-1){
                      ctx = vis5d_get_ctx(dtx->ctxarray[tor]);
-                     min = ctx->MinVal[good];
-                     max = ctx->MaxVal[good];
+                     min = ctx->Variable[good]->MinVal;
+                     max = ctx->Variable[good]->MaxVal;
                      minmin = min < minmin ? min : minmin;
                      maxmax = max > maxmax ? max : maxmax;
                      tor = dtx->numofctxs+1;
@@ -1241,14 +1251,18 @@ int vis5d_set_display_group( int index, int index_of_grp )
          int time, vars;
          ctx = vis5d_get_ctx(dtx->ctxarray[yo]);
          for(vars=0; vars < ctx->NumVars; vars++){
-            ctx->MinVal[vars] = ctx->RealMinVal[vars];
-            ctx->MaxVal[vars] = ctx->RealMaxVal[vars];
+            ctx->Variable[vars]->MinVal = ctx->Variable[vars]->RealMinVal;
+            ctx->Variable[vars]->MaxVal = ctx->Variable[vars]->RealMaxVal;
             for (time=0;time<MAXTIMES;time++) {
-               ctx->SurfTable[vars][time].valid = 0;
-               ctx->HSliceTable[vars][time].valid = 0;
-               ctx->VSliceTable[vars][time].valid = 0;
-               ctx->CHSliceTable[vars][time].valid = 0;
-               ctx->CVSliceTable[vars][time].valid = 0;
+				  if(ctx->Variable[vars]->SurfTable[time])
+					 ctx->Variable[vars]->SurfTable[time]->valid = 0;
+
+					if(ctx->Variable[vars]->HSliceTable[time])
+					  ctx->Variable[vars]->HSliceTable[time]->valid = 0;
+
+               ctx->Variable[vars]->VSliceTable[time]->valid = 0;
+               ctx->Variable[vars]->CHSliceTable[time]->valid = 0;
+               ctx->Variable[vars]->CVSliceTable[time]->valid = 0;
                ctx->dpy_ctx->Redraw = 1;
             }
          }
@@ -1291,35 +1305,36 @@ int vis5d_set_display_group( int index, int index_of_grp )
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_isosurface(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->SurfTable[var][time].valid = 0;
+  ctx->Variable[var]->SurfTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_hslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->HSliceTable[var][time].valid = 0;
+  if(ctx->Variable[var]->HSliceTable[time])
+	 ctx->Variable[var]->HSliceTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_vslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->VSliceTable[var][time].valid = 0;
+  ctx->Variable[var]->VSliceTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_chslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->CHSliceTable[var][time].valid = 0;
+  ctx->Variable[var]->CHSliceTable[time]->valid = 0;
   return 0;
 }
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_cvslice(int index, int var, int time) {
   CONTEXT("vis5d_invalidate_isosurface");
-  ctx->CVSliceTable[var][time].valid = 0;
+  ctx->Variable[var]->CVSliceTable[time]->valid = 0;
   return 0;
 }
 
@@ -1465,6 +1480,7 @@ int vis5d_assign_display_to_data( int index, int display_index)
    Display_Context dtx;
    CONTEXT("vis5d_assign_display_to_data")
 
+
    /* always ungroup all displays when ever any */
    /* data context is moved or added, there some strange */
    /* bug that happen if this isn't done */
@@ -1529,11 +1545,7 @@ int vis5d_assign_display_to_data( int index, int display_index)
    calculate_display_time_steps( dtx);
 
    if (dtx->numofctxs >1){
-      memset( ctx->SurfTable, 0, sizeof(ctx->SurfTable) );
-      memset( ctx->HSliceTable, 0, sizeof(ctx->HSliceTable) );
-      memset( ctx->VSliceTable, 0, sizeof(ctx->VSliceTable) );
-      memset( ctx->CHSliceTable, 0, sizeof(ctx->CHSliceTable) );
-      memset( ctx->CVSliceTable, 0, sizeof(ctx->CVSliceTable) );
+
       memset(  ctx->DisplaySurf, 0, sizeof(ctx->DisplaySurf) );
       memset(  ctx->DisplayHSlice, 0, sizeof(ctx->DisplayHSlice) );
       memset(  ctx->DisplayVSlice, 0, sizeof(ctx->DisplayVSlice) );
@@ -2867,18 +2879,12 @@ int vis5d_init_display_values ( int index, int iindex, int display )
    vis5d_reset_display_timer(dtx->dpy_context_index);
 
    if (ctx){
-      memset( ctx->SurfTable, 0, sizeof(ctx->SurfTable) );
-      memset( ctx->HSliceTable, 0, sizeof(ctx->HSliceTable) );
-      memset( ctx->VSliceTable, 0, sizeof(ctx->VSliceTable) );
-      memset( ctx->CHSliceTable, 0, sizeof(ctx->CHSliceTable) );
-      memset( ctx->CVSliceTable, 0, sizeof(ctx->CVSliceTable) );
       memset(  ctx->DisplaySurf, 0, sizeof(ctx->DisplaySurf) );
       memset(  ctx->DisplayHSlice, 0, sizeof(ctx->DisplayHSlice) );
       memset(  ctx->DisplayVSlice, 0, sizeof(ctx->DisplayVSlice) );
       memset(  ctx->DisplayCHSlice, 0, sizeof(ctx->DisplayCHSlice) );
       memset(  ctx->DisplayCVSlice, 0, sizeof(ctx->DisplayCVSlice) );
       ctx->CurTime = 0; 
-      memset( ctx->ExpressionList, 0, sizeof(ctx->ExpressionList) );
    }
 
    if (itx){
@@ -2916,14 +2922,14 @@ int vis5d_init_display_values ( int index, int iindex, int display )
       dtx->Nr = ctx->Nr;
       dtx->Nc = ctx->Nc;
       yo = MAXLEVELS;
-      for (x= 0; x < MAXVARS; x++){
-         if (ctx->LowLev[x] < yo ){
-            yo = ctx->LowLev[x];
+      for (x= 0; x < ctx->NumVars; x++){
+         if (ctx->Variable[x]->LowLev < yo ){
+            yo = ctx->Variable[x]->LowLev;
          }
       }
       dtx->LowLev = yo;
       yo = 0;
-      for (x = 0; x< MAXVARS; x++){
+      for (x = 0; x< ctx->NumVars; x++){
          if (yo < ctx->Nl[x]){
             yo = ctx->Nl[x];
          }
@@ -3806,21 +3812,7 @@ int vis5d_initialize_stuff(int index) {
  */
 static void initialize_stuff( Context ctx )
 {
-   int var, time;
-
-
-   /* Graphics structs */
-   for (var=0;var<MAXVARS;var++) {
-      for (time=0;time<MAXTIMES;time++) {
-         ctx->SurfTable[var][time].valid = 0;
-         ctx->HSliceTable[var][time].valid = 0;
-         ctx->VSliceTable[var][time].valid = 0;
-         ctx->CHSliceTable[var][time].valid = 0;
-         ctx->CVSliceTable[var][time].valid = 0;
-      }
-   }
-
-   
+   int var;
 
    /* Initialize surfaces, slices */
    for (var=0;var<ctx->NumVars;var++) {
@@ -3990,8 +3982,8 @@ int vis5d_init_data_end( int index )
    }
  
    for (yo=0; yo < ctx->NumVars; yo++){
-      ctx->RealMinVal[yo] = ctx->MinVal[yo];
-      ctx->RealMaxVal[yo] = ctx->MaxVal[yo];
+      ctx->Variable[yo]->RealMinVal = ctx->Variable[yo]->MinVal;
+      ctx->Variable[yo]->RealMaxVal = ctx->Variable[yo]->MaxVal;
    } 
    initialize_stuff(ctx);
    if (!init_traj(ctx)) {
@@ -4208,8 +4200,8 @@ int vis5d_open_gridfile( int index, char *name, int read_flag )
          /*** Miscellaneous ***/
 
          for (yo=0; yo < ctx->NumVars; yo++){
-            ctx->RealMinVal[yo] = ctx->MinVal[yo];
-            ctx->RealMaxVal[yo] = ctx->MaxVal[yo];
+            ctx->Variable[yo]->RealMinVal = ctx->Variable[yo]->MinVal;
+            ctx->Variable[yo]->RealMaxVal = ctx->Variable[yo]->MaxVal;
          }
          initialize_stuff(ctx);
          if (!init_traj(ctx)) {
@@ -4674,7 +4666,7 @@ int vis5d_find_var( int index, char *name )
    CONTEXT("vis5d_find_var");
 
    for (i=0;i<ctx->NumVars;i++) {
-      if (strcmp(ctx->VarName[i],name)==0) {
+      if (strcmp(ctx->Variable[i]->VarName,name)==0) {
          return i;
       }
    }
@@ -4690,7 +4682,7 @@ int vis5d_get_ctx_var_name( int index, int var, char *name )
    CONTEXT("vis5d_get_ctx_var_name");
 
    if (var>=0 && var<ctx->NumVars) {
-      strcpy( name, ctx->VarName[var] );
+      strcpy( name, ctx->Variable[var]->VarName );
       return 0;
    }
    else {
@@ -4705,7 +4697,7 @@ int vis5d_get_var_units( int index, int var, char *units )
 {
    CONTEXT("vis5d_get_var_units");
    if (var>=0 && var<ctx->NumVars) {
-      strcpy( units, ctx->Units[var] );
+      strcpy( units, ctx->Variable[var]->Units );
       return 0;
    }
    else {
@@ -4731,7 +4723,7 @@ int vis5d_get_var_type( int index, int var, int *type )
 {
    CONTEXT("vis5d_get_ctx_var_name");
    if (var>=0 && var<ctx->NumVars) {
-      *type = ctx->VarType[var];
+      *type = ctx->Variable[var]->VarType;
       return 0;
    }
    else {
@@ -4748,17 +4740,17 @@ int vis5d_get_var_info( int index, int var, void *info )
 {
    CONTEXT("vis5d_get_var_info");
    if (var>=0 && var<ctx->NumVars) {
-      if (ctx->VarType[var]==VIS5D_CLONE) {
+      if (ctx->Variable[var]->VarType==VIS5D_CLONE) {
          int *cloneof = (int *) info;
-         *cloneof = ctx->CloneTable[var];
+         *cloneof = ctx->Variable[var]->CloneTable;
       }
-      else if (ctx->VarType[var]==VIS5D_EXT_FUNC) {
+      else if (ctx->Variable[var]->VarType==VIS5D_EXT_FUNC) {
          char *funcname = (char *) info;
-         strcpy( funcname, ctx->VarName[var] );
+         strcpy( funcname, ctx->Variable[var]->VarName );
       }
-      else if (ctx->VarType[var]==VIS5D_EXPRESSION) {
+      else if (ctx->Variable[var]->VarType==VIS5D_EXPRESSION) {
          char *funcname = (char *) info;
-         strcpy( funcname, ctx->ExpressionList[var] );
+         strcpy( funcname, ctx->Variable[var]->ExpressionList );
       }
       return 0;
    }
@@ -4775,8 +4767,8 @@ int vis5d_get_ctx_var_range( int index, int var, float *min, float *max )
 {
   CONTEXT("vis5d_get_ctx_var_range")
    if (var>=0 && var<ctx->NumVars) {
-      *min = ctx->MinVal[var];
-      *max = ctx->MaxVal[var];
+      *min = ctx->Variable[var]->MinVal;
+      *max = ctx->Variable[var]->MaxVal;
       return 0;
    }
    else {
@@ -4795,29 +4787,35 @@ int vis5d_set_var_range( int index, int var, float min, float max )
    if (var>=0 && var<ctx->NumVars) {
 
       /* MJK 12.10.98 */
-      if (min != ctx->MinVal[var]){
+      if (min != ctx->Variable[var]->MinVal){
 
-         ctx->MinVal[var] = min;
+         ctx->Variable[var]->MinVal = min;
          for (time=0;time<MAXTIMES;time++) {
-            ctx->SurfTable[var][time].valid = 0;
-            ctx->HSliceTable[var][time].valid = 0;
-            ctx->VSliceTable[var][time].valid = 0;
-            ctx->CHSliceTable[var][time].valid = 0;
-            ctx->CVSliceTable[var][time].valid = 0;
+            ctx->Variable[var]->SurfTable[time]->valid = 0;
+
+				if(ctx->Variable[var]->HSliceTable[time])
+				  ctx->Variable[var]->HSliceTable[time]->valid = 0;
+
+            ctx->Variable[var]->VSliceTable[time]->valid = 0;
+            ctx->Variable[var]->CHSliceTable[time]->valid = 0;
+            ctx->Variable[var]->CVSliceTable[time]->valid = 0;
             ctx->dpy_ctx->Redraw = 1;
          }
       }
 
       /* MJK 12.10.98 */
-      if (max != ctx->MaxVal[var]){
+      if (max != ctx->Variable[var]->MaxVal){
 
-         ctx->MaxVal[var] = max;
+         ctx->Variable[var]->MaxVal = max;
          for (time=0;time<MAXTIMES;time++) {
-            ctx->SurfTable[var][time].valid = 0;
-            ctx->HSliceTable[var][time].valid = 0;
-            ctx->VSliceTable[var][time].valid = 0;
-            ctx->CHSliceTable[var][time].valid = 0;
-            ctx->CVSliceTable[var][time].valid = 0;
+            ctx->Variable[var]->SurfTable[time]->valid = 0;
+
+				if(ctx->Variable[var]->HSliceTable[time])
+				  ctx->Variable[var]->HSliceTable[time]->valid = 0;
+
+            ctx->Variable[var]->VSliceTable[time]->valid = 0;
+            ctx->Variable[var]->CHSliceTable[time]->valid = 0;
+            ctx->Variable[var]->CVSliceTable[time]->valid = 0;
             ctx->dpy_ctx->Redraw = 1;
          }
       }
@@ -5309,7 +5307,7 @@ int vis5d_get_size( int index, int *nr, int *nc, int nl[], int lowlev[],
   if (nr)        *nr = ctx->Nr;
   if (nc)        *nc = ctx->Nc;
   if (nl)        for (i=0; i<ctx->NumVars; i++)  nl[i] = ctx->Nl[i];
-  if (lowlev)    for (i=0; i<ctx->NumVars; i++)  lowlev[i] = ctx->LowLev[i];
+  if (lowlev)    for (i=0; i<ctx->NumVars; i++)  lowlev[i] = ctx->Variable[i]->LowLev;
   if (maxnl)     *maxnl = ctx->MaxNl;
   if (maxnlVar)  *maxnlVar = ctx->MaxNlVar;
   if (windnl)    *windnl = ctx->WindNl;
@@ -5847,7 +5845,7 @@ int vis5d_make_clone_variable( int index, int var_to_clone, char *newname,
 
    n = vis5d_find_var( index, newname );
    if (n>=0) {
-      if (ctx->CloneTable[n]==var_to_clone) {
+      if (ctx->Variable[n]->CloneTable==var_to_clone) {
          /* this clone already made */
          *newvar = n;
          return 0;
@@ -5903,8 +5901,8 @@ int vis5d_compute_ext_func( int index, char *funcpathname, int *newvar )
 
   /* look if this extfunc variable already exists */
   for (i=0;i<ctx->NumVars;i++) {
-    if (strcmp(funcname,ctx->VarName[i])==0
-        && ctx->VarType[i]==VIS5D_EXT_FUNC) {
+    if (strcmp(funcname,ctx->Variable[i]->VarName)==0
+        && ctx->Variable[i]->VarType==VIS5D_EXT_FUNC) {
       /* this variable already exists so just recompute it */
       var = i;
       recompute_flag = 1;
@@ -5916,7 +5914,7 @@ int vis5d_compute_ext_func( int index, char *funcpathname, int *newvar )
     /* We're going to make a new variable, make sure the name is unique */
     strcpy( newname, funcname );
     for (i=0;i<ctx->NumVars;i++) {
-      if (strcmp(funcname, ctx->VarName[i])==0) {
+      if (strcmp(funcname, ctx->Variable[i]->VarName)==0) {
         strcat( newname, "'" );
       }
     }
@@ -6004,7 +6002,10 @@ int vis5d_make_expr_var( int index, char *expression, char *newname,
       ctx = vis5d_get_ctx( *newvarowner );
       /* should this have same recompute logic as vis5d_compute_ext_func ?? */
       *newvar = result;
+		ctx->Variable[*newvar]->ExpressionList = strdup(expression);
+		/*
       strcpy( ctx->ExpressionList[*newvar], expression );
+		*/
       turn_off_and_free_var_graphics( ctx, *newvar); 
       vis5d_reset_var_graphics(ctx->context_index, *newvar);
       init_var_clrtable( index, ctx->context_index, *newvar);
@@ -6090,18 +6091,6 @@ int vis5d_draw_frame( int index, int animflag )
    if (howmany >= 1){
 */
    dtx = vis5d_get_dtx( index );
-/* MJK 3.29.99 
-   if (dtx->Reversed) {
-     vis5d_set_color( index, VIS5D_BACKGROUND, 0, 1.0, 1.0, 1.0, 1.0 );
-     vis5d_set_color( index, VIS5D_BOX, 0, 0.0, 0.0, 0.0, 1.0 );
-     vis5d_set_color( index, VIS5D_LABEL, 0,  0.0, 0.0, 0.0, 1.0 );
-   }
-   else {
-     vis5d_set_color( index, VIS5D_BACKGROUND, 0,  0.0, 0.0, 0.0, 1.0 );
-     vis5d_set_color( index, VIS5D_BOX, 0, 1.0, 1.0, 1.0, 1.0 );
-     vis5d_set_color( index, VIS5D_LABEL, 0, 1.0, 1.0, 1.0, 1.0 );
-   }
-*/
 
    set_current_window( dtx );
 	
@@ -6601,11 +6590,14 @@ static int get_graphics_color_address( int index, int type, int number,
 		/* *color = &dtx->LabelColor; */
       {
 		  struct label *lab;
+		  *color=NULL;
 		  for (lab=dtx->FirstLabel; lab; lab=lab->next) {
 			 if (lab->id==number) {
 				*color = &lab->LabelColor;
 			 }
 		  }
+		  if(*color==NULL) 
+			 return VIS5D_BAD_CONSTANT;
 		}
 
       break;
@@ -6639,6 +6631,7 @@ int vis5d_set_color( int index, int type, int number,
    int r, g, b, a;
 
    n = get_graphics_color_address( index, type, number, &ptr );
+
    if (n) {
       return n;
    }
@@ -6843,8 +6836,8 @@ int vis5d_load_color_table( int index, int graphic, int varowner, int var,
    vis5d_get_color_table_address( index, graphic, varowner, var, &table);
    ctx = vis5d_get_ctx(varowner);
    for (i=0;i<entries;i++) {
-      /* convert i to a value in [ctx->MinVal[var], ctx->MaxVal[var]] */
-      val = ctx->MinVal[var] + (float) i / (float) entries * (ctx->MaxVal[var]-ctx->MinVal[var]);
+      /* convert i to a value in [ctx->Variable[var]->MinVal, ctx->Variable[var]->MaxVal] */
+      val = ctx->Variable[var]->MinVal + (float) i / (float) entries * (ctx->Variable[var]->MaxVal-ctx->Variable[var]->MinVal);
       /* convert val to j in [0..table_size] */
       j = (int) (table_size * (val-min) / (max-min));
       if (j<0) j = 0;
@@ -7339,6 +7332,11 @@ int vis5d_make_isosurface( int index, int time, int var, int urgent )
 {
    
    CONTEXT("vis5d_make_iso_surface")
+
+  if(!ctx->Variable[var]->SurfTable[time]){
+	 ctx->Variable[var]->SurfTable[time] = (struct isosurface *) allocate(ctx,sizeof(struct isosurface));
+	 memset(ctx->Variable[var]->SurfTable[time], 0, sizeof(struct isosurface));
+  }	
 
    if (!ctx->VeryLarge || time == ctx->CurTime) {
      request_isosurface( ctx, time, var, urgent );
@@ -8104,12 +8102,12 @@ static int new_slice_pos( int index, int type, int num )
 	 /*dtx = ctx->dpy_ctx;*/
   switch (type) {
     case HSLICE:
-      new_hslice_pos( ctx, ctx->HSliceLevel[num],
-                      &ctx->HSliceZ[num], &ctx->HSliceHgt[num] );
+      new_hslice_pos( ctx, ctx->Variable[num]->HSliceRequest->Level,
+                      &ctx->Variable[num]->HSliceRequest->Z, &ctx->Variable[num]->HSliceRequest->Hgt );
       break;
     case CHSLICE:
-      new_hslice_pos( ctx, ctx->CHSliceLevel[num],
-                      &ctx->CHSliceZ[num], &ctx->CHSliceHgt[num] );
+      new_hslice_pos( ctx, ctx->Variable[num]->CHSliceRequest->Level,
+                      &ctx->Variable[num]->CHSliceRequest->Z, &ctx->Variable[num]->CHSliceRequest->Hgt );
       break;
     case HWIND:
       new_hwindslice_pos( ctx->dpy_ctx, ctx->dpy_ctx->HWindLevel[num],
@@ -8138,20 +8136,20 @@ static int new_slice_pos( int index, int type, int num )
                           &ctx->dpy_ctx->VStreamLat2[num], &ctx->dpy_ctx->VStreamLon2[num] );
       break;
     case VSLICE:
-      new_vslice_pos( ctx, ctx->VSliceR1[num], ctx->VSliceC1[num],
-                      &ctx->VSliceX1[num], &ctx->VSliceY1[num],
-                      &ctx->VSliceLat1[num], &ctx->VSliceLon1[num] );
-      new_vslice_pos( ctx, ctx->VSliceR2[num], ctx->VSliceC2[num],
-                      &ctx->VSliceX2[num], &ctx->VSliceY2[num],
-                      &ctx->VSliceLat2[num], &ctx->VSliceLon2[num] );
+      new_vslice_pos( ctx, ctx->Variable[num]->VSliceRequest->R1, ctx->Variable[num]->VSliceRequest->R2,
+                      &ctx->Variable[num]->VSliceRequest->X1, &ctx->Variable[num]->VSliceRequest->Y1,
+                      &ctx->Variable[num]->VSliceRequest->Lat1, &ctx->Variable[num]->VSliceRequest->Lon1 );
+      new_vslice_pos( ctx, ctx->Variable[num]->VSliceRequest->C1, ctx->Variable[num]->VSliceRequest->C2,
+                      &ctx->Variable[num]->VSliceRequest->X2, &ctx->Variable[num]->VSliceRequest->Y2,
+                      &ctx->Variable[num]->VSliceRequest->Lat2, &ctx->Variable[num]->VSliceRequest->Lon2 );
       break;
     case CVSLICE:
-      new_vslice_pos( ctx, ctx->CVSliceR1[num], ctx->CVSliceC1[num],
-                      &ctx->CVSliceX1[num], &ctx->CVSliceY1[num],
-                      &ctx->CVSliceLat1[num], &ctx->CVSliceLon1[num] );
-      new_vslice_pos( ctx, ctx->CVSliceR2[num], ctx->CVSliceC2[num],
-                      &ctx->CVSliceX2[num], &ctx->CVSliceY2[num],
-                      &ctx->CVSliceLat2[num], &ctx->CVSliceLon2[num] );
+      new_vslice_pos( ctx, ctx->Variable[num]->CVSliceRequest->R1, ctx->Variable[num]->CVSliceRequest->R2,
+                      &ctx->Variable[num]->CVSliceRequest->X1, &ctx->Variable[num]->CVSliceRequest->Y1,
+                      &ctx->Variable[num]->CVSliceRequest->Lat1, &ctx->Variable[num]->CVSliceRequest->Lon1 );
+      new_vslice_pos( ctx, ctx->Variable[num]->CVSliceRequest->C1, ctx->Variable[num]->CVSliceRequest->C2,
+                      &ctx->Variable[num]->CVSliceRequest->X2, &ctx->Variable[num]->CVSliceRequest->Y2,
+                      &ctx->Variable[num]->CVSliceRequest->Lat2, &ctx->Variable[num]->CVSliceRequest->Lon2 );
       break;
     default:
       printf("bad constant (%d) in vis5d_new_slice_pos\n", type);
@@ -8204,8 +8202,8 @@ int vis5d_set_hslice( int index, int var, float interval,
    }
 
    maxlev = ctx->dpy_ctx->MaxNl-1;
-   if (level<ctx->LowLev[var]) {
-	  level = ctx->LowLev[var];
+   if (level<ctx->Variable[var]->LowLev) {
+	  level = ctx->Variable[var]->LowLev;
    }
    else if (level>maxlev) {
       level = maxlev;
@@ -8214,6 +8212,11 @@ int vis5d_set_hslice( int index, int var, float interval,
    /* added 11-08-2000 JPE to compute reasonable contour values 
 		based on the values in the slice to be contoured. */
 
+	if(! ctx->Variable[var]->HSliceRequest){
+	  ctx->Variable[var]->HSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
+	}
+
+
 	if(interval==0){
 	  void set_hslice_pos(Context ctx, int var, float level); /* in work.c */
 	  set_hslice_pos(ctx,var,level);
@@ -8221,10 +8224,13 @@ int vis5d_set_hslice( int index, int var, float interval,
 	}
 	/* end of JPE */
 
-   ctx->HSliceInterval[var] = interval;
-   ctx->HSliceLowLimit[var] = low;
-   ctx->HSliceHighLimit[var] = high;
-   ctx->HSliceLevel[var] = level; 
+	
+
+   ctx->Variable[var]->HSliceRequest->Interval = interval;
+   ctx->Variable[var]->HSliceRequest->LowLimit = low;
+   ctx->Variable[var]->HSliceRequest->HighLimit = high;
+   ctx->Variable[var]->HSliceRequest->Level = level; 
+
    return new_slice_pos(index, HSLICE, var);
 }
 
@@ -8233,10 +8239,10 @@ int vis5d_get_hslice( int index, int var, float *interval,
                       float *low, float *high, float *level )
 {
   CONTEXT("vis5d_get_hslice")
-  *interval = ctx->HSliceInterval[var];
-  *low = ctx->HSliceLowLimit[var];
-  *high = ctx->HSliceHighLimit[var];
-  *level = ctx->HSliceLevel[var];
+  *interval = ctx->Variable[var]->HSliceRequest->Interval;
+  *low = ctx->Variable[var]->HSliceRequest->LowLimit;
+  *high = ctx->Variable[var]->HSliceRequest->HighLimit;
+  *level = ctx->Variable[var]->HSliceRequest->Level;
   return 0;
 }
 
@@ -8274,13 +8280,13 @@ int vis5d_set_vslice( int index, int var, float interval,
 
    CONTEXT("vis5d_set_vslice")
 
-   ctx->VSliceInterval[var] = interval;
-   ctx->VSliceLowLimit[var] = low;
-   ctx->VSliceHighLimit[var] = high;
-   ctx->VSliceR1[var] = CLAMP( row0, 0.0, ctx->dpy_ctx->Nr-1 );
-   ctx->VSliceC1[var] = CLAMP( col0, 0.0, ctx->dpy_ctx->Nc-1 );
-   ctx->VSliceR2[var] = CLAMP( row1, 0.0, ctx->dpy_ctx->Nr-1 );
-   ctx->VSliceC2[var] = CLAMP( col1, 0.0, ctx->dpy_ctx->Nc-1 );
+   ctx->Variable[var]->VSliceRequest->Interval = interval;
+   ctx->Variable[var]->VSliceRequest->LowLimit = low;
+   ctx->Variable[var]->VSliceRequest->HighLimit = high;
+   ctx->Variable[var]->VSliceRequest->R1 = CLAMP( row0, 0.0, ctx->dpy_ctx->Nr-1 );
+   ctx->Variable[var]->VSliceRequest->R2 = CLAMP( col0, 0.0, ctx->dpy_ctx->Nc-1 );
+   ctx->Variable[var]->VSliceRequest->C1 = CLAMP( row1, 0.0, ctx->dpy_ctx->Nr-1 );
+   ctx->Variable[var]->VSliceRequest->C2 = CLAMP( col1, 0.0, ctx->dpy_ctx->Nc-1 );
    return new_slice_pos(index, VSLICE, var);
 }
 
@@ -8290,13 +8296,13 @@ int vis5d_get_vslice( int index, int var,
                       float *row0, float *col0, float *row1, float *col1 )
 {
   CONTEXT("vis5d_get_vslice")
-  *interval = ctx->VSliceInterval[var];
-  *low = ctx->VSliceLowLimit[var];
-  *high = ctx->VSliceHighLimit[var];
-  *row0 = ctx->VSliceR1[var];
-  *col0 = ctx->VSliceC1[var];
-  *row1 = ctx->VSliceR2[var];
-  *col1 = ctx->VSliceC2[var];
+  *interval = ctx->Variable[var]->VSliceRequest->Interval;
+  *low = ctx->Variable[var]->VSliceRequest->LowLimit;
+  *high = ctx->Variable[var]->VSliceRequest->HighLimit;
+  *row0 = ctx->Variable[var]->VSliceRequest->R1;
+  *col0 = ctx->Variable[var]->VSliceRequest->R2;
+  *row1 = ctx->Variable[var]->VSliceRequest->C1;
+  *col1 = ctx->Variable[var]->VSliceRequest->C2;
   return 0;
 }
 
@@ -8346,7 +8352,7 @@ int vis5d_set_chslice( int index, int var, float level )
    else if (level>maxlev) {
       level = maxlev;
    }
-   ctx->CHSliceLevel[var] = level; 
+   ctx->Variable[var]->CHSliceRequest->Level = level; 
    return new_slice_pos(index, CHSLICE, var);
 }
 
@@ -8354,7 +8360,7 @@ int vis5d_set_chslice( int index, int var, float level )
 int vis5d_get_chslice( int index, int var, float *level )
 {
   CONTEXT("vis5d_get_chslice")
-  *level = ctx->CHSliceLevel[var];
+  *level = ctx->Variable[var]->CHSliceRequest->Level;
   return 0;
 }
 
@@ -8390,10 +8396,10 @@ int vis5d_set_cvslice( int index, int var,
 
    CONTEXT("vis5d_set_cvslice")
 
-   ctx->CVSliceR1[var] = CLAMP( row0, 0.0, ctx->dpy_ctx->Nr-1 );
-   ctx->CVSliceC1[var] = CLAMP( col0, 0.0, ctx->dpy_ctx->Nc-1 );
-   ctx->CVSliceR2[var] = CLAMP( row1, 0.0, ctx->dpy_ctx->Nr-1 );
-   ctx->CVSliceC2[var] = CLAMP( col1, 0.0, ctx->dpy_ctx->Nc-1 );
+   ctx->Variable[var]->CVSliceRequest->R1 = CLAMP( row0, 0.0, ctx->dpy_ctx->Nr-1 );
+   ctx->Variable[var]->CVSliceRequest->R2 = CLAMP( col0, 0.0, ctx->dpy_ctx->Nc-1 );
+   ctx->Variable[var]->CVSliceRequest->C1 = CLAMP( row1, 0.0, ctx->dpy_ctx->Nr-1 );
+   ctx->Variable[var]->CVSliceRequest->C2 = CLAMP( col1, 0.0, ctx->dpy_ctx->Nc-1 );
 
    return new_slice_pos(index, CVSLICE, var);
 
@@ -8405,10 +8411,10 @@ int vis5d_get_cvslice( int index, int var,
 {
 
    CONTEXT("vis5d_get_cvslice")
-   *row0 = ctx->CVSliceR1[var];
-   *col0 = ctx->CVSliceC1[var];
-   *row1 = ctx->CVSliceR2[var];
-   *col1 = ctx->CVSliceC2[var];
+   *row0 = ctx->Variable[var]->CVSliceRequest->R1;
+   *col0 = ctx->Variable[var]->CVSliceRequest->R2;
+   *row1 = ctx->Variable[var]->CVSliceRequest->C1;
+   *col1 = ctx->Variable[var]->CVSliceRequest->C2;
    return 0;
 }
 
@@ -8709,8 +8715,8 @@ int vis5d_print_traj( int index, int traj_num, float lat[],
       Context otherctx;
 
       otherctx = dtx->ctxpointerarray[return_ctx_index_pos(dtx, t->colorvarowner)];
-      valscale = 1.0F / (otherctx->MaxVal[t->colorvar] - otherctx->MinVal[t->colorvar]);
-      min = otherctx->MinVal[t->colorvar];
+      valscale = 1.0F / (otherctx->Variable[t->colorvar]->MaxVal - otherctx->Variable[t->colorvar]->MinVal);
+      min = otherctx->Variable[t->colorvar]->MinVal;
       for (i = 0; i < dtx->NumTimes; i ++){
          if (t->len[i] < 1){
             lat[i] = 0.00;
@@ -9037,7 +9043,9 @@ int vis5d_new_label( int index, int x, int y, int *label_id )
       l->y = y;
       l->state = 1;
       *label_id = l->id;
+		/* JPE: does this do anything here? 
       compute_label_bounds( dtx, WINDOW_3D_FONT, l );
+		*/
       return 0;
    }
    return VIS5D_OUT_OF_MEMORY;
@@ -10123,7 +10131,8 @@ int vis5d_enable_sfc_graphics( int index, int type, int number, int mode )
       switch (type) {
          case VIS5D_HSLICE:
             for (i = 0; i < numtimes; i++)
-               ctx->HSliceTable[number][i].valid = 0;
+				  if(ctx->Variable[number]->HSliceTable[i])
+					 ctx->Variable[number]->HSliceTable[i]->valid = 0;
             break;
          case VIS5D_HWIND:
             for (i = 0; i < numtimes; i++)
@@ -10366,11 +10375,14 @@ int vis5d_set_all_invalid (int index)
 
    for (var=0;var<MAXVARS;var++) {
       for (time=0;time<MAXTIMES;time++) {
-         ctx->SurfTable[var][time].valid = 0;
-         ctx->HSliceTable[var][time].valid = 0;
-         ctx->VSliceTable[var][time].valid = 0;
-         ctx->CHSliceTable[var][time].valid = 0;
-         ctx->CVSliceTable[var][time].valid = 0;
+         ctx->Variable[var]->SurfTable[time]->valid = 0;
+
+			if(ctx->Variable[var]->HSliceTable[time])
+			  ctx->Variable[var]->HSliceTable[time]->valid = 0;
+
+         ctx->Variable[var]->VSliceTable[time]->valid = 0;
+         ctx->Variable[var]->CHSliceTable[time]->valid = 0;
+         ctx->Variable[var]->CVSliceTable[time]->valid = 0;
       }
    }
 
@@ -10541,8 +10553,8 @@ int vis5d_load_irregular_v5dfile( int dindex, int mbs, char *filename, char *ctx
       for (j = 0; j < 10; j++){
          printf("Record = %d\n", j);
          for (k = 0; k < itx->NumVars; k++){
-            printf("   VarName = %s", itx->VarName[k]);
-            if (itx->VarType[k] == NUMERICAL_VAR_1D){
+            printf("   VarName = %s", itx->Variable[k]->VarName);
+            if (itx->Variable[k]->VarType == NUMERICAL_VAR_1D){
                if (IS_MISSING(itx->IrregularCache[i].Record[j].Value[k])){
                   printf(" FloatValue = MISSING\n");
                }
@@ -10550,7 +10562,7 @@ int vis5d_load_irregular_v5dfile( int dindex, int mbs, char *filename, char *ctx
                   printf(" FloatValue = %f\n", itx->IrregularCache[i].Record[j].Value[k]);
                }
             }
-            else if (itx->VarType[k] == NUMERICAL_VAR_2D){
+            else if (itx->Variable[k]->VarType == NUMERICAL_VAR_2D){
                for (l = itx->SoundingPointer[k]; l < itx->SoundingPointer[k]+itx->Levels; l++){
                   if (IS_MISSING(itx->IrregularCache[i].Record[j].SoundingValue[l])){
                      printf(" SoundingValue[%d] = MISSING\n", l-itx->SoundingPointer[k]);
@@ -10784,7 +10796,7 @@ int vis5d_get_itx_var_name( int index, int var, char *name )
    IRG_CONTEXT("vis5d_get_itx_var_name");
 
    if (var>=0 && var<itx->NumVars) {
-      strcpy( name, itx->VarName[var] );
+      strcpy( name, itx->Variable[var]->VarName );
       return 0;
    }
    else {
@@ -10871,7 +10883,7 @@ int vis5d_get_textplot_color_status( int index, int var, int *status)
 {
    IRG_CONTEXT("vis5d_get_textplot_color_status");
 
-   *status = itx->TextPlotColorStatus[var];
+   *status = itx->Variable[var]->TextPlotColorStatus;
    return 0;
 }
 
@@ -10880,12 +10892,12 @@ int vis5d_set_textplot_color_status( int index, int var, int status)
    int i;
    IRG_CONTEXT("vis5d_set_textplot_color_status");
 
-   if (itx->TextPlotColorStatus[var] != status){
+   if (itx->Variable[var]->TextPlotColorStatus != status){
       for (i = 0; i < itx->NumTimes; i++){
          free_textplot( itx, i);
          itx->TextPlotTable[i].valid = 0;
       }
-      itx->TextPlotColorStatus[var] = status;
+      itx->Variable[var]->TextPlotColorStatus = status;
    }
    return 0;
 }
@@ -10895,8 +10907,8 @@ int vis5d_get_itx_var_range( int index, int var, float *min, float *max )
 {
   IRG_CONTEXT("vis5d_get_itx_var_range")
    if (var>=0 && var<itx->NumVars) {
-      *min = itx->MinVal[var];
-      *max = itx->MaxVal[var];
+      *min = itx->Variable[var]->MinVal;
+      *max = itx->Variable[var]->MaxVal;
       return 0;
    }
    else {

@@ -232,25 +232,52 @@ struct textplot {
 
 /* Info about horizontal contour slices */
 struct hslice {
-   int    lock;
-   int    valid;             /* valid/initialized slice flag */
-   float  interval;          /* contour line interval */
-   float  lowlimit;          /* lowest level to contour */
-   float  highlimit;         /* highest level to contour */
-   float  level;             /* position of slice in grid levels */
-   int    num1;              /* number of line segment vertices */
-   int_2  *verts1;           /* array [num1][3] of int_2 vertices */
-   int    num2;              /* number of 'hidden' line segment vertices */
-   int_2  *verts2;           /* array [num2][3] of int_2 vertices */
-   int    num3;              /* number of label line segment vertices */
-   int_2  *verts3;           /* array [num3][3] of int_2 vertices */
-   float  *boxverts;         /* array of vertices for bounding rectangle */
-   int    numboxverts;       /* number of vertices in boxverts array */
+  int    lock;
+  int    valid;             /* valid/initialized slice flag */
+  float  interval;          /* contour line interval */
+  float  lowlimit;          /* lowest level to contour */
+  float  highlimit;         /* highest level to contour */
+  float  level;             /* position of slice in grid levels */
+  int    num1;              /* number of line segment vertices */
+  int_2  *verts1;           /* array [num1][3] of int_2 vertices */
+  int    num2;              /* number of 'hidden' line segment vertices */
+  int_2  *verts2;           /* array [num2][3] of int_2 vertices */
+  int    num3;              /* number of label line segment vertices */
+  int_2  *verts3;           /* array [num3][3] of int_2 vertices */
+  float  *boxverts;         /* array of vertices for bounding rectangle */
+  int    numboxverts;       /* number of vertices in boxverts array */
 
 #ifdef USE_SYSTEM_FONTS
   char *labels;
 #endif
 };
+
+typedef struct {
+  float Interval;
+  float LowLimit;
+  float HighLimit;
+  float Level;     /* JPE: why keep all three? */
+  float Z;
+  float Hgt;
+} hslice_request;
+
+typedef struct {
+  float Interval;
+  float LowLimit;
+  float HighLimit;
+  float R1;
+  float C1;
+  float R2;
+  float C2;
+  float X1;
+  float Y1;
+  float X2;
+  float Y2;
+  float Lat1;
+  float Lat2;
+  float Lon1;
+  float Lon2;
+} vslice_request;
 
 
 /* Info about vertical contour slices */
@@ -1010,6 +1037,45 @@ struct rec_geo_position {
    float Altitude;
 };
 
+typedef struct{
+  char VarName[10];
+  char Units[22];   /* char array size sums to a power of 2 */
+  int VarType;
+  int CloneTable;
+  float MinVal;
+  float MaxVal;
+  float RealMinVal;
+  float RealMaxVal;
+  int LowLev;
+
+   /*** Tables of graphics data ***/
+
+  struct vslice     *VSliceTable[MAXTIMES];
+  struct chslice    *CHSliceTable[MAXTIMES];
+  struct cvslice    *CVSliceTable[MAXTIMES];
+  struct hslice     *HSliceTable[MAXTIMES];
+  struct isosurface *SurfTable[MAXTIMES];
+
+  hslice_request *HSliceRequest, *CHSliceRequest;
+  vslice_request *VSliceRequest, *CVSliceRequest;
+
+  /*** Type-in expressions ***/
+  char *ExpressionList;
+} vis5d_variable;
+
+typedef struct{
+  char VarName[10];
+  char Units[22];   /* char array size sums to a power of 2 */
+  int VarType;
+  float MinVal;
+  float MaxVal;  
+  int CharPointer;
+  int SoundingPointer;
+  int CharVarLength;
+  int TextPlotColorStatus;
+} vis5d_irregular_variable;
+
+
 #define MAX_VAR_LENGTH 20
 
 struct irregular_context {
@@ -1025,9 +1091,7 @@ struct irregular_context {
 
    LOCK Mutex;
    struct cache_irreg_rec     *RecordCache;
-   int CharPointer[MAXVARS];
    int CharArraySize;
-   int SoundingPointer[MAXVARS];
    int CacheClock;
 
    struct rec_geo_position    *RecGeoPosition[MAXTIMES];
@@ -1056,14 +1120,12 @@ struct irregular_context {
    int NumTimes;                /* Number of time steps */
    int NumVars;                 /* Number of variables */
    int NumLocations;
-   char VarName[MAXVARS][MAX_VAR_LENGTH];
-   int  VarType[MAXVARS];       /* 0 if float 1 if char */
-   int CharVarLength[MAXVARS];
+
+  vis5d_irregular_variable *Variable[MAXVARS];
+
+
    int CharArrayLength;
-   float MinVal[MAXVARS];       /* Min value for each parameter */
-   float MaxVal[MAXVARS];       /* Max value for each parameter */
-   float RealMinVal[MAXVARS];       /* Min value for each parameter */
-   float RealMaxVal[MAXVARS];       /* Max value for each parameter */
+
    int TimeStamp[MAXTIMES];   /* Time of each timestep in sec since midnight */
    int DayStamp[MAXTIMES];    /* Day of each timestep in days since 1/1/1900 */
    int Elapsed[MAXTIMES];     /* time in seconds relative to first step */
@@ -1083,18 +1145,12 @@ struct irregular_context {
    float TextPlotFontY;
    float TextPlotFontSpace;
 
-   int TextPlotColorStatus[MAXVARS];
 
    struct textplot    TextPlotTable[MAXTIMES];
 
    int DisplayTextPlot;
 
 };
-
-
-
-
-/*** NEW API stuff starts here ***/
 
 
 struct vis5d_context {
@@ -1108,21 +1164,14 @@ struct vis5d_context {
    int GridSameAsGridPRIME;    /* 1 grid=gridPRIME    0 grid != gridPRIME */
    /*** Data Set / Grid parameters ***/
    int Nr, Nc, Nl[MAXVARS];  /* Size of 3-D grids */
-   int LowLev[MAXVARS];      /* Lowest level of 3-D grids */
    int MaxNl;                /* Maximum of Nl+LowLev array */
    int MaxNlVar;             /* Which variable has max Nl+LowLev */
    int WindNl;            /* Min of Nl+LowLev for Uvar, Vvar, Wvar */
    int WindLow;           /* Max of LowLev[Uvar], LowLev[Vvar], LowLev[Wvar] */
    int NumTimes;                /* Number of time steps */
    int NumVars;                 /* Number of variables */
-   char VarName[MAXVARS][10];
-   int VarType[MAXVARS];        /* one of VIS5D_* from api.h */
-   int CloneTable[MAXVARS];     /* Clone-to-real var translation table */
-   float MinVal[MAXVARS];       /* Min value for each parameter */
-   float MaxVal[MAXVARS];       /* Max value for each parameter */
-   float RealMinVal[MAXVARS];       /* Group Min value for each parameter */
-   float RealMaxVal[MAXVARS];       /* Group Max value for each parameter */
-   char Units[MAXVARS][20];     /* Physical units for each variable */
+
+  vis5d_variable *Variable[MAXVARS];
 
    int Uvar[VIS5D_WIND_SLICES]; /* U variables to use for wind slices */
    int Vvar[VIS5D_WIND_SLICES]; /* V variables to use for wind slices */
@@ -1135,46 +1184,13 @@ struct vis5d_context {
    int Elapsed[MAXTIMES];     /* time in seconds relative to first step */
 
 
-   /*** Type-in expressions ***/
-   char ExpressionList[MAXVARS][500];
-
    /*** display_context pointer ***/
    struct display_context *dpy_ctx;
 
    /*** Current graphics parameters ***/
    float IsoLevel[MAXVARS];              /* in [MinVal..MaxVal] */
 
-   float HSliceInterval[MAXVARS];
-   float HSliceLowLimit[MAXVARS];        /* in [MinVal..MaxVal] */
-   float HSliceHighLimit[MAXVARS];       /* in [MinVal..MaxVal] */
-   float HSliceLevel[MAXVARS];           /* in [0..Nl-1] */
-   float HSliceZ[MAXVARS];               /* position in Z coords */
-   float HSliceHgt[MAXVARS];             /* position in hgt coords */
 
-   float VSliceInterval[MAXVARS];
-   float VSliceLowLimit[MAXVARS];        /* in [MinVal..MaxVal] */
-   float VSliceHighLimit[MAXVARS];       /* in [MinVal..MaxVal] */
-   float VSliceR1[MAXVARS];              /* in [0..Nr-1] */
-   float VSliceC1[MAXVARS];              /* in [0..Nc-1] */
-   float VSliceR2[MAXVARS];              /* in [0..Nr-1] */
-   float VSliceC2[MAXVARS];              /* in [0..Nc-1] */
-   float VSliceX1[MAXVARS], VSliceY1[MAXVARS];
-   float VSliceX2[MAXVARS], VSliceY2[MAXVARS];
-   float VSliceLat1[MAXVARS], VSliceLon1[MAXVARS];
-   float VSliceLat2[MAXVARS], VSliceLon2[MAXVARS];
-
-   float CHSliceLevel[MAXVARS];          /* in [0..Nl-1] */
-   float CHSliceZ[MAXVARS];
-   float CHSliceHgt[MAXVARS];
-
-   float CVSliceR1[MAXVARS];                /* in [0..Nr-1] */
-   float CVSliceC1[MAXVARS];                /* in [0..Nc-1] */
-   float CVSliceR2[MAXVARS];                /* in [0..Nr-1] */
-   float CVSliceC2[MAXVARS];                /* in [0..Nc-1] */
-   float CVSliceX1[MAXVARS], CVSliceY1[MAXVARS];
-   float CVSliceX2[MAXVARS], CVSliceY2[MAXVARS];
-   float CVSliceLat1[MAXVARS], CVSliceLon1[MAXVARS];
-   float CVSliceLat2[MAXVARS], CVSliceLon2[MAXVARS];
 
    struct volume *Volume;                /* The volume graphics stuff */
 
@@ -1197,12 +1213,6 @@ struct vis5d_context {
    int DisplayCHSlice[MAXVARS];
    int DisplayCVSlice[MAXVARS];
 
-   /*** Tables of graphics data ***/
-   struct isosurface  SurfTable[MAXVARS][MAXTIMES];
-   struct hslice      HSliceTable[MAXVARS][MAXTIMES];
-   struct vslice      VSliceTable[MAXVARS][MAXTIMES];
-   struct chslice     CHSliceTable[MAXVARS][MAXTIMES];
-   struct cvslice     CVSliceTable[MAXVARS][MAXTIMES];
 
    /* MJK 12.02.98 */
    int UserDataFlag;            /* use user func to read data & header */
@@ -1281,9 +1291,6 @@ struct vis5d_context {
 
 #endif
 
-
-
-
    /*** External function info from analysis.c ****/
    int ExtFuncErrorFlag;
 #ifdef SEMAPHORE
@@ -1312,9 +1319,6 @@ struct vis5d_context {
    int PreloadCache;        /* Preload cache with data? */
    int VeryLarge;           /* must sync graphics generation with rendering */
 
-
-
-   /*** From labels.c ***/
 
    /*** From map.c ***/
    char MapName[V5D_MAXSTRLEN];

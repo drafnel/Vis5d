@@ -765,21 +765,21 @@ static void draw_var_stuff( Display_Context dtx, int var, Context varctx)
       var_gc = dtx->Sound.var1_gc;
       vary += 10;
       step = dtx->Sound.var1step;
-      strlength = strlen(dtx->Sound.SoundVar1Owner->Units[var]);
+      strlength = strlen(dtx->Sound.SoundVar1Owner->Variable[var]->Units);
    }
    if (var == dtx->Sound.SoundVar2 &&
        varctx == dtx->Sound.SoundVar2Owner){
       var_gc = dtx->Sound.var2_gc;
       vary += 22;
       step = dtx->Sound.var2step;
-      strlength = strlen(dtx->Sound.SoundVar2Owner->Units[var]);
+      strlength = strlen(dtx->Sound.SoundVar2Owner->Variable[var]->Units);
    }
    if (var == dtx->Sound.SoundVar3 &&
        varctx == dtx->Sound.SoundVar3Owner){
       var_gc = dtx->Sound.var3_gc;
       vary += 34;
       step = dtx->Sound.var3step;
-      strlength = strlen(dtx->Sound.SoundVar3Owner->Units[var]);
+      strlength = strlen(dtx->Sound.SoundVar3Owner->Variable[var]->Units);
    }
    if (dtx->Sound.samestepflag){
       for ( yo = dtx->Sound.samestepmin; yo <= dtx->Sound.samestepmax; yo += step){
@@ -799,7 +799,7 @@ static void draw_var_stuff( Display_Context dtx, int var, Context varctx)
       }
    }
    else{
-      for ( yo = varctx->MinVal[var]; yo <= varctx->MaxVal[var]; yo += step){
+      for ( yo = varctx->Variable[var]->MinVal; yo <= varctx->Variable[var]->MaxVal; yo += step){
          counter ++;
          sprintf(num, "%.1f\n", yo );
          stringnumber = strlen(num)-1;
@@ -817,7 +817,7 @@ static void draw_var_stuff( Display_Context dtx, int var, Context varctx)
    }
    XDrawString( SndDpy, dtx->Sound.soundpix, var_gc,             
                 BORDER - 45, dtx->Sound.sndheight + BORDER-HEBGBS+vary,
-                varctx->Units[var], strlength);
+                varctx->Variable[var]->Units, strlength);
 }
 
    /*****************************************************************/
@@ -860,7 +860,7 @@ static void draw_ticks( Display_Context dtx, int var, Context varctx)
       step = dtx->Sound.var3step;
    } 
    if (dtx->Sound.samestepflag){
-      for ( yo = varctx->MinVal[var]; yo < varctx->MaxVal[var]; yo += step){
+      for ( yo = varctx->Variable[var]->MinVal; yo < varctx->Variable[var]->MaxVal; yo += step){
          counter ++;
          if ( (dtx->Sound.mainvarstep * counter)+BORDER < dtx->Sound.sndwidth+BORDER){
             XDrawLine( SndDpy, dtx->Sound.soundpix, var_gc,
@@ -870,7 +870,7 @@ static void draw_ticks( Display_Context dtx, int var, Context varctx)
       }
    }
    else {
-      for ( yo = varctx->MinVal[var]; yo < varctx->MaxVal[var]; yo += step){
+      for ( yo = varctx->Variable[var]->MinVal; yo < varctx->Variable[var]->MaxVal; yo += step){
          counter ++;
          if ( (dtx->Sound.mainvarstep * counter)+BORDER < dtx->Sound.sndwidth+BORDER){
             XDrawLine( SndDpy, dtx->Sound.soundpix, var_gc, 
@@ -2082,14 +2082,14 @@ int draw_sounding( Display_Context dtx, int time )
          yo =  extract_sound( dtx, dtx->Sound.tgrid, dtx->Sound.SoundTemp,
                               varownerctx->Nr, varownerctx->Nc,
                               varownerctx->Nl[dtx->Sound.SoundTemp],
-                              varownerctx->LowLev[dtx->Sound.SoundTemp],
+                              varownerctx->Variable[dtx->Sound.SoundTemp]->LowLev,
                               row, col );
       }
       else{
          yo = extract_soundPRIME( varownerctx, dtx->Sound.SoundTemp,
                                   varownerctx->Nr, varownerctx->Nc,
                                   varownerctx->Nl[dtx->Sound.SoundTemp],
-                                  varownerctx->LowLev[dtx->Sound.SoundTemp],
+                                  varownerctx->Variable[dtx->Sound.SoundTemp]->LowLev,
                                   row, col );
       }
 
@@ -2142,14 +2142,14 @@ int draw_sounding( Display_Context dtx, int time )
          yo =  extract_sound( dtx, dtx->Sound.dgrid, dtx->Sound.SoundDewpt,
                               varownerctx->Nr, varownerctx->Nc,
                               varownerctx->Nl[dtx->Sound.SoundDewpt],
-                              varownerctx->LowLev[dtx->Sound.SoundDewpt],
+                              varownerctx->Variable[dtx->Sound.SoundDewpt]->LowLev,
                               row, col );
       }
       else{
          yo = extract_soundPRIME( varownerctx,  dtx->Sound.SoundDewpt,
                                   varownerctx->Nr, varownerctx->Nc,
                                   varownerctx->Nl[dtx->Sound.SoundDewpt],
-                                  varownerctx->LowLev[dtx->Sound.SoundDewpt],
+                                  varownerctx->Variable[dtx->Sound.SoundDewpt]->LowLev,
                                   row, col );
       }
 
@@ -2239,7 +2239,7 @@ int draw_sounding( Display_Context dtx, int time )
                                  dtx->Sound.SoundUWind, dtx->Sound.SoundVWind,
                                  varownerctx->Nr, varownerctx->Nr,
                                  varownerctx->Nl[dtx->Sound.SoundUWind],
-                                 varownerctx->LowLev[dtx->Sound.SoundUWind],
+                                 varownerctx->Variable[dtx->Sound.SoundUWind]->LowLev,
                                  row, col);
       }
 
@@ -2325,7 +2325,7 @@ int draw_sounding( Display_Context dtx, int time )
          yo= extract_soundPRIME(varownerctx, dtx->Sound.SoundVar1,
                                 varownerctx->Nr, varownerctx->Nc,
                                 varownerctx->Nl[dtx->Sound.SoundVar1],
-                                varownerctx->LowLev[dtx->Sound.SoundVar1],
+                                varownerctx->Variable[dtx->Sound.SoundVar1]->LowLev,
                                 row, col );
       }
 
@@ -2337,8 +2337,8 @@ int draw_sounding( Display_Context dtx, int time )
          alt   = gridlevel_to_height(varownerctx, yo);
          value = dtx->Sound.soundline[yo];
          vardata_to_xy(dtx, alt, value,
-                       varownerctx->MinVal[dtx->Sound.SoundVar1],
-                       varownerctx->MaxVal[dtx->Sound.SoundVar1], &x, &y);
+                       varownerctx->Variable[dtx->Sound.SoundVar1]->MinVal,
+                       varownerctx->Variable[dtx->Sound.SoundVar1]->MaxVal, &x, &y);
 
          draw_sounding_line (dtx, dtx->Sound.var1_gc, x, y, alt, elev);
       }
@@ -2382,7 +2382,7 @@ int draw_sounding( Display_Context dtx, int time )
          yo= extract_soundPRIME(varownerctx, dtx->Sound.SoundVar2,
                                 varownerctx->Nr, varownerctx->Nc,
                                 varownerctx->Nl[dtx->Sound.SoundVar2],
-                                varownerctx->LowLev[dtx->Sound.SoundVar2],
+                                varownerctx->Variable[dtx->Sound.SoundVar2]->LowLev,
                                 row, col );
       }
       
@@ -2394,8 +2394,8 @@ int draw_sounding( Display_Context dtx, int time )
          alt   = gridlevel_to_height(varownerctx, yo);
          value = dtx->Sound.soundline[yo];
          vardata_to_xy(dtx, alt, value,
-                       varownerctx->MinVal[dtx->Sound.SoundVar2],
-                       varownerctx->MaxVal[dtx->Sound.SoundVar2], &x, &y);
+                       varownerctx->Variable[dtx->Sound.SoundVar2]->MinVal,
+                       varownerctx->Variable[dtx->Sound.SoundVar2]->MaxVal, &x, &y);
 
          draw_sounding_line (dtx, dtx->Sound.var2_gc, x, y, alt, elev);
       }
@@ -2439,7 +2439,7 @@ int draw_sounding( Display_Context dtx, int time )
          yo= extract_soundPRIME(varownerctx, dtx->Sound.SoundVar3,
                                 varownerctx->Nr, varownerctx->Nc,
                                 varownerctx->Nl[dtx->Sound.SoundVar3],
-                                varownerctx->LowLev[dtx->Sound.SoundVar3],
+                                varownerctx->Variable[dtx->Sound.SoundVar3]->LowLev,
                                 row, col );
       }
 
@@ -2451,8 +2451,8 @@ int draw_sounding( Display_Context dtx, int time )
          alt   = gridlevel_to_height(varownerctx, yo);
          value = dtx->Sound.soundline[yo];
          vardata_to_xy(dtx, alt, value,
-                       varownerctx->MinVal[dtx->Sound.SoundVar3],
-                       varownerctx->MaxVal[dtx->Sound.SoundVar3], &x, &y);
+                       varownerctx->Variable[dtx->Sound.SoundVar3]->MinVal,
+                       varownerctx->Variable[dtx->Sound.SoundVar3]->MaxVal, &x, &y);
 
          draw_sounding_line (dtx, dtx->Sound.var3_gc, x, y, alt, elev);
       }
@@ -2516,23 +2516,23 @@ void setvarsteps( Display_Context dtx)
       int min, max;
   
       if (dtx->Sound.SoundVar1 >= 0){
-         min = dtx->Sound.SoundVar1Owner->MinVal[dtx->Sound.SoundVar1];
-         max = dtx->Sound.SoundVar1Owner->MaxVal[dtx->Sound.SoundVar1];
+         min = dtx->Sound.SoundVar1Owner->Variable[dtx->Sound.SoundVar1]->MinVal;
+         max = dtx->Sound.SoundVar1Owner->Variable[dtx->Sound.SoundVar1]->MaxVal;
       }
       if (dtx->Sound.SoundVar2 >= 0){
-         if (dtx->Sound.SoundVar2Owner->MinVal[dtx->Sound.SoundVar2] < min){
-            min = dtx->Sound.SoundVar2Owner->MinVal[dtx->Sound.SoundVar2];
+         if (dtx->Sound.SoundVar2Owner->Variable[dtx->Sound.SoundVar2]->MinVal < min){
+            min = dtx->Sound.SoundVar2Owner->Variable[dtx->Sound.SoundVar2]->MinVal;
          }
-         if (dtx->Sound.SoundVar2Owner->MaxVal[dtx->Sound.SoundVar2] > max){
-            max = dtx->Sound.SoundVar2Owner->MaxVal[dtx->Sound.SoundVar2];
+         if (dtx->Sound.SoundVar2Owner->Variable[dtx->Sound.SoundVar2]->MaxVal > max){
+            max = dtx->Sound.SoundVar2Owner->Variable[dtx->Sound.SoundVar2]->MaxVal;
          }
       }
       if (dtx->Sound.SoundVar3 >= 0){
-         if (dtx->Sound.SoundVar3Owner->MinVal[dtx->Sound.SoundVar3] < min) {
-            min = dtx->Sound.SoundVar3Owner->MinVal[dtx->Sound.SoundVar3];
+         if (dtx->Sound.SoundVar3Owner->Variable[dtx->Sound.SoundVar3]->MinVal < min) {
+            min = dtx->Sound.SoundVar3Owner->Variable[dtx->Sound.SoundVar3]->MinVal;
          }
-         if (dtx->Sound.SoundVar3Owner->MaxVal[dtx->Sound.SoundVar3] > max) {
-            max = dtx->Sound.SoundVar3Owner->MaxVal[dtx->Sound.SoundVar3];
+         if (dtx->Sound.SoundVar3Owner->Variable[dtx->Sound.SoundVar3]->MaxVal > max) {
+            max = dtx->Sound.SoundVar3Owner->Variable[dtx->Sound.SoundVar3]->MaxVal;
          }
       }
       if (dtx->Sound.SoundVar1 >= 0){
@@ -2553,20 +2553,20 @@ void setvarsteps( Display_Context dtx)
    else {
       if (dtx->Sound.SoundVar1 >= 0){
          dtx->Sound.var1step =(( ((float)(dtx->Sound.mainvarstep)) *
-                              (dtx->Sound.SoundVar1Owner->MaxVal[dtx->Sound.SoundVar1] -
-                        dtx->Sound.SoundVar1Owner->MinVal[dtx->Sound.SoundVar1]))/
+                              (dtx->Sound.SoundVar1Owner->Variable[dtx->Sound.SoundVar1]->MaxVal -
+                        dtx->Sound.SoundVar1Owner->Variable[dtx->Sound.SoundVar1]->MinVal))/
                        ((float)(dtx->Sound.sndwidth))) ;
       }
       if (dtx->Sound.SoundVar2 >= 0){
          dtx->Sound.var2step =(( ((float)(dtx->Sound.mainvarstep)) *
-                              (dtx->Sound.SoundVar2Owner->MaxVal[dtx->Sound.SoundVar2] -
-                        dtx->Sound.SoundVar2Owner->MinVal[dtx->Sound.SoundVar2]))/
+                              (dtx->Sound.SoundVar2Owner->Variable[dtx->Sound.SoundVar2]->MaxVal -
+                        dtx->Sound.SoundVar2Owner->Variable[dtx->Sound.SoundVar2]->MinVal))/
                        ((float)(dtx->Sound.sndwidth))) ;
       }
       if (dtx->Sound.SoundVar3 >= 0){
          dtx->Sound.var3step =(( ((float)(dtx->Sound.mainvarstep)) *
-                              (dtx->Sound.SoundVar3Owner->MaxVal[dtx->Sound.SoundVar3] -
-                        dtx->Sound.SoundVar3Owner->MinVal[dtx->Sound.SoundVar3]))/
+                              (dtx->Sound.SoundVar3Owner->Variable[dtx->Sound.SoundVar3]->MaxVal -
+                        dtx->Sound.SoundVar3Owner->Variable[dtx->Sound.SoundVar3]->MinVal))/
                        ((float)(dtx->Sound.sndwidth))) ;
       }
    }

@@ -240,12 +240,12 @@ int compute_analysis_variable( Context ctx, int var, char *progname )
       }
       /* Send the lowest level of every parameter */
       for (iv=0; iv<np; iv++) {
-         send_int( sock, ctx->LowLev[iv] );
+         send_int( sock, ctx->Variable[iv]->LowLev );
       }
 
       /* Send variable names */
       for (iv=0;iv<np;iv++) {
-         send_str( sock, ctx->VarName[iv] );
+         send_str( sock, ctx->Variable[iv]->VarName );
       }
 
       /* Send map proj and vert coord sys info */
@@ -443,7 +443,7 @@ int calc_ext_func( Context ctx, int time, int var, int threadnum )
       if (outNl>ctx->MaxNl)  outNl = ctx->MaxNl;
 
       ctx->Nl[var] = outNl;
-      ctx->LowLev[var] = outLowLev;
+      ctx->Variable[var]->LowLev = outLowLev;
 
       /* allocate space for resulting grid and receive the grid data */
       nbytes = ctx->Nr * ctx->Nc * outNl * sizeof(float);

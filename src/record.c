@@ -83,14 +83,14 @@ int init_record_cache( Irregular_Context itx, int maxbytes, float *ratio )
    numberofchars = 0;
    soundingsize = 0;
    for (i = 0; i < itx->NumVars; i++){
-      if (itx->VarType[i] == NUMERICAL_VAR_1D ){
+      if (itx->Variable[i]->VarType == NUMERICAL_VAR_1D ){
          numfloatvars++;
       }
-      else if (itx->VarType[i] == NUMERICAL_VAR_2D ){
+      else if (itx->Variable[i]->VarType == NUMERICAL_VAR_2D ){
          soundingsize += itx->Levels;
       }
-      else if (itx->VarType[i] == CHARACTER_VAR){
-         numberofchars += itx->CharVarLength[i];
+      else if (itx->Variable[i]->VarType == CHARACTER_VAR){
+         numberofchars += itx->Variable[i]->CharVarLength;
          numcharvars++;
       }
       else{
@@ -349,7 +349,7 @@ void get_all_record_numerical_data( Irregular_Context itx, int time,
 {
    int i;
 
-   if (itx->VarType[var] != NUMERICAL_VAR_1D){
+   if (itx->Variable[var]->VarType != NUMERICAL_VAR_1D){
       printf("wrong var type in get_record_numerical_data\n");
       return;
    }
@@ -367,7 +367,7 @@ void get_some_record_numerical_data( Irregular_Context itx, int time,
 {
    int i, pcount = 0;
 
-   if (itx->VarType[var] != NUMERICAL_VAR_1D){
+   if (itx->Variable[var]->VarType != NUMERICAL_VAR_1D){
       printf("wrong var type in get_record_numerical_data\n");
       return;
    }
@@ -388,7 +388,7 @@ void get_all_record_char_data( Irregular_Context itx, int time,
 {
    int i, j, count=0;
    
-   if (itx->VarType[var] != CHARACTER_VAR){
+   if (itx->Variable[var]->VarType != CHARACTER_VAR){
       printf("wrong var type in get_record_char_data\n");
       return;
    }
@@ -397,8 +397,8 @@ void get_all_record_char_data( Irregular_Context itx, int time,
       if (itx->RecordTable[time][i].CachePos < 0){
          load_record(itx, time, i);
       }
-      for (j = itx->CharPointer[var]; j < itx->CharPointer[var]+
-                                          itx->CharVarLength[var]; j++){
+      for (j = itx->Variable[var]->CharPointer; j < itx->Variable[var]->CharPointer+
+                                          itx->Variable[var]->CharVarLength; j++){
          data[count] = itx->RecordTable[time][i].CharData[j];
          count++;
       }
@@ -411,7 +411,7 @@ void get_some_record_char_data( Irregular_Context itx, int time,
 {
    int i, j, count=0;
    
-   if (itx->VarType[var] != CHARACTER_VAR){
+   if (itx->Variable[var]->VarType != CHARACTER_VAR){
       printf("wrong var type in get_record_char_data\n");
       return;
    }
@@ -421,8 +421,8 @@ void get_some_record_char_data( Irregular_Context itx, int time,
          if (itx->RecordTable[time][i].CachePos < 0){
             load_record(itx, time, i);
          }
-         for (j = itx->CharPointer[var]; j < itx->CharPointer[var]+
-                                             itx->CharVarLength[var]; j++){
+         for (j = itx->Variable[var]->CharPointer; j < itx->Variable[var]->CharPointer+
+                                             itx->Variable[var]->CharVarLength; j++){
             data[count] = itx->RecordTable[time][i].CharData[j];
             count++;
          }
@@ -518,7 +518,7 @@ int open_recordfile(Irregular_Context itx, char filename[])
 
    /* Initalize parameter type table */
    for (i=0;i<MAXVARS;i++) {
-      itx->VarType[i] = -1;
+      itx->Variable[i]->VarType = -1;
    }
   
    /* Copy header info from G to global variables */
@@ -535,13 +535,13 @@ int open_recordfile(Irregular_Context itx, char filename[])
    itx->NorthBound = itx->G.NorthBound;
    itx->SouthBound = itx->G.SouthBound;
    for (i = 0; i < itx->NumVars; i++){
-      strcpy(itx->VarName[i], itx->G.VarName[i]);
-      itx->VarType[i] = itx->G.VarType[i];
-      itx->CharVarLength[i] = itx->G.CharVarLength[i];
-      itx->CharPointer[i] = itx->G.CharPointer[i];
-      itx->SoundingPointer[i] = itx->G.SoundingPointer[i];
-      itx->MinVal[i] = itx->G.VarMin[i];
-      itx->MaxVal[i] = itx->G.VarMax[i];
+      strcpy(itx->Variable[i]->VarName, itx->G.VarName[i]);
+      itx->Variable[i]->VarType = itx->G.VarType[i];
+      itx->Variable[i]->CharVarLength = itx->G.CharVarLength[i];
+      itx->Variable[i]->CharPointer = itx->G.CharPointer[i];
+      itx->Variable[i]->SoundingPointer = itx->G.SoundingPointer[i];
+      itx->Variable[i]->MinVal = itx->G.VarMin[i];
+      itx->Variable[i]->MaxVal = itx->G.VarMax[i];
 
   }
   itx->TopBound = 10.0;

@@ -34,13 +34,14 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include "analysis.h"
 #include "globals.h"
 #include "misc.h"
 #include "queue.h"
 #include "sync.h"
 #include "work.h"
-
+#include "memory.h"
 
 #define QSIZE 3000
 
@@ -281,12 +282,20 @@ void request_quit( Context ctx )
  */
 void request_isosurface( Context ctx, int time, int var, int urgent )
 {
-   if (ctx->SurfTable[var][time].valid==0 ||
-       ctx->SurfTable[var][time].isolevel!=ctx->IsoLevel[var] ||
-       ctx->SurfTable[var][time].colorvar!=ctx->IsoColorVar[var]) {
-      add_qentry( ctx, NULL, urgent, TASK_ISOSURFACE, time, var, 0,
-                  0.0, 0.0, 0.0, 0.0, 0.0 );
-   }
+
+  printf("request IsoSurface\n");
+
+  if(!ctx->Variable[var]->SurfTable[time]){
+	 ctx->Variable[var]->SurfTable[time] = (struct isosurface *) allocate(ctx,sizeof(struct isosurface));
+	 memset(ctx->Variable[var]->SurfTable[time], 0, sizeof(struct isosurface));
+  }
+
+  if (ctx->Variable[var]->SurfTable[time]->valid==0 ||
+		ctx->Variable[var]->SurfTable[time]->isolevel!=ctx->IsoLevel[var] ||
+		ctx->Variable[var]->SurfTable[time]->colorvar!=ctx->IsoColorVar[var]) {
+	 add_qentry( ctx, NULL, urgent, TASK_ISOSURFACE, time, var, 0,
+					 0.0, 0.0, 0.0, 0.0, 0.0 );
+  }
 }
 
 
@@ -327,14 +336,18 @@ void request_text_plot( Irregular_Context itx, int time, int var, int urgent)
  */
 void request_hslice( Context ctx, int time, int var, int urgent )
 {
-   if (ctx->HSliceTable[var][time].valid==0 ||
-       ctx->HSliceTable[var][time].level!=ctx->HSliceLevel[var] ||
-       ctx->HSliceTable[var][time].interval!=ctx->HSliceInterval[var] ||
-       ctx->HSliceTable[var][time].lowlimit!=ctx->HSliceLowLimit[var] ||
-       ctx->HSliceTable[var][time].highlimit!=ctx->HSliceHighLimit[var] ) {
-      add_qentry( ctx, NULL, urgent, TASK_HSLICE, time, var, 0,
-                 0.0, 0.0, 0.0, 0.0, 0.0 );
-   }
+  if(! ctx->Variable[var]->HSliceTable[time]){
+	 ctx->Variable[var]->HSliceTable[time] = (struct hslice *) allocate(ctx, sizeof(struct hslice));
+	 memset(ctx->Variable[var]->HSliceTable[time], 0, sizeof(struct hslice));
+  }
+  if (ctx->Variable[var]->HSliceTable[time]->valid==0 ||
+		ctx->Variable[var]->HSliceTable[time]->level!=ctx->Variable[var]->HSliceRequest->Level ||
+		ctx->Variable[var]->HSliceTable[time]->interval!=ctx->Variable[var]->HSliceRequest->Interval ||
+		ctx->Variable[var]->HSliceTable[time]->lowlimit!=ctx->Variable[var]->HSliceRequest->LowLimit ||
+		ctx->Variable[var]->HSliceTable[time]->highlimit!=ctx->Variable[var]->HSliceRequest->HighLimit ) {
+	 add_qentry( ctx, NULL, urgent, TASK_HSLICE, time, var, 0,
+					 0.0, 0.0, 0.0, 0.0, 0.0 );
+  }
 }
 
 
@@ -348,17 +361,23 @@ void request_hslice( Context ctx, int time, int var, int urgent )
  */
 void request_vslice( Context ctx, int time, int var, int urgent )
 {
-   if (ctx->VSliceTable[var][time].valid==0 ||
-       ctx->VSliceTable[var][time].r1!=ctx->VSliceR1[var] ||
-       ctx->VSliceTable[var][time].c1!=ctx->VSliceC1[var] ||
-       ctx->VSliceTable[var][time].r2!=ctx->VSliceR2[var] ||
-       ctx->VSliceTable[var][time].c2!=ctx->VSliceC2[var] ||
-       ctx->VSliceTable[var][time].interval!=ctx->VSliceInterval[var] ||
-       ctx->VSliceTable[var][time].lowlimit!=ctx->VSliceLowLimit[var] ||
-       ctx->VSliceTable[var][time].highlimit!=ctx->VSliceHighLimit[var] ) {
-      add_qentry( ctx, NULL, urgent, TASK_VSLICE, time, var, 0,
-                 0.0, 0.0, 0.0, 0.0, 0.0 );
-   }
+  if(! ctx->Variable[var]->VSliceTable[time]){
+	 ctx->Variable[var]->VSliceTable[time] = (struct vslice *) allocate(ctx, sizeof(struct vslice));
+	 memset(ctx->Variable[var]->VSliceTable[time], 0, sizeof(struct vslice));
+  }
+
+  if (! ctx->Variable[var]->VSliceTable[time] ||
+		ctx->Variable[var]->VSliceTable[time]->valid==0 ||
+		ctx->Variable[var]->VSliceTable[time]->r1!=ctx->Variable[var]->VSliceRequest->R1 ||
+		ctx->Variable[var]->VSliceTable[time]->c1!=ctx->Variable[var]->VSliceRequest->R2 ||
+		ctx->Variable[var]->VSliceTable[time]->r2!=ctx->Variable[var]->VSliceRequest->C1 ||
+		ctx->Variable[var]->VSliceTable[time]->c2!=ctx->Variable[var]->VSliceRequest->C2 ||
+		ctx->Variable[var]->VSliceTable[time]->interval!=ctx->Variable[var]->VSliceRequest->Interval ||
+		ctx->Variable[var]->VSliceTable[time]->lowlimit!=ctx->Variable[var]->VSliceRequest->LowLimit ||
+		ctx->Variable[var]->VSliceTable[time]->highlimit!=ctx->Variable[var]->VSliceRequest->HighLimit ) {
+	 add_qentry( ctx, NULL, urgent, TASK_VSLICE, time, var, 0,
+					 0.0, 0.0, 0.0, 0.0, 0.0 );
+  }
 }
 
 
@@ -372,11 +391,16 @@ void request_vslice( Context ctx, int time, int var, int urgent )
  */
 void request_chslice( Context ctx, int time, int var, int urgent )
 {
-   if (ctx->CHSliceTable[var][time].valid==0 ||
-       ctx->CHSliceTable[var][time].level!=ctx->CHSliceLevel[var] ) {
-      add_qentry( ctx, NULL, urgent, TASK_CHSLICE, time, var, 0,
-                 0.0, 0.0, 0.0, 0.0, 0.0 );
-   }
+  if(! ctx->Variable[var]->CHSliceTable[time]){
+	 ctx->Variable[var]->CHSliceTable[time] = (struct chslice *) allocate(ctx, sizeof(struct chslice));
+	 memset(ctx->Variable[var]->CHSliceTable[time], 0, sizeof(struct chslice));
+  }
+
+  if (ctx->Variable[var]->CHSliceTable[time]->valid==0 ||
+		ctx->Variable[var]->CHSliceTable[time]->level!=ctx->Variable[var]->CHSliceRequest->Level ) {
+	 add_qentry( ctx, NULL, urgent, TASK_CHSLICE, time, var, 0,
+					 0.0, 0.0, 0.0, 0.0, 0.0 );
+  }
 }
 
 
@@ -390,14 +414,19 @@ void request_chslice( Context ctx, int time, int var, int urgent )
  */
 void request_cvslice( Context ctx, int time, int var, int urgent )
 {
-   if (ctx->CVSliceTable[var][time].valid==0 ||
-       ctx->CVSliceTable[var][time].r1!=ctx->CVSliceR1[var] ||
-       ctx->CVSliceTable[var][time].c1!=ctx->CVSliceC1[var] ||
-       ctx->CVSliceTable[var][time].r2!=ctx->CVSliceR2[var] ||
-       ctx->CVSliceTable[var][time].c2!=ctx->CVSliceC2[var] ) {
-      add_qentry( ctx, NULL, urgent, TASK_CVSLICE, time, var, 0,
-                 0.0, 0.0, 0.0, 0.0, 0.0 );
-   }
+  if(! ctx->Variable[var]->CVSliceTable[time]){
+	 ctx->Variable[var]->CVSliceTable[time] = (struct cvslice *) allocate(ctx, sizeof(struct cvslice));
+	 memset(ctx->Variable[var]->CVSliceTable[time], 0, sizeof(struct cvslice));
+  }
+
+  if (ctx->Variable[var]->CVSliceTable[time]->valid==0 ||
+		ctx->Variable[var]->CVSliceTable[time]->r1!=ctx->Variable[var]->CVSliceRequest->R1 ||
+		ctx->Variable[var]->CVSliceTable[time]->c1!=ctx->Variable[var]->CVSliceRequest->R2 ||
+		ctx->Variable[var]->CVSliceTable[time]->r2!=ctx->Variable[var]->CVSliceRequest->C1 ||
+		ctx->Variable[var]->CVSliceTable[time]->c2!=ctx->Variable[var]->CVSliceRequest->C2 ) {
+	 add_qentry( ctx, NULL, urgent, TASK_CVSLICE, time, var, 0,
+					 0.0, 0.0, 0.0, 0.0, 0.0 );
+  }
 }
 
 

@@ -1125,7 +1125,7 @@ int contour( Context ctx, float g[], int nr, int nc,
 				if(MARK(ir,ic)==2){
 				  if(domark){
 					 lbl_len=strlen(lbl_str);
-					 sprintf(labels,"%s\0",lbl_str);
+					 sprintf(labels,"%s",lbl_str);
 					 labels+=lbl_len+1;
 					 vx3[(*numv3)]= (vx[numv-2]<vx[numv-1]) ?
 						vx[numv-2] + 0.5 *(vx[numv-1]-vx[numv-2]) :

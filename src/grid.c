@@ -173,11 +173,11 @@ int write_gridfile( Context ctx, char filename[] )
    v->Nc = ctx->Nc;
    for (var=0;var<ctx->NumVars;var++) {
       v->Nl[var] = ctx->Nl[var];
-      v->LowLev[var] = ctx->LowLev[var];
-      strncpy( v->VarName[var], ctx->VarName[var], 8);
-      strncpy( v->Units[var], ctx->Units[var], 19 );
-      v->MinVal[var] = ctx->MinVal[var]; 
-      v->MaxVal[var] = ctx->MaxVal[var];
+      v->LowLev[var] = ctx->Variable[var]->LowLev;
+      strncpy( v->VarName[var], ctx->Variable[var]->VarName, 8);
+      strncpy( v->Units[var], ctx->Variable[var]->Units, 19 );
+      v->MinVal[var] = ctx->Variable[var]->MinVal; 
+      v->MaxVal[var] = ctx->Variable[var]->MaxVal;
    }
    for (time=0;time<ctx->NumTimes;time++) {
       v->TimeStamp[time] = v5dSecondsToHHMMSS( ctx->TimeStamp[time] );
@@ -297,8 +297,9 @@ int set_ctx_from_internalv5d(Context ctx)
   int i, time, var, first;
 
    /* Initalize parameter type table */
-   for (i=0;i<MAXVARS;i++) {
-      ctx->VarType[i] = 0;
+   for (i=0;i < ctx->G.NumVars;i++) {
+	  ctx->Variable[i] = (vis5d_variable *) malloc(sizeof(vis5d_variable));  
+	  ctx->Variable[i]->VarType = 0;
    }
 
    /* Copy header info from G to global variables */
@@ -309,19 +310,19 @@ int set_ctx_from_internalv5d(Context ctx)
    ctx->MaxNl = 0;
    for (var=0;var<ctx->NumVars;var++) {
       ctx->Nl[var] = ctx->G.Nl[var];
-      ctx->LowLev[var] = ctx->G.LowLev[var];
+      ctx->Variable[var]->LowLev = ctx->G.LowLev[var];
 
-      if (ctx->Nl[var]+ctx->LowLev[var]>ctx->MaxNl) {
-         ctx->MaxNl = ctx->Nl[var]+ctx->LowLev[var];
+      if (ctx->Nl[var]+ctx->Variable[var]->LowLev>ctx->MaxNl) {
+         ctx->MaxNl = ctx->Nl[var]+ctx->Variable[var]->LowLev;
          ctx->MaxNlVar = var;
       }
 
-      strncpy( ctx->VarName[var], ctx->G.VarName[var], 8 );
-      strncpy( ctx->Units[var], ctx->G.Units[var], 19 );
-      ctx->MinVal[var] = ctx->G.MinVal[var];
-      ctx->MaxVal[var] = ctx->G.MaxVal[var];
-      ctx->VarType[var] = VIS5D_REGULAR;
-      ctx->CloneTable[var] = var;
+      strncpy( ctx->Variable[var]->VarName, ctx->G.VarName[var], 8 );
+      strncpy( ctx->Variable[var]->Units, ctx->G.Units[var], 19 );
+      ctx->Variable[var]->MinVal = ctx->G.MinVal[var];
+      ctx->Variable[var]->MaxVal = ctx->G.MaxVal[var];
+      ctx->Variable[var]->VarType = VIS5D_REGULAR;
+      ctx->Variable[var]->CloneTable = var;
    }
 
    /* MJK 4-13-98 
@@ -602,7 +603,7 @@ static void *get_compressed_grid( Context ctx, int time, int var,
 {
   int p, ok;
 
-  var = ctx->CloneTable[var];
+  var = ctx->Variable[var]->CloneTable;
 
   LOCK_ON( ctx->Mutex );
 
@@ -717,7 +718,7 @@ float *get_grid( Context ctx, int time, int var )
    void *compdata;
    int nrncnl;
 
-   var = ctx->CloneTable[var];
+   var = ctx->Variable[var]->CloneTable;
    nrncnl = ctx->Nr * ctx->Nc * ctx->Nl[var];
    data = (float *) allocate_type( ctx, nrncnl*sizeof(float), GRID_TYPE );
    if (!data) {
@@ -743,7 +744,7 @@ float *get_grid2( Context toctx, Context fromctx, int time, int var, int numlevs
    int nrncnl, nr, nc, nl;
    float yonrr, yoncc, yonll, nnr, nnc, nnl, lat, lon, hgt;
 
-   var = fromctx->CloneTable[var];
+   var = fromctx->Variable[var]->CloneTable;
    nrncnl = toctx->Nr * toctx->Nc * numlevs;
    data = (float *) allocate_type( toctx, nrncnl*sizeof(float), GRID_TYPE );
    if (!data) {
@@ -780,10 +781,10 @@ float *get_grid2( Context toctx, Context fromctx, int time, int var, int numlevs
 **********************************************************************/
 int put_grid( Context ctx, int time, int var, float *griddata )
 {
-   if (ctx->VarType[var] == VIS5D_REGULAR ||
-       ctx->VarType[var] == VIS5D_PUT) {
+   if (ctx->Variable[var]->VarType == VIS5D_REGULAR ||
+       ctx->Variable[var]->VarType == VIS5D_PUT) {
      return install_new_grid( ctx, time, var, griddata, ctx->Nl[var],
-                              ctx->LowLev[var]);
+                              ctx->Variable[var]->LowLev);
    }
    else {
      return 0;
@@ -827,10 +828,10 @@ float get_grid_value( Context ctx, int time, int var,
    float value;
 
    /* WLH 6-30-95 */
-   lev -= ctx->LowLev[var];
+   lev -= ctx->Variable[var]->LowLev;
    if (lev < 0 || lev >= ctx->Nl[var]) return MISSING;
 
-   var = ctx->CloneTable[var];
+   var = ctx->Variable[var]->CloneTable;
    data = get_compressed_grid( ctx, time, var, &gavec, &gbvec );
    if (!data) return MISSING;
 
@@ -884,14 +885,14 @@ float interpolate_grid_value( Context ctx, int time, int var,
    float *gavec, *gbvec, ga, gb;
 
    /* WLH 6-30-95 */
-   lev -= ctx->LowLev[var];
+   lev -= ctx->Variable[var]->LowLev;
    if (lev < 0 || lev >= ctx->Nl[var] ||
        col < 0 || col >= ctx->Nc ||
        row < 0 || row >= ctx->Nr){
       return MISSING;
    }
 
-   var = ctx->CloneTable[var];
+   var = ctx->Variable[var]->CloneTable;
 
    data = get_compressed_grid( ctx, time, var, &gavec, &gbvec );
    if (!data) return MISSING;
@@ -1049,31 +1050,32 @@ int allocate_clone_variable( Context ctx, char name[], int var_to_clone )
 {
    int newvar;
 
-   for (newvar=0;newvar<MAXVARS;newvar++) {
-      if (ctx->VarType[newvar]==0)
-         break;
-   }
-   if (newvar==MAXVARS) {
+
+   if (ctx->NumVars==MAXVARS) {
       /* no space for a new variable */
       return -1;
    }
+	newvar = ctx->NumVars;
 
-   ctx->VarType[newvar] = VIS5D_CLONE;
-   ctx->CloneTable[newvar] = var_to_clone;
+	ctx->Variable[newvar] = (vis5d_variable *) malloc(sizeof(vis5d_variable));
+
+
+   ctx->Variable[newvar]->VarType = VIS5D_CLONE;
+   ctx->Variable[newvar]->CloneTable = var_to_clone;
    ctx->NumVars++;
 
    /* copy variable/parameter name */
-   strncpy( ctx->VarName[newvar], name, 8 );
+   strncpy( ctx->Variable[newvar]->VarName, name, 8 );
 
    ctx->Nl[newvar] = ctx->Nl[var_to_clone];
-   ctx->LowLev[newvar] = ctx->LowLev[var_to_clone];
+   ctx->Variable[newvar]->LowLev = ctx->Variable[var_to_clone]->LowLev;
 
    /* copy min, max values */
-   ctx->MinVal[newvar] = ctx->MinVal[var_to_clone];
-   ctx->MaxVal[newvar] = ctx->MaxVal[var_to_clone];
+   ctx->Variable[newvar]->MinVal = ctx->Variable[var_to_clone]->MinVal;
+   ctx->Variable[newvar]->MaxVal = ctx->Variable[var_to_clone]->MaxVal;
 
    /* MJK 12.14.98 */
-   strcpy (ctx->Units[newvar], ctx->Units[var_to_clone]);
+   strcpy (ctx->Variable[newvar]->Units, ctx->Variable[var_to_clone]->Units);
 
    return newvar;
 }
@@ -1086,8 +1088,8 @@ int allocate_clone_variable( Context ctx, char name[], int var_to_clone )
  */
 void min_max_init( Context ctx, int newvar )
 {
-   ctx->MinVal[newvar] = MISSING;
-   ctx->MaxVal[newvar] = -MISSING;
+   ctx->Variable[newvar]->MinVal = MISSING;
+   ctx->Variable[newvar]->MaxVal = -MISSING;
 }
 
 
@@ -1103,7 +1105,7 @@ int allocate_extfunc_variable( Context ctx, char name[] )
    int newvar;
 
    for (newvar=0;newvar<MAXVARS;newvar++) {
-      if (ctx->VarType[newvar]==0)
+      if (ctx->Variable[newvar]->VarType==0)
          break;
    }
    if (newvar==MAXVARS) {
@@ -1111,11 +1113,11 @@ int allocate_extfunc_variable( Context ctx, char name[] )
       return -1;
    }
 
-   ctx->VarType[newvar] = VIS5D_EXT_FUNC;
-   ctx->CloneTable[newvar] = newvar;
+   ctx->Variable[newvar]->VarType = VIS5D_EXT_FUNC;
+   ctx->Variable[newvar]->CloneTable = newvar;
    ctx->NumVars++;
 
-   strncpy( ctx->VarName[newvar], name, 8 );
+   strncpy( ctx->Variable[newvar]->VarName, name, 8 );
    min_max_init(ctx, newvar);
 
    return newvar;
@@ -1135,7 +1137,7 @@ int allocate_computed_variable( Context ctx, char *name )
    int newvar;
 
    for (newvar=0;newvar<MAXVARS;newvar++) {
-      if (ctx->VarType[newvar]==0)
+      if (ctx->Variable[newvar]->VarType==0)
          break;
    }
    if (newvar==MAXVARS) {
@@ -1143,11 +1145,11 @@ int allocate_computed_variable( Context ctx, char *name )
       return -1;
    }
 
-   ctx->VarType[newvar] = VIS5D_EXPRESSION;
-   ctx->CloneTable[newvar] = newvar;
+   ctx->Variable[newvar]->VarType = VIS5D_EXPRESSION;
+   ctx->Variable[newvar]->CloneTable = newvar;
    ctx->NumVars++;
 
-   strncpy( ctx->VarName[newvar], name, 8 );
+   strncpy( ctx->Variable[newvar]->VarName, name, 8 );
    min_max_init(ctx, newvar);
 
    return newvar;
@@ -1168,7 +1170,7 @@ int allocate_new_variable( Context ctx, char *name, int nl, int lowlev )
    float *griddata;
 
    for (newvar=0;newvar<MAXVARS;newvar++) {
-      if (ctx->VarType[newvar]==0)
+      if (ctx->Variable[newvar]->VarType==0)
          break;
    }
    if (newvar==MAXVARS) {
@@ -1176,13 +1178,13 @@ int allocate_new_variable( Context ctx, char *name, int nl, int lowlev )
       return -1;
    }
 
-   ctx->VarType[newvar] = VIS5D_PUT;
-   ctx->CloneTable[newvar] = newvar;
+   ctx->Variable[newvar]->VarType = VIS5D_PUT;
+   ctx->Variable[newvar]->CloneTable = newvar;
    ctx->NumVars++;
    ctx->Nl[newvar] = nl;
-   ctx->LowLev[newvar] = lowlev;
+   ctx->Variable[newvar]->LowLev = lowlev;
 
-   strncpy( ctx->VarName[newvar], name, 8 );
+   strncpy( ctx->Variable[newvar]->VarName, name, 8 );
    min_max_init(ctx, newvar);
 
    gridsize = ctx->Nr * ctx->Nc * nl * 4;
@@ -1208,7 +1210,7 @@ int deallocate_variable( Context ctx, int var )
    /* This function isn't completely implemented nor is it used yet */
    assert( var == ctx->NumVars-1 );
 
-   ctx->VarType[var] = 0;
+   ctx->Variable[var]->VarType = 0;
 
    ctx->NumVars--;
    return 0;
@@ -1234,7 +1236,7 @@ int install_new_grid( Context ctx, int time, int var,
    float min, max;
 
    ctx->Nl[var] = nl;
-   ctx->LowLev[var] = lowlev;
+   ctx->Variable[var]->LowLev = lowlev;
 
    if (!ctx->GridTable[time][var].Data) {
       int bytes = ctx->Nr * ctx->Nc * nl * ctx->CompressMode;
@@ -1264,13 +1266,13 @@ int install_new_grid( Context ctx, int time, int var,
    ctx->GridTable[time][var].CachePos = -1;
 
    /* update min and max values */
-   if (min<ctx->MinVal[var]) {
-      ctx->MinVal[var] = min;
-      ctx->RealMinVal[var] = min;
+   if (min<ctx->Variable[var]->MinVal) {
+      ctx->Variable[var]->MinVal = min;
+      ctx->Variable[var]->RealMinVal = min;
    }
-   if (max>ctx->MaxVal[var]) {
-      ctx->MaxVal[var] = max;
-      ctx->RealMaxVal[var] = max;
+   if (max>ctx->Variable[var]->MaxVal) {
+      ctx->Variable[var]->MaxVal = max;
+      ctx->Variable[var]->RealMaxVal = max;
    }
 
    return 1;

@@ -126,26 +126,26 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
       cvctxtime = time;
    }
    /* Free old color indexes if any */
-   wait_write_lock( &ctx->SurfTable[isovar][time].lock );
-   if (ctx->SurfTable[isovar][time].colors) {
-      deallocate( ctx, ctx->SurfTable[isovar][time].colors,
-                  ctx->SurfTable[isovar][time].numverts*sizeof(uint_1) );
-      ctx->SurfTable[isovar][time].colors = NULL;
+   wait_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
+   if (ctx->Variable[isovar]->SurfTable[time]->colors) {
+      deallocate( ctx, ctx->Variable[isovar]->SurfTable[time]->colors,
+                  ctx->Variable[isovar]->SurfTable[time]->numverts*sizeof(uint_1) );
+      ctx->Variable[isovar]->SurfTable[time]->colors = NULL;
    }
-   done_write_lock( &ctx->SurfTable[isovar][time].lock );
+   done_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
 
    if (colorvar!=-1) {
       /* Allocate storage for new color indexes */
-      n = ctx->SurfTable[isovar][time].numverts;
+      n = ctx->Variable[isovar]->SurfTable[time]->numverts;
       color_indexes = allocate( ctx, n*sizeof(uint_1) );
       if (!color_indexes) {
          return;
       }
 
-      min = cvctx->MinVal[colorvar];
+      min = cvctx->Variable[colorvar]->MinVal;
 
       /* MJK 12.04.98 */
-      valscale = 254.0 / (cvctx->MaxVal[colorvar] - cvctx->MinVal[colorvar]);
+      valscale = 254.0 / (cvctx->Variable[colorvar]->MaxVal - cvctx->Variable[colorvar]->MinVal);
 
       if (!check_for_valid_time(cvctx, time)){
          for (i=0;i<n;i++) {
@@ -160,9 +160,9 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
             float val;
 
 
-            x = ctx->SurfTable[isovar][time].verts[i*3+0] * vscale;
-            y = ctx->SurfTable[isovar][time].verts[i*3+1] * vscale;
-            z = ctx->SurfTable[isovar][time].verts[i*3+2] * vscale;
+            x = ctx->Variable[isovar]->SurfTable[time]->verts[i*3+0] * vscale;
+            y = ctx->Variable[isovar]->SurfTable[time]->verts[i*3+1] * vscale;
+            z = ctx->Variable[isovar]->SurfTable[time]->verts[i*3+2] * vscale;
 
             xyzPRIME_to_grid( cvctx, time, colorvar, x, y, z, &row, &col, &lev );
                
@@ -172,8 +172,8 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
             }
             val = interpolate_grid_value( cvctx, cvctxtime, colorvar, row, col, lev );
             if (IS_MISSING(val) ||
-                val < cvctx->MinVal[colorvar] ||
-                val > cvctx->MaxVal[colorvar]) {
+                val < cvctx->Variable[colorvar]->MinVal ||
+                val > cvctx->Variable[colorvar]->MaxVal) {
                color_indexes[i] = 255;
             }
             else {
@@ -189,11 +189,11 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
    }
 
    /* save results */
-   wait_write_lock( &ctx->SurfTable[isovar][time].lock );
-   ctx->SurfTable[isovar][time].colors = color_indexes;
-   ctx->SurfTable[isovar][time].colorvar = colorvar;
-   ctx->SurfTable[isovar][time].cvowner = cvowner;
-   done_write_lock( &ctx->SurfTable[isovar][time].lock );
+   wait_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
+   ctx->Variable[isovar]->SurfTable[time]->colors = color_indexes;
+   ctx->Variable[isovar]->SurfTable[time]->colorvar = colorvar;
+   ctx->Variable[isovar]->SurfTable[time]->cvowner = cvowner;
+   done_write_lock( &ctx->Variable[isovar]->SurfTable[time]->lock );
 }
 
 
@@ -237,8 +237,8 @@ static void calc_isosurface( Context ctx, int time, int var,
       ctxtime = dtx->TimeStep[time].ownerstimestep[return_ctx_index_pos(dtx,
                                                    ctx->context_index)];
    }
-   if (!ctx->SurfTable[var][time].valid ||
-       ctx->SurfTable[var][time].isolevel != iso_level) {
+   if (!ctx->Variable[var]->SurfTable[time]->valid ||
+       ctx->Variable[var]->SurfTable[time]->isolevel != iso_level) {
 
       /* compute the isosurface */
 
@@ -291,7 +291,7 @@ static void calc_isosurface( Context ctx, int time, int var,
          return;
       }
       /* Pass number of levels of parameter. main_march is not changed */
-      main_march( ctx,  grid, ctx->Nc, ctx->Nr, ctx->Nl[var], ctx->LowLev[var],
+      main_march( ctx,  grid, ctx->Nc, ctx->Nr, ctx->Nl[var], ctx->Variable[var]->LowLev,
               iso_level, arx, ary, arz, MAX_ISO_VERTS,
               vc,vr,vl, nx,ny,nz, 2*MAX_ISO_VERTS, vpts,
               &numverts, &numindexes, &ipoly, &itri );
@@ -355,21 +355,21 @@ static void calc_isosurface( Context ctx, int time, int var,
 
       /******************** Store the new surface ************************/
 
-      wait_write_lock( &ctx->SurfTable[var][time].lock );
+      wait_write_lock( &ctx->Variable[var]->SurfTable[time]->lock );
 
       /* deallocate existing surface, if any */
       free_isosurface( ctx, time, var );
 
       /* add surface to table */
-      ctx->SurfTable[var][time].isolevel = iso_level;
-      ctx->SurfTable[var][time].numverts = numverts;
-      ctx->SurfTable[var][time].verts = cverts;
-      ctx->SurfTable[var][time].norms = cnorms;
-      ctx->SurfTable[var][time].numindex = numindexes;
-      ctx->SurfTable[var][time].index = index;
-      ctx->SurfTable[var][time].valid = 1;
+      ctx->Variable[var]->SurfTable[time]->isolevel = iso_level;
+      ctx->Variable[var]->SurfTable[time]->numverts = numverts;
+      ctx->Variable[var]->SurfTable[time]->verts = cverts;
+      ctx->Variable[var]->SurfTable[time]->norms = cnorms;
+      ctx->Variable[var]->SurfTable[time]->numindex = numindexes;
+      ctx->Variable[var]->SurfTable[time]->index = index;
+      ctx->Variable[var]->SurfTable[time]->valid = 1;
 
-      done_write_lock( &ctx->SurfTable[var][time].lock );
+      done_write_lock( &ctx->Variable[var]->SurfTable[time]->lock );
       /* BUG FIX MJK 8.6.98
          These free statments were previously outside of this
          large if statment 
@@ -387,14 +387,14 @@ static void calc_isosurface( Context ctx, int time, int var,
 
    }
 
-   if (colorvar!=-1 || (ctx->SurfTable[var][time].cvowner != cvowner) ||
-                       (ctx->SurfTable[var][time].colorvar!=colorvar &&
-                        ctx->SurfTable[var][time].cvowner ==cvowner)) {
+   if (colorvar!=-1 || (ctx->Variable[var]->SurfTable[time]->cvowner != cvowner) ||
+                       (ctx->Variable[var]->SurfTable[time]->colorvar!=colorvar &&
+                        ctx->Variable[var]->SurfTable[time]->cvowner ==cvowner)) {
       color_isosurface( ctx, time, var, cvowner, colorvar );
    }
 
 /******* YO this dosn't make sense
-   if (colorvar!=-1 || ctx->SurfTable[var][time].colorvar!=colorvar) {
+   if (colorvar!=-1 || ctx->Variable[var]->SurfTable[time]->colorvar!=colorvar) {
       color_isosurface( ctx, time, var, cvowner, colorvar );
    }
 *******/
@@ -521,8 +521,8 @@ static float *extract_sfc_slice (Context ctx, int time, int var,
                                           HSLICE_TYPE);
     if (slice_data == NULL) return NULL;
 
-    gbot = ctx->LowLev[var];
-    gtop = ctx->Nl[var] + ctx->LowLev[var] - 1;
+    gbot = ctx->Variable[var]->LowLev;
+    gtop = ctx->Nl[var] + ctx->Variable[var]->LowLev - 1;
 
     dr   = ((float) (dtx->topo->qrows - 1)) / ((float) (nrows - 1));
     dc   = ((float) (dtx->topo->qcols - 1)) / ((float) (ncols - 1));
@@ -656,7 +656,7 @@ static float* extract_hslice( Context ctx, float *grid, int var,
       int i, j;
 
       /* WLH 15 Oct 98 */
-      level -= ctx->LowLev[var];
+      level -= ctx->Variable[var]->LowLev;
       if (level < 0 || level > ctx->Nl[var]-1) {
         for (i=0; i<nr*nc; i++) slice[i] = MISSING;
         return slice;
@@ -861,7 +861,7 @@ static float* extract_hslicePRIME( Context ctx, float *grid, int time, int var,
       int i, j;
 
       /* WLH 15 Oct 98 */
-      level -= ctx->LowLev[var];
+      level -= ctx->Variable[var]->LowLev;
       if (level < 0 || level > ctx->Nl[var]-1) {
         for (i=0; i<nr*nc; i++) slice[i] = MISSING;
         return slice;
@@ -1609,21 +1609,21 @@ static int make_vertical_rectangle( Context ctx, int time, int var,
 /*
          v[0*3+0] = r1;
          v[0*3+1] = c1;
-         v[0*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->LowLev[var]);
+         v[0*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->Variable[var]->LowLev);
          v[1*3+0] = r1;
          v[1*3+1] = c1;
          v[1*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->Nl[var])  +
-                    gridlevel_to_gridlevelPRIME(ctx, ctx->LowLev[var]);
+                    gridlevel_to_gridlevelPRIME(ctx, ctx->Variable[var]->LowLev);
          v[2*3+0] = r2;
          v[2*3+1] = c2;
          v[2*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->Nl[var])  +
-                    gridlevel_to_gridlevelPRIME(ctx, ctx->LowLev[var]);
+                    gridlevel_to_gridlevelPRIME(ctx, ctx->Variable[var]->LowLev);
          v[3*3+0] = r2;
          v[3*3+1] = c2;
-         v[3*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->LowLev[var]); 
+         v[3*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->Variable[var]->LowLev); 
          v[4*3+0] = r1;
          v[4*3+1] = c1;
-         v[4*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->LowLev[var]); 
+         v[4*3+2] = gridlevel_to_gridlevelPRIME(ctx, ctx->Variable[var]->LowLev); 
 */
       }
    }
@@ -1725,7 +1725,7 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
    vz = (float *) malloc(sizeof(float)*MAX_TEXT_PLOT_VERTS);
 
    tempcols = NULL;
-   if (itx->TextPlotColorStatus[itx->TextPlotVar] == VIS5D_ON){
+   if (itx->Variable[itx->TextPlotVar]->TextPlotColorStatus == VIS5D_ON){
       tempcols = (uint_1 *) malloc(sizeof(uint_1)*MAX_TEXT_PLOT_VERTS);
    }
 
@@ -1738,7 +1738,7 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
       printf("not enough memory in calc_textpot\n");
       exit(0);
    }
-   if (itx->TextPlotColorStatus[itx->TextPlotVar] == VIS5D_ON &&
+   if (itx->Variable[itx->TextPlotVar]->TextPlotColorStatus == VIS5D_ON &&
        !tempcols){
        printf("nnot enough memory in calc_textpot\n");
       exit(0);
@@ -1759,12 +1759,12 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
 
    space_plots(itx, time, ploton, xs, ys, zs, &numtouse);
 
-   if (itx->VarType[itx->TextPlotVar] == NUMERICAL_VAR_1D){
+   if (itx->Variable[itx->TextPlotVar]->VarType == NUMERICAL_VAR_1D){
       numdata = (double *) malloc(sizeof(double)*numtouse);
    }
-   else if (itx->VarType[itx->TextPlotVar] == CHARACTER_VAR){
+   else if (itx->Variable[itx->TextPlotVar]->VarType == CHARACTER_VAR){
       chardata = (char *) malloc(sizeof(char)*numtouse*
-                          itx->CharVarLength[itx->TextPlotVar]);
+                          itx->Variable[itx->TextPlotVar]->CharVarLength);
    }
    else{
       printf("Error in creating textplot\n");
@@ -1773,10 +1773,10 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
    /********************************/
    /* get the record num/char data */
    /********************************/
-   if (itx->VarType[itx->TextPlotVar] == NUMERICAL_VAR_1D){
+   if (itx->Variable[itx->TextPlotVar]->VarType == NUMERICAL_VAR_1D){
       get_some_record_numerical_data( itx, time, itx->TextPlotVar, ploton, numdata);
    }
-   else if (itx->VarType[itx->TextPlotVar] == CHARACTER_VAR){
+   else if (itx->Variable[itx->TextPlotVar]->VarType == CHARACTER_VAR){
       get_some_record_char_data( itx, time, itx->TextPlotVar, ploton, chardata);
    }
    else{
@@ -1786,8 +1786,8 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
    /**************************************/
    /* create the textplots in xyz coords */
    /**************************************/
-   if (itx->VarType[itx->TextPlotVar] == NUMERICAL_VAR_1D){
-      if (itx->TextPlotColorStatus[itx->TextPlotVar] == VIS5D_ON){
+   if (itx->Variable[itx->TextPlotVar]->VarType == NUMERICAL_VAR_1D){
+      if (itx->Variable[itx->TextPlotVar]->TextPlotColorStatus == VIS5D_ON){
          create_color_num_textplot( itx, time, xs, ys, zs, numdata, ploton,
                                     vx, vy, vz, &numv, tempcols);
       }
@@ -1795,7 +1795,7 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
          create_num_textplot( itx, time, xs, ys, zs, numdata, ploton, vx, vy, vz, &numv);
       }
    }
-   else if (itx->VarType[itx->TextPlotVar] == CHARACTER_VAR){
+   else if (itx->Variable[itx->TextPlotVar]->VarType == CHARACTER_VAR){
       create_letter_textplot( itx, time, xs, ys, zs, chardata, ploton, itx->TextPlotVar,
                               vx, vy, vz, &numv);
    }
@@ -1810,7 +1810,7 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
       int c;
       bytes = 3*numv*sizeof(int_2);
       cverts = (int_2 *) i_allocate_type( itx, bytes, CVX1H_TYPE );
-      if (itx->TextPlotColorStatus[itx->TextPlotVar] == VIS5D_ON){
+      if (itx->Variable[itx->TextPlotVar]->TextPlotColorStatus == VIS5D_ON){
          colors = (uint_1 *) i_allocate(itx, numv/2*sizeof(uint_1) );
          for (c = 0; c < numv/2; c++){
             colors[c] = tempcols[c];
@@ -1837,7 +1837,7 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
    tp->fontx = itx->TextPlotFontX;
    tp->fonty = itx->TextPlotFontY;
    tp->fontspace = itx->TextPlotFontSpace;
-   if (itx->TextPlotColorStatus[itx->TextPlotVar] == VIS5D_ON){
+   if (itx->Variable[itx->TextPlotVar]->TextPlotColorStatus == VIS5D_ON){
       tp->colors = colors;
    }
    else{
@@ -1895,7 +1895,7 @@ static void calc_hslice( Context ctx, int time, int var,
                          float interval, float low, float high, float levelPRIME,
                          int threadnum )
 {
-   struct hslice *slice = &ctx->HSliceTable[var][time];
+   struct hslice *slice = ctx->Variable[var]->HSliceTable[time];
    float *vr1, *vc1, *vr2, *vc2, *vr3, *vc3, *vl;
    float *grid, *slicedata;
    int num1, num2, num3, maxnum, bytes, i;
@@ -1909,9 +1909,11 @@ static void calc_hslice( Context ctx, int time, int var,
 
    dtx = ctx->dpy_ctx;
 
+
    /* MJK 12.04.98 */
    if ((ctx->Nl[var]==1) && (!ctx->DisplaySfcHSlice[var])) {
-      wait_write_lock( &slice->lock );
+      wait_write_lock( &(slice->lock) );
+
       if (slice->valid && !ctx->dpy_ctx->CurvedBox && slice->interval==interval
           && slice->lowlimit==low && slice->highlimit==high) {
          /* special case: just translate existing slice! */
@@ -1948,9 +1950,11 @@ static void calc_hslice( Context ctx, int time, int var,
          slice->boxverts = boxverts;
          slice->level = levelPRIME;
          recent( ctx, HSLICE, var );
+
          done_write_lock( &slice->lock );
          return;
       }
+
       done_write_lock( &slice->lock );
    }
 
@@ -2031,7 +2035,7 @@ static void calc_hslice( Context ctx, int time, int var,
       return;
    }
  
-   if (low==ctx->MinVal[var])
+   if (low==ctx->Variable[var]->MinVal)
      base = 0.0;
    else
      base = low;
@@ -2152,7 +2156,9 @@ static void calc_hslice( Context ctx, int time, int var,
 
    recent( ctx, HSLICE, var );
 
-   wait_write_lock( &slice->lock );
+
+   wait_write_lock( &(slice->lock) );
+
 
    /* deallocate existing slice, if any */
    free_hslice( ctx, time, var );
@@ -2172,7 +2178,7 @@ static void calc_hslice( Context ctx, int time, int var,
    slice->numboxverts = numboxverts;
    slice->valid = 1;
 
-   done_write_lock( &slice->lock );
+   done_write_lock( &(slice->lock) );
 
    if (time==ctx->dpy_ctx->CurTime) {
       ctx->dpy_ctx->Redraw = 1;
@@ -2307,15 +2313,15 @@ static void calc_vslice( Context ctx, int time, int var,
    }
 
 
-   if (low==ctx->MinVal[var])
+   if (low==ctx->Variable[var]->MinVal)
      base = 0.0;
    else
      base = low;
    /* call contouring routine */
 #ifdef USE_SYSTEM_FONTS
-	if(ctx->VSliceTable[var][time].labels)
-	  free(ctx->VSliceTable[var][time].labels);
-	ctx->VSliceTable[var][time].labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+	if(ctx->Variable[var]->VSliceTable[time]->labels)
+	  free(ctx->Variable[var]->VSliceTable[time]->labels);
+	ctx->Variable[var]->VSliceTable[time]->labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
 #endif
 
    contour_ok =	contour( ctx, slice, rows, cols, interval, low, high, base,
@@ -2323,7 +2329,7 @@ static void calc_vslice( Context ctx, int time, int var,
 		 vr2, vc2, max_cont_verts/2, &num2,
 		 vr3, vc3, max_cont_verts/2, &num3
 #ifdef USE_SYSTEM_FONTS
-									,ctx->VSliceTable[var][time].labels							
+									,ctx->Variable[var]->VSliceTable[time]->labels							
 #endif
 									);
 
@@ -2346,7 +2352,7 @@ static void calc_vslice( Context ctx, int time, int var,
 
    /* WLH 15 Oct 98 */
    if (ctx->GridSameAsGridPRIME){
-     ctxlow = ctx->LowLev[var];
+     ctxlow = ctx->Variable[var]->LowLev;
    }
    else {
      ctxlow = dtx->LowLev;
@@ -2445,30 +2451,30 @@ static void calc_vslice( Context ctx, int time, int var,
 
    /************************ Store the new slice ************************/
 
-   wait_write_lock( &ctx->VSliceTable[var][time].lock );
+   wait_write_lock( &ctx->Variable[var]->VSliceTable[time]->lock );
 
    /* deallocate existing slice, if any */
    free_vslice( ctx, time, var );
 
    /* store new slice */
-   ctx->VSliceTable[var][time].interval = interval;
-   ctx->VSliceTable[var][time].lowlimit = low;
-   ctx->VSliceTable[var][time].highlimit = high;
-   ctx->VSliceTable[var][time].r1 = r1;
-   ctx->VSliceTable[var][time].c1 = c1;
-   ctx->VSliceTable[var][time].r2 = r2;
-   ctx->VSliceTable[var][time].c2 = c2;
-   ctx->VSliceTable[var][time].num1 = num1;
-   ctx->VSliceTable[var][time].verts1 = cverts1;
-   ctx->VSliceTable[var][time].num2 = num2;
-   ctx->VSliceTable[var][time].verts2 = cverts2;
-   ctx->VSliceTable[var][time].num3 = num3;
-   ctx->VSliceTable[var][time].verts3 = cverts3;
-   ctx->VSliceTable[var][time].boxverts = boxverts;
-   ctx->VSliceTable[var][time].numboxverts = numboxverts;
-   ctx->VSliceTable[var][time].valid = 1;
+   ctx->Variable[var]->VSliceTable[time]->interval = interval;
+   ctx->Variable[var]->VSliceTable[time]->lowlimit = low;
+   ctx->Variable[var]->VSliceTable[time]->highlimit = high;
+   ctx->Variable[var]->VSliceTable[time]->r1 = r1;
+   ctx->Variable[var]->VSliceTable[time]->c1 = c1;
+   ctx->Variable[var]->VSliceTable[time]->r2 = r2;
+   ctx->Variable[var]->VSliceTable[time]->c2 = c2;
+   ctx->Variable[var]->VSliceTable[time]->num1 = num1;
+   ctx->Variable[var]->VSliceTable[time]->verts1 = cverts1;
+   ctx->Variable[var]->VSliceTable[time]->num2 = num2;
+   ctx->Variable[var]->VSliceTable[time]->verts2 = cverts2;
+   ctx->Variable[var]->VSliceTable[time]->num3 = num3;
+   ctx->Variable[var]->VSliceTable[time]->verts3 = cverts3;
+   ctx->Variable[var]->VSliceTable[time]->boxverts = boxverts;
+   ctx->Variable[var]->VSliceTable[time]->numboxverts = numboxverts;
+   ctx->Variable[var]->VSliceTable[time]->valid = 1;
 
-   done_write_lock( &ctx->VSliceTable[var][time].lock );
+   done_write_lock( &ctx->Variable[var]->VSliceTable[time]->lock );
 
    if (time==ctx->dpy_ctx->CurTime) {
       ctx->dpy_ctx->Redraw = 1;
@@ -2498,7 +2504,7 @@ static void calc_vslice( Context ctx, int time, int var,
 static void calc_chslice( Context ctx, int time, int var,
                           float level, int threadnum )
 {
-   struct chslice *slice = &ctx->CHSliceTable[var][time];
+   struct chslice *slice = ctx->Variable[var]->CHSliceTable[time];
    float *vr, *vc, *vl;
    int_2 *cverts;
    float *grid, *slicedata, scale;
@@ -2615,18 +2621,18 @@ static void calc_chslice( Context ctx, int time, int var,
 
 
    /* scale data values to [0,254] with missing = 255 */
-   if (ctx->MinVal[var]==ctx->MaxVal[var])
+   if (ctx->Variable[var]->MinVal==ctx->Variable[var]->MaxVal)
      scale = 0.0;
    else
-     scale = 254.0 / (ctx->MaxVal[var]-ctx->MinVal[var]);
+     scale = 254.0 / (ctx->Variable[var]->MaxVal-ctx->Variable[var]->MinVal);
    if (density==1.0) {
       /* simple calculation */
-      float minval = ctx->MinVal[var];
+      float minval = ctx->Variable[var]->MinVal;
       int i;
       for (i=0;i<slice_rows*slice_cols;i++) {
          if (IS_MISSING(slicedata[i]) ||
              slicedata[i] < minval ||
-             slicedata[i] > ctx->MaxVal[var])
+             slicedata[i] > ctx->Variable[var]->MaxVal)
             indexes[i] = 255;
          else{
             /* MJK 12.04.98 */
@@ -2638,7 +2644,7 @@ static void calc_chslice( Context ctx, int time, int var,
    else {
       /* resampling needed */
       int row, col;
-      float minval = ctx->MinVal[var];
+      float minval = ctx->Variable[var]->MinVal;
       float rowscale = (float) (dtx->Nr-1) / (float) (slice_rows-1);
       float colscale = (float) (dtx->Nc-1) / (float) (slice_cols-1);
       int i = 0;
@@ -2648,8 +2654,8 @@ static void calc_chslice( Context ctx, int time, int var,
             int src_col = col * colscale;
             float val = slicedata[ src_row * dtx->Nc + src_col ];
             if (IS_MISSING(val) ||
-                val < ctx->MinVal[var] ||
-                val > ctx->MaxVal[var])
+                val < ctx->Variable[var]->MinVal ||
+                val > ctx->Variable[var]->MaxVal)
               indexes[i] = 255;
             else{
                /* MJK 12.04.98 */
@@ -2784,7 +2790,7 @@ static void calc_cvslice( Context ctx, int time, int var,
 
    /* WLH 15 Oct 98 */
    if (ctx->GridSameAsGridPRIME){
-     ctxlow = ctx->LowLev[var];
+     ctxlow = ctx->Variable[var]->LowLev;
    }
    else {
      ctxlow = dtx->LowLev;
@@ -2814,18 +2820,18 @@ static void calc_cvslice( Context ctx, int time, int var,
    gridPRIME_to_compXYZPRIME( dtx, time, var, rows*cols, vr, vc, vl, (void*) cverts );
 
    /* scale grid values to [0,254] with missing = 255 */
-   if (ctx->MinVal[var]==ctx->MaxVal[var])
+   if (ctx->Variable[var]->MinVal==ctx->Variable[var]->MaxVal)
       scale = 0.0;
    else
-      scale = 254.0 / (ctx->MaxVal[var]-ctx->MinVal[var]);
+      scale = 254.0 / (ctx->Variable[var]->MaxVal-ctx->Variable[var]->MinVal);
    for (i=0;i<rows*cols;i++) {
       if (IS_MISSING(slice[i]) ||
-          slice[i] < ctx->MinVal[var] ||
-          slice[i] > ctx->MaxVal[var])
+          slice[i] < ctx->Variable[var]->MinVal ||
+          slice[i] > ctx->Variable[var]->MaxVal)
          indexes[i] = 255;
       else{
          /* MJK 12.04.98 */
-         int index = (slice[i]-ctx->MinVal[var]) * scale;
+         int index = (slice[i]-ctx->Variable[var]->MinVal) * scale;
          indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
       }
    }
@@ -2841,34 +2847,34 @@ static void calc_cvslice( Context ctx, int time, int var,
    ml = (float) (dtx->Nl-1+dtx->LowLev);
    gridPRIME_to_xyzPRIME( dtx, time, var, 1, &mr, &mc, &ml, &x, &y, &z );
 
-   ctx->CVSliceTable[var][time].mark[0][0] = x;
-   ctx->CVSliceTable[var][time].mark[0][1] = y;
-   ctx->CVSliceTable[var][time].mark[0][2] = z+0.02;
-   ctx->CVSliceTable[var][time].mark[1][0] = x;
-   ctx->CVSliceTable[var][time].mark[1][1] = y;
-   ctx->CVSliceTable[var][time].mark[1][2] = z-0.02;
+   ctx->Variable[var]->CVSliceTable[time]->mark[0][0] = x;
+   ctx->Variable[var]->CVSliceTable[time]->mark[0][1] = y;
+   ctx->Variable[var]->CVSliceTable[time]->mark[0][2] = z+0.02;
+   ctx->Variable[var]->CVSliceTable[time]->mark[1][0] = x;
+   ctx->Variable[var]->CVSliceTable[time]->mark[1][1] = y;
+   ctx->Variable[var]->CVSliceTable[time]->mark[1][2] = z-0.02;
 
 
    /************************* Store **********************************/
    recent( ctx, CVSLICE, var );
 
-   wait_write_lock( &ctx->CVSliceTable[var][time].lock );
+   wait_write_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
 
    /* deallocate existing slice, if any */
    free_cvslice( ctx, time, var );
 
    /* store new slice */
-   ctx->CVSliceTable[var][time].r1 = r1;
-   ctx->CVSliceTable[var][time].c1 = c1;
-   ctx->CVSliceTable[var][time].r2 = r2;
-   ctx->CVSliceTable[var][time].c2 = c2;
-   ctx->CVSliceTable[var][time].rows = rows;
-   ctx->CVSliceTable[var][time].columns = cols;
-   ctx->CVSliceTable[var][time].color_indexes = indexes;
-   ctx->CVSliceTable[var][time].verts = cverts;
-   ctx->CVSliceTable[var][time].valid = 1;
+   ctx->Variable[var]->CVSliceTable[time]->r1 = r1;
+   ctx->Variable[var]->CVSliceTable[time]->c1 = c1;
+   ctx->Variable[var]->CVSliceTable[time]->r2 = r2;
+   ctx->Variable[var]->CVSliceTable[time]->c2 = c2;
+   ctx->Variable[var]->CVSliceTable[time]->rows = rows;
+   ctx->Variable[var]->CVSliceTable[time]->columns = cols;
+   ctx->Variable[var]->CVSliceTable[time]->color_indexes = indexes;
+   ctx->Variable[var]->CVSliceTable[time]->verts = cverts;
+   ctx->Variable[var]->CVSliceTable[time]->valid = 1;
 
-   done_write_lock( &ctx->CVSliceTable[var][time].lock );
+   done_write_lock( &ctx->Variable[var]->CVSliceTable[time]->lock );
 
    if (time==ctx->dpy_ctx->CurTime) {
       ctx->dpy_ctx->Redraw = 1;
@@ -3203,7 +3209,7 @@ static void calc_hwindslice( Display_Context dtx, int displaytime, int ws,
    }
    else{
       ugrid = extract_hslice( ctx, grid, uvar, ctx->Nr, ctx->Nc, ctx->Nl[uvar],
-                              ctx->LowLev[uvar], ctxlevel, 0 );
+                              ctx->Variable[uvar]->LowLev, ctxlevel, 0 );
    }
 
 
@@ -3221,7 +3227,7 @@ static void calc_hwindslice( Display_Context dtx, int displaytime, int ws,
    }
    else{
       vgrid = extract_hslice( ctx, grid, vvar, ctx->Nr, ctx->Nc, ctx->Nl[vvar],
-                           ctx->LowLev[vvar], ctxlevel, 0 );
+                           ctx->Variable[vvar]->LowLev, ctxlevel, 0 );
    }
 
 
@@ -3234,7 +3240,7 @@ static void calc_hwindslice( Display_Context dtx, int displaytime, int ws,
       grid = get_grid( ctx, time, wvar );
       if (!grid) return;
       wgrid = extract_hslice( ctx, grid, wvar, ctx->Nr, ctx->Nc, ctx->Nl[wvar],
-                              ctx->LowLev[wvar], ctxlevel, 0 );
+                              ctx->Variable[wvar]->LowLev, ctxlevel, 0 );
       release_grid( ctx, time, wvar, grid );
    }
 
@@ -3584,7 +3590,7 @@ static void calc_hwindslicePRIME( Display_Context dtx, int displaytime, int ws,
    }
    else{
       ugrid = extract_hslice( ctx, grid, uvar, ctx->Nr, ctx->Nc, ctx->Nl[uvar],
-                              ctx->LowLev[uvar], ctxlevel, 0 );
+                              ctx->Variable[uvar]->LowLev, ctxlevel, 0 );
    }
 
    release_grid( ctx, time, uvar, grid );
@@ -3600,7 +3606,7 @@ static void calc_hwindslicePRIME( Display_Context dtx, int displaytime, int ws,
    }
    else{
       vgrid = extract_hslice( ctx, grid, vvar, ctx->Nr, ctx->Nc, ctx->Nl[vvar],
-                           ctx->LowLev[vvar], ctxlevel, 0 );
+                           ctx->Variable[vvar]->LowLev, ctxlevel, 0 );
    }
 
 
@@ -3609,7 +3615,7 @@ static void calc_hwindslicePRIME( Display_Context dtx, int displaytime, int ws,
       grid = get_grid( ctx, time, wvar );
       if (!grid) return;
       wgrid = extract_hslice( ctx, grid, wvar, ctx->Nr, ctx->Nc, ctx->Nl[wvar],
-                              ctx->LowLev[wvar], ctxlevel, 0 );
+                              ctx->Variable[wvar]->LowLev, ctxlevel, 0 );
       release_grid( ctx, time, wvar, grid );
    }
 
@@ -4152,8 +4158,8 @@ static void calc_vwindslice( Display_Context dtx, int displaytime, int ws,
    }
 
 
-   /*  YO if (dtx->LowLev[uvar] != dtx->LowLev[vvar] ||
-       (wvar>-1 && ctx->LowLev[uvar] != ctx->LowLev[wvar])) {
+   /*  YO if (dtx->Variable[uvar]->LowLev != dtx->Variable[vvar]->LowLev ||
+       (wvar>-1 && ctx->Variable[uvar]->LowLev != ctx->Variable[wvar]->LowLev)) {
       * wind low levels must match *
       return;
    }*/
@@ -4223,7 +4229,7 @@ static void calc_vwindslice( Display_Context dtx, int displaytime, int ws,
    for (row=0; row<rows && vcount+40<MAX_WIND_VERTS; row+=drow) {
       float gr = (float) r1;
       float gc = (float) c1;
-      float gl = (float) (row + ctx->LowLev[uvar]);
+      float gl = (float) (row + ctx->Variable[uvar]->LowLev);
       for (col=0; col<cols && vcount+40<MAX_WIND_VERTS; col++) {
          float u, v, w;
          float dir[3];  /* wind vector direction */
@@ -4497,8 +4503,8 @@ static void calc_vwindslicePRIME( Display_Context dtx, int displaytime, int ws,
    }
 
 
-   /*  YO if (dtx->LowLev[uvar] != dtx->LowLev[vvar] ||
-       (wvar>-1 && ctx->LowLev[uvar] != ctx->LowLev[wvar])) {
+   /*  YO if (dtx->Variable[uvar]->LowLev != dtx->Variable[vvar]->LowLev ||
+       (wvar>-1 && ctx->Variable[uvar]->LowLev != ctx->Variable[wvar]->LowLev)) {
       * wind low levels must match *
       return;
    }*/
@@ -4892,7 +4898,7 @@ static void calc_hstreamslice(Display_Context dtx, int displaytime, int ws,
    }
    else{
       ugrid = extract_hslice( ctx, grid, uvar, ctx->Nr, ctx->Nc, ctx->Nl[uvar],
-                              ctx->LowLev[uvar], level, 0 );
+                              ctx->Variable[uvar]->LowLev, level, 0 );
    }
 
    release_grid( ctx, time, uvar, grid );
@@ -4907,7 +4913,7 @@ static void calc_hstreamslice(Display_Context dtx, int displaytime, int ws,
    }
    else{
       vgrid = extract_hslice( ctx, grid, vvar, ctx->Nr, ctx->Nc, ctx->Nl[vvar],
-                              ctx->LowLev[vvar], level, 0 );
+                              ctx->Variable[vvar]->LowLev, level, 0 );
    }
 
    release_grid( ctx, time, vvar, grid );
@@ -5076,7 +5082,7 @@ static void calc_hstreamslicePRIME(Display_Context dtx, int displaytime, int ws,
    }
    else{
       ugrid = extract_hslice( ctx, grid, uvar, ctx->Nr, ctx->Nc, ctx->Nl[uvar],
-                              ctx->LowLev[uvar], ctxlevel, 0 );
+                              ctx->Variable[uvar]->LowLev, ctxlevel, 0 );
    }
 
 
@@ -5092,7 +5098,7 @@ static void calc_hstreamslicePRIME(Display_Context dtx, int displaytime, int ws,
    }
    else{
       vgrid = extract_hslice( ctx, grid, vvar, ctx->Nr, ctx->Nc, ctx->Nl[vvar],
-                              ctx->LowLev[vvar], ctxlevel, 0 );
+                              ctx->Variable[vvar]->LowLev, ctxlevel, 0 );
    }
 
    release_grid( ctx, time, vvar, grid );
@@ -5274,8 +5280,8 @@ static void calc_vstreamslice( Display_Context dtx, int displaytime, int ws,
       return;
    }
 
-   /*if (ctx->LowLev[uvar] != ctx->LowLev[vvar] ||
-       ctx->LowLev[uvar] != ctx->LowLev[wvar]) {
+   /*if (ctx->Variable[uvar]->LowLev != ctx->Variable[vvar]->LowLev ||
+       ctx->Variable[uvar]->LowLev != ctx->Variable[wvar]->LowLev) {
       * wind low levels must match *
       return;
    }*/
@@ -5334,7 +5340,7 @@ static void calc_vstreamslice( Display_Context dtx, int displaytime, int ws,
      for (ir=0; ir<rows; ir++) {
        ugrid[ir * cols + ic] *= ctx->Uscale[ircur][iccur];
        vgrid[ir * cols + ic] *= ctx->Vscale[ircur][iccur];
-       wgrid[ir * cols + ic] *= ctx->Wscale[ir + ctx->LowLev[uvar]];
+       wgrid[ir * cols + ic] *= ctx->Wscale[ir + ctx->Variable[uvar]->LowLev];
      }
    }
 
@@ -5369,7 +5375,7 @@ static void calc_vstreamslice( Display_Context dtx, int displaytime, int ws,
 
    /* transform vr, vc to vr, vc, vl */
    for(i=0; i<num; i++) {
-     vl[i] = ctx->LowLev[uvar] + vr[i];
+     vl[i] = ctx->Variable[uvar]->LowLev + vr[i];
      vr[i] = r1 + vc[i] * rr;
      vc[i] = c1 + vc[i] * cc;
    }
@@ -5776,8 +5782,8 @@ static void color_traj( Context ctx, struct traj *t, int cvowner, int colorvar )
          return;
       }
 
-      min = cvctx->MinVal[colorvar];
-      valscale = 1.0F / (cvctx->MaxVal[colorvar] - cvctx->MinVal[colorvar]);
+      min = cvctx->Variable[colorvar]->MinVal;
+      valscale = 1.0F / (cvctx->Variable[colorvar]->MaxVal - cvctx->Variable[colorvar]->MinVal);
 
       /* Compute color indexes */
       time = 0;
@@ -5807,8 +5813,8 @@ static void color_traj( Context ctx, struct traj *t, int cvowner, int colorvar )
          val = interpolate_grid_value( cvctx, cvtime, colorvar, row, col, lev );
 
          if (IS_MISSING(val) ||
-             val < cvctx->MinVal[colorvar] ||
-             val > cvctx->MaxVal[colorvar]) {
+             val < cvctx->Variable[colorvar]->MinVal ||
+             val > cvctx->Variable[colorvar]->MaxVal) {
             color_indexes[i] = 255;
          }
          else {
@@ -6194,10 +6200,10 @@ static void recolor_topography( Context ctx, int time )
 
 
       /* MJK 12.04.98 */
-      scale = 254.0 / (ctx->MaxVal[colorvar] - ctx->MinVal[colorvar]);
+      scale = 254.0 / (ctx->Variable[colorvar]->MaxVal - ctx->Variable[colorvar]->MinVal);
 
 
-      bias = ctx->MinVal[colorvar];
+      bias = ctx->Variable[colorvar]->MinVal;
 
       /* allocate storage for vertex colors */
       /* YO 10-5-97 potential old stuff
@@ -6244,8 +6250,8 @@ static void recolor_topography( Context ctx, int time )
                                               grow, gcol, glev);
  
                if (IS_MISSING(value) ||
-                   value < ctx->MinVal[colorvar] ||
-                   value > ctx->MaxVal[colorvar]){
+                   value < ctx->Variable[colorvar]->MinVal ||
+                   value > ctx->Variable[colorvar]->MaxVal){
                   indexes[n] = 255;
                }
                else{
@@ -6366,25 +6372,25 @@ int do_one_task( int threadnum )
       case TASK_HSLICE:
          /* calculate a horizontal contour line slice. */
 		  
-		  calc_hslice( ctx, time, var, ctx->HSliceInterval[var],
-							ctx->HSliceLowLimit[var], ctx->HSliceHighLimit[var],
-							ctx->HSliceLevel[var], threadnum );
+		  calc_hslice( ctx, time, var, ctx->Variable[var]->HSliceRequest->Interval,
+							ctx->Variable[var]->HSliceRequest->LowLimit, ctx->Variable[var]->HSliceRequest->HighLimit,
+							ctx->Variable[var]->HSliceRequest->Level, threadnum );
          break;
       case TASK_VSLICE:
          /* calculate a horizontal contour line slice. */
-         calc_vslice( ctx, time, var, ctx->VSliceInterval[var],
-                      ctx->VSliceLowLimit[var], ctx->VSliceHighLimit[var],
-                      ctx->VSliceR1[var], ctx->VSliceC1[var],
-                      ctx->VSliceR2[var], ctx->VSliceC2[var], threadnum );
+         calc_vslice( ctx, time, var, ctx->Variable[var]->VSliceRequest->Interval,
+                      ctx->Variable[var]->VSliceRequest->LowLimit, ctx->Variable[var]->VSliceRequest->HighLimit,
+                      ctx->Variable[var]->VSliceRequest->R1, ctx->Variable[var]->VSliceRequest->R2,
+                      ctx->Variable[var]->VSliceRequest->C1, ctx->Variable[var]->VSliceRequest->C2, threadnum );
          break;
       case TASK_CHSLICE:
          /* calculate a horizontal colored slice */
-         calc_chslice( ctx, time, var, ctx->CHSliceLevel[var], threadnum );
+         calc_chslice( ctx, time, var, ctx->Variable[var]->CHSliceRequest->Level, threadnum );
          break;
       case TASK_CVSLICE:
          /* calculate a vertical colored slice */
-         calc_cvslice( ctx, time, var, ctx->CVSliceR1[var], ctx->CVSliceC1[var],
-                       ctx->CVSliceR2[var], ctx->CVSliceC2[var], threadnum);
+         calc_cvslice( ctx, time, var, ctx->Variable[var]->CVSliceRequest->R1, ctx->Variable[var]->CVSliceRequest->R2,
+                       ctx->Variable[var]->CVSliceRequest->C1, ctx->Variable[var]->CVSliceRequest->C2, threadnum);
          break;
       case TASK_HWIND:
          /* calculate a horizontal wind slice */
@@ -6523,19 +6529,19 @@ void set_hslice_pos(Context ctx, int var, float level)
 
   dtx = ctx->dpy_ctx;
 
-  ctx->HSliceLevel[var] = level;
+  ctx->Variable[var]->HSliceRequest->Level = level;
 
-  new_hslice_pos( ctx, ctx->HSliceLevel[var], &ctx->HSliceZ[var],
-						&ctx->HSliceHgt[var] );
+  new_hslice_pos( ctx, ctx->Variable[var]->HSliceRequest->Level, &ctx->Variable[var]->HSliceRequest->Z,
+						&ctx->Variable[var]->HSliceRequest->Hgt );
 
-  if (ctx->MinVal[var] > ctx->MaxVal[var]) {
-	 ctx->HSliceInterval[var] = 0.0;
-	 ctx->HSliceLowLimit[var] = ctx->MinVal[var];
-	 ctx->HSliceHighLimit[var] = ctx->MaxVal[var];
+  if (ctx->Variable[var]->MinVal > ctx->Variable[var]->MaxVal) {
+	 ctx->Variable[var]->HSliceRequest->Interval = 0.0;
+	 ctx->Variable[var]->HSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
+	 ctx->Variable[var]->HSliceRequest->HighLimit = ctx->Variable[var]->MaxVal;
   }
   else {
-	 ctx->HSliceLowLimit[var] = ctx->MaxVal[var]+1;
-	 ctx->HSliceHighLimit[var] = ctx->MinVal[var]-1;
+	 ctx->Variable[var]->HSliceRequest->LowLimit = ctx->Variable[var]->MaxVal+1;
+	 ctx->Variable[var]->HSliceRequest->HighLimit = ctx->Variable[var]->MinVal-1;
 	 for(t=0;t<ctx->NumTimes;t++){
 		float *slicedata;
 		if (ctx->DisplaySfcHSlice[var]){
@@ -6549,34 +6555,44 @@ void set_hslice_pos(Context ctx, int var, float level)
 		}
 
 		for(i=0;i<dtx->Nr*dtx->Nc;i++){
-		  ctx->HSliceLowLimit[var] = (slicedata[i]<ctx->HSliceLowLimit[var]) ?
-			 slicedata[i]: ctx->HSliceLowLimit[var];
-		  ctx->HSliceHighLimit[var] = (slicedata[i]>ctx->HSliceHighLimit[var]) ?
-			 slicedata[i]: ctx->HSliceHighLimit[var];
-		  
+		  if(! IS_MISSING(slicedata[i])){
+			 ctx->Variable[var]->HSliceRequest->LowLimit = (slicedata[i]<ctx->Variable[var]->HSliceRequest->LowLimit) ?
+				slicedata[i]: ctx->Variable[var]->HSliceRequest->LowLimit;
+			 ctx->Variable[var]->HSliceRequest->HighLimit = (slicedata[i]>ctx->Variable[var]->HSliceRequest->HighLimit) ?
+				slicedata[i]: ctx->Variable[var]->HSliceRequest->HighLimit;
+		  }
 		}
 	 }
 	 {
 		int factor=1;
 		float diff;
-		diff = ctx->HSliceHighLimit[var] - ctx->HSliceLowLimit[var];
+		diff = ctx->Variable[var]->HSliceRequest->HighLimit - ctx->Variable[var]->HSliceRequest->LowLimit;
 		if(diff>100){
 		  while(diff>100){
 			 factor++;
 			 diff /= factor;
 		  }
-		  ctx->HSliceLowLimit[var] = factor*floor(ctx->HSliceLowLimit[var]/factor);
-		  ctx->HSliceHighLimit[var] =factor*ceil(ctx->HSliceHighLimit[var]/factor);
+		  /*  sets the first and last contours outside the bounds of the data
+		  ctx->Variable[var]->HSliceRequest->LowLimit = factor*floor(ctx->Variable[var]->HSliceRequest->LowLimit/factor);
+		  ctx->Variable[var]->HSliceRequest->HighLimit =factor*ceil(ctx->Variable[var]->HSliceRequest->HighLimit/factor);
+		  */
+		  ctx->Variable[var]->HSliceRequest->LowLimit = factor*ceil(ctx->Variable[var]->HSliceRequest->LowLimit/factor);
+		  ctx->Variable[var]->HSliceRequest->HighLimit =factor*floor(ctx->Variable[var]->HSliceRequest->HighLimit/factor);
 		}else{
 		  while(diff<10){
 			 factor++;
 			 diff *= factor;
 		  }
-		  ctx->HSliceLowLimit[var] = floor(ctx->HSliceLowLimit[var]*factor)/(float) factor;
-		  ctx->HSliceHighLimit[var] = ceil(ctx->HSliceHighLimit[var]*factor)/(float) factor;
+
+		  /*  sets the first and last contours outside the bounds of the data
+		  ctx->Variable[var]->HSliceRequest->LowLimit = floor(ctx->Variable[var]->HSliceRequest->LowLimit*factor)/(float) factor;
+		  ctx->Variable[var]->HSliceRequest->HighLimit = ceil(ctx->Variable[var]->HSliceRequest->HighLimit*factor)/(float) factor;
+		  */
+		  ctx->Variable[var]->HSliceRequest->LowLimit = ceil(ctx->Variable[var]->HSliceRequest->LowLimit*factor)/(float) factor;
+		  ctx->Variable[var]->HSliceRequest->HighLimit = floor(ctx->Variable[var]->HSliceRequest->HighLimit*factor)/(float) factor;
 		}
 	 }
-	 ctx->HSliceInterval[var] = round((ctx->HSliceHighLimit[var] - ctx->HSliceLowLimit[var])/5.0);
+	 ctx->Variable[var]->HSliceRequest->Interval = round((ctx->Variable[var]->HSliceRequest->HighLimit - ctx->Variable[var]->HSliceRequest->LowLimit)/5.0);
   }
 }
 

@@ -1,0 +1,484 @@
+AC_INIT(src/v5d.c)
+AM_INIT_AUTOMAKE(vis5d, 5.2.5a)
+
+AM_CONFIG_HEADER(config.h src/api-config.h)
+
+# should we build shared libraries by default?
+AM_ENABLE_SHARED(yes)
+
+# This is the version info according to the libtool versioning system.
+# It does *not* correspond to the release number, and has a technical
+# meaning that indicates the compatibility of different library versions:
+SHARED_VERSION_INFO="1:1:0"
+AC_SUBST(SHARED_VERSION_INFO)
+
+##########################################################################
+
+# Use native cc if present
+AC_MSG_CHECKING([for vendor's cc to be used instead of gcc])
+AC_CHECK_PROG(CC, cc, cc)
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_PROG_LN_S
+AM_PROG_LIBTOOL
+
+# check how to transform the name of the installed program:
+AC_ARG_PROGRAM
+
+AC_ARG_ENABLE(fortran, [  --disable-fortran       don't use any Fortran], enable_fortran=$enableval, enable_fortran=yes)
+
+if test "$enable_fortran" = "yes"; then
+	AC_CHECK_PROGS(F77, f77 xlf xlf77 cf77 fl32 g77 fort77 f90 xlf90)
+	AC_PROG_F77
+	if test -n "$F77"; then
+		AC_F77_LIBRARY_LDFLAGS
+		ACX_F77_FUNC_MANGLE
+		
+		/* enable Fortran packages in util/ subdirectory: */
+		OPT_UTILS="$OPT_UTILS \$(FPROGS)"
+		OPT_LIBMAIN="libmain.a"
+	else
+		AC_MSG_WARN([didn't find any Fortran compiler])
+	fi
+fi
+
+ACX_PROG_CC_MAXOPT
+
+##########################################################################
+# optional arguments to the configure script:
+
+AC_ARG_ENABLE(debug, [  --enable-debug          compile for debugging], ok=$enableval, ok=no)
+if test "$ok" = "yes"; then
+        CFLAGS="-g"
+	# should we define DEBUG too?
+fi
+
+AC_ARG_ENABLE(threads, [  --enable-threads        use parallel threads], enable_threads=$enableval, enable_threads=no)
+
+AC_ARG_WITH(mesa, [  --with-mesa             force the use of Mesa instead of other graphics libs], with_mesa=$withval, with_mesa=maybe)
+
+AC_ARG_WITH(netcdf, [  --with-netcdf=<lib>     specify NetCDF library file], with_netcdf=$withval, with_netcdf=yes)
+
+AC_ARG_WITH(mcidas, [  --with-mcidas=<lib>     specify McIDAS library file], with_mcidas=$withval, with_mcidas=yes)
+
+AC_ARG_WITH(memory, [  --with-memory=<MB>      max. memory to use, 0 for none [default: 32]], VIS5D_MAX_MEM=$withval, VIS5D_MAX_MEM=32)
+AC_DEFINE_UNQUOTED(VIS5D_MAX_MEM, $VIS5D_MAX_MEM, [max. memory to use (MB), 0 for no maximum])
+
+##########################################################################
+# hardware characteristics:
+
+AC_CHECK_SIZEOF(float, 0)
+AC_CHECK_SIZEOF(int, 0)
+AC_CHECK_SIZEOF(signed char, 0)
+AC_C_BIGENDIAN
+
+##########################################################################
+
+# Checks for libraries.
+AC_CHECK_LIB(m, sqrt)
+
+# Find X11 libs and flags:
+AC_PATH_X
+AC_PATH_XTRA
+CFLAGS="$CFLAGS $X_CFLAGS"
+XLIBS="$X_LIBS $X_PRE_LIBS -lXext -lX11 $X_EXTRA_LIBS"
+AC_SUBST(XLIBS)
+
+##########################################################################
+# Find 3D graphics libs:
+GLLIBS=""
+
+# First, look for OpenGL or Mesa:
+if test "$with_mesa" != "yes"; then
+	AC_CHECK_LIB(GL, glBegin,
+    	    AC_CHECK_LIB(GLU, gluProject, GLLIBS="-lGLU -lGL",
+			 :, -lGL $XLIBS), :, $XLIBS)
+fi
+if test -z "$GLLIBS" -a "$with_mesa" != "no"; then
+	AC_CHECK_LIB(MesaGL, glBegin,
+	    AC_CHECK_LIB(MesaGLU, gluProject, GLLIBS="-lMesaGLU -lMesaGL",
+                         :, -lMesaGL $XLIBS), :, $XLIBS)
+fi
+if test "$with_mesa" = "yes"; then
+	AC_CHECK_LIB(GL, glBegin,
+    	    AC_CHECK_LIB(GLU, gluProject, GLLIBS="-lGLU -lGL",
+			 :, -lGL $XLIBS), :, $XLIBS)
+fi
+if test -n "$GLLIBS"; then
+	AC_DEFINE(HAVE_OPENGL)
+else
+	echo "couldn't find OpenGL libraries!"
+	if test "$with_mesa" = "yes"; then
+		AC_MSG_ERROR([couldn't find Mesa library])
+	fi
+fi
+
+# Next, look for SGI IrisGL:
+if test -z "$GLLIBS"; then
+	AC_CHECK_LIB(gl_s, bgnqstrip, ok=yes,ok=no, $XLIBS)
+	if test "$ok" = "yes"; then
+		AC_CHECK_LIB(fm, fminit, GLLIBS="-lfm -lgl_s",:,-lgl_s $XLIBS)
+		if test -z "$GLLIBS"; then
+			AC_CHECK_LIB(fm_s, fminit, 
+				GLLIBS="-lfm_s -lgl_s",:,-lgl_s $XLIBS)
+		fi
+	fi
+	if test -n "$GLLIBS"; then
+		AC_DEFINE(HAVE_SGI_GL)
+		OPT_UTILS="$OPT_UTILS listfonts"
+	fi
+fi
+
+# Finally, look for PEX (crufty old 3d extensions for X):
+# (do these even work in Vis5d anymore?)
+if test -z "$GLLIBS"; then
+	# first, check for possible include & lib directory locations:
+	if test -d /usr/lib/PEX5/utilities; then
+		CPPFLAGS="$CPPFLAGS -I/usr/lib/PEX5/utilities"
+	elif test -d /opt/graphics/PEX5/include/X11R6; then
+		CPPFLAGS="$CPPFLAGS -I/opt/graphics/PEX5/include/X11R6"
+	fi
+	if test -d /opt/graphics/PEX5/lib; then
+		LDFLAGS="$LDFLAGS -L/opt/graphics/PEX5/lib"
+	fi
+
+	# now, check for the actual library:
+	save_LDFLAGS="$LDFLAGS"; LDFLAGS="$LDFLAGS $X_LIBS"
+	AC_CHECK_LIB(PEX5, PEXInitialize, GLLIBS="$X_LIBS -lPEX5", :, $XLIBS)
+	LDFLAGS="$save_LDFLAGS"
+
+	if test -n "$GLLIBS"; then
+		# finally, look for the pexut.a library
+		AC_MSG_CHECKING([for pexut.a library])
+		if test -z "$PEXUT_LIB"; then
+			if test -r /usr/lib/PEX5/utilities/pexut.a; then
+				PEXUT_LIB="/usr/lib/PEX5/utilities/pexut.a"
+			elif test -r /var/opt/PEX5/pexut.a; then
+				PEXUT_LIB="/var/opt/PEX5/pexut.a"
+			fi
+		fi
+		AC_MSG_RESULT(${PEXUT_LIB-no})
+		if test -z "$PEXUT_LIB"; then
+			AC_MSG_WARN([pexut.a is required when using PEX])
+			GLLIBS=""
+		elif test -r "$PEXUT_LIB"; then
+			GLLIBS="$PEXUT_LIB $GLLIBS"
+		else
+			# this could happen if the user specified a bogus
+			# PEXUT_LIB environment variable:
+			AC_MSG_ERROR($PEXUT_LIB is not readable)
+		fi
+	fi
+
+	if test -n "$GLLIBS"; then
+		AC_DEFINE(HAVE_PEX)
+	fi
+fi
+
+if test -z "$GLLIBS"; then
+	echo "****************************************************"
+	echo "You need to install a 3D graphics library, preferably"
+	echo "the free OpenGL replacement, Mesa.  You can download"
+	echo "Mesa from the Mesa home page:"
+	echo "  	    http://www.mesa3d.org/"
+	echo "and install it by running:"
+	echo "       ./configure && make && su -c 'make install'"
+	echo "in the Mesa directory."
+
+	if test -r /sbin/ldconfig; then
+		echo "You may also need to run /sbin/ldconfig as root"
+		echo "to update the system after installing Mesa."
+		if test -r /etc/ld.so.conf; then
+		if test -z "`grep /usr/local/lib /etc/ld.so.conf`"; then
+		echo "(First, add '/usr/local/lib' to /etc/ld.so.conf if"
+		echo "you installed Mesa under /usr/local, the default.)"
+		fi
+		fi
+	fi
+	echo "****************************************************"
+	AC_MSG_ERROR([couldn't find 3D graphics library])
+fi
+AC_SUBST(GLLIBS)
+
+# Check for any particular functions in the GL libs:
+save_LIBS="$LIBS"
+LIBS="$GLLIBS $XLIBS $LIBS"
+AC_CHECK_FUNCS(XMesaGetBackBuffer)
+LIBS="$save_LIBS"
+
+##########################################################################
+
+V5D_LIBS_AUX="" # any extra libs we need to link Vis5d
+
+# Find Tcl (Linux systems need -ldl as well):
+AC_CHECK_LIB(dl, dlopen, V5D_LIBS_AUX="-ldl $V5D_LIBS_AUX")
+AC_CHECK_LIB(tcl, Tcl_Eval, [V5D_LIBS_AUX="-ltcl $V5D_LIBS_AUX"
+	                     AC_DEFINE(HAVE_LIBTCL)],:,$V5D_LIBS_AUX)
+
+# check if we have setrlimit function:
+AC_CHECK_FUNCS(setrlimit)
+
+# check if we have the Fortran (sigh) idate function:
+if test -n "$F77"; then
+	AC_LANG_SAVE
+	AC_LANG_FORTRAN77
+	AC_MSG_CHECKING([for Fortran idate function])
+	AC_TRY_LINK(,[idate(imon,iday,iyear)],[AC_DEFINE(HAVE_IDATE)
+		AC_MSG_RESULT(yes)],AC_MSG_RESULT(no))
+	AC_LANG_RESTORE
+fi
+	
+AC_CHECK_LIB(image, iopen, OPT_UTILS="$OPT_UTILS fromxwd")
+
+##########################################################################
+# Find NetCDF
+
+if test "$with_netcdf" != "no"; then
+	# first, check a couple common locations for the netcdf libs:
+	if test "$with_netcdf" != "yes"; then
+		netcdf_dir=`dirname $with_netcdf`
+		if test -z "`echo $netcdf_dir | grep ^/`"; then
+			netcdf_dir="`pwd`/$netcdf_dir"
+		fi
+		LDFLAGS="-L$netcdf_dir $LDFLAGS"
+	elif test -r $srcdir/libnetcdf.a; then
+		LDFLAGS="-L`pwd`/$srcdir $LDFLAGS"
+	elif test -r $srcdir/src/libnetcdf.a; then
+		LDFLAGS="-L`pwd`/$srcdir/src $LDFLAGS"
+	elif test -d /usr/netcdf/lib; then
+		LDFLAGS="-L/usr/netcdf/lib $LDFLAGS"
+		if test -d /usr/netcdf/include; then
+			CPPFLAGS="-I/usr/netcdf/include $CPPFLAGS"
+		fi
+	elif test -d /usr/local/netcdf/lib; then
+		LDFLAGS="-L/usr/local/netcdf/lib $LDFLAGS"
+		if test -d /usr/local/netcdf/include; then
+			CPPFLAGS="-I/usr/local/netcdf/include $CPPFLAGS"
+		fi
+	fi
+
+	# now, look for the actual library:
+	AC_CHECK_LIB(netcdf, nc_inq_dimlen,
+		[AC_DEFINE(HAVE_LIBNETCDF)
+                 V5D_LIBS_AUX="-lnetcdf $V5D_LIBS_AUX"],:, $V5D_LIBS_AUX)
+
+	if test -z "`echo $V5D_LIBS_AUX | grep netcdf`"; then
+		echo "****************************************************"
+		echo "Didn't find the NetCDF library; irregular data features"
+		echo "will be disabled.  You can download the NetCDF source"
+		echo "code from the NetCDF home page:"
+		echo "    http://www.unidata.ucar.edu/packages/netcdf/"
+		echo "and/or use --with-netcdf=<lib> to specify the location"
+		echo "of libnetcdf.a."
+		echo "****************************************************"
+	else
+		# Look for the header; if we don't find it, we'll use the
+		# one in our src/ directory.
+    echo "checking whether to use system <netcdf.h> instead of src/netcdf.h..."
+		AC_CHECK_HEADERS(netcdf.h)
+	fi
+fi
+
+##########################################################################
+# Find MCIDAS
+
+MCIDAS_LIBS=""
+
+if test "$with_mcidas" != "no" -a -n "$F77"; then
+	mcidas_lib=mcidas5
+	using_included_mcidas=no
+        # first, check a couple common locations for the mcidas libs:
+        if test "$with_mcidas" != "yes"; then
+                mcidas_dir=`dirname $with_mcidas`
+		mcidas_lib=`basename $with_mcidas | sed 's/\.a$//;s/^lib//'`
+                if test -z "`echo $mcidas_dir | grep ^/`"; then
+                        mcidas_dir="`pwd`/$mcidas_dir"
+                fi
+                MCIDAS_LIBS="-L$mcidas_dir"
+        elif test -r $srcdir/libmcidas5.a; then
+                MCIDAS_LIBS="-L`pwd`/$srcdir"
+        elif test -r $srcdir/src/libmcidas5.a; then
+                MCIDAS_LIBS="-L`pwd`/$srcdir/src"
+		using_included_mcidas=yes
+	fi
+	MCIDAS_LIBS="$MCIDAS_LIBS -l$mcidas_lib $FLIBS"
+
+        # now, look for the actual library:
+	# (we can't use AC_CHECK_LIB because we need to define our
+	# F77_FUNC macro in order to check the correct identifier)
+	AC_MSG_CHECKING([for McIDAS library])
+	save_LIBS="$LIBS"
+	LIBS="$MCIDAS_LIBS $LIBS"
+        AC_TRY_LINK([
+#if FORTRANIZE_LOWERCASE
+#  define F77_FUNC(x,X) x
+#elif FORTRANIZE_UPPERCASE
+#  define F77_FUNC(x,X) X
+#elif FORTRANIZE_LOWERCASE_UNDERSCORE
+#  define F77_FUNC(x,X) x##_
+#elif FORTRANIZE_UPPERCASE_UNDERSCORE
+#  define F77_FUNC(x,X) X##_
+#endif
+], F77_FUNC(readd,READD)(),, MCIDAS_LIBS="")
+	LIBS="$save_LIBS"
+	if test -z "$MCIDAS_LIBS"; then
+		AC_MSG_RESULT(no)
+	else
+		AC_MSG_RESULT(yes)
+		MCIDAS_LIBS="kltwin.o $MCIDAS_LIBS"
+		AC_DEFINE(HAVE_MCIDAS)
+		if test "$using_included_mcidas" = "no"; then
+			AC_DEFINE(MCIDAS_SIDECAR)
+		fi
+	fi
+fi
+
+AC_SUBST(MCIDAS_LIBS)
+AM_CONDITIONAL(MCIDAS, test -n "$MCIDAS_LIBS")
+
+##########################################################################
+
+# Checks for header files.
+AC_CHECK_HEADERS(X11/Xm/MwmUtil.h sys/types.h sys/prctl.h sys/sysmp.h sysmp.h sys/lock.h)
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+##########################################################################
+
+# Check for POSIX threads library.
+# (taken from FFTW configure.in, www.fftw.org)
+# Eventually, we should also check for the other threads models that
+# Vis5d supports.
+
+THREADLIBS=""
+
+if test "$enable_threads" = "yes"; then
+
+# First, check for SGI sproc fork variant:
+# (should we prefer POSIX threads to this?)
+if test -z "$THREADLIBS"; then
+	AC_CHECK_FUNC(sproc, [THREADLIBS="  "
+                              AC_DEFINE(HAVE_SGI_SPROC)])
+fi
+
+# POSIX threads library is plural on AIX (need to check for
+# this *first* due to AIX brokenness; also, need to check
+# for pthread_attr_init instead of pthread_create due to
+# DEC stupidity):
+if test -z "$THREADLIBS"; then
+	AC_CHECK_LIB(pthreads, pthread_attr_init,
+	             [THREADLIBS="-lpthreads"
+                      AC_DEFINE(HAVE_PTHREADS)])
+fi
+# Normally (e.g. on Linux), POSIX threads are in -lpthread.
+# We can't just use AC_CHECK_LIB, though, because DEC lossage
+# requires that pthread.h be included for linking to work.
+if test -z "$THREADLIBS"; then
+	AC_MSG_CHECKING([for pthread_create in -lpthread])
+	save_LIBS="$LIBS"
+	LIBS="-lpthread $LIBS"
+	AC_TRY_LINK([#include <pthread.h>], [pthread_create(0,0,0,0);],
+                    ok=yes, ok=no)
+	LIBS="$save_LIBS"
+	if test "$ok" = "yes"; then
+		THREADLIBS="-lpthread"
+		AC_DEFINE(HAVE_PTHREADS)
+	fi
+	AC_MSG_RESULT(${ok})
+fi
+# this is for irix, which has pthread_create in libc.so
+# and pthread_join in libpthread.so.  Lose, lose, lose
+if test -z "$THREADLIBS"; then
+	AC_CHECK_LIB(pthread, pthread_join, [THREADLIBS="-lpthread"
+                                             AC_DEFINE(HAVE_PTHREADS)])
+fi
+if test -z "$THREADLIBS"; then
+	AC_CHECK_FUNC(pthread_create, [THREADLIBS=" "
+				       AC_DEFINE(HAVE_PTHREADS)])
+fi
+if test -n "$THREADLIBS"; then
+	# detect AIX lossage: threads are created detached by default
+       	# & the JOINABLE attribute has a nonstandard name (UNDETACHED).
+	AC_MSG_CHECKING([for PTHREAD_CREATE_UNDETACHED attribute])
+	AC_TRY_LINK([#include <pthread.h>], 
+                    [int attr=PTHREAD_CREATE_UNDETACHED;],
+                    ok=yes, ok=no)
+	if test "$ok" = "yes"; then
+	        AC_DEFINE(HAVE_PTHREAD_CREATE_UNDETACHED)
+	fi
+	AC_MSG_RESULT(${ok})
+	# more AIX lossage: must compile with cc_r
+	AC_CHECK_PROG(CCthreads, cc_r, cc_r, ${CC})
+	CC="$CCthreads"
+
+	# more AIX/DEC lossage: must compile with -D_THREAD_SAFE
+	# or -D_REENTRANT:
+	# (cc_r subsumes this on AIX, but it doesn't hurt to
+	#  do this as well, especially if cc_r is not available.)
+	AC_MSG_CHECKING([if special flags are required for pthreads])
+	ok=no
+	AC_REQUIRE([AC_CANONICAL_HOST])
+	case "${host_cpu}-${host_os}" in
+		*-aix*)  CFLAGS="-D_THREAD_SAFE $CFLAGS"
+			 ok="-D_THREAD_SAFE";;
+		alpha*-osf*)  CFLAGS="-D_REENTRANT $CFLAGS"
+			 ok="-D_REENTRANT";;
+	esac
+	AC_MSG_RESULT(${ok})
+fi
+
+# Solaris threads:
+# (we prefer the more-standard POSIX threads, right?)
+if test -z "$THREADLIBS"; then
+	AC_CHECK_LIB(thread, thr_create,
+	             [THREADLIBS="-lthread"
+               	      AC_DEFINE(HAVE_SUNOS_THREADS)])
+fi
+
+if test -z "$THREADLIBS"; then
+	echo "no threads libraries found...compiling as single-threaded"
+fi
+
+fi # if enable_threads = yes
+
+if test -z "$THREADLIBS"; then
+	AC_DEFINE(SINGLE_TASK)
+fi
+AC_SUBST(THREADLIBS)
+
+##########################################################################
+# Warnings to user about potential problems I have observed:
+
+if test -n "$THREADLIBS"; then
+case "${host_cpu}-${host_os}" in
+	powerpc*linux*)  
+	echo "***********************************************************"
+	echo "Crashing problems have been observed on LinuxPPC (R5)"
+	echo "systems with threads enabled.  You may want to disable"
+	echo "threads by re-running configure with --disable-threads."
+	echo "***********************************************************"
+	;;
+esac
+fi
+
+##########################################################################
+
+# define a preprocessor symbol for where the Vis5d data files
+# (e.g. EARTH.TOPO) go:
+if test "$prefix" = "NONE"; then
+	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$ac_default_prefix/share/vis5d/")
+else
+	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$prefix/share/vis5d/")
+fi
+
+##########################################################################
+
+AC_SUBST(V5D_LIBS_AUX)
+AC_SUBST(OPT_UTILS)
+AC_SUBST(OPT_LIBMAIN)
+
+AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile import/Makefile)

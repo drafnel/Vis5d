@@ -1,0 +1,154 @@
+Summary of changes for new releases of Vis5d:
+
+  * Merged in recent crash fixes from mainline sources, thanks
+    to Michael Schaferkotter and Bill Hibbard.
+
+  * Fixed another fp-exception bug on Alpha.
+
+Vis5d 5.2.5a:
+
+  * Maximum memory used by Vis5d can now be set by the --with-memory=<MB>
+    configure option, instead of editing vis5d.h.
+
+  * Merged in fixes from main tree to volum rendering box clipping.
+
+  * Fixed bug where -topo <file> wouldn't work if <file> was an absolute path.
+    Thanks to Michael Boettinger for the bug report.  (Same fix submitted
+    and included in the main tree.)
+
+Vis5d 5.2.4a:
+
+  * Fixed bug causing floating-point exception on Alpha.  (Same fix
+    submitted and included in the main tree.)
+
+  * --with-mesa searches for libGL after libMesaGL, since newer
+    versions of Mesa install without the "Mesa" prefix.
+
+Vis5d 5.2.3a:
+
+  * Fixed problem with NVidia drivers where Vis5D did not flush queued
+    X events.  (Merged in from main Vis5d 5.2 tree.)
+
+  * Use of multiple threads is disabled by default, as it seems to cause
+    problems on some machines.  Enable with 'configure --enable-threads'.
+
+Vis5d 5.2.2a:
+
+  * Adding missing userfuncs/, convert/, scripts/, and contrib/ subdirs,
+    which had been accidentally omitted.  Thanks to Paul J. Roebber for
+    the bug report.  (Due to a bug in automake-1.4.)
+
+Vis5d 5.2.1a:
+
+  * Merged in recent bug-fixes in main Vis5d 5.2 tree.
+
+Vis5d 5.2a:
+
+  * Removed large LAMPS.v5d and SCHL.v5d example files (you must download
+    them separately, as before).  Added small hole.v5d example file
+    (from my electromagnetism calculations) so that users can immediately
+    verify that Vis5D works and play with it a little.
+
+  * Used CPPFLAGS env. var. instead of less-standard INCLUDES to
+    pass additional -I flags to the configure/build process (for header
+    files in non-standard locations).
+
+beta5:
+
+  * Fixed bug in configure script; thanks to Jim Edwards for finding
+    the problem.
+
+beta4:
+
+  * Path to data files now uses, in order of preference: the -path
+    argument to Vis5d, the VIS5D_PATH environment variable, and the
+    installation directory (/usr/local/share/vis5d by default).  The
+    API function vis5d_init_path overrides all of these.  Thanks to
+    Jim Edwards for the bug report and suggestions.
+
+beta3:
+
+  * With permission from the Vis5D authors, added an additional statement
+    to the license making it clear that linking to the NetCDF, McIDAS,
+    and the (included) LUI libraries is permitted, even though these
+    libraries are under licenses not compatible with the (unmodified) GPL.
+    The statement reads:
+
+    As a special exception to the terms of the GNU General Public
+    License, you are permitted to link Vis5D with (and distribute the
+    resulting source and executables) the LUI library (copyright by
+    Stellar Computer Inc. and licensed for distribution with Vis5D),
+    the McIDAS library, and/or the NetCDF library, where those
+    libraries are governed by the terms of their own licenses.
+
+beta2:
+
+  * Added missing newline to end of api-config.h(.in) header file.
+    Also tried harder to find MP_NPROCS on SGIs; hopefully it works on
+    all systems now.  Thanks to Jim Edwards for the bug report.
+
+beta1:
+
+  * Added autoconf/automake support to Vis5d 5.2, and many code cleanups.
+    Installation is now accomplished via:
+	 ./configure && make && su -c "make install"
+    See also the revised installation instructions in the README, as
+    well as the revised developer notes in PORTING.  The userfuncs/,
+    contrib/, and convert/ directories still use the old Makefiles.
+
+  * The Vis5D API is now installed as shared and static libraries
+    and header files.  There are two libraries, libv5d and libvis5d.
+    The former is a small library containing just the v5d file I/O
+    routines (formerly v5d.o and binio.o), and the latter contains the
+    rest of the API.  Header files are installed under a vis5d/
+    subdirectory, so you should use e.g. #include <vis5d/v5d.h>.  You
+    can use --disable-shared or --disable-static to disable creation
+    of the shared (.so) or static (.a) libraries.  See the README for
+    more information.
+
+  * Mesa is not included with Vis5d; configure looks for a version installed
+    on your system.  Depending on feedback, a later release may include
+    a Mesa package again and build it if Mesa isn't found (this may cause some
+    shared-library headaches, besides the package bloat, which is why I've
+    put off doing this for now).  Use configure --with-mesa to force the
+    usage of Mesa even if your system has "real" OpenGL libraries.  You
+    can download Mesa from: <http://www.mesa3d.org/> (see also README).
+
+  * The NetCDF library is now optional.  When it is not found by configure,
+    the associated features of Vis5d (irregular data support) are disabled.
+    See also the --with-netcdf=<lib> and --without-netcdf configure options.
+    Unrelated to this new version (even in 5.2), I have seen crashes under
+    some circumsances when the NetCDF features are enabled--typically when
+    clicking many buttons in quick succession.  If you have problems,
+    you may want to use --without-netcdf to disable NetCDF features.
+
+  * If you have newer McIDAS libraries than the (Irix) one included with
+    Vis5d, do *not* put it in the src directory.  Put it in the main
+    Vis5d directory or specify its location with --with-mcidas=<lib>.
+    configure assumes that src/libmcidas5.a is the older version of
+    McIDAS (and disables MCIDAS_SIDECAR, for those of you familiar with
+    the old makefiles).
+
+  * The data files EARTH.TOPO, OUTLSUPW, and OUTLUSAM are now included
+    in the src/ subdirectory, and are automatically installed into
+    <prefix>/share/vis5d (where <prefix> is the installation prefix
+    and defaults to /usr/local.  vis5d.h is set to look for these files
+    in their *installed* location, which means it can't use them until
+    you do 'make install'.
+
+  * The example files LAMPS.v5d and SCHL.v5d are now included.
+
+  * POSIX threads (formerly misnamed Linux threads in the code) may be
+    detected and enabled by configure on any system.  configure first looks
+    for the SGI sproc fork variant, then POSIX threads, then SunOS threads.
+    (Should POSIX threads be preferred over sproc?)  See also the
+    --disable-threads configure option to force single-tasking.
+
+  * configure should detect and use the Fortran compiler on more platforms
+    than before, and the Fortran utilities now compile under GNU g77.  You
+    can force Fortran stuff to not be used by: configure --disable-fortran
+
+  * Bumped license version to GPL version 2 (was previously version 1).
+    See the files COPYRIGHT and COPYING for the copyright and license info.
+
+  * Example Tcl scripts are now in the scripts/ subdirectory.

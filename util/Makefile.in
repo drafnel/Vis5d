@@ -1,0 +1,564 @@
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
+CC = @CC@
+CCthreads = @CCthreads@
+DLLTOOL = @DLLTOOL@
+F77 = @F77@
+FLIBS = @FLIBS@
+GLLIBS = @GLLIBS@
+LD = @LD@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+MCIDAS_LIBS = @MCIDAS_LIBS@
+NM = @NM@
+OBJDUMP = @OBJDUMP@
+OPT_LIBMAIN = @OPT_LIBMAIN@
+OPT_UTILS = @OPT_UTILS@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+SHARED_VERSION_INFO = @SHARED_VERSION_INFO@
+THREADLIBS = @THREADLIBS@
+V5D_LIBS_AUX = @V5D_LIBS_AUX@
+VERSION = @VERSION@
+XLIBS = @XLIBS@
+
+CPROGS = v5dinfo v5dstats v5dedit v5dappend comp_to_v5d topoinfo
+FPROGS = igg3d igu3d gg3d gr3d_to_v5d
+
+bin_PROGRAMS = $(CPROGS) @OPT_UTILS@
+EXTRA_PROGRAMS = $(FPROGS) listfonts fromxwd                  help maketopo makemap newmap outlgrid
+
+
+CPPFLAGS = @CPPFLAGS@ -I../src
+
+V5D_LIB = ../src/libv5d.la
+
+# note that if we don't specify prog_SOURCES, automake assumes prog.c
+
+v5dinfo_LDADD = $(V5D_LIB)
+v5dstats_LDADD = $(V5D_LIB)
+v5dedit_LDADD = $(V5D_LIB)
+v5dappend_LDADD = $(V5D_LIB)
+
+comp_to_v5d_LDADD = $(V5D_LIB)
+topoinfo_LDADD = $(V5D_LIB)
+
+listfonts_LDADD = @GLLIBS@
+fromxwd_LDADD = -limage
+
+# various programs not normally built:
+maketopo_LDADD = $(V5D_LIB)
+makemap_LDADD = $(V5D_LIB)
+newmap_SOURCES = newmap.c mapfunc.f
+newmap_LDADD = $(V5D_LIB) $(FLIBS)
+outlgrid_LDADD = $(V5D_LIB)
+
+# McIDAS grid utilities: (only built when we have Fortran)
+
+noinst_LIBRARIES = @OPT_LIBMAIN@
+EXTRA_LIBRARIES = libmain.a
+libmain_a_SOURCES = doubt.f igmk3d.f kludge.f main.c sdest.f topo.f
+
+igg3d_SOURCES = igg3d.f
+igg3d_LDADD = libmain.a $(FLIBS)
+
+igu3d_SOURCES = igu3d.f
+igu3d_LDADD = libmain.a $(FLIBS)
+
+gg3d_SOURCES = gg3d.f
+gg3d_LDADD = libmain.a $(FLIBS)
+
+gr3d_to_v5d_SOURCES = gr3d_to_v5d.f get5d.f vis5d.h
+gr3d_to_v5d_LDADD = libmain.a $(V5D_LIB) $(FLIBS)
+
+EXTRA_DIST = igmk3d.f vis_to_v5d.c
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../config.h ../src/api-config.h
+CONFIG_CLEAN_FILES = 
+LIBRARIES =  $(noinst_LIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) -I.. -I../src
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+libmain_a_LIBADD = 
+libmain_a_OBJECTS =  doubt.o igmk3d.o kludge.o main.o sdest.o topo.o
+AR = ar
+PROGRAMS =  $(bin_PROGRAMS)
+
+igg3d_OBJECTS =  igg3d.o
+igg3d_DEPENDENCIES =  libmain.a
+igg3d_LDFLAGS = 
+igu3d_OBJECTS =  igu3d.o
+igu3d_DEPENDENCIES =  libmain.a
+igu3d_LDFLAGS = 
+gg3d_OBJECTS =  gg3d.o
+gg3d_DEPENDENCIES =  libmain.a
+gg3d_LDFLAGS = 
+gr3d_to_v5d_OBJECTS =  gr3d_to_v5d.o get5d.o
+gr3d_to_v5d_DEPENDENCIES =  libmain.a ../src/libv5d.la
+gr3d_to_v5d_LDFLAGS = 
+listfonts_SOURCES = listfonts.c
+listfonts_OBJECTS =  listfonts.o
+listfonts_DEPENDENCIES = 
+listfonts_LDFLAGS = 
+fromxwd_SOURCES = fromxwd.c
+fromxwd_OBJECTS =  fromxwd.o
+fromxwd_DEPENDENCIES = 
+fromxwd_LDFLAGS = 
+help_SOURCES = help.c
+help_OBJECTS =  help.o
+help_LDADD = $(LDADD)
+help_DEPENDENCIES = 
+help_LDFLAGS = 
+maketopo_SOURCES = maketopo.c
+maketopo_OBJECTS =  maketopo.o
+maketopo_DEPENDENCIES =  ../src/libv5d.la
+maketopo_LDFLAGS = 
+makemap_SOURCES = makemap.c
+makemap_OBJECTS =  makemap.o
+makemap_DEPENDENCIES =  ../src/libv5d.la
+makemap_LDFLAGS = 
+newmap_OBJECTS =  newmap.o mapfunc.o
+newmap_DEPENDENCIES =  ../src/libv5d.la
+newmap_LDFLAGS = 
+outlgrid_SOURCES = outlgrid.c
+outlgrid_OBJECTS =  outlgrid.o
+outlgrid_DEPENDENCIES =  ../src/libv5d.la
+outlgrid_LDFLAGS = 
+v5dinfo_SOURCES = v5dinfo.c
+v5dinfo_OBJECTS =  v5dinfo.o
+v5dinfo_DEPENDENCIES =  ../src/libv5d.la
+v5dinfo_LDFLAGS = 
+v5dstats_SOURCES = v5dstats.c
+v5dstats_OBJECTS =  v5dstats.o
+v5dstats_DEPENDENCIES =  ../src/libv5d.la
+v5dstats_LDFLAGS = 
+v5dedit_SOURCES = v5dedit.c
+v5dedit_OBJECTS =  v5dedit.o
+v5dedit_DEPENDENCIES =  ../src/libv5d.la
+v5dedit_LDFLAGS = 
+v5dappend_SOURCES = v5dappend.c
+v5dappend_OBJECTS =  v5dappend.o
+v5dappend_DEPENDENCIES =  ../src/libv5d.la
+v5dappend_LDFLAGS = 
+comp_to_v5d_SOURCES = comp_to_v5d.c
+comp_to_v5d_OBJECTS =  comp_to_v5d.o
+comp_to_v5d_DEPENDENCIES =  ../src/libv5d.la
+comp_to_v5d_LDFLAGS = 
+topoinfo_SOURCES = topoinfo.c
+topoinfo_OBJECTS =  topoinfo.o
+topoinfo_DEPENDENCIES =  ../src/libv5d.la
+topoinfo_LDFLAGS = 
+FFLAGS = @FFLAGS@
+F77COMPILE = $(F77) $(AM_FFLAGS) $(FFLAGS)
+LTF77COMPILE = $(LIBTOOL) --mode=compile $(F77) $(AM_FFLAGS) $(FFLAGS)
+F77LD = $(F77)
+F77LINK = $(LIBTOOL) --mode=link $(F77LD) $(AM_FFLAGS) $(FFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+DEP_FILES =  .deps/comp_to_v5d.P .deps/doubt.P .deps/fromxwd.P \
+.deps/get5d.P .deps/gg3d.P .deps/gr3d_to_v5d.P .deps/help.P \
+.deps/igg3d.P .deps/igmk3d.P .deps/igu3d.P .deps/kludge.P \
+.deps/listfonts.P .deps/main.P .deps/makemap.P .deps/maketopo.P \
+.deps/mapfunc.P .deps/newmap.P .deps/outlgrid.P .deps/sdest.P \
+.deps/topo.P .deps/topoinfo.P .deps/v5dappend.P .deps/v5dedit.P \
+.deps/v5dinfo.P .deps/v5dstats.P
+SOURCES = $(libmain_a_SOURCES) $(igg3d_SOURCES) $(igu3d_SOURCES) $(gg3d_SOURCES) $(gr3d_to_v5d_SOURCES) listfonts.c fromxwd.c help.c maketopo.c makemap.c $(newmap_SOURCES) outlgrid.c v5dinfo.c v5dstats.c v5dedit.c v5dappend.c comp_to_v5d.c topoinfo.c
+OBJECTS = $(libmain_a_OBJECTS) $(igg3d_OBJECTS) $(igu3d_OBJECTS) $(gg3d_OBJECTS) $(gr3d_to_v5d_OBJECTS) listfonts.o fromxwd.o help.o maketopo.o makemap.o $(newmap_OBJECTS) outlgrid.o v5dinfo.o v5dstats.o v5dedit.o v5dappend.o comp_to_v5d.o topoinfo.o
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .f .lo .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu util/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-noinstLIBRARIES:
+
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+
+distclean-noinstLIBRARIES:
+
+maintainer-clean-noinstLIBRARIES:
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libmain.a: $(libmain_a_OBJECTS) $(libmain_a_DEPENDENCIES)
+	-rm -f libmain.a
+	$(AR) cru libmain.a $(libmain_a_OBJECTS) $(libmain_a_LIBADD)
+	$(RANLIB) libmain.a
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
+
+igg3d: $(igg3d_OBJECTS) $(igg3d_DEPENDENCIES)
+	@rm -f igg3d
+	$(F77LINK) $(igg3d_LDFLAGS) $(igg3d_OBJECTS) $(igg3d_LDADD) $(LIBS)
+
+igu3d: $(igu3d_OBJECTS) $(igu3d_DEPENDENCIES)
+	@rm -f igu3d
+	$(F77LINK) $(igu3d_LDFLAGS) $(igu3d_OBJECTS) $(igu3d_LDADD) $(LIBS)
+
+gg3d: $(gg3d_OBJECTS) $(gg3d_DEPENDENCIES)
+	@rm -f gg3d
+	$(F77LINK) $(gg3d_LDFLAGS) $(gg3d_OBJECTS) $(gg3d_LDADD) $(LIBS)
+
+gr3d_to_v5d: $(gr3d_to_v5d_OBJECTS) $(gr3d_to_v5d_DEPENDENCIES)
+	@rm -f gr3d_to_v5d
+	$(F77LINK) $(gr3d_to_v5d_LDFLAGS) $(gr3d_to_v5d_OBJECTS) $(gr3d_to_v5d_LDADD) $(LIBS)
+
+listfonts: $(listfonts_OBJECTS) $(listfonts_DEPENDENCIES)
+	@rm -f listfonts
+	$(LINK) $(listfonts_LDFLAGS) $(listfonts_OBJECTS) $(listfonts_LDADD) $(LIBS)
+
+fromxwd: $(fromxwd_OBJECTS) $(fromxwd_DEPENDENCIES)
+	@rm -f fromxwd
+	$(LINK) $(fromxwd_LDFLAGS) $(fromxwd_OBJECTS) $(fromxwd_LDADD) $(LIBS)
+
+help: $(help_OBJECTS) $(help_DEPENDENCIES)
+	@rm -f help
+	$(LINK) $(help_LDFLAGS) $(help_OBJECTS) $(help_LDADD) $(LIBS)
+
+maketopo: $(maketopo_OBJECTS) $(maketopo_DEPENDENCIES)
+	@rm -f maketopo
+	$(LINK) $(maketopo_LDFLAGS) $(maketopo_OBJECTS) $(maketopo_LDADD) $(LIBS)
+
+makemap: $(makemap_OBJECTS) $(makemap_DEPENDENCIES)
+	@rm -f makemap
+	$(LINK) $(makemap_LDFLAGS) $(makemap_OBJECTS) $(makemap_LDADD) $(LIBS)
+
+newmap: $(newmap_OBJECTS) $(newmap_DEPENDENCIES)
+	@rm -f newmap
+	$(F77LINK) $(newmap_LDFLAGS) $(newmap_OBJECTS) $(newmap_LDADD) $(LIBS)
+
+outlgrid: $(outlgrid_OBJECTS) $(outlgrid_DEPENDENCIES)
+	@rm -f outlgrid
+	$(LINK) $(outlgrid_LDFLAGS) $(outlgrid_OBJECTS) $(outlgrid_LDADD) $(LIBS)
+
+v5dinfo: $(v5dinfo_OBJECTS) $(v5dinfo_DEPENDENCIES)
+	@rm -f v5dinfo
+	$(LINK) $(v5dinfo_LDFLAGS) $(v5dinfo_OBJECTS) $(v5dinfo_LDADD) $(LIBS)
+
+v5dstats: $(v5dstats_OBJECTS) $(v5dstats_DEPENDENCIES)
+	@rm -f v5dstats
+	$(LINK) $(v5dstats_LDFLAGS) $(v5dstats_OBJECTS) $(v5dstats_LDADD) $(LIBS)
+
+v5dedit: $(v5dedit_OBJECTS) $(v5dedit_DEPENDENCIES)
+	@rm -f v5dedit
+	$(LINK) $(v5dedit_LDFLAGS) $(v5dedit_OBJECTS) $(v5dedit_LDADD) $(LIBS)
+
+v5dappend: $(v5dappend_OBJECTS) $(v5dappend_DEPENDENCIES)
+	@rm -f v5dappend
+	$(LINK) $(v5dappend_LDFLAGS) $(v5dappend_OBJECTS) $(v5dappend_LDADD) $(LIBS)
+
+comp_to_v5d: $(comp_to_v5d_OBJECTS) $(comp_to_v5d_DEPENDENCIES)
+	@rm -f comp_to_v5d
+	$(LINK) $(comp_to_v5d_LDFLAGS) $(comp_to_v5d_OBJECTS) $(comp_to_v5d_LDADD) $(LIBS)
+
+topoinfo: $(topoinfo_OBJECTS) $(topoinfo_DEPENDENCIES)
+	@rm -f topoinfo
+	$(LINK) $(topoinfo_LDFLAGS) $(topoinfo_OBJECTS) $(topoinfo_LDADD) $(LIBS)
+.f.o:
+	$(F77COMPILE) -c $<
+.f.lo:
+	$(LTF77COMPILE) -c $<
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = util
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu util/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-binPROGRAMS
+install-exec: install-exec-am
+
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-binPROGRAMS
+uninstall: uninstall-am
+all-am: Makefile $(LIBRARIES) $(PROGRAMS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-noinstLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-binPROGRAMS \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-noinstLIBRARIES clean-compile clean-libtool \
+		clean-binPROGRAMS clean-tags clean-depend clean-generic \
+		mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-noinstLIBRARIES distclean-compile \
+		distclean-libtool distclean-binPROGRAMS distclean-tags \
+		distclean-depend distclean-generic clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-noinstLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-binPROGRAMS maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
+clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile mostlyclean-libtool distclean-libtool \
+clean-libtool maintainer-clean-libtool mostlyclean-binPROGRAMS \
+distclean-binPROGRAMS clean-binPROGRAMS maintainer-clean-binPROGRAMS \
+uninstall-binPROGRAMS install-binPROGRAMS tags mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

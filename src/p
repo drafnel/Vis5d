@@ -1,0 +1,81 @@
+diff -ru vis5d-5.2-old/src/api.c vis5d-5.2/src/api.c
+--- vis5d-5.2-old/src/api.c	Wed Dec 29 05:44:59 1999
++++ vis5d-5.2/src/api.c	Mon Jul  3 13:33:28 2000
+@@ -3462,8 +3462,18 @@
+    /* MJK 4.27.99    
+       strcpy( name, dtx->Path );
+    */      
++/* SGJ 7/3/00
+       strcpy( name, Vis5dDataPath );
+       strcat( name, dtx->TopoName );
++*/
++      /* SGJ 7/3/00: don't prepend path if TopoName is already absolute: */
++      if (dtx->TopoName[0] != '/') {
++        strcpy( name, Vis5dDataPath );
++        strcat( name, dtx->TopoName );
++      }
++      else {
++        strcpy( name, dtx->TopoName );
++      }
+    }
+    else {
+       strcpy( name, dtx->TopoName );
+@@ -3523,8 +3533,18 @@
+          strcpy( name, dtx->Path );
+       */
+       if (Vis5dDataPath[0]) {
++/* SGJ 7/3/00: don't prepend path if MapName is already absolute
+          strcpy( name, Vis5dDataPath );
+          strcat( name, dtx->MapName );
++*/
++        /* SGJ 7/3/00: don't prepend path if MapName is already absolute: */
++        if (dtx->MapName[0] != '/') {
++          strcpy( name, Vis5dDataPath );
++          strcat( name, dtx->MapName );
++        }
++        else {
++          strcpy( name, dtx->MapName );
++        }
+       }
+       else {
+          strcpy( name, dtx->MapName );
+diff -ru vis5d-5.2-old/src/render.c vis5d-5.2/src/render.c
+--- vis5d-5.2-old/src/render.c	Sun Dec 12 12:52:55 1999
++++ vis5d-5.2/src/render.c	Mon Jul  3 09:43:11 2000
+@@ -2678,21 +2678,35 @@
+    /*** Draw 3-D Objects ***/
+    set_3d( dtx->GfxProjection, dtx->FrntClip,
+            dtx->Zoom, (float*) dtx->CTM);
++
++/* WLH 3 July 2000 */
++   if (dtx->DisplayBox){
++      int i;
++      for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
++         start_aa_pass(i);
++         draw_box(dtx, dtx->CurTime);
++         /* draw_tick_marks( dtx ); */
++         end_aa_pass(i);
++      }
++   }
++
+    clipping_on();
+    render_3d_only( dtx, animflag );
+ 
+    /*** Draw box now, but first disable clipping planes ***/
+    clipping_off();
+ 
++/* WLH 3 July 2000
+    if (dtx->DisplayBox){
+       int i;
+       for (i=0; i < (dtx->PrettyFlag ? AA_PASSES : 1); i++) {
+          start_aa_pass(i);
+          draw_box(dtx, dtx->CurTime);
+-         /* draw_tick_marks( dtx ); */
++         draw_tick_marks( dtx );
+          end_aa_pass(i);
+       }
+    }
++*/
+    if (dtx->DisplayClips){
+       render_vclips( dtx, animflag );
+       render_hclips( dtx, animflag );

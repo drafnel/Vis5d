@@ -1,0 +1,16 @@
+The LUI library in this directory is *not* free software under the GNU
+General Public License.  It is copyright by Stellar Computer Inc., who
+have granted a special license for it to be distributed with Vis5d.
+(i.e. the scary-sounding terms below don't apply as long as it is with
+Vis5d.)
+
+# Original info:
+#	"@(#)Makefile	1.2 Stellar 89/03/29"
+#			Copyright 1989 by
+#			Stellar Computer Inc.
+#			All Rights Reserved
+#	
+#	This software comprises unpublished confidential information of
+#	Stellar Computer Inc. and may not be used, copied or made
+#	available to anyone, except in accordance with the license
+#	under which it is furnished.

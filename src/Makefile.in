@@ -1,0 +1,563 @@
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# eventually, build shared libraries too, once I figure out what files
+# would go into it.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
+CC = @CC@
+CCthreads = @CCthreads@
+DLLTOOL = @DLLTOOL@
+F77 = @F77@
+FLIBS = @FLIBS@
+GLLIBS = @GLLIBS@
+LD = @LD@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+MCIDAS_LIBS = @MCIDAS_LIBS@
+NM = @NM@
+OBJDUMP = @OBJDUMP@
+OPT_LIBMAIN = @OPT_LIBMAIN@
+OPT_UTILS = @OPT_UTILS@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+SHARED_VERSION_INFO = @SHARED_VERSION_INFO@
+THREADLIBS = @THREADLIBS@
+V5D_LIBS_AUX = @V5D_LIBS_AUX@
+VERSION = @VERSION@
+XLIBS = @XLIBS@
+
+bin_PROGRAMS = vis5d
+pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
+pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
+lib_LTLIBRARIES = libv5d.la libvis5d.la
+
+CPPFLAGS = @CPPFLAGS@ # -I flags
+
+API_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c           groupchrono.c globals.c graphics.all.c grid.c image.c imemory.c           map.c matrix.c linterp.c memory.c misc.c mwmborder.c pipe.c proj.c           queue.c render.c rgb.c record.c save.c socketio.c stream.c           sounding.c sync.c tclsave.c textplot.c topo.c traj.c user_data.c           volume.c vtmcP.c work.c
+
+
+SRC_I = analyze_i.c file_i.c grid_i.c         main_i.c misc_i.c output_i.c proj_i.c projlist_i.c read_epa_i.c         read_gr3d_i.c read_grid_i.c read_grads_i.c read_uwvis_i.c read_v5d_i.c         resample_i.c select_i.c tokenize_i.c topo_i.c ui_i.c memory_i.c         imain.c igui.c iapi.c file.c irregular_v5d.c
+
+
+GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c           soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c
+
+
+OTHER_API = analysis.o anim.o api.o box.o chrono.o compute.o contour.o             groupchrono.o globals.o graphics.all.o grid.o image.o imemory.o             map.o matrix.o memory.o misc.o mwmborder.o pipe.o proj.o queue.o             record.o render.o rgb.o save.o socketio.o stream.o sounding.o             sync.o tclsave.o textplot.o topo.o traj.o user_data.o volume.o             vtmcP.o work.o
+
+
+# when are these not used?
+AUXSRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
+
+HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour.h cursor.h displaywidget.h etableP.h file.h file_i.h fsl.h gl_to_ppm.h globals.h graphics.h grid.h grid_i.h groupchrono.h gui.h gui_i.h iapi.h igui.h image.h imain.h imemory.h irregular_api.h irregular_v5d.h isocolor.h labels.h linterp.h main_i.h map.h matrix.h memory.h memory_i.h misc.h misc_i.h model_i.h mwmborder.h netcdf.h netcdf_i.h output_i.h pipe.h proj.h proj_i.h projlist_i.h queue.h read_epa_i.h read_gr3d_i.h read_grads_i.h read_grid_i.h read_uwvis_i.h read_v5d_i.h record.h render.h resample_i.h rgb.h rgbsliders.h save.h script.h select_i.h slice.h socketio.h sounding.h soundingGUI.h stream.h sync.h tclsave.h textplot.h tokenize_i.h topo.h topo_i.h traj.h ui_i.h user_data.h uvwwidget.h vertplot.h vis5d.h volume.h vtmcP.h work.h xdump.h
+
+libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
+libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+
+libvis5d_la_SOURCES = $(API_SRC) $(SRC_I) $(OTHER_API) $(AUXSRC) api.h
+libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+
+vis5d_SOURCES = $(GUI_SRC) main.c $(HEADER_SRC)
+EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files
+vis5d_LDADD = libvis5d.la ../lui5/liblui.a libv5d.la               @MCIDAS_LIBS@ @V5D_LIBS_AUX@               @GLLIBS@ @XLIBS@ @THREADLIBS@
+
+
+# other stuff...what are these files for?
+MISC_SRC = alpha_i.c areal_i.c julian2std_i.c model_i.c mm4_i.c mm4date2std_i.c netcdf2julian_i.c radm_i.c radm_emis_i.c rom_i.c uam_i.c
+
+# Files which aren't involved in the compilation, but we need to make sure
+# they are included in the distribution for completeness:
+EXTRA_DIST = $(MISC_SRC) g.pex.c extmain.c libmcidas5.a EARTH.TOPO OUTLSUPW OUTLUSAM
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../config.h api-config.h
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) -I.. -I.
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+libv5d_la_LIBADD = 
+libv5d_la_OBJECTS =  v5d.lo binio.lo
+libvis5d_la_LIBADD = 
+libvis5d_la_OBJECTS =  api.lo analysis.lo anim.lo box.lo chrono.lo \
+compute.lo contour.lo groupchrono.lo globals.lo graphics.all.lo grid.lo \
+image.lo imemory.lo map.lo matrix.lo linterp.lo memory.lo misc.lo \
+mwmborder.lo pipe.lo proj.lo queue.lo render.lo rgb.lo record.lo \
+save.lo socketio.lo stream.lo sounding.lo sync.lo tclsave.lo \
+textplot.lo topo.lo traj.lo user_data.lo volume.lo vtmcP.lo work.lo \
+analyze_i.lo file_i.lo grid_i.lo main_i.lo misc_i.lo output_i.lo \
+proj_i.lo projlist_i.lo read_epa_i.lo read_gr3d_i.lo read_grid_i.lo \
+read_grads_i.lo read_uwvis_i.lo read_v5d_i.lo resample_i.lo select_i.lo \
+tokenize_i.lo topo_i.lo ui_i.lo memory_i.lo imain.lo igui.lo iapi.lo \
+file.lo irregular_v5d.lo gl_to_ppm.lo graphics.ogl.lo graphics.gl.lo \
+graphics.pex.lo xdump.lo
+PROGRAMS =  $(bin_PROGRAMS)
+
+vis5d_OBJECTS =  cursor.o displaywidget.o gui.o gui_i.o labels.o \
+script.o slice.o soundingGUI.o rgbsliders.o isocolor.o uvwwidget.o \
+main.o
+vis5d_DEPENDENCIES =  libvis5d.la ../lui5/liblui.a libv5d.la
+vis5d_LDFLAGS = 
+FFLAGS = @FFLAGS@
+F77COMPILE = $(F77) $(AM_FFLAGS) $(FFLAGS)
+LTF77COMPILE = $(LIBTOOL) --mode=compile $(F77) $(AM_FFLAGS) $(FFLAGS)
+F77LD = $(F77)
+F77LINK = $(LIBTOOL) --mode=link $(F77LD) $(AM_FFLAGS) $(FFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DATA =  $(pkgdata_DATA)
+
+HEADERS =  $(pkginclude_HEADERS)
+
+DIST_COMMON =  ./stamp-h2.in Makefile.am Makefile.in api-config.h.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+DEP_FILES =  .deps/analysis.P .deps/analyze_i.P .deps/anim.P .deps/api.P \
+.deps/binio.P .deps/box.P .deps/chrono.P .deps/compute.P \
+.deps/contour.P .deps/cursor.P .deps/displaywidget.P .deps/file.P \
+.deps/file_i.P .deps/gl_to_ppm.P .deps/globals.P .deps/graphics.all.P \
+.deps/graphics.gl.P .deps/graphics.ogl.P .deps/graphics.pex.P \
+.deps/grid.P .deps/grid_i.P .deps/groupchrono.P .deps/gui.P \
+.deps/gui_i.P .deps/iapi.P .deps/igui.P .deps/image.P .deps/imain.P \
+.deps/imemory.P .deps/irregular_v5d.P .deps/isocolor.P .deps/kltwin.P \
+.deps/labels.P .deps/linterp.P .deps/main.P .deps/main_i.P .deps/map.P \
+.deps/matrix.P .deps/memory.P .deps/memory_i.P .deps/misc.P \
+.deps/misc_i.P .deps/mwmborder.P .deps/output_i.P .deps/pipe.P \
+.deps/proj.P .deps/proj_i.P .deps/projlist_i.P .deps/queue.P \
+.deps/read_epa_i.P .deps/read_gr3d_i.P .deps/read_grads_i.P \
+.deps/read_grid_i.P .deps/read_uwvis_i.P .deps/read_v5d_i.P \
+.deps/record.P .deps/render.P .deps/resample_i.P .deps/rgb.P \
+.deps/rgbsliders.P .deps/save.P .deps/script.P .deps/select_i.P \
+.deps/slice.P .deps/socketio.P .deps/sounding.P .deps/soundingGUI.P \
+.deps/stream.P .deps/sync.P .deps/tclsave.P .deps/textplot.P \
+.deps/tokenize_i.P .deps/topo.P .deps/topo_i.P .deps/traj.P \
+.deps/ui_i.P .deps/user_data.P .deps/uvwwidget.P .deps/v5d.P \
+.deps/volume.P .deps/vtmcP.P .deps/work.P .deps/xdump.P
+SOURCES = $(libv5d_la_SOURCES) $(libvis5d_la_SOURCES) $(vis5d_SOURCES) $(EXTRA_vis5d_SOURCES)
+OBJECTS = $(libv5d_la_OBJECTS) $(libvis5d_la_OBJECTS) $(vis5d_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .f .lo .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+api-config.h: stamp-h2
+	@if test ! -f $@; then \
+		rm -f stamp-h2; \
+		$(MAKE) stamp-h2; \
+	else :; fi
+stamp-h2: $(srcdir)/api-config.h.in $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES= CONFIG_HEADERS=src/api-config.h \
+	     $(SHELL) ./config.status
+	@echo timestamp > stamp-h2 2> /dev/null
+$(srcdir)/api-config.h.in: $(srcdir)/stamp-h2.in
+	@if test ! -f $@; then \
+		rm -f $(srcdir)/stamp-h2.in; \
+		$(MAKE) $(srcdir)/stamp-h2.in; \
+	else :; fi
+$(srcdir)/stamp-h2.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOHEADER)
+	@echo timestamp > $(srcdir)/stamp-h2.in 2> /dev/null
+
+mostlyclean-hdr:
+
+clean-hdr:
+
+distclean-hdr:
+	-rm -f api-config.h
+
+maintainer-clean-hdr:
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libv5d.la: $(libv5d_la_OBJECTS) $(libv5d_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libv5d_la_LDFLAGS) $(libv5d_la_OBJECTS) $(libv5d_la_LIBADD) $(LIBS)
+
+libvis5d.la: $(libvis5d_la_OBJECTS) $(libvis5d_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libvis5d_la_LDFLAGS) $(libvis5d_la_OBJECTS) $(libvis5d_la_LIBADD) $(LIBS)
+
+mostlyclean-binPROGRAMS:
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+
+distclean-binPROGRAMS:
+
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
+
+vis5d: $(vis5d_OBJECTS) $(vis5d_DEPENDENCIES)
+	@rm -f vis5d
+	$(LINK) $(vis5d_LDFLAGS) $(vis5d_OBJECTS) $(vis5d_LDADD) $(LIBS)
+.f.o:
+	$(F77COMPILE) -c $<
+.f.lo:
+	$(LTF77COMPILE) -c $<
+
+install-pkgdataDATA: $(pkgdata_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgdatadir)
+	@list='$(pkgdata_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkgdatadir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkgdatadir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(pkgdatadir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(pkgdatadir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-pkgdataDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(pkgdata_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(pkgdatadir)/$$p; \
+	done
+
+install-pkgincludeHEADERS: $(pkginclude_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgincludedir)
+	@list='$(pkginclude_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d= ; else d="$(srcdir)/"; fi; \
+	  echo " $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p"; \
+	  $(INSTALL_DATA) $$d$$p $(DESTDIR)$(pkgincludedir)/$$p; \
+	done
+
+uninstall-pkgincludeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	list='$(pkginclude_HEADERS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(pkgincludedir)/$$p; \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES) api-config.h.in $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)api-config.h.in$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags api-config.h.in $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = src
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu src/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+all-recursive-am: api-config.h
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+
+install-exec-am: install-libLTLIBRARIES install-binPROGRAMS
+install-exec: install-exec-am
+
+install-data-am: install-pkgdataDATA install-pkgincludeHEADERS
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES uninstall-binPROGRAMS \
+		uninstall-pkgdataDATA uninstall-pkgincludeHEADERS
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS) \
+		api-config.h
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) \
+		$(DESTDIR)$(pkgdatadir) $(DESTDIR)$(pkgincludedir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-hdr mostlyclean-libLTLIBRARIES \
+		mostlyclean-compile mostlyclean-libtool \
+		mostlyclean-binPROGRAMS mostlyclean-tags \
+		mostlyclean-depend mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-hdr clean-libLTLIBRARIES clean-compile clean-libtool \
+		clean-binPROGRAMS clean-tags clean-depend clean-generic \
+		mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-hdr distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-binPROGRAMS distclean-tags \
+		distclean-depend distclean-generic clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-hdr \
+		maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-binPROGRAMS maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-hdr distclean-hdr clean-hdr maintainer-clean-hdr \
+mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool mostlyclean-binPROGRAMS distclean-binPROGRAMS \
+clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
+install-binPROGRAMS uninstall-pkgdataDATA install-pkgdataDATA \
+uninstall-pkgincludeHEADERS install-pkgincludeHEADERS tags \
+mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
+distdir mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck all-recursive-am install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+# vis5d should depend on kltwin.o when building with McIDAS.  The
+# following is an automake conditional statement to accomplish that
+# via a dependency of image.o (which vis5d depends on) (see the
+# AM_CONDITIONAL macro in configure.in) (I would have preferred
+# something cleaner, but I haven't been able to get automake to grok
+# what we need to do in any other way):
+@MCIDAS_TRUE@image.o: kltwin.o
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

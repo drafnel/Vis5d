@@ -80,6 +80,7 @@ void procedure_ctree_add_image(GtkCTree *ctree,
 
   for(i=0;i<image->item_type->len;i++){
 	 hslicecontrols *hs;
+	 textplotcontrols *textplot;
 	 type = g_array_index(image->item_type,gint, i);
 	 nstr[1]=NULL;
 	 nstr[0] = NULL;
@@ -103,7 +104,8 @@ void procedure_ctree_add_image(GtkCTree *ctree,
 		break;
 	 case TEXTPLOT:
 		nstr[1] = g_strdup("TextPlot");
-		vinfo = (v5d_var_info *) g_ptr_array_index(image->items,i);
+		textplot = (textplotcontrols *) g_ptr_array_index(image->items,i);
+		vinfo = vinfo_array_find_var_by_name(vinfo_array, textplot->var);
 
 		vis5d_get_itx_var_name(vinfo->v5d_data_context,vinfo->varid, var);
 		nstr[2] = var;
@@ -179,13 +181,25 @@ vinfo_toggle_textplot_from_procedure(v5d_var_info *vinfo, textplotcontrols *text
 	 return;
   }
   if(enable){
+	 GtkWidget *menu, *optionmenu, *menuitem;
 	 window3D = lookup_widget(vinfo->info->GtkGlArea, "window3D");
 	 TextPlotDialog = new_TextPlotDialog(window3D);
 	 gtk_widget_show(TextPlotDialog);
 
+	 optionmenu = lookup_widget(TextPlotDialog,"textplot_variables");
+	 menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
+
+	 /* FIXTHIS:  This is not a good method of finding the variable to
+		 activate if more than one irregular data set is opened */
+
+	 gtk_menu_set_active(GTK_MENU(menu),vinfo->varid);
+	 menuitem = gtk_menu_get_active(GTK_MENU(menu));
+
+	 gtk_menu_item_activate(menuitem );
+	 /*
 	 vis5d_set_text_plot(vinfo->v5d_data_context,vinfo->varid,textplot->spacing,
 								textplot->fontspace,textplot->fontx,textplot->fonty);
-
+	 */
 
   }
   

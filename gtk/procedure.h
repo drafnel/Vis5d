@@ -20,9 +20,12 @@ typedef struct {
 } Image;
 
 
+void procedure_free_image(Image *image);
 void procedure_free(GList *Procedure);
-GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, gboolean NewImage, gchar *imagename);
+GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, 
+								  gboolean NewImage, gchar *imagename, gint position);
 
-int print_ProcedureList(GList *ProcedureList,gchar *filename);
+void
+print_ProcedureList(GList *ProcedureList,gchar *filename);
 
 GList *procedure_open_file(char *filename);

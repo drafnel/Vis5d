@@ -66,7 +66,7 @@ void procedure_ctree_add_image(GtkCTree *ctree,
 
 
   node = gtk_ctree_insert_node(ctree,NULL,pnode,nstr,0,NULL,NULL,NULL,NULL,0,0);
-  gtk_ctree_node_set_row_data(ctree,node, image);
+  gtk_ctree_node_set_row_data(ctree,node,(gpointer) image);
   for(i=0;i<image->item_type->len;i++){
 	 hslicecontrols *hs;
 	 type = g_array_index(image->item_type,gint, i);
@@ -94,15 +94,19 @@ GtkWidget * new_ProcedureDialog(v5d_info *info, gchar *filename)
   GtkWidget *PD;
   GtkCTree *ctree;
   GList *ProcedureList=NULL, *listitem;
+  GtkWidget *paste;
 
   PD = create_ProcedureDialog();
 
-  if(filename)
+  if(filename){
 	 ProcedureList = procedure_open_file(filename);
-
+  }
+	 
   
-  gtk_object_set_data_full(GTK_OBJECT(PD),"ProcedureList",
-									(gpointer) ProcedureList, (GtkDestroyNotify) procedure_free);
+  gtk_object_set_data(GTK_OBJECT(PD),"ProcedureList",
+									(gpointer) ProcedureList);
+
+  gtk_object_set_data(GTK_OBJECT(PD),"ProcedureFileName",(gpointer) filename);
 
   ctree = GTK_CTREE(lookup_widget(PD,"ProcedureCtree"));
   /* Hide the image sub columns until tree is expanded */
@@ -123,6 +127,10 @@ GtkWidget * new_ProcedureDialog(v5d_info *info, gchar *filename)
   }
   gtk_object_set_data(GTK_OBJECT(PD),"v5d_info",(gpointer) info);
 
+
+  paste = lookup_widget(PD, "paste1");
+  gtk_widget_set_sensitive(paste,FALSE);
+
   gtk_widget_show(PD);
 
   return PD;
@@ -132,7 +140,7 @@ void
 vinfo_toggle_hslice_from_procedure(v5d_var_info *vinfo, hslicecontrols *hs, gint enable)
 {
   GtkWidget *Hslicebutton;
-  gchar *tmp;
+
   if(vinfo==NULL) {
 	 /* TODO: var was not found by name in dataset - a dialog should be open which
 		 gives the user the choice of selecting from the available variables 
@@ -150,7 +158,7 @@ vinfo_toggle_hslice_from_procedure(v5d_var_info *vinfo, hslicecontrols *hs, gint
   if(Hslicebutton){
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(Hslicebutton), enable);
   }
-  if(! enable ) 
+  if(! (enable && hs) ) 
 	 return;
 
   if(hs->color[0]+hs->color[1]+hs->color[2]+hs->color[3] > 0){
@@ -195,25 +203,28 @@ on_ProcedureCtree_tree_select_row      (GtkCTree        *ctree,
   v5d_var_info *vinfo;
   hslicecontrols *hs;
   gint type;
-  image = (Image *) gtk_ctree_node_get_row_data(ctree,GTK_CTREE_NODE(node));
 
-  /* we need to clear all currently enabled graphics */
+  image = (Image *) gtk_ctree_node_get_row_data(ctree,GTK_CTREE_NODE(node));
 
   vinfo = (v5d_var_info *) g_ptr_array_index(image->vinfo_array,0);
 
   for(i=0;i<image->item_type->len;i++){
-	 type = g_array_index(image->item_type,gint, i);
-	 vinfo = (v5d_var_info *) g_ptr_array_index(image->vinfo_array,i);
+	 /* when is this not the case? */
+	 if(image->item_type->data){
+		type = g_array_index(image->item_type,gint, i);
 
-	 gtk_object_set_data(GTK_OBJECT(ctree),"SelectedNode",(gpointer) node);
+		vinfo = (v5d_var_info *) g_ptr_array_index(image->vinfo_array,i);
 
-	 switch(type){
-	 case HSLICE: 
-		hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
-		vinfo_toggle_hslice_from_procedure(vinfo,hs, TRUE);
-		break;
-	 default:
-		printf ("Unrecognized graphic in procedure %d\n",type);
+		gtk_object_set_data(GTK_OBJECT(ctree),"SelectedNode",(gpointer) node);
+
+		switch(type){
+		case HSLICE: 
+		  hs = (hslicecontrols *) g_ptr_array_index(image->items,i);
+		  vinfo_toggle_hslice_from_procedure(vinfo,hs, TRUE);
+		  break;
+		default:
+		  printf ("Unrecognized graphic in procedure %d\n",type);
+		}
 	 }
   }
 
@@ -263,13 +274,13 @@ on_ProcedureCtree_key_press_event      (GtkWidget       *widget,
   GtkCTreeNode *node, *newnode=NULL;
 
 
-  void *g = malloc(1);
-  printf("g at 0x%x\n",g);
-  free(g);
-
   ctree = GTK_CTREE(widget);
   node = GTK_CTREE_NODE(gtk_object_get_data(GTK_OBJECT(ctree),"SelectedNode"));
 
+  if(! node){
+	 node = gtk_ctree_node_nth(ctree,0);
+	 printf("selected node not found 0x%x\n",node);
+  }
   switch(event->keyval){
   case GDK_Up:
 	 newnode = GTK_CTREE_NODE_PREV (node);
@@ -292,7 +303,7 @@ on_ProcedureCtree_key_press_event      (GtkWidget       *widget,
 	 gtk_ctree_select(ctree, newnode);
 	 return TRUE;
   }
-  return FALSE;
+  return TRUE; /* disable all other callbacks? */
 }
 
 
@@ -325,41 +336,8 @@ on_add_clicked                         (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  GtkWidget *INdialog;
-
-  INdialog = create_ImageNameDialog();
-  
-  gtk_object_set_data(GTK_OBJECT(INdialog),"ProcedureDialog",user_data);
-
-  gtk_widget_show(INdialog);
-
   
   
-
-}
-
-
-void
-on_delete_clicked                      (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  /* delete the currently selected item from the procedure */
-  GtkCTree     *ctree;
-  GtkCTreeNode *node;
-  GdkEventKey event;
-
-  ctree = GTK_CTREE(user_data);
-
-  event.keyval = GDK_Down;
-
-  node = GTK_CTREE_NODE(gtk_object_get_data(GTK_OBJECT(ctree),"SelectedNode"));
-
-  /* select the next item or the previous item if that doesn't work */
-  if(!on_ProcedureCtree_key_press_event(GTK_WIDGET(ctree),&event,NULL)){
-	 event.keyval = GDK_Up;
-	 on_ProcedureCtree_key_press_event(GTK_WIDGET(ctree),&event,NULL);
-  }
-  gtk_ctree_remove_node(ctree,node);
 
 }
 
@@ -370,8 +348,12 @@ on_close_clicked                       (GtkButton       *button,
 {
   GtkWidget *PD=GTK_WIDGET(user_data);
   v5d_info *info;
+  GList *ProcedureList;
 
   info = gtk_object_get_data(GTK_OBJECT(PD),"v5d_info");
+  ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
+
+  procedure_free( ProcedureList );
   
   gtk_widget_destroy(PD);
   info->ProcedureDialog=NULL;
@@ -398,24 +380,29 @@ on_okay_clicked                        (GtkButton       *button,
   GtkCTreeNode *node;
   GtkCTree *ctree;
   Image *image;
+  gint position;
 
   INdialog = lookup_widget(GTK_WIDGET(button),"ImageNameDialog");
 
   PD = GTK_WIDGET(gtk_object_get_data(GTK_OBJECT(INdialog),"ProcedureDialog"));
+  ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
 
   info = (v5d_info *) gtk_object_get_data(GTK_OBJECT(PD), "v5d_info");
-  ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
+
   label_item = info->graph_label_list;
   ctree = GTK_CTREE(lookup_widget(PD,"ProcedureCtree"));
   node = GTK_CTREE_NODE(gtk_object_get_data(GTK_OBJECT(ctree),"SelectedNode"));
-
+  
+  position = g_list_index(ProcedureList ,gtk_ctree_node_get_row_data(ctree,node));
+  if(position>=0) position++;
 
   while(label_item){
 	 label = (graph_label *) label_item->data;
 	 vinfo = (v5d_var_info *) label->data;
 	 switch(label->gtype){
 	 case HSLICE:
-		ProcedureList = procedure_add_item(ProcedureList, (gpointer) vinfo->hs, HSLICE, NewImage, imagename);
+		ProcedureList = procedure_add_item(ProcedureList, (gpointer) vinfo->hs, 
+													  HSLICE, NewImage, imagename, position );
 		break;
 	 default:
 		break;
@@ -427,13 +414,23 @@ on_okay_clicked                        (GtkButton       *button,
   image = (Image *) ProcedureList->data;
   image->name = g_strdup(  gtk_editable_get_chars(GTK_EDITABLE(user_data),0,-1));
 
-  procedure_ctree_add_image(ctree, node, 
+  /* GtkCTreeRow(node)->sibling puts the new item after rather than before node */
+  procedure_ctree_add_image(ctree, GTK_CTREE_ROW(node)->sibling , 
 									 info->vinfo_array,
 									 (Image *) ProcedureList->data );
 
+  /* Now sibling should be the new node */
+  gtk_ctree_unselect(ctree, node);
+  gtk_ctree_select(ctree,  GTK_CTREE_ROW(node)->sibling);
 
   
   gtk_widget_destroy(INdialog);
+
+  ProcedureList = g_list_first(ProcedureList);
+  
+  gtk_object_set_data(GTK_OBJECT(PD), "ProcedureList", (gpointer) ProcedureList);
+
+
 
 }
 
@@ -452,7 +449,16 @@ void
 on_capture1_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  /* capture the currently displayed graphics and add to the procedure */
+  GtkWidget *INdialog;
 
+  INdialog = create_ImageNameDialog();
+
+  
+  gtk_object_set_data(GTK_OBJECT(INdialog),"ProcedureDialog",
+							 (gpointer) lookup_widget(GTK_WIDGET(menuitem),"ProcedureDialog"));
+
+  gtk_widget_show(INdialog);
 }
 
 
@@ -468,6 +474,27 @@ void
 on_copy1_activate                      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  GtkWidget *PD;
+  GList *KillRing;
+  GtkCTree *ctree;
+  GtkCTreeNode *node;
+  gpointer image;
+
+  PD = lookup_widget(GTK_WIDGET(menuitem), "ProcedureDialog");
+  KillRing = gtk_object_get_data(GTK_OBJECT(PD),"KillRing");
+
+  ctree = GTK_CTREE(lookup_widget(PD,"ProcedureCtree"));
+  node = GTK_CTREE_NODE(gtk_object_get_data(GTK_OBJECT(ctree),"SelectedNode"));
+  image = gtk_ctree_node_get_row_data(ctree,node);
+
+  if(KillRing==NULL){
+	 GtkWidget *paste = lookup_widget(PD, "paste1");
+	 gtk_widget_set_sensitive(paste,TRUE);
+  }
+
+  KillRing = g_list_append(KillRing, image);
+
+  gtk_object_set_data(GTK_OBJECT(PD),"KillRing", (gpointer) KillRing);
 
 }
 
@@ -477,6 +504,8 @@ on_paste1_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
+
+
 }
 
 
@@ -484,6 +513,34 @@ void
 on_delete1_activate                    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  GtkWidget *PD;
+  GtkCTree *ctree;
+  GtkCTreeNode *node;
+  Image *image;
+  GList *ProcedureList;
+
+  PD = lookup_widget(GTK_WIDGET(menuitem), "ProcedureDialog");
+  ctree = GTK_CTREE(lookup_widget(PD,"ProcedureCtree"));
+  node = GTK_CTREE_NODE(gtk_object_get_data(GTK_OBJECT(ctree),"SelectedNode"));
+
+  ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
+
+  image = gtk_ctree_node_get_row_data(ctree,node);
+
+  ProcedureList = g_list_remove(ProcedureList, (gpointer) image);
+
+  procedure_free_image(image);
+
+  gtk_object_set_data(GTK_OBJECT(PD), "ProcedureList", (gpointer) ProcedureList);
+
+  gtk_ctree_unselect(ctree, node);
+
+  if(GTK_CTREE_ROW(node)->sibling)
+	 gtk_ctree_select(ctree, GTK_CTREE_ROW(node)->sibling);
+
+  gtk_ctree_remove_node(ctree,node);
+
+  
 
 }
 
@@ -493,21 +550,81 @@ on_openProcedure_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   v5d_info *info;
-  info = (v5d_info *) gtk_object_get_data(
-	      GTK_OBJECT(lookup_widget(GTK_WIDGET(menuitem),"ProcedureDialog")),"v5d_info");
+  GList *ProcedureList;
+  GtkWidget *PD;
+
+  PD = lookup_widget(GTK_WIDGET(menuitem), "ProcedureDialog");
+
+  info = (v5d_info *) gtk_object_get_data(GTK_OBJECT(PD),"v5d_info");
+
+  ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
   
   /* in window3D.c */
+  if(ProcedureList)
+	 procedure_free(ProcedureList);
+
+
   on_openprocedure_activate(menuitem,(gpointer) lookup_widget(info->GtkGlArea,"window3D") );
 
 
 }
 
+void
+on_write_procedure                         (GtkButton       *button,
+														  gpointer         user_data)
+{
+  GtkWidget *PD, *VerifyDialog;
+  GList *ProcedureList;
+  gchar *filename; 
+
+  PD = GTK_WIDGET(user_data);
+
+  ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
+
+  filename = (gchar *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureFileName");
+
+  if(filename)
+	 print_ProcedureList(ProcedureList, filename);
+
+  VerifyDialog = lookup_widget(GTK_WIDGET(button),"VerifyDialog");
+  if(VerifyDialog)
+	 gtk_widget_destroy(VerifyDialog);
+  
+}
 
 void
 on_saveProcedure_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  GtkWidget *PD;
+  GList *ProcedureList;
+  gchar *filename;
 
+  PD = lookup_widget(GTK_WIDGET(menuitem), "ProcedureDialog");
+  ProcedureList = (GList *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureList");
+
+  filename = (gchar *) gtk_object_get_data(GTK_OBJECT(PD), "ProcedureFileName");
+
+  if(filename){
+	 /* file already exists dialog */
+	 gchar string[240];
+	 g_snprintf(string, 240, _("Overwrite existing file %s?"),filename);
+	 Invoke_VerifyDialog( string, GTK_SIGNAL_FUNC (on_write_procedure), (gpointer) PD,
+								 NULL, NULL);
+  }else{
+	 /*
+	 if(FileSelectionDialog == NULL)
+		FileSelectionDialog = create_fileselection1();
+
+	 gtk_grab_add(FileSelectionDialog);
+
+	 gtk_window_set_title(GTK_WINDOW(FileSelectionDialog),_("Save Procedure As..."));
+
+	 gtk_object_set_data(GTK_OBJECT(FileSelectionDialog),"OpenWhat" , 
+								GINT_TO_POINTER(SAVE_PROCEDURE_FILE));
+	 */
+  }
+	
 }
 
 
@@ -515,6 +632,14 @@ void
 on_save_asProcedure_activate           (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  GtkWidget *PD;
+  gchar *filename;
+
+  PD = lookup_widget(GTK_WIDGET(menuitem), "ProcedureDialog");
+  
+  gtk_object_set_data(GTK_OBJECT(PD), "ProcedureFileName", NULL);
+ 
+  on_saveProcedure_activate(menuitem, user_data);
 
 }
 

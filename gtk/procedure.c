@@ -203,7 +203,7 @@ token_int(GScanner *scanner, guint *fval)
   return G_TOKEN_NONE;
 }
 
-GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, gboolean NewImage, gchar *imagename)
+GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, gboolean NewImage, gchar *imagename, gint position)
 {
   Image *oneimage;
   if(Procedure && NewImage==FALSE){
@@ -223,7 +223,8 @@ GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, gboole
   }
 
   if(NewImage==TRUE){
-	 Procedure = g_list_append(Procedure, (gpointer) oneimage);
+	 /*	 Procedure = g_list_append(Procedure, (gpointer) oneimage); */
+	 Procedure = g_list_insert(Procedure, (gpointer) oneimage, position);
   }
   return Procedure;
 }
@@ -293,7 +294,7 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 		g_scanner_set_scope(scanner,context[context_depth]);
 		onehslice = g_new0(hslicecontrols,1); /* *) g_malloc(sizeof(hslicecontrols));*/
 		onehslice->var=NULL;
-		*ProcedureList = procedure_add_item(*ProcedureList,(gpointer) onehslice, HSLICE, FALSE, NULL);
+		*ProcedureList = procedure_add_item(*ProcedureList,(gpointer) onehslice, HSLICE, FALSE, NULL, -1);
 
 		return G_TOKEN_NONE;
 		break;
@@ -346,7 +347,7 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 	 break;
   default:
 	 /* flag an unrecognized context */
-	 printf("bad context %d\n",context);
+	 printf("bad context %d\n",symbol);
   }
 
   return G_TOKEN_NONE;
@@ -381,7 +382,7 @@ print_hslicecontrols(FILE *fp, hslicecontrols *hslice)
   fprintf(fp,"  }\n");
 }
 
-int 
+void
 print_ProcedureList(GList *ProcedureList,gchar *filename)
 {
   GList *nextimage;
@@ -397,7 +398,7 @@ print_ProcedureList(GList *ProcedureList,gchar *filename)
   
   while(nextimage){
 	 fprintf(fp,"image { \n");
-	 if(name=((Image *)nextimage->data)->name){
+	 if( name=( ((Image *)nextimage->data)->name)){
 		fprintf(fp,"  name=\"%s\";\n",name);
 	 }
 	 items = (GPtrArray *) ((Image *)nextimage->data)->items;
@@ -479,44 +480,56 @@ GList *procedure_parse_file(int filedescriptor)
 }
 
 void hslice_free(hslicecontrols *hslice){
-  if(hslice->var)
-	 free(hslice->var);
-  free(hslice);
+  if(hslice){
+	 if(hslice->var)
+		g_free(hslice->var);
+	 g_free(hslice);
+  }
 }
 
+void procedure_free_image(Image *image)
+{
+  gint i;
+  gint type;
+  if(image){
+	 if(image->name)
+		free(image->name);
+		
+
+	 for(i=0;i<image->items->len;i++){
+		type = g_array_index(image->item_type,gint,i);
+		switch (type){
+		case HSLICE:
+		  hslice_free((hslicecontrols *) g_ptr_array_index(image->items,i));
+		  break;
+		default:
+		  g_print("Unrecogized type in free %d\n",type);
+		  
+		}
+	 }
+	 g_array_free(image->item_type,TRUE);
+	 
+	 g_ptr_array_free(image->items,TRUE);
+  }		 				
+
+}
 
 void procedure_free(GList *Procedure)
 {
   GList *imagelist;
   Image *image;
-  gint i;
+  gint i, type;
+
+  printf("Freeing Procedure 0x%x\n",Procedure);
 
   imagelist = g_list_first(Procedure);
   while(imagelist){
 	 image = (Image *) imagelist->data;
-	 if(image){
-		if(image->name)
-		  free(image->name);
-		
-
-		for(i=0;i<image->items->len;i++)
-		  switch (g_array_index(image->item_type,gint,i)){
-		  case SCOPE_SYMBOL_HSLICE:
-			 hslice_free((hslicecontrols *) g_ptr_array_index(image->items,i));
-			 break;
-		  default:
-			 g_print("Unrecogized type in free\n");
-
-		  }
-	 }		 				
-	 g_array_free(image->item_type,TRUE);
 	 
-	 g_ptr_array_free(image->items,TRUE);
+	 procedure_free_image(image);
 	 
 	 imagelist = g_list_next(imagelist);
   }
-  	 
-
   g_list_free(Procedure);
 
 }

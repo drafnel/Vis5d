@@ -221,3 +221,25 @@ GtkWidget *new_ColorSelectionDialog()
   gtk_widget_show(ColorSelectionDialog);
   return ColorSelectionDialog;
 }
+
+void Invoke_VerifyDialog(gchar *label, GtkSignalFunc on_okay, gpointer okay_data,
+								 GtkSignalFunc on_cancel, gpointer cancel_data)
+{
+
+  GtkWidget *VerifyDialog, *labelwidget, *cancel;
+
+  VerifyDialog = create_VerifyDialog();
+
+  labelwidget = lookup_widget(VerifyDialog,"label1");
+  if(label)
+	 gtk_label_set_text(GTK_LABEL(labelwidget), label);
+
+  if(on_okay)
+	 gtk_signal_connect (GTK_OBJECT (lookup_widget(VerifyDialog,"button1")), "clicked",
+								on_okay,okay_data);
+  if(on_cancel)
+	 gtk_signal_connect (GTK_OBJECT (lookup_widget(VerifyDialog,"button2")), "clicked",
+							 on_cancel,cancel_data);
+
+  gtk_widget_show(VerifyDialog );
+}

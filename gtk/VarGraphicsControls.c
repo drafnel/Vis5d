@@ -268,17 +268,27 @@ void chs_label(v5d_var_info *vinfo)
 
 
   if(vinfo->info->vcs==VERT_NONEQUAL_MB){
-	 sprintf(text,"CHS: %s from %g to %g at level %g MB",
-				vinfo->vname,vinfo->chs->min,vinfo->chs->max,
-				vinfo->chs->pressure);
+	 if(vinfo->maxlevel>1)
+		g_snprintf(text,300,"CHS: %s from %g to %g at level %g MB",
+				  vinfo->vname,vinfo->chs->min,vinfo->chs->max,
+				  vinfo->chs->pressure);
+	 else
+		g_snprintf(text,300,"CHS: %s from %g to %g ",
+				  vinfo->vname,vinfo->chs->min,vinfo->chs->max);
+
   }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
 				vinfo->info->vcs==VERT_NONEQUAL_KM){  
-	 sprintf(text,"CHS: %s from %g to %g at level %g Km",
-				vinfo->vname,vinfo->chs->min,vinfo->chs->max,
-				vinfo->chs->height);
+
+	 if(vinfo->maxlevel>1)
+		g_snprintf(text,300,"CHS: %s from %g to %g at level %g Km",
+				  vinfo->vname,vinfo->chs->min,vinfo->chs->max,
+				  vinfo->chs->height);
+	 else
+		g_snprintf(text,300,"CHS: %s from %g to %g",
+				  vinfo->vname,vinfo->chs->min,vinfo->chs->max);
 		
   }else{
-	 sprintf(text,"CHS: %s from %g to %g at level %g",
+	 g_snprintf(text,300,"CHS: %s from %g to %g at level %g",
 				vinfo->vname,vinfo->chs->min,vinfo->chs->max,
 				vinfo->chs->level);
 	 
@@ -299,17 +309,27 @@ void hs_label(v5d_var_info *vinfo)
   gchar text[300];
 
   if(vinfo->info->vcs==VERT_NONEQUAL_MB){
-	 sprintf(text,"HS: %s from %g to %g by %g at level %g MB",
-				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
-				vinfo->hs->pressure);
+	 if(vinfo->maxlevel>1)
+		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g MB",
+				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
+				  vinfo->hs->pressure);
+	 else
+		g_snprintf(text,300,"HS: %s from %g to %g by %g",
+				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval);
+
+
   }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
 				vinfo->info->vcs==VERT_NONEQUAL_KM){  
-	 sprintf(text,"HS: %s from %g to %g by %g at level %g Km",
+	 if(vinfo->maxlevel>1)
+		g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g Km",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
 				vinfo->hs->height);
-		
+	 else
+		g_snprintf(text,300,"HS: %s from %g to %g by %g ",
+				  vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval);
+
   }else{
-	 sprintf(text,"HS: %s from %g to %g by %g at level %g",
+	 g_snprintf(text,300,"HS: %s from %g to %g by %g at level %g",
 				vinfo->vname,vinfo->hs->min,vinfo->hs->max, vinfo->hs->interval,
 				vinfo->hs->level);
 	 

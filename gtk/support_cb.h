@@ -127,4 +127,8 @@ on_ColorSelectionCancel_clicked        (GtkButton       *button,
 
 GtkWidget *
 new_ColorSelectionDialog(void);
+
+void 
+Invoke_VerifyDialog(gchar *label, GtkSignalFunc on_okay, gpointer okay_data,
+						  GtkSignalFunc on_cancel, gpointer cancel_data);
 #endif

@@ -52,7 +52,7 @@ create_ProcedureDialog (void)
   gtk_object_set_data (GTK_OBJECT (ProcedureDialog), "ProcedureDialog", ProcedureDialog);
   gtk_window_set_title (GTK_WINDOW (ProcedureDialog), _("Procedure"));
   GTK_WINDOW (ProcedureDialog)->type = GTK_WINDOW_DIALOG;
-  gtk_window_set_default_size (GTK_WINDOW (ProcedureDialog), -1, 250);
+  gtk_window_set_default_size (GTK_WINDOW (ProcedureDialog), 250, 250);
   gtk_window_set_policy (GTK_WINDOW (ProcedureDialog), TRUE, TRUE, FALSE);
 
   dialog_vbox1 = GTK_DIALOG (ProcedureDialog)->vbox;
@@ -278,7 +278,7 @@ create_ImageNameDialog (void)
   ImageNameDialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (ImageNameDialog), "ImageNameDialog", ImageNameDialog);
   gtk_window_set_title (GTK_WINDOW (ImageNameDialog), _("Image Name Dialog"));
-  GTK_WINDOW (ImageNameDialog)->type = GTK_WINDOW_POPUP;
+  GTK_WINDOW (ImageNameDialog)->type = GTK_WINDOW_DIALOG;
   gtk_window_set_position (GTK_WINDOW (ImageNameDialog), GTK_WIN_POS_CENTER);
   gtk_window_set_modal (GTK_WINDOW (ImageNameDialog), TRUE);
   gtk_window_set_policy (GTK_WINDOW (ImageNameDialog), TRUE, TRUE, FALSE);

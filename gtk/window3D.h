@@ -130,10 +130,6 @@ void
 variable_menu_add_variable(GtkWidget *window3D, v5d_var_info *vinfo);
 
 void
-on_variable_activate                   (GtkMenuItem     *menuitem,
-                                        gpointer         user_data);
-
-void
 on_animate_slower                      (GtkButton       *button,
                                         gpointer         user_data);
 

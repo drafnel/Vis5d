@@ -20,7 +20,7 @@
 #include "support_cb.h"
 #include "graph_labels.h"
 #include "VarGraphicsControls.h"
-
+#include "ProcedureDialog.h"
 
 extern GtkWidget *FileSelectionDialog;
 extern GtkWidget *FontSelectionDialog;

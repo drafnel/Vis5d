@@ -191,6 +191,7 @@ GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, gboole
     oneimage = (Image *) g_list_last(Procedure)->data;
   }else{
 	 oneimage = g_new(Image,1); /* *) g_malloc(sizeof(Image)); */
+    oneimage->vinfo_array = g_ptr_array_new();
 	 oneimage->items=g_ptr_array_new();
 	 oneimage->item_type=g_array_new(FALSE,TRUE,sizeof(gint));
   }
@@ -203,7 +204,7 @@ GList *procedure_add_item(GList *Procedure, gpointer item, gint itemtype, gboole
   }
 
   if(NewImage==TRUE){
-	 g_list_append(Procedure, (gpointer) oneimage);
+	 Procedure = g_list_append(Procedure, (gpointer) oneimage);
   }
   return Procedure;
 }

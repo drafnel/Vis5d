@@ -3,3 +3,4 @@
  */
 
 GtkWidget* create_ProcedureDialog (void);
+GtkWidget* create_ImageNameDialog (void);

@@ -69,38 +69,6 @@
 
 	<widget>
 	  <class>GtkButton</class>
-	  <name>add</name>
-	  <can_default>True</can_default>
-	  <can_focus>True</can_focus>
-	  <signal>
-	    <name>clicked</name>
-	    <handler>on_add_clicked</handler>
-	    <data>ProcedureDialog</data>
-	    <last_modification_time>Wed, 12 Sep 2001 12:14:02 GMT</last_modification_time>
-	  </signal>
-	  <label>Add
-Image</label>
-	  <relief>GTK_RELIEF_NORMAL</relief>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
-	  <name>delete</name>
-	  <can_default>True</can_default>
-	  <can_focus>True</can_focus>
-	  <signal>
-	    <name>clicked</name>
-	    <handler>on_delete_clicked</handler>
-	    <data>ProcedureCtree</data>
-	    <last_modification_time>Wed, 12 Sep 2001 11:25:47 GMT</last_modification_time>
-	  </signal>
-	  <label>Delete
-Image</label>
-	  <relief>GTK_RELIEF_NORMAL</relief>
-	</widget>
-
-	<widget>
-	  <class>GtkButton</class>
 	  <name>close</name>
 	  <can_default>True</can_default>
 	  <can_focus>True</can_focus>
@@ -117,12 +85,10 @@ Image</label>
     </widget>
 
     <widget>
-      <class>GtkScrolledWindow</class>
-      <name>scrolledwindow1</name>
-      <hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
-      <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+      <class>GtkVBox</class>
+      <name>vbox1</name>
+      <homogeneous>False</homogeneous>
+      <spacing>0</spacing>
       <child>
 	<padding>0</padding>
 	<expand>True</expand>
@@ -130,78 +96,347 @@ Image</label>
       </child>
 
       <widget>
-	<class>GtkCTree</class>
-	<name>ProcedureCtree</name>
+	<class>GtkMenuBar</class>
+	<name>menubar1</name>
+	<shadow_type>GTK_SHADOW_OUT</shadow_type>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+
+	<widget>
+	  <class>GtkMenuItem</class>
+	  <name>file1</name>
+	  <label>File</label>
+	  <right_justify>False</right_justify>
+
+	  <widget>
+	    <class>GtkMenu</class>
+	    <name>file1_menu</name>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>openProcedure</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_openProcedure_activate</handler>
+		<last_modification_time>Fri, 14 Sep 2001 12:24:23 GMT</last_modification_time>
+	      </signal>
+	      <label>Open</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>saveProcedure</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_saveProcedure_activate</handler>
+		<last_modification_time>Fri, 14 Sep 2001 12:24:23 GMT</last_modification_time>
+	      </signal>
+	      <label>Save</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>save_asProcedure</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_save_asProcedure_activate</handler>
+		<last_modification_time>Fri, 14 Sep 2001 12:24:23 GMT</last_modification_time>
+	      </signal>
+	      <label>Save as</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkMenuItem</class>
+	  <name>edit1</name>
+	  <label>Edit</label>
+	  <right_justify>False</right_justify>
+
+	  <widget>
+	    <class>GtkMenu</class>
+	    <name>edit1_menu</name>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>capture1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_capture1_activate</handler>
+		<last_modification_time>Thu, 13 Sep 2001 14:30:12 GMT</last_modification_time>
+	      </signal>
+	      <label>Capture</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>cut2</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_cut2_activate</handler>
+		<last_modification_time>Thu, 13 Sep 2001 14:30:12 GMT</last_modification_time>
+	      </signal>
+	      <label>Cut</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>copy1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_copy1_activate</handler>
+		<last_modification_time>Thu, 13 Sep 2001 14:24:30 GMT</last_modification_time>
+	      </signal>
+	      <label>Copy</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>paste1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_paste1_activate</handler>
+		<last_modification_time>Thu, 13 Sep 2001 14:24:30 GMT</last_modification_time>
+	      </signal>
+	      <label>Paste</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>delete1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_delete1_activate</handler>
+		<last_modification_time>Thu, 13 Sep 2001 14:24:30 GMT</last_modification_time>
+	      </signal>
+	      <label>Delete</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkScrolledWindow</class>
+	<name>scrolledwindow1</name>
+	<hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
+	<vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
+	<hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	<vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkCTree</class>
+	  <name>ProcedureCtree</name>
+	  <can_focus>True</can_focus>
+	  <signal>
+	    <name>tree_select_row</name>
+	    <handler>on_ProcedureCtree_tree_select_row</handler>
+	    <last_modification_time>Tue, 11 Sep 2001 12:02:58 GMT</last_modification_time>
+	  </signal>
+	  <signal>
+	    <name>tree_unselect_row</name>
+	    <handler>on_ProcedureCtree_tree_unselect_row</handler>
+	    <last_modification_time>Tue, 11 Sep 2001 16:44:16 GMT</last_modification_time>
+	  </signal>
+	  <signal>
+	    <name>key_press_event</name>
+	    <handler>on_ProcedureCtree_key_press_event</handler>
+	    <last_modification_time>Tue, 11 Sep 2001 17:01:06 GMT</last_modification_time>
+	  </signal>
+	  <signal>
+	    <name>tree_expand</name>
+	    <handler>on_ProcedureCtree_tree_expand</handler>
+	    <last_modification_time>Tue, 11 Sep 2001 18:10:36 GMT</last_modification_time>
+	  </signal>
+	  <signal>
+	    <name>tree_collapse</name>
+	    <handler>on_ProcedureCtree_tree_collapse</handler>
+	    <last_modification_time>Tue, 11 Sep 2001 18:10:43 GMT</last_modification_time>
+	  </signal>
+	  <columns>3</columns>
+	  <column_widths>113,80,80</column_widths>
+	  <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	  <show_titles>True</show_titles>
+	  <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <child_name>CTree:title</child_name>
+	    <name>label1</name>
+	    <label>Image Name</label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>0.5</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	  </widget>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <child_name>CTree:title</child_name>
+	    <name>label2</name>
+	    <label>Graphic Type</label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>0.5</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	  </widget>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <child_name>CTree:title</child_name>
+	    <name>label3</name>
+	    <label>Variable</label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>0.5</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	  </widget>
+	</widget>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkDialog</class>
+  <name>ImageNameDialog</name>
+  <title>Image Name Dialog</title>
+  <type>GTK_WINDOW_POPUP</type>
+  <position>GTK_WIN_POS_CENTER</position>
+  <modal>True</modal>
+  <allow_shrink>True</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>Dialog:vbox</child_name>
+    <name>dialog-vbox2</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+
+    <widget>
+      <class>GtkHBox</class>
+      <child_name>Dialog:action_area</child_name>
+      <name>dialog-action_area2</name>
+      <border_width>10</border_width>
+      <homogeneous>True</homogeneous>
+      <spacing>5</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkHButtonBox</class>
+	<name>hbuttonbox2</name>
+	<layout_style>GTK_BUTTONBOX_DEFAULT_STYLE</layout_style>
+	<spacing>30</spacing>
+	<child_min_width>85</child_min_width>
+	<child_min_height>27</child_min_height>
+	<child_ipad_x>7</child_ipad_x>
+	<child_ipad_y>0</child_ipad_y>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>okay</name>
+	  <can_default>True</can_default>
+	  <can_focus>True</can_focus>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_okay_clicked</handler>
+	    <data>ImageNameEntry</data>
+	    <last_modification_time>Thu, 13 Sep 2001 13:21:11 GMT</last_modification_time>
+	  </signal>
+	  <label>Okay</label>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>cancel</name>
+	  <can_default>True</can_default>
+	  <can_focus>True</can_focus>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_cancel_clicked</handler>
+	    <last_modification_time>Thu, 13 Sep 2001 13:20:18 GMT</last_modification_time>
+	  </signal>
+	  <label>Cancel</label>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	</widget>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkHBox</class>
+      <name>hbox1</name>
+      <homogeneous>False</homogeneous>
+      <spacing>0</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label4</name>
+	<label>Image Name:</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xpad>5</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkEntry</class>
+	<name>ImageNameEntry</name>
 	<can_focus>True</can_focus>
-	<signal>
-	  <name>tree_select_row</name>
-	  <handler>on_ProcedureCtree_tree_select_row</handler>
-	  <last_modification_time>Tue, 11 Sep 2001 12:02:58 GMT</last_modification_time>
-	</signal>
-	<signal>
-	  <name>tree_unselect_row</name>
-	  <handler>on_ProcedureCtree_tree_unselect_row</handler>
-	  <last_modification_time>Tue, 11 Sep 2001 16:44:16 GMT</last_modification_time>
-	</signal>
-	<signal>
-	  <name>key_press_event</name>
-	  <handler>on_ProcedureCtree_key_press_event</handler>
-	  <last_modification_time>Tue, 11 Sep 2001 17:01:06 GMT</last_modification_time>
-	</signal>
-	<signal>
-	  <name>tree_expand</name>
-	  <handler>on_ProcedureCtree_tree_expand</handler>
-	  <last_modification_time>Tue, 11 Sep 2001 18:10:36 GMT</last_modification_time>
-	</signal>
-	<signal>
-	  <name>tree_collapse</name>
-	  <handler>on_ProcedureCtree_tree_collapse</handler>
-	  <last_modification_time>Tue, 11 Sep 2001 18:10:43 GMT</last_modification_time>
-	</signal>
-	<columns>3</columns>
-	<column_widths>113,80,80</column_widths>
-	<selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	<show_titles>True</show_titles>
-	<shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CTree:title</child_name>
-	  <name>label1</name>
-	  <label>Image Name</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CTree:title</child_name>
-	  <name>label2</name>
-	  <label>Graphic Type</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CTree:title</child_name>
-	  <name>label3</name>
-	  <label>Variable</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	</widget>
+	<editable>True</editable>
+	<text_visible>True</text_visible>
+	<text_max_length>20</text_max_length>
+	<text></text>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
       </widget>
     </widget>
   </widget>

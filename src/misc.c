@@ -268,6 +268,7 @@ void init_graphics_pos( Context ctx, int var )
 	}
 
 	ctx->Variable[var]->HSliceRequest->stipple=VIS5D_SOLID_LINE;
+   ctx->Variable[var]->HSliceRequest->linewidth = 1;
    ctx->Variable[var]->HSliceRequest->Level = l;
    new_hslice_pos( ctx, ctx->Variable[var]->HSliceRequest->Level, &ctx->Variable[var]->HSliceRequest->Z,
                    &ctx->Variable[var]->HSliceRequest->Hgt );
@@ -301,6 +302,7 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->VSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
 	}
 	ctx->Variable[var]->VSliceRequest->stipple=VIS5D_SOLID_LINE;
+   ctx->Variable[var]->VSliceRequest->linewidth = 1;
 
    ctx->Variable[var]->VSliceRequest->R1 = (float) (dtx->Nr-1) / 2.0;
    ctx->Variable[var]->VSliceRequest->R2 = 0.0;

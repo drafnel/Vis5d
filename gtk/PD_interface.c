@@ -30,14 +30,15 @@ create_ProcedureDialog (void)
   GtkWidget *label3;
   GtkWidget *dialog_action_area1;
   GtkWidget *hbuttonbox1;
-  GtkWidget *button1;
-  GtkWidget *button2;
-  GtkWidget *button3;
+  GtkWidget *add;
+  GtkWidget *delete;
+  GtkWidget *close;
 
   ProcedureDialog = gtk_dialog_new ();
   gtk_object_set_data (GTK_OBJECT (ProcedureDialog), "ProcedureDialog", ProcedureDialog);
   gtk_window_set_title (GTK_WINDOW (ProcedureDialog), _("Procedure"));
   GTK_WINDOW (ProcedureDialog)->type = GTK_WINDOW_DIALOG;
+  gtk_window_set_default_size (GTK_WINDOW (ProcedureDialog), -1, 250);
   gtk_window_set_policy (GTK_WINDOW (ProcedureDialog), TRUE, TRUE, FALSE);
 
   dialog_vbox1 = GTK_DIALOG (ProcedureDialog)->vbox;
@@ -57,26 +58,26 @@ create_ProcedureDialog (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (ProcedureCtree);
   gtk_container_add (GTK_CONTAINER (scrolledwindow1), ProcedureCtree);
-  gtk_clist_set_column_width (GTK_CLIST (ProcedureCtree), 0, 80);
+  gtk_clist_set_column_width (GTK_CLIST (ProcedureCtree), 0, 113);
   gtk_clist_set_column_width (GTK_CLIST (ProcedureCtree), 1, 80);
   gtk_clist_set_column_width (GTK_CLIST (ProcedureCtree), 2, 80);
   gtk_clist_column_titles_show (GTK_CLIST (ProcedureCtree));
 
-  label1 = gtk_label_new (_("label1"));
+  label1 = gtk_label_new (_("Image Name"));
   gtk_widget_ref (label1);
   gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "label1", label1,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label1);
   gtk_clist_set_column_widget (GTK_CLIST (ProcedureCtree), 0, label1);
 
-  label2 = gtk_label_new (_("label2"));
+  label2 = gtk_label_new (_("Graphic Type"));
   gtk_widget_ref (label2);
   gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "label2", label2,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (label2);
   gtk_clist_set_column_widget (GTK_CLIST (ProcedureCtree), 1, label2);
 
-  label3 = gtk_label_new (_("label3"));
+  label3 = gtk_label_new (_("Variable"));
   gtk_widget_ref (label3);
   gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "label3", label3,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -95,29 +96,54 @@ create_ProcedureDialog (void)
   gtk_widget_show (hbuttonbox1);
   gtk_box_pack_start (GTK_BOX (dialog_action_area1), hbuttonbox1, TRUE, TRUE, 0);
 
-  button1 = gtk_button_new_with_label (_("button1"));
-  gtk_widget_ref (button1);
-  gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "button1", button1,
+  add = gtk_button_new_with_label (_("Add\nImage"));
+  gtk_widget_ref (add);
+  gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "add", add,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (button1);
-  gtk_container_add (GTK_CONTAINER (hbuttonbox1), button1);
-  GTK_WIDGET_SET_FLAGS (button1, GTK_CAN_DEFAULT);
+  gtk_widget_show (add);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox1), add);
+  GTK_WIDGET_SET_FLAGS (add, GTK_CAN_DEFAULT);
 
-  button2 = gtk_button_new_with_label (_("button2"));
-  gtk_widget_ref (button2);
-  gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "button2", button2,
+  delete = gtk_button_new_with_label (_("Delete\nImage"));
+  gtk_widget_ref (delete);
+  gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "delete", delete,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (button2);
-  gtk_container_add (GTK_CONTAINER (hbuttonbox1), button2);
-  GTK_WIDGET_SET_FLAGS (button2, GTK_CAN_DEFAULT);
+  gtk_widget_show (delete);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox1), delete);
+  GTK_WIDGET_SET_FLAGS (delete, GTK_CAN_DEFAULT);
 
-  button3 = gtk_button_new_with_label (_("button3"));
-  gtk_widget_ref (button3);
-  gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "button3", button3,
+  close = gtk_button_new_with_label (_("Close"));
+  gtk_widget_ref (close);
+  gtk_object_set_data_full (GTK_OBJECT (ProcedureDialog), "close", close,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (button3);
-  gtk_container_add (GTK_CONTAINER (hbuttonbox1), button3);
-  GTK_WIDGET_SET_FLAGS (button3, GTK_CAN_DEFAULT);
+  gtk_widget_show (close);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox1), close);
+  GTK_WIDGET_SET_FLAGS (close, GTK_CAN_DEFAULT);
+
+  gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "tree_select_row",
+                      GTK_SIGNAL_FUNC (on_ProcedureCtree_tree_select_row),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "tree_unselect_row",
+                      GTK_SIGNAL_FUNC (on_ProcedureCtree_tree_unselect_row),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "key_press_event",
+                      GTK_SIGNAL_FUNC (on_ProcedureCtree_key_press_event),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "tree_expand",
+                      GTK_SIGNAL_FUNC (on_ProcedureCtree_tree_expand),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (ProcedureCtree), "tree_collapse",
+                      GTK_SIGNAL_FUNC (on_ProcedureCtree_tree_collapse),
+                      NULL);
+  gtk_signal_connect (GTK_OBJECT (add), "clicked",
+                      GTK_SIGNAL_FUNC (on_add_clicked),
+                      ProcedureDialog);
+  gtk_signal_connect (GTK_OBJECT (delete), "clicked",
+                      GTK_SIGNAL_FUNC (on_delete_clicked),
+                      ProcedureCtree);
+  gtk_signal_connect (GTK_OBJECT (close), "clicked",
+                      GTK_SIGNAL_FUNC (on_close_clicked),
+                      ProcedureDialog);
 
   return ProcedureDialog;
 }

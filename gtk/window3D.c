@@ -421,55 +421,16 @@ void
 on_newprocedure_activate               (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-
-}
-/*
-void
-on_hslice_activate (GtkMenuItem     *menuitem,
-							 gpointer         user_data)
-{
-  GtkWidget *window3D;
   v5d_info *info;
+  GtkWidget *window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  
+  info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(window3D),"v5d_info");
 
-  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
-  info = gtk_object_get_data(GTK_OBJECT(window3D),"v5d_info");
-  if(info)
- 	 gtk_widget_show(info->HSliceControls);
-
+  if(info->ProcedureDialog)
+	 gtk_widget_destroy(info->ProcedureDialog);
+  info->ProcedureDialog = new_ProcedureDialog(info, NULL);
+  gtk_window_set_transient_for(GTK_WINDOW(info->ProcedureDialog),GTK_WINDOW(window3D));
 }
-*/
-void
-on_chslice_activate                    (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
-
-void
-on_vslice_activate                     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
-
-
-void
-on_isosurface_activate                 (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
-
-void
-on_volume_activate                     (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-
-}
-
 
 void
 on_setview_activate              (GtkMenuItem     *menuitem,
@@ -877,18 +838,13 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 	 v5d_info *info ;
 
 	 window3D = gtk_widget_get_toplevel(widget);
-
 	 
-	 info = (v5d_info *) g_malloc(sizeof(v5d_info));
+	 info = g_new0(v5d_info,1);
 
-	 info->graph_label_list=NULL;
-	 info->beginx = 0;
-	 info->beginy = 0;
-	 info->animate=0;
 	 info->stepsize=1;
 	 info->v5d_display_context=-1;
-	 info->VarSelectionDialog=NULL;
 	 info->GtkGlArea=widget;
+	 info->vinfo_array = g_ptr_array_new();
 
 	 /* set pointers to the info structure from the glarea */
 	 gtk_object_set_data(GTK_OBJECT(window3D), "v5d_info", info);
@@ -997,15 +953,19 @@ void
 on_variable_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+  /* JPE This function is a callback for the variable menuitem
+     it may also be called from ProcedureDialog in which case menuitem==NULL 
+	  As of this time menuitem is not used, be careful if you use it.
+  */
+
   v5d_var_info *vinfo = (v5d_var_info *) user_data;
 
-  if(vinfo->VarGraphicsDialog){
-	 /* the dialog already exist what to do ? */
-	 gtk_widget_show(vinfo->VarGraphicsDialog);
-  }else{
+  if(! vinfo->VarGraphicsDialog){
 	 vinfo->VarGraphicsDialog = new_VarGraphicsControls();	 
-	 
+
+	 /*  JPE - cant say that this does anything
 	 gtk_widget_hide_on_delete(vinfo->VarGraphicsDialog);
+	 */
 
 	 gtk_object_set_data(GTK_OBJECT(vinfo->VarGraphicsDialog),"v5d_var_info",(gpointer) vinfo);
 
@@ -1029,8 +989,9 @@ on_variable_activate                   (GtkMenuItem     *menuitem,
 		gtk_widget_set_sensitive(lookup_widget(vinfo->VarGraphicsDialog,"Volumebutton"),TRUE);
 		*/
 	 }
-	 gtk_widget_show(vinfo->VarGraphicsDialog);
   }
+  if(menuitem)
+	 gtk_widget_show(vinfo->VarGraphicsDialog);
 
 }
 
@@ -1128,9 +1089,16 @@ on_change_animate_speed                (GtkButton       *button,
   }else{
 	 info->animate_speed*=2.0; 	 
   }
-  printf("Setting animate speed to %f frames per second\n",1000.0/ (float) info->animate_speed);
 
   gtk_timeout_remove(info->timeout_id);
   info->timeout_id = gtk_timeout_add(info->animate_speed, (GtkFunction) (_glarea_draw),(gpointer) info);
+}
+
+
+void
+on_append1_activate                    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
 }
 

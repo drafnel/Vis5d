@@ -53,7 +53,7 @@ typedef struct {
 
   float zoom;           /* field of view in degrees */
 
-  GtkWidget *VarSelectionDialog;
+
   GtkWidget *GtkGlArea;
   int animate;
   guint32 animate_speed;
@@ -63,9 +63,9 @@ typedef struct {
   int numtimes;
   int vcs;
   int label_count;
-
+  GPtrArray *vinfo_array;
   GList *graph_label_list;
-
+  GtkWidget *ProcedureDialog;
 } v5d_info;
 
 typedef struct {

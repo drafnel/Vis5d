@@ -18,6 +18,7 @@ extern GtkWidget *ColorSelectionDialog;
 GtkWidget *current_sample_label=NULL;
 static gint last_level;
 void hs_label(v5d_var_info *vinfo);
+void chs_label(v5d_var_info *vinfo);
 
 
 gboolean
@@ -270,7 +271,7 @@ void chs_label(v5d_var_info *vinfo)
   if(vinfo->chs->label){
 	 update_label(vinfo->info, vinfo->chs->label, text);
   }else{
-	 vinfo->chs->label = add_label(vinfo->info, text, HSLICE);
+	 vinfo->chs->label = add_label(vinfo->info, text, CHSLICE);
 	 vinfo->chs->label->data = (gpointer) vinfo;
   }
 

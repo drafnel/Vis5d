@@ -85,6 +85,20 @@ void update_graph_labels(v5d_info *info)
 }
 
 
+void clear_all_labels(v5d_info *info)
+{
+  GList *item=info->graph_label_list;
+  graph_label *label;
+  while(item){
+	 label = (graph_label *) item->data;
+	 vis5d_delete_label(info->v5d_display_context, label->labelid);
+	 g_free(label);
+	 item = g_list_next(item);
+  }
+  g_list_free(info->graph_label_list);
+  info->graph_label_list=NULL;
+}
+
 void delete_label(v5d_info *info, graph_label *label)
 {
   

@@ -11,11 +11,11 @@
 #include "support_cb.h"
 #include "interface.h"
 #include "support.h"
+#include "ProcedureDialog.h"
 
 GtkWidget *FileSelectionDialog=NULL;
 GtkWidget *FontSelectionDialog=NULL;
 GtkWidget *ColorSelectionDialog=NULL;
-GtkWidget *ProcedureDialog=NULL;
 
 void variable_ctree_add_var(GtkCTree *ctree, gchar *name, v5d_var_info *vinfo)
 {
@@ -35,8 +35,6 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
   v5d_var_info *vinfo;
   v5d_info *info;
 
-  GtkCTree *hs_ctree;
-  
   
   /* todo: should check for errors here */
   info = (v5d_info *) lookup_widget(window3D,"v5d_info");
@@ -59,7 +57,7 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 	 float vertargs[MAXVERTARGS];
 	 vis5d_get_dtx_vertical(info->v5d_display_context, &(info->vcs), vertargs);
   }
-
+  
   for(i=0;i < numvars; i++){
 	 vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
 	 
@@ -71,6 +69,9 @@ load_data_file  (GtkWidget *window3D, gchar *filename)
 	 vis5d_get_ctx_var_name(dc,i,vinfo->vname);
 	 vinfo->maxlevel = vis5d_get_levels(dc, i);
 	 vinfo->VarGraphicsDialog=NULL;
+	 
+	 g_ptr_array_add(info->vinfo_array,(gpointer) vinfo);
+
 	 variable_menu_add_variable(window3D, vinfo);
   }
 
@@ -120,10 +121,10 @@ on_fileselect_ok                       (GtkButton       *button,
 	 vis5d_load_topo_and_map(info->v5d_display_context);
 	 break;
   case PROCEDURE_FILE:
-	 if(ProcedureDialog)
-		gtk_widget_destroy(ProcedureDialog);
-    ProcedureDialog = new_ProcedureDialog(filename);
-	 gtk_window_set_transient_for(GTK_WINDOW(window3D));
+	 if(info->ProcedureDialog)
+		gtk_widget_destroy(info->ProcedureDialog);
+    info->ProcedureDialog = new_ProcedureDialog(info, filename);
+	 gtk_window_set_transient_for(GTK_WINDOW(info->ProcedureDialog),GTK_WINDOW(window3D));
 	 break;
   default:
 	 g_print("open what ? %d\n",what);

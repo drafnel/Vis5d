@@ -21,7 +21,8 @@ enum {
     SYMBOL_LEV,
     SYMBOL_STIPPLE,
     SYMBOL_WIDTH,
-    SYMBOL_COLOR
+  SYMBOL_COLOR,
+  NULL_SYMBOL    /* should always be last - just a pointer to the end*/
 };
 
 
@@ -224,15 +225,11 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
   if(scanner->token == '}'){    
 	 g_scanner_set_scope(scanner,context[--context_depth]);
 
-	 printf("leaving scope\n");
-	 /*
-	 sleep(4);
-	 */
 	 return G_TOKEN_NONE;
   }
   
   if (symbol < SCOPE_SYMBOL_IMAGE ||
-		symbol > SYMBOL_COLOR)
+		symbol >= NULL_SYMBOL)
 	 return G_TOKEN_SYMBOL;
 
 
@@ -246,13 +243,10 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 	 context[++context_depth] = symbol;
 	 g_scanner_set_scope(scanner,context[context_depth]);
 
-		printf("new image\n");
-		/*
-		sleep(4);
-		*/
 	 oneimage = g_new(Image,1); /* *) g_malloc(sizeof(Image));*/
 	 oneimage->name = NULL;
 	 oneimage->items=g_ptr_array_new();
+	 oneimage->vinfo_array=g_ptr_array_new();
 	 oneimage->item_type=g_array_new(FALSE,TRUE,sizeof(gint));
     *ProcedureList = g_list_append(*ProcedureList, (gpointer) oneimage);
 	 return G_TOKEN_NONE;
@@ -272,7 +266,6 @@ parse_symbol (GScanner *scanner, GList **ProcedureList)
 		if(scanner->token != '{')
 		  return '{';
 
-		printf("new hslice\n");
 		/*
 		sleep(4);
 		*/

@@ -144,3 +144,7 @@ on_animate_faster                      (GtkButton       *button,
 void
 on_change_animate_speed                (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_append1_activate                    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

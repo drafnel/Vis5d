@@ -15,6 +15,7 @@ typedef struct {
   gchar *name;
   GPtrArray *items;
   GArray *item_type;
+  GPtrArray *vinfo_array;
   /* GList *items; */
 } Image;
 

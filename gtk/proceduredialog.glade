@@ -26,6 +26,7 @@
   <type>GTK_WINDOW_DIALOG</type>
   <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>
+  <default_height>250</default_height>
   <allow_shrink>True</allow_shrink>
   <allow_grow>True</allow_grow>
   <auto_shrink>False</auto_shrink>
@@ -68,28 +69,48 @@
 
 	<widget>
 	  <class>GtkButton</class>
-	  <name>button1</name>
+	  <name>add</name>
 	  <can_default>True</can_default>
 	  <can_focus>True</can_focus>
-	  <label>button1</label>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_add_clicked</handler>
+	    <data>ProcedureDialog</data>
+	    <last_modification_time>Wed, 12 Sep 2001 12:14:02 GMT</last_modification_time>
+	  </signal>
+	  <label>Add
+Image</label>
 	  <relief>GTK_RELIEF_NORMAL</relief>
 	</widget>
 
 	<widget>
 	  <class>GtkButton</class>
-	  <name>button2</name>
+	  <name>delete</name>
 	  <can_default>True</can_default>
 	  <can_focus>True</can_focus>
-	  <label>button2</label>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_delete_clicked</handler>
+	    <data>ProcedureCtree</data>
+	    <last_modification_time>Wed, 12 Sep 2001 11:25:47 GMT</last_modification_time>
+	  </signal>
+	  <label>Delete
+Image</label>
 	  <relief>GTK_RELIEF_NORMAL</relief>
 	</widget>
 
 	<widget>
 	  <class>GtkButton</class>
-	  <name>button3</name>
+	  <name>close</name>
 	  <can_default>True</can_default>
 	  <can_focus>True</can_focus>
-	  <label>button3</label>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_close_clicked</handler>
+	    <data>ProcedureDialog</data>
+	    <last_modification_time>Wed, 12 Sep 2001 11:13:46 GMT</last_modification_time>
+	  </signal>
+	  <label>Close</label>
 	  <relief>GTK_RELIEF_NORMAL</relief>
 	</widget>
       </widget>
@@ -112,8 +133,33 @@
 	<class>GtkCTree</class>
 	<name>ProcedureCtree</name>
 	<can_focus>True</can_focus>
+	<signal>
+	  <name>tree_select_row</name>
+	  <handler>on_ProcedureCtree_tree_select_row</handler>
+	  <last_modification_time>Tue, 11 Sep 2001 12:02:58 GMT</last_modification_time>
+	</signal>
+	<signal>
+	  <name>tree_unselect_row</name>
+	  <handler>on_ProcedureCtree_tree_unselect_row</handler>
+	  <last_modification_time>Tue, 11 Sep 2001 16:44:16 GMT</last_modification_time>
+	</signal>
+	<signal>
+	  <name>key_press_event</name>
+	  <handler>on_ProcedureCtree_key_press_event</handler>
+	  <last_modification_time>Tue, 11 Sep 2001 17:01:06 GMT</last_modification_time>
+	</signal>
+	<signal>
+	  <name>tree_expand</name>
+	  <handler>on_ProcedureCtree_tree_expand</handler>
+	  <last_modification_time>Tue, 11 Sep 2001 18:10:36 GMT</last_modification_time>
+	</signal>
+	<signal>
+	  <name>tree_collapse</name>
+	  <handler>on_ProcedureCtree_tree_collapse</handler>
+	  <last_modification_time>Tue, 11 Sep 2001 18:10:43 GMT</last_modification_time>
+	</signal>
 	<columns>3</columns>
-	<column_widths>80,80,80</column_widths>
+	<column_widths>113,80,80</column_widths>
 	<selection_mode>GTK_SELECTION_SINGLE</selection_mode>
 	<show_titles>True</show_titles>
 	<shadow_type>GTK_SHADOW_IN</shadow_type>
@@ -122,7 +168,7 @@
 	  <class>GtkLabel</class>
 	  <child_name>CTree:title</child_name>
 	  <name>label1</name>
-	  <label>label1</label>
+	  <label>Image Name</label>
 	  <justify>GTK_JUSTIFY_CENTER</justify>
 	  <wrap>False</wrap>
 	  <xalign>0.5</xalign>
@@ -135,7 +181,7 @@
 	  <class>GtkLabel</class>
 	  <child_name>CTree:title</child_name>
 	  <name>label2</name>
-	  <label>label2</label>
+	  <label>Graphic Type</label>
 	  <justify>GTK_JUSTIFY_CENTER</justify>
 	  <wrap>False</wrap>
 	  <xalign>0.5</xalign>
@@ -148,7 +194,7 @@
 	  <class>GtkLabel</class>
 	  <child_name>CTree:title</child_name>
 	  <name>label3</name>
-	  <label>label3</label>
+	  <label>Variable</label>
 	  <justify>GTK_JUSTIFY_CENTER</justify>
 	  <wrap>False</wrap>
 	  <xalign>0.5</xalign>

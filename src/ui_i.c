@@ -56,8 +56,6 @@ static int MaxNl;
 extern char *path;
 
 
-extern start_vis5d( char *filename );
-
 
 /*
  * Print help information
@@ -154,12 +152,17 @@ static void do_help( char *subject )
       P("  make <filename>      where filename is a .v5d file.\n");
    }
    else if (strcmp(subject,"visualize")==0) {
+#ifdef VIS5DPLUS
+	  P("The visualize command is currently disabled in vis5d+gtk\n");
+	  P("but it shouldn't be too hard to fix if you are volunteering\n");
+#else
       P("The visualize command causes the output file to be generated and\n");
       P("Vis5D to be started.  All grids marked as 'keep' (*) will be included\n");
       P("in the output file.  The input grids will be resampled and remapped\n");
       P("to the dimensions and projection as reported by the 'info' command.\n");
       P("There is one optional argument to the make command:\n");
       P("  visualize <filename>      where filename is a .v5d file.\n");
+#endif
    }
    else if (strcmp(subject,"exit")==0) {
       P("The exit command is used to exit this program.  The command quit\n");
@@ -492,8 +495,8 @@ static void do_make( struct grid_db *db, v5dstruct *v5dout, char *filein )
    printf("Done\n");
 }
 
-
-
+#ifndef VIS5DPLUS
+extern start_vis5d( char *filename );
 /*
  * Make the output file and start Vis5D.
  * Input:  db - the grid database
@@ -537,7 +540,7 @@ static void do_go( struct grid_db *db, v5dstruct *v5dout, char *name )
    start_vis5d(filename);
    exit(0);
 }
-
+#endif
 
 
 /*
@@ -901,6 +904,7 @@ static void parse_command( char *command, struct grid_db *db,
          do_make( db, v5dout, token[1] );
       }
    }
+#ifndef VIS5DPLUS
    else if (strcmp(token[0],"visualize")==0) {
       if (n<2) {
          do_go( db, v5dout, NULL );
@@ -909,6 +913,7 @@ static void parse_command( char *command, struct grid_db *db,
          do_go( db, v5dout, token[1] );
       }
    }
+#endif
    else if (strncmp(token[0],"proj",4)==0) {
       if (n==1) {
          printf("Error: missing arguments to projection\n");

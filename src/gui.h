@@ -25,7 +25,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
+#ifndef VIS5DPLUS
 #ifndef GUI_H
 #define GUI_H
 
@@ -598,4 +598,5 @@ extern int get_window_geometry (char *geom_str, int *width, int *height,
 extern int alrighty_value;
 extern int alrighty( int index, char *prompt );
 
+#endif
 #endif

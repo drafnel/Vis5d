@@ -85,16 +85,20 @@ int main_irun( Display *guidpy, int standalone, int argc, char *argv[] )
    select_all( db, ALL_BITS, 1 );
 
    setup_defaults( db, v5dout, 1, 1, 1 );
-
+	/* JPE: For now at least this is a text tool only for vis5d+gtk */
+#ifndef VIS5DPLUS
    if (text_ui) {
+#endif
       /* Text-based user interface */
       ui_loop( db, v5dout );
+#ifndef VIS5DPLUS
    }
    else {
       /* Graphical user interface */
       make_gui_i(guidpy, standalone );
       gui_loop( db, v5dout );
    }
+#endif
 
    return 0;
 }

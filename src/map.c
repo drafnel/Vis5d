@@ -107,7 +107,7 @@ int     bend_line_to_fit_surf (float *verts, int ncols, int nrows,
 {
 
     int         i, nnew;
-    float       xfac, yfac, xoff, yoff, xend, yend;
+    float       xfac, yfac, xend, yend;
     FLOAT2      *xy, *xynew;
 
 
@@ -444,8 +444,8 @@ static void add_line( Display_Context dtx, float lat0, float lon0, float hgt0,
         pandg_for(&flat0, &flon0, dtx->CentralLat, dtx->CentralLon, dtx->Rotation);
         pandg_for(&flat1, &flon1, dtx->CentralLat, dtx->CentralLon, dtx->Rotation);
       }
-      if (flon0 < -150.0 && flon1 > 150.0 ||
-          flon1 < -150.0 && flon0 > 150.0) {
+      if (((flon0 < -150.0) && (flon1 > 150.0)) ||
+          ((flon1 < -150.0) && (flon0 > 150.0))) {
         x0 = 200.0; /* ensure clipping failure */
       }
 

@@ -38,6 +38,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "memory.h"
 #include "globals.h"
@@ -437,7 +438,7 @@ static int extract_digits( float x, float *dig,
 }
 
 
-
+#ifdef LEAVEOUT
 /*
  * Plot the digits for a contour label in a vector font format.
  *     Note: ROWS = XK TO XM, COLS = YK TO YM
@@ -627,7 +628,7 @@ static int plotdigits( float gg, float xk, float yk, float xm, float ym,
    return num;
 }
 
-
+#endif
 
 /*
  * Compute contour lines for a 2-D array.  If the interval is negative,

@@ -110,7 +110,7 @@ int tcl_save( int index, char *savefile )
 {
    FILE *f;
    int cyo, chowmany, cwhichones[VIS5D_MAX_CONTEXTS];
-   int time, var, i, k, set;
+   int var, i, k;
    int numvars;
    float r, g, b, a;
    char varname[20];
@@ -414,7 +414,7 @@ int tcl_save( int index, char *savefile )
       /* Vertical colored slices */
       fprintf(f,"\n#Vertical colored slices\n");
       for (var=0;var<numvars;var++) {
-         float level, r0, c0, r1, c1;
+         float r0, c0, r1, c1;
          vis5d_get_cvslice( vindex, var, &r0, &c0, &r1, &c1 );
          vis5d_get_ctx_var_name( vindex, var, varname );
          if (vindex == cwhichones[0]) {

@@ -544,11 +544,10 @@ int get_epa_info( char *name, struct grid_db *db )
 }
 
 
-
-
 /*
  * Reverse the order of the rows in a 2-D array.
  */
+
 static void flip_north_south( float data[], int rows, int columns )
 {
    int i, nbytes;

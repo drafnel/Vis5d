@@ -253,6 +253,7 @@ static int save_isosurfaces( Context ctx, FILE *f )
    return 0;
 }
 
+#ifdef LEAVEOUT
 
 static int save_iso_colors( Context ctx, FILE *f )
 {
@@ -288,6 +289,7 @@ static int save_iso_level( Context ctx, FILE *f )
    return 0;
 }
 
+#endif
 
 static int save_hslices( Context ctx, FILE *f )
 {
@@ -324,7 +326,7 @@ static int save_hslices( Context ctx, FILE *f )
    return 0;
 }
 
-
+#ifdef LEAVEOUT
 static int save_hslice_colors( Context ctx, FILE *f )
 {
    int iv;
@@ -355,7 +357,7 @@ static int save_hslice_pos( Context ctx, FILE *f )
    }
    return 0;
 }
-
+#endif
 
 static int save_vslices( Context ctx, FILE *f )
 {
@@ -395,7 +397,7 @@ static int save_vslices( Context ctx, FILE *f )
    return 0;
 }
 
-
+#ifdef LEAVEOUT
 
 static int save_vslice_colors( Context ctx, FILE *f )
 {
@@ -432,7 +434,7 @@ static int save_vslice_pos( Context ctx, FILE *f )
    return 0;
 }
 
-
+#endif
 
 static int save_chslices( Context ctx, FILE *f )
 {
@@ -459,7 +461,7 @@ static int save_chslices( Context ctx, FILE *f )
    return 0;
 }
 
-
+#ifdef LEAVEOUT
 
 static int save_chslice_colors( Context ctx, FILE *f )
 {
@@ -495,7 +497,7 @@ static int save_chslice_pos( Context ctx, FILE *f )
    return 0;
 }
 
-
+#endif
 
 static int save_cvslices( Context ctx, FILE *f )
 {
@@ -524,7 +526,7 @@ static int save_cvslices( Context ctx, FILE *f )
    }
    return 0;
 }
-
+#ifdef LEAVEOUT
 
 static int save_cvslice_colors( Context ctx, FILE *f )
 {
@@ -563,7 +565,6 @@ static int save_cvslice_pos( Context ctx, FILE *f )
    }
    return 0;
 }
-
 
 
 static int save_trajectories( Context ctx, FILE *f )
@@ -608,7 +609,7 @@ static int save_traj_colors( Context ctx, FILE *f )
    return 0;
 }
 
-
+#endif
 /* YO
 
 static int save_hwind( Context ctx, FILE *f )
@@ -802,7 +803,7 @@ static int save_hstream_pos( Context ctx, FILE *f )
 }
 
 */
-
+#ifdef LEAVEOUT
 static int save_volume_colors( Context ctx, FILE *f )
 {
    int iv, size;
@@ -819,7 +820,7 @@ static int save_volume_colors( Context ctx, FILE *f )
    }
    return 0;
 }
-
+#endif
 
 /* YO
 static int save_labels( Context ctx, FILE *f, int tag )
@@ -1383,7 +1384,7 @@ static void restore_traj( Context ctx, FILE *f, int blocklength )
 
 static void restore_hwind( Context ctx, FILE *f, int blocklength )
 {
-   int ws, it, nvect, nb, bytes;
+   int ws, it;
 
    fread( &ws, INT_SIZE, 1, f );  /* which slice */
    fread( &it, INT_SIZE, 1, f );  /* which time */
@@ -1424,10 +1425,10 @@ static void restore_hwind( Context ctx, FILE *f, int blocklength )
 
 
 
-
+#ifdef LEAVEOUT
 static void restore_vwind( Context ctx, FILE *f, int blocklength )
 {
-   int ws, it, nvect, bytes, nb;
+   int ws, it;
 
    fread( &ws, INT_SIZE, 1, f );  /* which slice */
    fread( &it, INT_SIZE, 1, f );  /* which time */
@@ -1480,7 +1481,7 @@ static void restore_vwind( Context ctx, FILE *f, int blocklength )
 
 static void restore_stream( Context ctx, FILE *f, int blocklength )
 {
-   int ws, it, nline, nb, bytes;
+   int ws, it;
 
    fread( &ws, INT_SIZE, 1, f );  /* which slice */
    fread( &it, INT_SIZE, 1, f );  /* which time */
@@ -1514,17 +1515,14 @@ static void restore_stream( Context ctx, FILE *f, int blocklength )
       skip( f, blocklength - 2*INT_SIZE );
    }
 }
-
-
-
-
+#endif
 
 static void restore_label( Context ctx, FILE *f )
 {
+  printf("WARNING restore_label in file save.c doesnt do anything except print this message\n");
+/* YO
    int len, x, y;
    char text[MAX_LABEL];
-
-/* YO
    fread( &len, sizeof(int), 1, f );
    fread( text, 1, len+1, f );
    fread( &x, sizeof(int), 1, f );
@@ -1532,7 +1530,6 @@ static void restore_label( Context ctx, FILE *f )
    vis5d_make_label( ctx->context_index, x, y, text );
 */
 }
-
 
 
 /*
@@ -1693,8 +1690,8 @@ int restore( Context ctx, char *savefile )
          } break;
 
          case TAG_ISO_COLOR_TABLE: {
-            int var;
-/*YO            fread( &var, INT_SIZE, 1, f );
+/*YO            int var;
+            fread( &var, INT_SIZE, 1, f );
             if (var>=maxparm)
                skip( f, blocklength-INT_SIZE );
             else
@@ -1951,8 +1948,8 @@ int restore( Context ctx, char *savefile )
          } break;
 
          case TAG_VWIND_POS: {
-            int ws;
-/*YO
+
+/*YO             int ws;
             READ_INTS( f, &ws, 1 );
             READ_FLOATS( f, &ctx->VWindR1[ws], 1 );
             READ_FLOATS( f, &ctx->VWindC1[ws], 1 );
@@ -1989,8 +1986,8 @@ int restore( Context ctx, char *savefile )
          } break;
 
          case TAG_HSTREAM_POS: {
-            int ws;
-/*YO
+
+/*YO            int ws;
             READ_INTS( f, &ws, 1 );
             READ_FLOATS( f, &ctx->HStreamLevel[ws], 1 );
             READ_FLOATS( f, &ctx->HStreamDensity[ws], 1 );

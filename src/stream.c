@@ -33,7 +33,7 @@
 
 /* 2-D streamline making function */
 
-
+#include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include "memory.h"
@@ -91,7 +91,7 @@ int stream_trace( Context ctx, float ugrid[], float vgrid[], int nr, int nc,
                   int nrend, int ncend, float row, float col, float step,
                   float rowlength, float collength, int irend, int icend)
 {
-  int irstart, icstart, ir, ic, ire, ice;
+  int ir, ic, ire, ice;
   int ira, ica, irs, ics;
   int nend, num;
   float prevrow, prevcol;
@@ -260,14 +260,12 @@ int stream_trace( Context ctx, float ugrid[], float vgrid[], int nr, int nc,
 int stream( Context ctx, float ugrid[], float vgrid[], int nr, int nc,
              float density, float vr[], float vc[],  int maxv, int *numv)
 {
-  int irstart, icstart, irend, icend, ir, ic, ire, ice;
-  int ira, ica, irs, ics;
+  int irstart, icstart, irend, icend, ir, ic;
   int nrarrow, ncarrow, nrstart, ncstart, nrend, ncend;
-  int nend, num;
+  int num;
   char *markarrow, *markstart, *markend;
-  float row, col, prevrow, prevcol;
-  float a, c, ac, ad, bc, bd;
-  float u, v, step, rowlength, collength;
+  float row, col;
+  float step, rowlength, collength;
   float dir;
 
 

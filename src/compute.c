@@ -165,8 +165,7 @@ static int find_variable( Context ctx, char *name )
 static int find_variable_time( Display_Context dtx, char *name)
 {
    char numbher[10];
-   char othername[50];
-   int yo, t, q, thenumber;
+   int t, q, thenumber;
 
    found_a_time = 0;
    if (name[0] && name[1] && name[2] &&
@@ -544,7 +543,7 @@ static int get_exp0( Context ctx, struct compute_state *state,
                      char **s, char mess[100] )
 {
   int type1, type2;
-  int yo, index1, index2;
+  int index1, index2;
   float fval1, fval2;
   char name1[100], name2[100];
   Display_Context dtx;
@@ -623,8 +622,7 @@ static int get_exp0( Context ctx, struct compute_state *state,
   }
   else if (type1 == NAME_TOKEN) {
     Context cctx;
-    char wstr[100];
-    int numofctx, varowner, vartime;
+    int varowner, vartime;
 
     /* must be exp = var */
 
@@ -925,8 +923,8 @@ int compute_var( Display_Context dtx, char *expression, int *expressionowner,
       switch (state->ops[state->curop]) {
         case PUSH_VAR_OP:
           if (state->args2[state->curop] != ctx->context_index){
-            int numtimes1, numtimes2,  dd1, tt1, dd2, tt2;
-            int ahh, time2, tloop;
+            int dd1, tt1;
+            int ahh, time2;
             Context tctx;
             for (ahh=0; ahh< ctx->dpy_ctx->numofctxs; ahh++){
               if (state->args2[state->curop] ==

@@ -254,9 +254,7 @@ static void do_help( char *subject )
  */
 static void do_list( struct grid_db *db, int what )
 {
-   char *varnames[MAXVARS];
-   int time[MAXTIMES], date[MAXTIMES];
-   int i, numvars, numtimes;
+   int i;
 
    assert( what>=0 && what<=4 );
 
@@ -416,8 +414,7 @@ static int compute_maxnl( v5dstruct *v5d )
 
 static void do_read( struct grid_db *db, v5dstruct *v5dout, char *filein )
 {
-   char **gridtext;
-   int i, oldnumgrids;
+   int oldnumgrids;
    char filename[1000];
 
    if (filein[0]==0) {
@@ -653,7 +650,7 @@ static void parse_command( char *command, struct grid_db *db,
    }
    else if (strncmp(token[0],"lev",3)==0) {
       /* Set number of output levels */
-      int levels, i;
+      int levels;
       if (n!=2) {
          printf("Error: one argument expected\n");
       }

@@ -250,7 +250,7 @@ int add_display_to_ppm_file(Display_Context dtx, int position)
    unsigned char *tempdataR;
    unsigned char *tempdataG;
    unsigned char *tempdataB;
-   int x, y, xpos, ypos, p, q, i;
+   int x, y, xpos, ypos, p, q;
    int bx, by;
 
    set_current_window( dtx );

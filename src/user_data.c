@@ -331,7 +331,7 @@ int	user_data_get_map (Display_Context dtx, char map_name[])
 
 {
 
-    int		ifrst, nvect, nvert;
+    int		ifrst;
     char	file_name[1000], *ptmp;
     double	x, y, xx, yy, xfac, yfac, ymax, zmin;
     FILE	*file;

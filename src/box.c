@@ -29,7 +29,8 @@
 
 #include "../config.h"
 
-
+#include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "api.h"
 #include "box.h"
@@ -792,8 +793,10 @@ void draw_tick_marks( Display_Context dtx )
    float verts[2][3];
    /* base and up vectors for text drawn along x,y,z axes. */
    static float bx[3] = { 0.05, 0.0, 0.0 },      ux[3] = { 0.0, 0.05, 0.05 };
+	/*
    static float by[3] = { -0.035, 0.0, -0.035 },  uy[3] = { 0.0, 0.07, 0.0 };
    static float bz[3] = { -0.035, -0.035, 0.0 }, uz[3] = { 0.0, 0.0, 0.07 };
+	*/
    float tick_inc, i, row, col, lev;
    char str[100];
    

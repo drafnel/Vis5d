@@ -138,7 +138,7 @@ void calculate_display_time_steps( Display_Context dtx )
    int erly_day, erly_sec;
    int ctxday, ctxsec;
    int yo, spandex;
-   int tmaxsec, tmaxday;
+   int tmaxsec;
    int maxsec, maxday, best_day, best_sec;
    int ctx_loop, tyme, abs_sec, abs_day;
    int tempday, tempsec, closest_tyme, timecount;
@@ -146,7 +146,7 @@ void calculate_display_time_steps( Display_Context dtx )
    int ctx_time_position[VIS5D_MAX_DPY_CONTEXTS];
    int itx_numtimes[VIS5D_MAX_CONTEXTS];
    int itx_time_position[VIS5D_MAX_DPY_CONTEXTS];
-   int itxloop, itxday, itxsec;
+   int itxday, itxsec;
 
 
    /********************************************/
@@ -163,7 +163,7 @@ void calculate_display_time_steps( Display_Context dtx )
    maxday = maxsec = -1;
    yo = 0;
    for (yo=0; yo < dtx->numofctxs; yo++){
-      int tmaxday, tmaxsex;
+      int tmaxday;
       spandex = dtx->ctxarray[yo];
       vis5d_get_ctx_numtimes( spandex, &ctx_numtimes[spandex]);
       vis5d_get_ctx_time_stamp( spandex, ctx_numtimes[spandex]-1, &tmaxday, &tmaxsec);
@@ -173,7 +173,7 @@ void calculate_display_time_steps( Display_Context dtx )
       }
    }
    for (yo=0; yo < dtx->numofitxs; yo++){
-      int tmaxday, tmaxsex;
+      int tmaxday;
       spandex = dtx->itxarray[yo];
       vis5d_get_itx_numtimes( spandex, &itx_numtimes[spandex]);
       vis5d_get_itx_time_stamp( spandex, itx_numtimes[spandex]-1,
@@ -298,7 +298,6 @@ void calculate_display_time_steps( Display_Context dtx )
          /* ctxs */
          /********/
          for (yo = 0; yo < dtx->numofctxs; yo++){
-            int what;
             spandex = dtx->ctxarray[yo];
             dtx->TimeStep[timecount].ownertype[yo] = REGULAR_TYPE;            
             dtx->TimeStep[timecount].owners[yo] = spandex;
@@ -313,7 +312,6 @@ void calculate_display_time_steps( Display_Context dtx )
 /* MJK 1.8.00
          for (yo = dtx->numofctxs; yo < dtx->numofitxs; yo++){
 */
-            int what;
             spandex = dtx->itxarray[yo];
             dtx->TimeStep[timecount].ownertype[yo] = IRREGULAR_TYPE;
             dtx->TimeStep[timecount].owners[yo] = spandex;

@@ -56,7 +56,7 @@ static struct grid_db *sort_db;
 static int compare_grids( const void *a, const void *b )
 {
    struct grid_info *grida, *gridb;
-   int n, i, j;
+   int i, j;
 
    grida = *( (struct grid_info **) a);
    gridb = *( (struct grid_info **) b);
@@ -659,7 +659,7 @@ static void find_min_max_heights( struct grid_db *db, int var,
 void compute_grid_levels( struct grid_db *db, struct vcs *outvcs,
                           int lowlev[], int nl[] )
 {
-   int var, time;
+   int var;
 
    for (var=0; var<db->NumVars; var++) {
       if (db->VarSelected[var]) {

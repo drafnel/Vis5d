@@ -41,7 +41,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include "globals.h"
 #include "graphics.h"
 #include "grid.h"
@@ -329,9 +329,7 @@ void SND_Initialize(  Display_Context dtx, Display *display,
                      Visual *visual, int depth, Colormap colormap )
 {
    static int initialized = 0;
-   XSetWindowAttributes attr;
    XVisualInfo visinfo;
-   int yo;
 
    /* Only do this once */
    if (initialized)
@@ -432,12 +430,13 @@ void SND_Initialize(  Display_Context dtx, Display *display,
    {
 	XFontStruct *fontinfo;
 	if (!(fontinfo = XLoadQueryFont(SndDpy, dtx->SoundFontName))) {
-	     if (fontinfo = XLoadQueryFont(SndDpy, DEFAULT_SOUNDFONTNAME))
-		  strcpy(dtx->SoundFontName, DEFAULT_SOUNDFONTNAME);
-	     else if (fontinfo = XLoadQueryFont(SndDpy, "fixed")) {
-		  fprintf(stderr, "SoundFontName defaulting to \"fixed\"\n");
-		  strcpy(dtx->SoundFontName, "fixed");
-	     }
+	  if ((fontinfo = XLoadQueryFont(SndDpy, DEFAULT_SOUNDFONTNAME))){
+			 strcpy(dtx->SoundFontName, DEFAULT_SOUNDFONTNAME);
+	  }
+	  else if ((fontinfo = XLoadQueryFont(SndDpy, "fixed"))) {
+		 fprintf(stderr, "SoundFontName defaulting to \"fixed\"\n");
+		 strcpy(dtx->SoundFontName, "fixed");
+	  }
 	}
 	if (fontinfo)
 	     XFreeFontInfo(0, fontinfo, 0);
@@ -637,16 +636,17 @@ int make_soundGFX_window( Display_Context dtx, char *title, int xpos, int ypos,
 */
 
    {
-	XFontStruct *fontinfo;
-	if (fontinfo = XLoadQueryFont(SndDpy, dtx->SoundFontName)){
-	     XSetFont(SndDpy, dtx->Sound.var1_gc, fontinfo->fid);
-	     XSetFont(SndDpy, dtx->Sound.var2_gc, fontinfo->fid);
-	     XSetFont(SndDpy, dtx->Sound.var3_gc, fontinfo->fid);
-	     XFreeFontInfo(NULL, fontinfo, 0);
-	}
-	else
-	     fprintf(stderr, "warning: couldn't load font \"%s\"\n",
-		     dtx->SoundFontName);
+	  XFontStruct *fontinfo;
+	  if ((fontinfo = XLoadQueryFont(SndDpy, dtx->SoundFontName))){
+		 XSetFont(SndDpy, dtx->Sound.var1_gc, fontinfo->fid);
+		 XSetFont(SndDpy, dtx->Sound.var2_gc, fontinfo->fid);
+		 XSetFont(SndDpy, dtx->Sound.var3_gc, fontinfo->fid);
+		 XFreeFontInfo(NULL, fontinfo, 0);
+	  }
+	  else{
+		 fprintf(stderr, "warning: couldn't load font \"%s\"\n",
+					dtx->SoundFontName);
+	  }
    }
    do_pixmap_art(dtx);
 
@@ -750,7 +750,6 @@ static void draw_var_stuff( Display_Context dtx, int var, Context varctx)
    char num[9];
    int vary = 25;
    int stringnumber;
-   char varunit[10] = "";
    int strlength = 0;
 
    if (var == dtx->Sound.SoundVar1 &&
@@ -825,9 +824,7 @@ static void draw_var_stuff( Display_Context dtx, int var, Context varctx)
 static void draw_ticks( Display_Context dtx, int var, Context varctx)
 {
    float step, yo;
-   int dash_offset;
    int counter;
-   int dash_list_length = { TICK_DASH_LENGTH };
    static  char dotted[2] = {4,12};
    char *dash_list[] = {dotted};
    GC var_gc;
@@ -879,34 +876,6 @@ static void draw_ticks( Display_Context dtx, int var, Context varctx)
    XSetLineAttributes(SndDpy, dtx->Sound.var3_gc, 2, LineSolid, CapButt, JoinRound);
 
 }   
-
-    /**********************************************************************/
-    /* This just converts pressure to height using DEFAULT_LOG_EXP        */
-    /* and DEFAULT_LOG_EXP                                                */
-    /**********************************************************************/
-    /* Input: dtx -context                                                */
-    /*        pressure - the pressure to convert from                     */
-    /**********************************************************************/
-   
-static float pres_to_height(float pressure)
-{
-   return  (DEFAULT_LOG_EXP * log( pressure / DEFAULT_LOG_SCALE));
-}
-
-    /**********************************************************************/
-    /* This just converts height to pressure using DEFAULT_LOG_EXP        */
-    /* and DEFAULT_LOG_EXP                                                */
-    /**********************************************************************/
-    /* Input: dtx -context                                                */
-    /*        height - the height to convert from                         */
-    /**********************************************************************/
-
-static float height_to_pres(float height)
-{
-   return (DEFAULT_LOG_SCALE * exp( height / DEFAULT_LOG_EXP));
-}
-
-
     /**********************************************************************/
     /* This draws the main border box surrounding the sounding data       */
     /**********************************************************************/
@@ -1248,7 +1217,7 @@ static void draw_thtelines( Display_Context dtx )
       data_to_xy( dtx, 0, yo, &x, &y);
       for (gotomaxheight = 0.0;
       gotomaxheight < dtx->Sound.TopHgt; gotomaxheight += step){
-         p = height_to_pres(gotomaxheight);
+         p = height_to_pressure(gotomaxheight);
          oldx = x;
          oldy = y;
          data_to_xy( dtx, gotomaxheight,
@@ -1273,7 +1242,7 @@ static void draw_thtalines( Display_Context dtx )
 {
    int yo, x, y, oldx, oldy, txtw, txth, clip_stat, drew_some;
    float mintemp = 123.0;
-   float step = 10.0, step2 = 10.0, step3 = 5.0;
+   float step = 10.0, step3 = 5.0;
    float p,h;
    float gotomintemp;
    char thtastring [8];
@@ -1331,7 +1300,7 @@ static void draw_thtalines( Display_Context dtx )
 
 static void draw_templines( Display_Context dtx )
 {
-   int yo, yo2, x, y, oldx, oldy, txtw, txth, txth2, nchr;
+   int yo, yo2, x, y, oldx, oldy, txth, txth2, nchr;
    float step;
    char tempstring [8];
    XFontStruct *font_info;
@@ -1390,7 +1359,6 @@ static void draw_millibarlines ( Display_Context dtx )
 {
    float press;
    int x, y, xleft, xright, xmid, nchr, txtw, txth2, txts;
-   float temp;
    char label[8];
    XFontStruct *font_info;
 
@@ -1446,7 +1414,6 @@ static void cut_line_data2( Display_Context dtx, int *x1, int *y1, int *x2, int 
 {
    float m,b;
    float xone, yone, xtwo, ytwo;
-   float x_intercept, y_intercept;
    int p_equals_200mb;
    float bottomline;
 
@@ -1586,8 +1553,6 @@ static void draw_vert_stuff( Display_Context dtx )
 {
    int yo, y;
    int maxlev;
-   int dash_offset;
-   int dash_list_length = { TICK_DASH_LENGTH };
    static  char dotted[2] = {4, 12};
    char *dash_list[] = {dotted};
    char num[10];
@@ -2540,7 +2505,7 @@ void setvarsteps( Display_Context dtx)
 {
 
    if (dtx->Sound.samestepflag){
-      int min, max, yo;
+      int min, max;
   
       if (dtx->Sound.SoundVar1 >= 0){
          min = dtx->Sound.SoundVar1Owner->MinVal[dtx->Sound.SoundVar1];

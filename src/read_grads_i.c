@@ -661,7 +661,7 @@ int get_grads_info( char *name, struct grid_db *db )
                   double pseCenterCol = atof( token[6] );    /* grid units */
                   double pseCenterRow = atof( token[7] );    /* grid units */
                   double pseDeltaX    = atof( token[8] );    /* in km */
-                  double pseDeltaY    = atof( token[9] );    /* ignored */
+                  /*double pseDeltaY    = atof( token[9] ); */   /* ignored */
                   int    pseNorthOrSouth = atoi( token[10] );/* +1 or -1 */
 
                   /* grads documentation describes this format as 

@@ -45,6 +45,11 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glx.h>
+
+#ifdef HAVE_XMESAGETBACKBUFFER
+#include <GL/xmesa.h>
+#endif
+
 #include "globals.h"
 #include "graphics.h"
 #include "matrix.h"
@@ -1127,7 +1132,7 @@ static void accFrustum( GLdouble left, GLdouble right,
    check_gl_error("accFrustum");
 }
 
-
+#ifdef LEAVEOUT
 static void accPerspective( GLdouble fovy, GLdouble aspect,
                             GLdouble near, GLdouble far,
                             GLdouble pixdx, GLdouble pixdy,
@@ -1147,7 +1152,7 @@ static void accPerspective( GLdouble fovy, GLdouble aspect,
               pixdx, pixdy, eyedx, eyedy, focus );
 }
 
-
+#endif
 
 
 void start_aa_pass( int n )

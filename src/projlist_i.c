@@ -372,7 +372,6 @@ void print_projection_list( struct grid_db *db )
 {
    struct projection *p;
    int i;
-   char **list;
 
    /* construct array of pointers to strings */
    for (i=0; i<db->NumProj; i++) {

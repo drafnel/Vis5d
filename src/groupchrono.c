@@ -70,7 +70,7 @@ void calculate_group_time_steps( Display_Group grp )
    int erly_day, erly_sec;
    int grpday, grpsec;
    int yo, spandex;
-   int tmaxsec, tmaxday;
+   int tmaxsec;
    int maxsec, maxday, best_day, best_sec;
    int dpy_loop, tyme, abs_sec, abs_day;
    int tempday, tempsec, closest_tyme, timecount;
@@ -93,7 +93,7 @@ void calculate_group_time_steps( Display_Group grp )
    /******************************************/
    maxday = maxsec = -1;
    for (yo=0; yo < grp->numofdpys; yo++){
-      int tmaxday, tmaxsex;
+      int tmaxday;
       spandex = grp->dpyarray[yo]->dpy_context_index;
       vis5d_get_dtx_numtimes( spandex, &dpy_numtimes[spandex]);
       vis5d_get_dtx_time_stamp( spandex, dpy_numtimes[spandex]-1, &tmaxday, &tmaxsec);
@@ -150,8 +150,7 @@ void calculate_group_time_steps( Display_Group grp )
          /* make last time step, then done! */
          /***********************************/
          for (yo = 0; yo < grp->numofdpys; yo++){
-            int what;
-            spandex = grp->dpyarray[yo]->dpy_context_index;
+			  spandex = grp->dpyarray[yo]->dpy_context_index;
             grp->TimeStep[timecount].owners[yo] = spandex;
             grp->TimeStep[timecount].ownerstimestep[yo] = dpy_numtimes[spandex]-1;
          }

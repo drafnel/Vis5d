@@ -148,7 +148,6 @@ void free_grid_db( struct grid_db *db )
  */
 void append_grid( struct grid_info *grid, struct grid_db *db )
 {
-   int i, inlist;
 
    if (db->LastGrid) {
       db->LastGrid->Next = grid;

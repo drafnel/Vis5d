@@ -84,7 +84,7 @@ extern int   LevelType;
 #define	INVALID_VALUE	1.0e30
 
 #define	exist_polygon_in_cube(nc)				\
-    (ptFLAG[nc] != 0 & ptFLAG[nc] != 0xFF)
+    ((ptFLAG[nc] != 0) & (ptFLAG[nc] != 0xFF))
 
 
 /* API - global to all Vis5D contexts, and DEBUG implies a single work task */
@@ -230,59 +230,60 @@ static int flags( float *ptGRID, int xdim, int ydim, int zdim,
     /* Analyse Special Cases in FLAG */
     ii = npolygons = 0;
     while ( TRUE )
-    {   for (; ii < num_cubes; ii++)
-	    if (exist_polygon_in_cube(ii) && ptFLAG[ii] < MAX_FLAG_NUM)
-		break;
-	if ( ii == num_cubes ) break;
+    {   
+		for (; ii < num_cubes; ii++)
+		  if (exist_polygon_in_cube(ii) && (ptFLAG[ii] < MAX_FLAG_NUM))
+			 break;
+		if ( ii == num_cubes ) break;
 
-	bcase = pol_edges[ptFLAG[ii]][0];
-	if (bcase == 0xE6 || bcase == 0xF9)
-	{   get_xyz_cube();
-	/* == Z+ == */
-	    if      ((ptFLAG[ii] & 0xF0) == 0x90 ||
-		     (ptFLAG[ii] & 0xF0) == 0x60) get_cZp();
-	/* == Z- == */
-	    else if ((ptFLAG[ii] & 0x0F) == 0x09 ||
-		     (ptFLAG[ii] & 0x0F) == 0x06) get_cZn();
-	/* == Y+ == */
-	    else if ((ptFLAG[ii] & 0xCC) == 0x84 ||
-		     (ptFLAG[ii] & 0xCC) == 0x48) get_cYp();
-	/* == Y- == */
-	    else if ((ptFLAG[ii] & 0x33) == 0x21 ||
-		     (ptFLAG[ii] & 0x33) == 0x12) get_cYn();
-	/* == X+ == */
-	    else if ((ptFLAG[ii] & 0xAA) == 0x82 ||
-		     (ptFLAG[ii] & 0xAA) == 0x28) get_cXp();
-	/* == X- == */
-	    else if ((ptFLAG[ii] & 0x55) == 0x41 ||
-		     (ptFLAG[ii] & 0x55) == 0x14) get_cXn();
-	/* == Map Special Case == */
-	    if  (exist_cube && ptFLAG[cb]<316)  /*changed by BEP on 7-20-92*/
-	    {   bcase = pol_edges[ptFLAG[cb]][0];
-	        if (bcase == 0x06 || bcase == 0x16 ||
-		    bcase == 0x19 || bcase == 0x1E ||
-		    bcase == 0x3C || bcase == 0x69)
-		    ptFLAG[ii] = sp_cases[ptFLAG[ii]];
-	    }
-	}
-	else if (bcase == 0xE9)
-	{   get_xyz_cube();
-	    if      (ptFLAG[ii] == 0x6B) SF = SF_6B;
-	    else if (ptFLAG[ii] == 0x6D) SF = SF_6D;
-	    else if (ptFLAG[ii] == 0x79) SF = SF_79;
-	    else if (ptFLAG[ii] == 0x97) SF = SF_97;
-	    else if (ptFLAG[ii] == 0x9E) SF = SF_9E;
-	    else if (ptFLAG[ii] == 0xB6) SF = SF_B6;
-	    else if (ptFLAG[ii] == 0xD6) SF = SF_D6;
-	    else if (ptFLAG[ii] == 0xE9) SF = SF_E9;
-	    for (jj=0; jj<3; jj++)
-	    {   if      (case_E9[jj+SF] == Zp) get_cZp();
-	        else if (case_E9[jj+SF] == Zn) get_cZn();
-	        else if (case_E9[jj+SF] == Yp) get_cYp();
-	        else if (case_E9[jj+SF] == Yn) get_cYn();
-	        else if (case_E9[jj+SF] == Xp) get_cXp();
-	        else if (case_E9[jj+SF] == Xn) get_cXn();
-/* changed:
+		bcase = pol_edges[ptFLAG[ii]][0];
+		if (bcase == 0xE6 || bcase == 0xF9)
+		  {   get_xyz_cube();
+		  /* == Z+ == */
+		  if      ((ptFLAG[ii] & 0xF0) == 0x90 ||
+					  (ptFLAG[ii] & 0xF0) == 0x60) get_cZp();
+		  /* == Z- == */
+		  else if ((ptFLAG[ii] & 0x0F) == 0x09 ||
+					  (ptFLAG[ii] & 0x0F) == 0x06) get_cZn();
+		  /* == Y+ == */
+		  else if ((ptFLAG[ii] & 0xCC) == 0x84 ||
+					  (ptFLAG[ii] & 0xCC) == 0x48) get_cYp();
+		  /* == Y- == */
+		  else if ((ptFLAG[ii] & 0x33) == 0x21 ||
+					  (ptFLAG[ii] & 0x33) == 0x12) get_cYn();
+		  /* == X+ == */
+		  else if ((ptFLAG[ii] & 0xAA) == 0x82 ||
+					  (ptFLAG[ii] & 0xAA) == 0x28) get_cXp();
+		  /* == X- == */
+		  else if ((ptFLAG[ii] & 0x55) == 0x41 ||
+					  (ptFLAG[ii] & 0x55) == 0x14) get_cXn();
+		  /* == Map Special Case == */
+		  if  (exist_cube && ptFLAG[cb]<316)  /*changed by BEP on 7-20-92*/
+			 {   bcase = pol_edges[ptFLAG[cb]][0];
+			 if (bcase == 0x06 || bcase == 0x16 ||
+				  bcase == 0x19 || bcase == 0x1E ||
+				  bcase == 0x3C || bcase == 0x69)
+				ptFLAG[ii] = sp_cases[ptFLAG[ii]];
+			 }
+		  }
+		else if (bcase == 0xE9)
+		  {   get_xyz_cube();
+		  if      (ptFLAG[ii] == 0x6B) SF = SF_6B;
+		  else if (ptFLAG[ii] == 0x6D) SF = SF_6D;
+		  else if (ptFLAG[ii] == 0x79) SF = SF_79;
+		  else if (ptFLAG[ii] == 0x97) SF = SF_97;
+		  else if (ptFLAG[ii] == 0x9E) SF = SF_9E;
+		  else if (ptFLAG[ii] == 0xB6) SF = SF_B6;
+		  else if (ptFLAG[ii] == 0xD6) SF = SF_D6;
+		  else if (ptFLAG[ii] == 0xE9) SF = SF_E9;
+		  for (jj=0; jj<3; jj++)
+			 {   if      (case_E9[jj+SF] == Zp) get_cZp();
+			 else if (case_E9[jj+SF] == Zn) get_cZn();
+			 else if (case_E9[jj+SF] == Yp) get_cYp();
+			 else if (case_E9[jj+SF] == Yn) get_cYn();
+			 else if (case_E9[jj+SF] == Xp) get_cXp();
+			 else if (case_E9[jj+SF] == Xn) get_cXn();
+			 /* changed:
 	        if  (exist_cube)
    to: */
 	        if  (exist_cube && ptFLAG[cb]<316)
@@ -933,7 +934,7 @@ static int marching( Context ctx, float ptGRID[], int xdim, int ydim, int zdim,
             {
 		for ( iy = 0; iy < ydim - 1; iy++ )
 		{   if (exist_polygon_in_cube(ncube))
-		    {   if (nvertex + 12 > NVERTICE) goto end;
+		    {   if ((nvertex + 12) > NVERTICE) goto end;
 		        if (valid_cube(ncube))
 		        {   fill_Vert_f_Pol(ncube);
 #ifdef LEVELTYPES

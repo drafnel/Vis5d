@@ -214,7 +214,6 @@ int remove_a_file( FileDB fdb, int file_index)
 {
    struct file_info *f;
    int i, j, k, tt, td, save_it, throw;
-   int nrs;
 
    f = fdb->File[file_index];
 
@@ -440,7 +439,7 @@ int add_a_file( FileDB fdb, char *filename)
 {
    int  num_times;
    int ds[MAXTIMES], ts[MAXTIMES];
-   int fileid, i, j, k, s, cur_file;
+   int fileid, i, j, k;
    struct file_info *F;
    char fln[500];
    int num_recs[MAXTIMES], dont_add_it, num_vars;
@@ -451,7 +450,7 @@ int add_a_file( FileDB fdb, char *filename)
    float topbound, bottombound, eastbound, westbound;
    float northbound, southbound;
    int *recids[MAXTIMES];
-   int recs_per_time[MAXTIMES], time[MAXTIMES];
+   int time[MAXTIMES];
    int general_type, specific_type; 
    NetCDF_Format_Info finfo;
    int levels = 0;
@@ -726,7 +725,6 @@ printf("adding file %s\n", filename);
    /* add times to file data base make sure no duplicates */
    /*******************************************************/
    for (j = 0; j < F->NumTimes; j++){
-      int d, t, y, m, dd, hh, mm, ss;
       for (i = 0;   (i < fdb->NumTimes && 
            ((F->DateStamp[j] > fdb->DateStamp[i]) ||
            (F->DateStamp[j] == fdb->DateStamp[i] &&
@@ -900,12 +898,11 @@ int read_fdb_record( int index, irregular_v5dstruct *iv, int time,
                       int record, 
                       double *fdata, double *sdata, char *cdata, float *ldata)
 {
-   int i, k, j, t, n, z;
+   int i, k, j, z;
    FileDB fdb;
    double fillvalue;
-   int  whichvarid, fileid, whichfile, whichrec, whichfiletime;
+   int  whichvarid, whichfile, whichrec, whichfiletime;
    static int current_fileid = -1;
-   static int current_rec_count = 1;
 
    fdb = get_fdb(index);
 
@@ -1097,7 +1094,7 @@ int read_fdb_record( int index, irregular_v5dstruct *iv, int time,
 /*************************************************************/
 int load_fdb_into_v5d( int index, irregular_v5dstruct *iv )
 {
-   int sp, cp, i, j, k, t, q, p;
+   int sp, cp, i, j, k, t, q;
    FileDB fdb;
 
    fdb = get_fdb(index);

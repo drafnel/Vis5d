@@ -127,7 +127,6 @@ void merge_values( int numvalues, int numgrids, float *grids[], float *result )
    int i, j;
 
    for (i=0;i<numvalues;i++) {
-      float sum = 0.0;
       for (j=0;j<numgrids;j++) {
          float value = grids[j][i];
          if (!IS_MISSING(value)) {
@@ -633,10 +632,6 @@ static float *get_combined_resampled_data( struct grid_db *db,
                                            int outnl, int average )
 {
 #define MAX_GRIDS 100
-   float *outdata;
-   struct projection *gridproj;
-   struct vcs *gridvcs;
-   struct resampler *resamp;
    int numgrids;
    struct grid_info *g, *glist[MAX_GRIDS];
    float *gdata[MAX_GRIDS];
@@ -937,8 +932,6 @@ int make_output_ctx( struct grid_db *db, v5dstruct *v5d, char *filename, char *c
    struct vcs *output_vcs, *var_vcs[MAXVARS];
    int numproj, numvcs;
    int i, yo;
-   char message[100];
-
 
 #if V5D_VERSION >=42 
    printf("Writing a 4.3 file!\n");

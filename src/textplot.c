@@ -46,9 +46,9 @@
 static float textcoordx[MAX_SYMBOLS][MAX_SYMBOL_VERTS];
 static float textcoordy[MAX_SYMBOLS][MAX_SYMBOL_VERTS];
 
-static init_text(void)
+static void init_text(void)
 {
-   int i, j, k;
+   int i, j;
 
    for( i = 0; i < MAX_SYMBOLS; i++){
       for (j = 0; j < MAX_SYMBOL_VERTS; j++){
@@ -1163,7 +1163,7 @@ static int make_digit( char digit, float x, float y, float dx,
                        float dy, float vx[], float vy[])
 {
    int num = 0;
-   static do_once = 1;
+   static int do_once = 1;
    int n;
 
    if (do_once){
@@ -1250,7 +1250,7 @@ int create_num_textplot( Irregular_Context itx, int time, float xs[],
    int v, i, j, vcount;
    char label_str[40];
    int label_len;
-   float x, y, z;
+   float x, y;
    int morev;
    float sizex, sizey, sizespace;
    int decimal, sign;
@@ -1322,7 +1322,7 @@ int create_color_num_textplot( Irregular_Context itx, int time, float xs[],
    int v, i, j, vcount;
    char label_str[40];
    int label_len;
-   float x, y, z;
+   float x, y;
    int morev;
    float sizex, sizey, sizespace;
    int decimal, sign;
@@ -1399,12 +1399,10 @@ int create_letter_textplot( Irregular_Context itx, int time, float xs[],
                      float vy[], float vz[], int *numv) 
 {                    
    int v, i, j, vcount;
-   char label_str[40];
    int label_len;
-   float x, y, z;
+   float x, y;
    int morev;
    float sizex, sizey, sizespace;
-   int decimal, sign;
    char tempword[1000];
    int l, ccount;
 

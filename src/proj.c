@@ -586,7 +586,6 @@ int setup_ctx_dtx_projection(Context ctx )
 int setup_ctx_vertical_system( Context ctx )
 {
    int i;
-   float pressure;
    float *vertargs;
 
    /*
@@ -676,7 +675,6 @@ int setup_ctx_vertical_system( Context ctx )
 int setup_ctx_dtx_vertical_system( Context ctx )
 {
    int i;
-   float pressure;
    float *vertargs;
 
    /*
@@ -1872,7 +1870,6 @@ void xyz_to_compXYZ( Display_Context dtx, int n, float x[], float y[],
                      float z[], int_2 xyz[][3] )
 {
    int i;
-   float xt, yt, zt;
    float xx, yy, zz;
 
    for (i = 0; i < n; i++){
@@ -3066,7 +3063,6 @@ void latlon_to_rowcol (Context ctx, int time, int var,
       case PROJ_LAMBERT:
          {
             float rlon, rlat, r;
-            int x, y, z;
 
             rlon = lon - ctx->CentralLon;
             rlon = rlon * ctx->Cone * DEG2RAD;
@@ -3143,7 +3139,6 @@ void latlon_to_rowcolPRIME(Display_Context dtx, int time, int var,
       case PROJ_LAMBERT:
          {
             float rlon, rlat, r;
-            int x, y, z;
 
             rlon = lon - dtx->CentralLon;
             rlon = rlon * dtx->Cone * DEG2RAD;
@@ -3240,7 +3235,6 @@ void geo_to_grid (Context ctx, int time, int var, int n,
       case PROJ_LAMBERT:
          {
             float rlon, rlat, r;
-            int x, y, z;
 
             for (i=0;i<n;i++) {
                rlon = lon[i] - ctx->CentralLon;
@@ -3334,7 +3328,6 @@ void geo_to_gridPRIME (Display_Context dtx, int time, int var, int n,
       case PROJ_LAMBERT:
          {
             float rlon, rlat, r;
-            int x, y, z;
 
             for (i=0;i<n;i++) {
                rlon = lon[i] - dtx->CentralLon;

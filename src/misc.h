@@ -98,7 +98,7 @@ extern void recent( Context ctx, int ig, int ip );
 
 extern int deallocate_lru( Context ctx );
 
-
+extern int i_deallocate_lru( Irregular_Context itx );
 
 #endif
 

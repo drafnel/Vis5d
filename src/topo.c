@@ -1040,8 +1040,6 @@ void draw_topo( Display_Context dtx, int time, int texture_flag, int flat_flag )
          unsigned int *color_table;
 
          if (topo->TopoColorVar<0) {
-            int yo;
-
             color_table = dtx->ColorTable[VIS5D_TOPO_CT]->Colors[MAXVARS*VIS5D_MAX_CONTEXTS];
             indexes = topo->TopoIndexes[MAXTIMES];
          }

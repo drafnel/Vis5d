@@ -246,7 +246,7 @@ int Read_NetCDF( char *filename, int *general_type, int *specific_type, int *fid
 {
    int id1, id2;
    int status, status2, status3, status4;
-   size_t len1, len2;
+   size_t len1;
    int nc_id;
    char *text1;
 
@@ -472,7 +472,7 @@ int Read_Sounding_NetCDF_Var_Data( int nc_id, int recid, int varid,
                                    int levels, double *data)
 {
    static size_t start[2], end[2];
-   int i, status;
+   int  status;
 
    start[0] = recid;
    start[1] = 0;
@@ -683,7 +683,7 @@ int Read_NetCDF_Fill( int fid, int varid, double *fillvalue)
 int Read_NetCDF_Record_IDs( NetCDF_Format_Info finfo,
                                   int nc_id, int thetime, int *ids)
 {
-   int  *times, status, stat_id;
+   int  *times, status;
    int tnid, i, idcount, numrecsid;
    size_t numrecs;
 
@@ -767,9 +767,8 @@ int Read_NetCDF_Times_and_Recs( NetCDF_Format_Info finfo,
    int nt, ntimes[MAXTIMES], uniquetimes[MAXTIMES];
    int numuniquetimes;
    int status, tnid, *times, temp, i, j, t;
-   int id, year, day, hour, minute, second;
+   int year, day, hour, minute, second;
    size_t numrecs;
-   int nrecs;
 
    *num_times = 0;
 
@@ -1165,17 +1164,16 @@ int Read_NetCDF_Vars( NetCDF_Format_Info finfo,
                             double varmin[MAXVARS], double varmax[MAXVARS])
 {
    int status, numvars, var_offset ;
-   int id, numdims, cloud_layer_id;
+   int numdims, cloud_layer_id;
    int numrecsid;
-   int s, i, j, k, c, latid, lonid, hgtid;
+   int s, i, k, c, latid, lonid, hgtid;
    int dimids[10];
    nc_type type;
    size_t numrecs, stringsize, num_cloud_layers;
    char vname[1000];
-   int levels;
    double *mmdata;
    double fillvalue;
-   static size_t start[2], end[2];
+   static size_t start[2];
  
 
    status = nc_inq_nvars( nc_id, &numvars);
@@ -1436,7 +1434,7 @@ int Read_NetCDF_Vars( NetCDF_Format_Info finfo,
       *num_vars = k;
       return 1;
    }
-   else if (finfo = FSL_PROFILE){
+   else if (finfo == FSL_PROFILE){
       for (i = 0; i < numvars; i++){
          k = i - var_offset;
          /****************/
@@ -1561,6 +1559,7 @@ int Read_NetCDF_Vars( NetCDF_Format_Info finfo,
       free(mmdata);
       return 1;
    }
+	return 0;
 }
 
 #endif /* HAVE_LIBNETCDF */

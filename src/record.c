@@ -61,7 +61,7 @@
 
 int init_record_cache( Irregular_Context itx, int maxbytes, float *ratio )
 {
-   int r, loc, i, j, k, l, v;
+   int i, j;
    int numfloatvars, numcharvars, numberofchars; 
    int recordsize;
    int soundingsize;
@@ -298,8 +298,7 @@ int get_empty_irreg_cache_pos(Irregular_Context itx)
 
 static void load_record(Irregular_Context itx, int time, int record)
 {
-   int i, p, q;
-   int nump;
+   int p;
 
    LOCK_ON( itx->Mutex );
 
@@ -496,7 +495,6 @@ void preload_irregular_cache( Irregular_Context itx )
 int initially_open_recordfile( char filename[], irregular_v5dstruct *iv )
 {
    char name[1000];
-   int i;
 
    strcpy( name, filename);
 
@@ -512,9 +510,7 @@ int initially_open_recordfile( char filename[], irregular_v5dstruct *iv )
 
 int open_recordfile(Irregular_Context itx, char filename[])
 {
-   char name[1000];
-   int i, j, time, first;
-   float lat, lon, alt;
+   int i, time, first;
  
    if (!initially_open_recordfile( filename, &itx->G)){
       return 0;

@@ -39,7 +39,7 @@
  * Volume rendering is also supported on everthing running OpenGL!
  */
 
-
+#include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 #include "globals.h"
@@ -91,7 +91,6 @@ struct volume {
  */
 struct volume *alloc_volume( Context ctx, int nr, int nc, int nl )
 {
-   long alphabits;
    int volren = 0;
    struct volume *v = NULL;
 

@@ -75,7 +75,7 @@ static void init_visreader( void )
 
    /* init inv_vcscr array */
    for (i=0;i<64;i++) {
-      inv_vcscr[ vcscr[i] ] = i;
+      inv_vcscr[ (int) vcscr[i] ] = i;
    }
 }
 
@@ -104,7 +104,7 @@ static int *read_int_block( FILE *f, int *len )
       /* convert line of chars to integers */
       for (i=k=0;i<78/bytes && count<words;i++) {
          for (j=val=0;j<bytes;j++) {
-            ch = inv_vcscr[line[k++]];
+            ch = inv_vcscr[(int) line[k++]];
             val = (val << 6) | ch;
          }
 /*         buffer[count++] = val * (int) b + (int) a;*/
@@ -143,7 +143,7 @@ static float *read_float_block( FILE *f, int *len )
       /* convert line of chars to floats */
       for (i=k=0;i<78/bytes && count<words;i++) {
          for (j=val=0;j<bytes;j++) {
-            ch = inv_vcscr[line[k++]];
+            ch = inv_vcscr[(int) line[k++]];
             val = (val << 6) | ch;
          }
          buffer[count++] = (float) val / b - a;

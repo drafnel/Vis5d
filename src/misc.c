@@ -42,6 +42,7 @@
 #include "api.h"
 #include "globals.h"
 #include "memory.h"
+#include "imemory.h"
 #include "misc.h"
 #include "proj.h"
 #include "sync.h"
@@ -251,7 +252,7 @@ void new_vwindslice_pos( Display_Context dtx, float r, float c,
 void init_graphics_pos( Context ctx, int var )
 {
    Display_Context dtx;
-   float r1, c1, r2, c2, l;
+   float l;
 
    dtx = ctx->dpy_ctx;
    ctx->IsoLevel[var] = ctx->MinVal[var];
@@ -374,8 +375,7 @@ void del_last_traj( Display_Context dtx )
 **********************************************************************/
 void del_traj_group( Display_Context dtx, int g )
 {
-   struct traj **dest, **src;
-   int i, j, num;
+   int i, j;
 
    LOCK_ON( TrajLock );
 
@@ -983,9 +983,6 @@ static int free_time( Context ctx, int time )
 {
 
    int var, ws, bytes;
-   int yo;
-   int ctxindex;
-   int spandex;
    int ctime, t, vtime;
    Display_Context dtx;
 

@@ -94,7 +94,7 @@ extern void irregular_v5dInitStruct( irregular_v5dstruct *v );
 
 extern irregular_v5dstruct *irregular_v5dNewStruct( void );
 
-extern irregular_v5dstruct irregular_v5dFreeStruct( irregular_v5dstruct *v );
+extern irregular_v5dstruct *irregular_v5dFreeStruct( irregular_v5dstruct *v );
 
 extern irregular_v5dstruct *irregular_v5dOpenFile( char *filename,      
                                             irregular_v5dstruct *iv );

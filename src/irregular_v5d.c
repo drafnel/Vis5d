@@ -81,10 +81,11 @@ irregular_v5dstruct *irregular_v5dNewStruct( void )
 /*******************************************/
 /* Input: v - pointer to irreg v5d struct  */
 /*******************************************/
-irregular_v5dstruct irregular_v5dFreeStruct( irregular_v5dstruct *v )
+irregular_v5dstruct * irregular_v5dFreeStruct( irregular_v5dstruct *v )
 {
    free( v );
-   v = 0;
+
+   return((irregular_v5dstruct *) NULL);
 }
 
 

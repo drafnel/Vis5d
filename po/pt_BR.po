@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Vis5d+ 0.01\n"
-"POT-Creation-Date: 2001-10-09 16:58-0300\n"
+"POT-Creation-Date: 2001-11-06 09:25-0200\n"
 "PO-Revision-Date: 2001-09-26 13:02-0300\n"
 "Last-Translator: Jim Edwards <JimEdwards@altavista.com>\n"
 "Language-Team: Brazilian Portuguese <ldp-br@bazar.conectiva.com.br>\n"
@@ -448,7 +448,7 @@ msgstr "Selecionar arquivo de Topography"
 msgid "Select Map File"
 msgstr "Selecionar arquivo de Mapa"
 
-#: gtk/window3D.c:999
+#: gtk/window3D.c:1001
 #, c-format
 msgid "%s Variable Graphics Controls"
 msgstr "%s Controle Variável Gráficos"

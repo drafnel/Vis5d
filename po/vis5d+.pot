@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2001-10-09 16:58-0300\n"
+"POT-Creation-Date: 2001-11-06 09:25-0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -438,7 +438,7 @@ msgstr ""
 msgid "Select Map File"
 msgstr ""
 
-#: gtk/window3D.c:999
+#: gtk/window3D.c:1001
 #, c-format
 msgid "%s Variable Graphics Controls"
 msgstr ""

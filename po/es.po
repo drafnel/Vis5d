@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: VIS5d+ 0.01\n"
-"POT-Creation-Date: 2001-10-09 16:58-0300\n"
+"POT-Creation-Date: 2001-11-06 09:25-0200\n"
 "PO-Revision-Date: 2001-10-04 12:15+0500\n"
 "Last-Translator: Andres Sepulveda <andres@ccpo.odu.edu>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -447,7 +447,7 @@ msgstr "Seleccionar Archivo de Topografía"
 msgid "Select Map File"
 msgstr "Selecionar Archivo de Mapas"
 
-#: gtk/window3D.c:999
+#: gtk/window3D.c:1001
 #, c-format
 msgid "%s Variable Graphics Controls"
 msgstr "%s Controles de Graficos Variables"

@@ -633,7 +633,10 @@ void finish_rendering( void )
 
 int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx)
 {
-  glXMakeCurrent( GfxDpy, GfxWindow, gl_ctx);
+  GLXContext prevctx;
+  
+  if(prevctx!=gl_ctx)
+	 glXMakeCurrent( GfxDpy, GfxWindow, gl_ctx);
 
   /* JPE: if name is NULL it is assumed that the gfx structure is already
 	  valid (as called from use_opengl_window) */ 

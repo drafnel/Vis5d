@@ -2,8 +2,8 @@ CPROGS = v5dinfo v5dstats v5dedit v5dappend comp_to_v5d topoinfo
 FPROGS = igg3d igu3d gg3d gr3d_to_v5d
 
 bin_PROGRAMS = $(CPROGS) @OPT_UTILS@
-noinst_PROGRAMS = maketopo makemap newmap outlgrid
-EXTRA_PROGRAMS = $(FPROGS) listfonts fromxwd help
+noinst_PROGRAMS = maketopo makemap
+EXTRA_PROGRAMS = $(FPROGS) listfonts fromxwd help newmap outlgrid
 
 CPPFLAGS = @CPPFLAGS@ -I$(srcdir)/../src
 

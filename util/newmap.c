@@ -74,9 +74,9 @@ struct vertex {
 struct vertex VertexList[MAXVERTS];
 int NumVertices = 0;
 
-
+#ifdef F77_FUNC
 extern int F77_FUNC(transform,TRANSFORM)();
-
+#endif
 
 main( argc, argv )
 int argc;
@@ -156,7 +156,9 @@ int pflag;
       if ( (unsigned long) VertexList[i].lat != 0x80808080 ) {
          oldlat = (float) VertexList[i].lat / 10000.0;
          oldlon = (float) VertexList[i].lon / 10000.0;
+#ifdef F77_FUNC
          F77_FUNC(transform,TRANSFORM)( &oldlat, &oldlon, &newlat, &newlon );
+#endif
          n++;
          if (pflag)
             printf("%5d: %8.4f, %8.4f -> %8.4f, %8.4f\n", n,

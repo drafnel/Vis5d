@@ -6,6 +6,9 @@ SUBDIRS = po intl lui5 src util doc @GTK_DIRS@
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts \
              userfuncs pixmaps vis5d+.pc.in
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = vis5d+.pc
+
 #
 # This target creates lib vis5dapi which contains only those functions 
 # nessasary to access vis5d via the api 

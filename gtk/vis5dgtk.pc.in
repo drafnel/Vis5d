@@ -7,5 +7,5 @@ Name: Vis5d+ GTK
 Description: GTK User Interface for Vis5d+
 Version: @VERSION@
 Requires: vis5d+ gtk+
-Libs:  -L${libdir} -lv5dgtk @GTKGL_LIBS@ 
+Libs:  -L${libdir} -lvis5dgtk -lgradients @GTKGL_LIBS@ 
 Cflags: @GTKGL_CFLAGS@

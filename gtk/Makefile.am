@@ -9,12 +9,18 @@ INCLUDES = -I$(top_srcdir)/gtk/gradients \
 
 SUBDIRS=gradients
 
-noinst_PROGRAMS = vis5d
+bin_PROGRAMS = vis5dgtk
 
-noinst_LTLIBRARIES = libv5dgtk.la
+lib_LTLIBRARIES = libvis5dgtk.la
 
+EXTRA_DIST = vis5dgtk.pc.in vis5d+.glade vargraphicscontrols.glade \
+             window3D.glade proceduredialog.glade 
+	          
 
-libv5dgtk_la_SOURCES = window3D.c window3D.h \
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = vis5dgtk.pc
+
+libvis5dgtk_la_SOURCES = window3D.c window3D.h \
                        w3D_interface.c w3D_interface.h \
                        VarGraphicsControls.c  VGC_interface.c \
                        VarGraphicsControls.h  VGC_interface.h \
@@ -26,16 +32,16 @@ libv5dgtk_la_SOURCES = window3D.c window3D.h \
                        ProcedureDialog.c  ProcedureDialog.h \
 	                    graph_labels.c  graph_labels.h
 
-libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+libvis5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-vis5d_LDADD = libv5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
+vis5dgtk_LDADD = libvis5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
 	           gradients/libgradients.la \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@ \
               @GTK_LIBS@ @GTKGL_LIBS@ $(INTLLIBS) 
 
 if MIXKIT
-vis5d_SOURCES = main.c dummy.C
+vis5dgtk_SOURCES = main.c dummy.C
 else
-vis5d_SOURCES = main.c
+vis5dgtk_SOURCES = main.c
 endif

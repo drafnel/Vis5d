@@ -1295,9 +1295,19 @@ main( int argc, char *argv[] )
             i += 2;
          }
       }
-		else if (strncmp(argv[i],"-version",8)==0) {
-		  printf("%s %s http://vis5d.sf.net\n",PACKAGE,VERSION);
-		  exit(0);
+      else if (strncmp(argv[i],"-version",8)==0) {
+	   printf("Vis5d+ %s: "
+		  "visualization of multi-dimensional gridded data.\n",
+		  VERSION);
+	   printf("         Home page: http://vis5d.sourceforge.net/\n"
+"Copyright (C) 1990-2001 Bill Hibbard, et al.  This program is free\n"
+"software; you can redistribute it and/or modify it under the terms of\n"
+"the GNU General Public License, with some exceptions.\n\n"
+"This program is distributed in the hope that it will be useful,\n"
+"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+"For more details, see the file COPYING that came with Vis5d+.\n");
+	   exit(0);
       }  
       else if (strncmp(argv[i],"-vert",5)==0 && i+1<argc) {
          if (strncmp( argv[i+1], "gen", 3)==0) {

@@ -765,7 +765,7 @@ static void destroy_display_context( Display_Context dtx )
 		free(dtx->ColorTable[i]);
   }
   if(dtx->topo)
-	 free(dtx->topo);
+	 free_topo(&dtx->topo);
   free( dtx );
 }
 
@@ -3448,12 +3448,11 @@ int vis5d_init_topo( int index, char *toponame, int highres_flag )
       dtx = vis5d_get_dtx( index );
    }
 
-   if(dtx->topo==NULL){
-	  dtx->topo = (struct Topo *) calloc(1,sizeof(struct Topo ));
-	  
-	}else{
-	  printf("WARNING: vis5d_init_topo topo already initialized\n");
-	}
+	if(dtx->topo){
+	  free_topo(&dtx->topo);
+	}	
+	dtx->topo = (struct Topo *) calloc(1,sizeof(struct Topo ));
+
 	if(vis5d_verbose & VERBOSE_DISPLAY) 
 	  printf("in c vis5d_init_topo Topo=0x%x\n",(unsigned int) dtx->topo); 
 
@@ -3677,43 +3676,36 @@ static void load_topo_and_map( Display_Context dtx )
    /*** Load map ***/
    if (dtx->MapName[0] == 0) {
       /* depending on domain size, pick appropriate default */
-      float latn, lats, lonw, lone;
-      latlon_bounds(dtx, &lats, &latn, &lonw, &lone);
-      if (30.0 < latn && latn < 80.0 &&
-          0.0 < lats && lats < 45.0 &&
-          80.0 < lonw && lonw < 180.0 &&
-          30.0 < lone && lone < 115.0) {
-   /* MJK 4.27.99          
-         sprintf( name, "%s%s", dtx->Path, USAFILE);
-   */      
-         sprintf( name, "%s%s", Vis5dDataPath, USAFILE);
-      }
-      else {
-   /* MJK 4.27.99          
-         sprintf( name, "%s%s", dtx->Path, WORLDFILE );
-   */      
-         sprintf( name, "%s%s", Vis5dDataPath, WORLDFILE );
-      }
+	  float latn, lats, lonw, lone;
+	  latlon_bounds(dtx, &lats, &latn, &lonw, &lone);
+	  if (30.0 < latn && latn < 80.0 &&
+			0.0 < lats && lats < 45.0 &&
+			80.0 < lonw && lonw < 180.0 &&
+			30.0 < lone && lone < 115.0) {
+		 /* JPE
+		 sprintf( name, "%s%s", Vis5dDataPath, USAFILE);
+		 */
+		 strcpy( dtx->MapName,USAFILE);
+	  }
+	  else {
+		 /* JPE
+		 sprintf( name, "%s%s", Vis5dDataPath, WORLDFILE );
+		 */
+		 strcpy( dtx->MapName,WORLDFILE);
+	  }
    }
-   else {
-      /* concatenate path and user-supplied map file name */
-      /* MJK 4.27.99                   
-      if (dtx->Path[0]) {
-         strcpy( name, dtx->Path );
-      */
-      if (Vis5dDataPath[0]) {
-        /* SGJ 7/3/00: don't prepend path if MapName is already absolute: */
-        if (dtx->MapName[0] != '/') {
-	     strcpy( name, Vis5dDataPath );
-	     strcat( name, dtx->MapName );
+	/* concatenate path and user-supplied map file name */
+
+	if (Vis5dDataPath[0]) {
+	  /* SGJ 7/3/00: don't prepend path if MapName is already absolute: */
+	  if (dtx->MapName[0] != '/') {
+		 strcpy( name, Vis5dDataPath );
+		 strcat( name, dtx->MapName );
+	  }
+	  else
+		 strcpy( name, dtx->MapName );
 	}
-	else
-	     strcpy( name, dtx->MapName );
-      }
-      else {
-         strcpy( name, dtx->MapName );
-      }
-   }
+
    if (name[0]) {
       dtx->MapFlag = init_map( dtx, name );
    }
@@ -3721,10 +3713,6 @@ static void load_topo_and_map( Display_Context dtx )
       dtx->MapFlag = 0;
    }
 
-   /* MJK 12.10.98 */
-   /*
-   free_topo( dtx );
-   */
 }
 
 
@@ -9923,7 +9911,7 @@ int vis5d_enable_sfc_map( int index, int mode )
    char *val;
    DPY_CONTEXT("vis5d_enable_sfc_map")
 
-   if ((!dtx->topo->TopoFlag) || (dtx->topo->TopoVertex == NULL )){
+   if ((!dtx->topo) || (!dtx->topo->TopoFlag) || (dtx->topo->TopoVertex == NULL )){
       return 0;
    }
    val = &dtx->DisplaySfcMap;
@@ -9974,7 +9962,7 @@ int vis5d_enable_sfc_graphics( int index, int type, int number, int mode )
    char *val;
    CONTEXT("vis5d_enable_sfc_graphics")
 
-   if ((!ctx->dpy_ctx->topo->TopoFlag) || (ctx->dpy_ctx->topo->TopoVertex == NULL))
+   if ((!ctx->dpy_ctx->topo) || (!ctx->dpy_ctx->topo->TopoFlag) || (ctx->dpy_ctx->topo->TopoVertex == NULL))
       return 0;
 
    switch (type) {

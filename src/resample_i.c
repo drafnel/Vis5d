@@ -219,9 +219,7 @@ static void init_resampler( struct resampler *r, int outnl )
             }
          }
       }
-		free_topo(topo);
-      free(topo);
-		
+		free_topo(&topo);
    }
    else {
       r->DoVertical = 0;

@@ -65,6 +65,10 @@ typedef short int      int_2;     /* 2-byte signed integer */
 typedef unsigned short uint_2;    /* 2-byte unsigned integer */
 typedef unsigned int   uint_4;    /* 4-byte unsigned integer */
 
+  /* V5D_MAXSTRLEN is also defined in api.h */
+#ifndef V5D_MAXSTRLEN
+#  define V5D_MAXSTRLEN 1000
+#endif
 
 #define ISOSURF        0
 #define HSLICE         1
@@ -492,7 +496,7 @@ struct Topo{
   int_1 *TopoStripsNorms;      /* Topo triangle strip normals */
 
   /*** Topography File Data (use from topo.c only) ***/
-  char TopoName[1000];
+  char TopoName[V5D_MAXSTRLEN];
   int HiResTopo;
   float Topo_westlon, Topo_eastlon, Topo_northlat, Topo_southlat;
   int Topo_rows, Topo_cols;
@@ -554,7 +558,7 @@ struct display_context {
    GC FontGC;
 #endif
 
-   char Path[1000];          /* Directory path to topo, map files */
+   char Path[V5D_MAXSTRLEN];          /* Directory path to topo, map files */
 
 
 /*************************************************************************************/
@@ -585,7 +589,7 @@ struct display_context {
    int FirstArea;                       /* Number of 1st McIDAS area file */
 
    /*** From map.c ***/
-   char MapName[1000];
+   char MapName[V5D_MAXSTRLEN];
    float MapVert[MAXMAPVERT][3];         /* terrain-following map lines */
    float FlatMapVert[MAXMAPVERT][3];     /* flat map lines */
    int Start[MAXMAPSEG], Len[MAXMAPSEG]; /* start and length of polylines */
@@ -988,8 +992,8 @@ struct irregular_context {
    /*** Miscellaneous ***/
    int context_index;        /* index of this context */
    char ItxName[100];      /* Name of file we're vizing */
-   char Path[1000];          /* Directory path to topo, map files */
-   char DataFile[1000];      /* Name of file we're vizing */
+   char Path[V5D_MAXSTRLEN];          /* Directory path to topo, map files */
+   char DataFile[V5D_MAXSTRLEN];      /* Name of file we're vizing */
    int MegaBytes;            /* Memory limit in megabytes */
 
    int Type;
@@ -1071,8 +1075,8 @@ struct irregular_context {
 struct vis5d_context {
    /*** Miscellaneous ***/
    int context_index;        /* index of this context */
-   char DataFile[1000];      /* Name of file we're vizing */
-   char Path[1000];          /* Directory path to topo, map files */
+   char DataFile[V5D_MAXSTRLEN];      /* Name of file we're vizing */
+   char Path[V5D_MAXSTRLEN];          /* Directory path to topo, map files */
    int MegaBytes;            /* Memory limit in megabytes */
    int InsideInit;           /* Are we between init_begin & init_end? */
    char ContextName[100];     /* name of the context */
@@ -1288,7 +1292,7 @@ struct vis5d_context {
    /*** From labels.c ***/
 
    /*** From map.c ***/
-   char MapName[1000];
+   char MapName[V5D_MAXSTRLEN];
    float MapVert[MAXMAPVERT][3];         /* terrain-following map lines */
    float FlatMapVert[MAXMAPVERT][3];     /* flat map lines */
    int Start[MAXMAPSEG], Len[MAXMAPSEG]; /* start and length of polylines */

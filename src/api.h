@@ -252,9 +252,14 @@ extern int REVERSE_POLES;
 
 extern int in_the_init_stage;
 
+  /* V5D_MAXSTRLEN is also defined in globals.h */
+#ifndef V5D_MAXSTRLEN
+#  define V5D_MAXSTRLEN 1000
+#endif
+
 /* MJK 4.27.99 */
-extern char Vis5dDataPath[1000];
-extern char Vis5dFuncPath[1000];
+extern char Vis5dDataPath[V5D_MAXSTRLEN];
+extern char Vis5dFuncPath[V5D_MAXSTRLEN];
 
 /*
  * Initialization functions

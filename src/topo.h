@@ -46,7 +46,7 @@ extern int init_topo( Display_Context dtx, char toponame[], int textureflag,
                       int hi_res );
 
 
-extern void free_topo( struct Topo *topo );
+extern void free_topo( struct Topo **topo );
 
 
 extern void init_topo_color_table( unsigned int ct[], int size,

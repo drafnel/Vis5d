@@ -315,7 +315,7 @@ static int read_user_topo( Display_Context dtx, char *toponame )
  *  An example for this function can be found in user_data.c.
  */
 
-   free_topo (dtx->topo);
+   free_topo (&dtx->topo);
 
    iret = user_data_get_topo (dtx, toponame);
 
@@ -398,13 +398,37 @@ int read_topo( struct Topo *topo, char *filename )
 /*
  * Free the memory used to store the topography data
  */
-void free_topo( struct Topo *topo )
+void free_topo( struct Topo **topoloc )
 {
+  struct Topo *topo;
+  
+  topo = *topoloc;
+
   /* surely we should free more than this.*/
-   if (topo->TopoData) {
-      free( topo->TopoData);
-      topo->TopoData = NULL;
-   }
+   if (topo->TopoData) 
+	  free( topo->TopoData);
+	if(topo->TopoVertex)
+      free(topo->TopoVertex);
+	if(topo->TopoNormal)
+      free(topo->TopoNormal);
+	if(topo->TopoTexcoord)
+      free(topo->TopoTexcoord);
+	if(topo->TopoFlatVertex)
+      free(topo->TopoFlatVertex);
+	if(topo->TopoStripsVerts)
+      free(topo->TopoStripsVerts);
+	if(topo->TopoStripsNorms)
+      free(topo->TopoStripsNorms);
+
+	topo->TopoData = NULL;	
+	topo->TopoVertex = NULL;	
+	topo->TopoNormal = NULL;	
+	topo->TopoTexcoord = NULL;	
+	topo->TopoFlatVertex = NULL;	
+	topo->TopoStripsVerts = NULL;
+	topo->TopoStripsNorms = NULL;
+	free(topo);
+	*topoloc = NULL;
 
 }
 

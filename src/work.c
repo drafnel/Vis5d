@@ -45,7 +45,9 @@
 #    include <sys/prctl.h>
 #  endif
 #endif
-
+#ifdef USE_GLLISTS
+#include <GL/gl.h>
+#endif
 #include "analysis.h"
 #include "api.h"
 #include "contour.h"
@@ -689,33 +691,45 @@ static float* extract_hslice( Context ctx, float *grid, int var,
 
       /* interpolate between layers */
       if (colmajor) {
-         for (j=0; j<nc; j++) {
+		  if(upper==lower){
+			 memcpy(slice,grid+below ,nr*nc*sizeof(float));
+		  }else{
+			 for (j=0; j<nc; j++) {
             for (i=0; i<nr; i++) {
-               g1 = grid[above+j*nr+i];
-               g2 = grid[below+j*nr+i];
-               if (IS_MISSING(g1) || IS_MISSING(g2)) {
-                  slice[j*nr+i] = MISSING;
-               }
-               else {
-                  slice[j*nr+i] = a * g1 + b * g2; 
-               }
+				  g1 = grid[above+j*nr+i];
+				  g2 = grid[below+j*nr+i];
+				  if (IS_MISSING(g1) || IS_MISSING(g2)) {
+					 slice[j*nr+i] = MISSING;
+				  }
+				  else {
+					 slice[j*nr+i] = a * g1 + b * g2; 
+				  }
             }
-         }
+			 }
+		  }
       }
       else {
          /* change from column-major to row-major order */
-         for (i=0; i<nr; i++) {
+		  if(upper==lower){
+			 for (i=0; i<nr; i++) {
             for (j=0; j<nc; j++) {
-               g1 = grid[above+j*nr+i];
-               g2 = grid[below+j*nr+i];
-               if (IS_MISSING(g1) || IS_MISSING(g2)) {
-                  slice[i*nc+j] = MISSING;
-               }
-               else {
-                  slice[i*nc+j] = a * g1 + b * g2;
-               }
-            }
-         }
+				  slice[i*nc+j] = grid[below+j*nr+i];
+				}
+			 }
+		  }else{
+			 for (i=0; i<nr; i++) {
+            for (j=0; j<nc; j++) {
+				  g1 = grid[above+j*nr+i];
+				  g2 = grid[below+j*nr+i];
+				  if (IS_MISSING(g1) || IS_MISSING(g2)) {
+					 slice[i*nc+j] = MISSING;
+				  }
+				  else {
+					 slice[i*nc+j] = a * g1 + b * g2;
+				  }
+				}
+			 }
+		  }
       }
    }
 
@@ -1906,10 +1920,11 @@ static void calc_hslice( Context ctx, int time, int var,
    Display_Context dtx;
    int contour_ok;
    int max_cont_verts;
+	char *labels=NULL;
 
    dtx = ctx->dpy_ctx;
 
-
+#ifndef USE_GLLISTS
    /* MJK 12.04.98 */
    if ((ctx->Nl[var]==1) && (!ctx->DisplaySfcHSlice[var])) {
       wait_write_lock( &(slice->lock) );
@@ -1946,6 +1961,9 @@ static void calc_hslice( Context ctx, int time, int var,
          numboxverts = make_horizontal_rectangle( ctx, time, var,
                                                   ctx->dpy_ctx->CurvedBox,
                                                   levelPRIME, &boxverts );
+
+
+
          slice->numboxverts = numboxverts;
          slice->boxverts = boxverts;
          slice->level = levelPRIME;
@@ -1958,7 +1976,7 @@ static void calc_hslice( Context ctx, int time, int var,
       done_write_lock( &slice->lock );
    }
 
-
+#endif
 
    /* get the 3-D grid */
    grid = get_grid( ctx, time, var );
@@ -2042,9 +2060,12 @@ static void calc_hslice( Context ctx, int time, int var,
 
    /* call contouring routine */
 #ifdef USE_SYSTEM_FONTS
-	if(slice->labels)
-	  free(slice->labels);
-	slice->labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+#  ifndef USE_GLLISTS
+	labels = slice->labels;
+#  endif
+	if(labels)
+	  free(labels);
+	labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
 #endif
 
    contour_ok =
@@ -2053,7 +2074,7 @@ static void calc_hslice( Context ctx, int time, int var,
 	      vr2, vc2, max_cont_verts/2, &num2,
 	      vr3, vc3, max_cont_verts/2, &num3
 #ifdef USE_SYSTEM_FONTS
-				  , slice->labels
+				  , labels
 #endif
 				  );
 
@@ -2159,7 +2180,36 @@ static void calc_hslice( Context ctx, int time, int var,
 
    wait_write_lock( &(slice->lock) );
 
+#ifdef USE_GLLISTS
+	generate_disjoint_lines(num1,cverts1, slice->glList);
+	if(num2>0){
+	  generate_disjoint_lines(num2,cverts2,slice->glList+1);
+	}
 
+	if(numboxverts>0)
+	  generate_polyline(numboxverts, (float **) boxverts, slice->glList+3);
+
+#  ifdef USE_SYSTEM_FONTS
+	if(num3>0){
+	  generate_labels(num3, labels, cverts3, slice->glList+2);
+	  free(labels);
+	}	  
+#  else
+	if(num3>0)
+	  generate_disjoint_lines(num3,cverts3,slice->glList+2);
+#  endif
+	deallocate(ctx,cverts1,num1*sizeof(int_2) * 3);
+	deallocate(ctx,cverts2,num2*sizeof(int_2) * 3);
+	deallocate(ctx,cverts3,num3*sizeof(int_2) * 3);
+	deallocate(ctx,boxverts,numboxverts*3*sizeof(float));
+
+   /* store new slice */
+	slice->interval = interval;
+   slice->lowlimit = low;
+   slice->highlimit = high;
+   slice->level = levelPRIME;
+   slice->valid = 1;
+#else	
    /* deallocate existing slice, if any */
    free_hslice( ctx, time, var );
 
@@ -2174,9 +2224,15 @@ static void calc_hslice( Context ctx, int time, int var,
    slice->verts2 = cverts2;
    slice->num3 = num3;
    slice->verts3 = cverts3;
+#ifdef USE_SYSTEM_FONTS
+	slice->labels = labels;
+#endif
    slice->boxverts = boxverts;
    slice->numboxverts = numboxverts;
    slice->valid = 1;
+#endif
+
+
 
    done_write_lock( &(slice->lock) );
 

@@ -296,6 +296,9 @@ static int save_hslices( Context ctx, FILE *f )
    int iv, it;
    int num1, num2, num3, num4;
 
+#ifdef USE_GLLISTS
+	fprintf(stderr,"sorry... save_hslices not currently supported with USE_GLLISTS\n");
+#else
    for (iv=0;iv<ctx->NumVars;iv++) {
       for (it=0;it<ctx->NumTimes;it++) {
          if (ctx->Variable[iv]->HSliceTable[it] && ctx->Variable[iv]->HSliceTable[it]->valid) {
@@ -323,6 +326,7 @@ static int save_hslices( Context ctx, FILE *f )
          }
       }
    }
+#endif
    return 0;
 }
 
@@ -1142,9 +1146,13 @@ static void restore_colored_isosurf( Context ctx, FILE *f, int maxparm,
 static void restore_hslice( Context ctx, FILE *f, int maxparm,
                             int blocklength )
 {
+#ifdef USE_GLLISTS
+  fprintf(stderr,"Sorry... restore_hslice not currently supported with USE_GLLISTS\n");
+#else
    int iv, it, num1, num2, num3, num4;
    float interval, low, high, level;
    Display_Context dtx;
+
    
    dtx = ctx->dpy_ctx;
    fread( &iv, INT_SIZE, 1, f );
@@ -1199,6 +1207,7 @@ static void restore_hslice( Context ctx, FILE *f, int maxparm,
 /* YO     new_hslice_pos( dtx, level, &ctx->Variable[iv]->HSliceRequest->Z, &ctx->Variable[iv]->HSliceRequest->Hgt );*/
 
    done_read_lock( &ctx->Variable[iv]->HSliceTable[it]->lock );
+#endif
    return;
 }
 

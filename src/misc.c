@@ -543,6 +543,7 @@ int free_textplot( Irregular_Context itx, int time)
 
 int free_hslice( Context ctx, int time, int var )
 {
+#ifndef USE_GLLISTS
    if (ctx->Variable[var]->HSliceTable[time] && ctx->Variable[var]->HSliceTable[time]->valid) {
       int b1, b2, b3, b4;
 
@@ -566,9 +567,12 @@ int free_hslice( Context ctx, int time, int var )
 
       return b1 + b2 + b3 + b4;
    }
-   else {
-      return 0;
-   }
+   else 
+#endif	  
+	  {
+		 return 0;
+	  }
+
 }
 
 

@@ -704,17 +704,14 @@ extern int text_width( XFontStruct *font, char *str );
 
 
 
+/* JPE generate list functions */
 
-/*
- * Display list functions:
- */
-extern int begin_object( void );
 
-extern void end_object( void );
+void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list);
+void generate_disjoint_lines(int n, int_2 verts[][3], GLuint *list );
+void generate_polyline( int n, float vert[][3], GLuint *list );
 
-extern void call_object( int objnum );
 
-extern void delete_object( int objnum );
 
 #endif
 

@@ -37,6 +37,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef USE_GLLISTS
+#include <GL/gl.h>
+#endif
+
 #include "anim.h"
 #include "api.h"
 #include "box.h"
@@ -1016,51 +1020,88 @@ static void render_hslices( Context ctx, int time, int labels, int animflag )
          }
          if (lock) {
             recent( ctx, HSLICE, var );
+#ifdef USE_GLLISTS
+			   glColor4ubv( (GLubyte *) &(ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE]) );
+				glPushMatrix();
+				glScalef( 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE, 1.0/VERTEX_SCALE );
+				glShadeModel( GL_FLAT );
+				glDisable( GL_DITHER );
+				glCallList(ctx->Variable[var]->HSliceTable[time]->glList[0]);
+#else
 
             /* draw main contour lines */
             draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num1,
                                  (void *) ctx->Variable[var]->HSliceTable[time]->verts1,
                                  ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE] );
+#endif
             if (labels) {
 #ifdef USE_SYSTEM_FONTS
+#  ifdef USE_GLLISTS
+				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[1]);
 
+				  glListBase(ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase);
+				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[2]);
+
+#  else
                /* draw hidden contour lines */
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][HSLICE] );
+
 
 				  plot_strings( ctx->Variable[var]->HSliceTable[time]->num3, 
 									 ctx->Variable[var]->HSliceTable[time]->labels,
 									 ctx->Variable[var]->HSliceTable[time]->verts3,
 									 ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+var][HSLICE],
 									 ctx->dpy_ctx->gfx[CONTOUR_LABEL_FONT]->fontbase );
+#  endif
 #else
+#  ifdef USE_GLLISTS
+				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[2]);
+				  
+#  else
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num3,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts3,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS
                                     +var][HSLICE] );
+#  endif
 #endif
             }
             else {
+#ifdef USE_GLLISTS
+				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[1]);
+#else
 
                /* draw hidden contour lines */
                draw_disjoint_lines( ctx->Variable[var]->HSliceTable[time]->num2,
                                     (void *)ctx->Variable[var]->HSliceTable[time]->verts2,
                                     ctx->dpy_ctx->Color[ctx->context_index*MAXVARS+
                                     var][HSLICE] );
+
+#endif
             }
+#ifdef USE_GLLISTS			
+			glShadeModel( GL_SMOOTH );
+				     check_gl_error("before 1");
+			glEnable( GL_DITHER );
+				     check_gl_error("before 2");
+			glPopMatrix();
+				     check_gl_error("after 3");
+#endif
 
             /* draw the bounding box */
             /* MJK 12.01.98 */
             if (!ctx->DisplaySfcHSlice[var]){
-               polyline( (void *) ctx->Variable[var]->HSliceTable[time]->boxverts,
-                              ctx->Variable[var]->HSliceTable[time]->numboxverts );
+#ifdef USE_GLLISTS				  
+				  glCallList(ctx->Variable[var]->HSliceTable[time]->glList[3]);
+#else
+				  polyline( (void *) ctx->Variable[var]->HSliceTable[time]->boxverts,
+								ctx->Variable[var]->HSliceTable[time]->numboxverts );
+#endif
             }
-
             done_read_lock( &ctx->Variable[var]->HSliceTable[time]->lock );
          }
-
          /* draw position label */
          /* MJK 12.01.98 */
          if (!ctx->DisplaySfcHSlice[var]){

@@ -1978,6 +1978,29 @@ void draw_wind_lines( int nvectors, int_2 verts[][3], unsigned int color )
    check_gl_error("draw_wind_lines");
 }
 
+void generate_labels(int n, char *str, int_2 verts[][3], GLuint *list)
+{
+  int i, len;
+
+
+  if(*list<=0){
+	 *list = glGenLists(1);
+	 if(*list==0)
+		check_gl_error("generate_disjoint_lines");
+  }
+  glNewList(*list,GL_COMPILE);
+  glPushAttrib(GL_LIST_BIT);
+  for(i=0;i<n;i++){
+	 len = strlen(str);
+	 glRasterPos3sv(verts[i]);
+	 glCallLists(len, GL_UNSIGNED_BYTE, (GLubyte *) str);
+	 str+=(len+1);
+  }
+  glPopAttrib();
+  glEndList();
+}	 
+  
+
 
 void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuint fontbase )
 {
@@ -2011,8 +2034,22 @@ void plot_strings( int n, char *str, int_2 verts[][3], unsigned int color, GLuin
   glPopMatrix();
 }
 
+void generate_disjoint_lines(int n, int_2 verts[][3], GLuint *list )
+{
+  int i;
 
-
+  if(*list<=0){
+	 *list = glGenLists(1);
+	 if(*list==0)
+		check_gl_error("generate_disjoint_lines");
+  }
+  glNewList(*list,GL_COMPILE);
+  GLBEGINNOTE glBegin( GL_LINES );
+  for(i=0;i<n;i++) glVertex3sv(verts[i]);
+  glEnd();
+  glEndList();
+}
+	 
 
 void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
 {
@@ -2032,7 +2069,6 @@ void draw_disjoint_lines( int n, int_2 verts[][3], unsigned int color )
    glShadeModel( GL_SMOOTH );
    glEnable( GL_DITHER );
    glPopMatrix();
-   check_gl_error("draw_disjoint_lines");
 }
 
 
@@ -2230,6 +2266,25 @@ void draw_cursor( Display_Context dtx, int style, float x, float y, float z, uns
 }
 
 
+void generate_polyline( int n, float vert[][3], GLuint *list )
+{
+   register int i;
+
+	if(*list<=0){
+	  *list = glGenLists(1);
+	  if(*list==0)
+		 check_gl_error("generate_polyline");
+	}
+	glNewList(*list,GL_COMPILE);
+   GLBEGINNOTE glBegin( GL_LINE_STRIP );
+   for (i=0;i<n;i++) {
+	  glVertex3fv( vert[i] );
+   }
+   glEnd();
+	glEndList();
+   check_gl_error("generate polyline");
+}
+
 
 
 /**** OLD primitives ***/
@@ -2346,53 +2401,6 @@ int text_width(  XFontStruct *font, char *str)
    XTextExtents( font, str, strlen(str),
                  &dir, &ascent, &descent, &overall);
    return overall.width;
-}
-
-
-
-/*
- * Start a new display list object and return its ID or zero if error.
- */
-int begin_object( void )
-{
-   GLuint obj;
-
-   obj = glGenLists( 1 );
-   if (obj>0) {
-      glNewList( obj, GL_COMPILE_AND_EXECUTE );
-   }
-   check_gl_error("begin_object");
-   return (int) obj;
-}
-
-
-/*
- * End construction of a display list object.
- */
-void end_object( void )
-{
-   glEndList();
-   check_gl_error("end_object");
-}
-
-
-/*
- * Draw a display list object.
- */
-void call_object( int obj )
-{
-   glCallList( (GLuint) obj );
-   check_gl_error("call_object");
-}
-
-
-/*
- * Delete a display list object.
- */
-void delete_object( int objnum )
-{
-   glDeleteLists( (GLuint) objnum, 1 );
-   check_gl_error("delete_object");
 }
 
 

@@ -238,6 +238,9 @@ struct hslice {
   float  lowlimit;          /* lowest level to contour */
   float  highlimit;         /* highest level to contour */
   float  level;             /* position of slice in grid levels */
+#ifdef USE_GLLISTS
+  GLuint glList[4]; /* 0=contour lines 1=hidden contour lines 2=labels 4=box */
+#else
   int    num1;              /* number of line segment vertices */
   int_2  *verts1;           /* array [num1][3] of int_2 vertices */
   int    num2;              /* number of 'hidden' line segment vertices */
@@ -246,10 +249,11 @@ struct hslice {
   int_2  *verts3;           /* array [num3][3] of int_2 vertices */
   float  *boxverts;         /* array of vertices for bounding rectangle */
   int    numboxverts;       /* number of vertices in boxverts array */
-
 #ifdef USE_SYSTEM_FONTS
   char *labels;
 #endif
+#endif
+
 };
 
 typedef struct {

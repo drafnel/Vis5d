@@ -1,7 +1,8 @@
 AC_INIT
 AC_PREREQ(2.52)
+AC_REVISION($Revision: 1.31 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
-AM_INIT_AUTOMAKE(vis5d+, 1.1.1a2)
+AM_INIT_AUTOMAKE(vis5d+, 1.2.0)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
 
@@ -30,32 +31,26 @@ AC_SUBST(SHARED_VERSION_INFO)
 # Use native cc if present
 AC_MSG_CHECKING([for vendor's cc to be used instead of gcc])
 AC_CHECK_PROG(CC, cc, cc)
-AC_PROG_CXX
 # Checks for programs.
 AC_PROG_CC
+# c++ is needed for src/decimate.C
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AM_PROG_LIBTOOL
+
 dnl
 dnl Because of autogen.sh pickiness, lines inside the if cannot be indented
 dnl
-if test "$usegtk" = "yes"; then
-AM_PATH_GTK(1.2.9, ,
-            AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
-
-  dnl Add the languages which your application supports here.
 ALL_LINGUAS="pt_BR es"
-#AM_WITH_NLS('use-libtool')
-AM_GNU_GETTEXT
-INTLDIR=intl
-GTK_DIRS="gtk/gradients gtk po"
-else
-INTLDIR=
+AM_GNU_GETTEXT(use-libtool, need-ngettext)
 GTK_DIRS=
+if test "$usegtk" = "yes"; then
+AM_PATH_GTK(1.2.9,GTK_DIRS="gtk " ,
+            AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
 fi
 AC_SUBST(GTK_DIRS)
-AC_SUBST(INTLDIR)
 
 dnl Set VIS5D_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then

@@ -1,5 +1,5 @@
 /*
- *      $Id: graphics.vrml.c,v 1.1 2001/10/09 19:22:20 jedwards Exp $
+ *      $Id: graphics.vrml.c,v 1.2 2001/10/10 13:15:30 jedwards Exp $
  */
 /*
  *	File:		graphics.vrml.c
@@ -111,12 +111,12 @@ static void vrml_header()
 {
 	indentLevel = 0;
 	bl();fprintf(fp, "#VRML V2.0 utf8\n");
-	bl();fprintf(fp, "# Produced by NCAR VIS5D4.3 VRML Driver\n\n");
+	bl();fprintf(fp, "# Produced by %s %s VRML Driver\n\n",PACKAGE,VERSION);
 
 	bl();fprintf(fp, "WorldInfo {\n");
 	pushLevel();
 	bl();fprintf(fp, "title \"VIS5D VRML Output\"\n");
-	bl();fprintf(fp, "info [ \"Author: Don Middleton, NCAR\"]\n");
+	bl();fprintf(fp, "info [ \"VRML Driver Author: Don Middleton, NCAR\"]\n");
 	popLevel();
 	bl();fprintf(fp, "}\n\n");
 	fflush(fp);

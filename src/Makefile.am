@@ -39,7 +39,7 @@ HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour
 	read_v5d_i.h record.h render.h resample_i.h rgb.h rgbsliders.h save.h script.h select_i.h \
 	slice.h socketio.h sounding.h soundingGUI.h stream.h sync.h tclsave.h textplot.h tokenize_i.h \
 	topo.h traj.h ui_i.h user_data.h uvwwidget.h vertplot.h vis5d.h volume.h vtmcP.h work.h xdump.h \
-	graphics.h graphics.ogl.h graphics.vrml.h graphics.scenes.h sgidump.h decimate.h
+	graphics.h graphics.vrml.h graphics.scenes.h sgidump.h decimate.h
 
 libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
 libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
@@ -86,4 +86,4 @@ endif
 
 # Files which aren't involved in the compilation, but we need to make sure
 # they are included in the distribution for completeness:
-EXTRA_DIST = g.pex.c extmain.c libmcidas5.a EARTH.TOPO OUTLSUPW OUTLUSAM
+EXTRA_DIST = g.pex.c extmain.c EARTH.TOPO OUTLSUPW OUTLUSAM

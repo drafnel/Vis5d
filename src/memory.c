@@ -46,8 +46,6 @@
 #include "misc.h"
 #include "sync.h"
 
-#define DEBUG_MEM 1
-
 struct mem {
    int        size;
    struct mem *prev;

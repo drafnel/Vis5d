@@ -7,6 +7,8 @@ INCLUDES = -I./gradients \
 	-I$(top_srcdir)/intl \
 	@GTK_CFLAGS@
 
+SUBDIRS=gradients
+
 noinst_PROGRAMS = vis5d
 
 noinst_LTLIBRARIES = libv5dgtk.la

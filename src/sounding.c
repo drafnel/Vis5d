@@ -425,11 +425,13 @@ void SND_Initialize(  Display_Context dtx, Display *display,
 #ifdef HAVE_OPENGL
 	if(dtx->gfx[SOUND_FONT]==dtx->gfx[WINDOW_3D_FONT]){
 	  free_Xgfx(dtx->gfx[SOUND_FONT]);
-	  dtx->gfx[SOUND_FONT]==NULL;
+	  dtx->gfx[SOUND_FONT]=NULL;
 	}
 	if(dtx->gfx[SOUND_FONT]==NULL ){
+	  Xgfx *new_Xgfx(Xgfx *gfx); /* api.c */
+	  int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx);
 	  dtx->gfx[SOUND_FONT]=new_Xgfx(NULL);
-	  vis5d_set_font(dtx, DEFAULT_SOUNDFONTNAME, 0, SOUND_FONT);
+	  set_opengl_font(DEFAULT_SOUNDFONTNAME,dtx->Sound.soundwin, dtx->gl_ctx, dtx->gfx[SOUND_FONT]);
 	}
 #else
    /* Make sure SoundFontName is okay: */

@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Vis5d+ 0.01\n"
-"POT-Creation-Date: 2001-10-02 09:44-0300\n"
+"POT-Creation-Date: 2001-10-09 16:58-0300\n"
 "PO-Revision-Date: 2001-09-26 13:02-0300\n"
 "Last-Translator: Jim Edwards <JimEdwards@altavista.com>\n"
 "Language-Team: Brazilian Portuguese <ldp-br@bazar.conectiva.com.br>\n"
@@ -240,216 +240,215 @@ msgstr "Arquivo existente! Sobregravar?"
 msgid "Okay"
 msgstr ""
 
-#: gtk/PD_interface.c:332
-#: gtk/interface.c:198
+#: gtk/PD_interface.c:332 gtk/interface.c:198
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: gtk/w3D_interface.c:108
+#: gtk/w3D_interface.c:107
 msgid "Vis5D+"
 msgstr ""
 
-#: gtk/w3D_interface.c:146
+#: gtk/w3D_interface.c:144
 msgid "_File"
 msgstr "Arquivo"
 
-#: gtk/w3D_interface.c:166
+#: gtk/w3D_interface.c:164
 msgid "_Open Data..."
 msgstr "Abrir Dados"
 
-#: gtk/w3D_interface.c:177
+#: gtk/w3D_interface.c:174
 msgid "Open in new Frame..."
 msgstr "Abrir dentro novo quadro..."
 
-#: gtk/w3D_interface.c:194
+#: gtk/w3D_interface.c:191
 msgid "Delete Frame"
 msgstr "Apagar quadro"
 
-#: gtk/w3D_interface.c:205
+#: gtk/w3D_interface.c:202
 msgid "E_xit Vis5d+"
 msgstr "Sair"
 
-#: gtk/w3D_interface.c:215
+#: gtk/w3D_interface.c:212
 msgid "Options"
 msgstr "Opções"
 
-#: gtk/w3D_interface.c:232 gtk/w3D_interface.c:378
+#: gtk/w3D_interface.c:229 gtk/w3D_interface.c:375
 msgid "Map"
 msgstr "Mapa"
 
-#: gtk/w3D_interface.c:242
+#: gtk/w3D_interface.c:239
 msgid "Box"
 msgstr "Caixa"
 
-#: gtk/w3D_interface.c:252
+#: gtk/w3D_interface.c:249
 msgid "Clock"
 msgstr "Relógio"
 
-#: gtk/w3D_interface.c:261
+#: gtk/w3D_interface.c:258
 msgid "Topo"
 msgstr ""
 
-#: gtk/w3D_interface.c:279
+#: gtk/w3D_interface.c:276
 msgid "View"
 msgstr "Exibir"
 
-#: gtk/w3D_interface.c:295
+#: gtk/w3D_interface.c:292
 msgid "Top"
 msgstr "Topo"
 
-#: gtk/w3D_interface.c:303
+#: gtk/w3D_interface.c:300
 msgid "South"
 msgstr "Sol"
 
-#: gtk/w3D_interface.c:320
+#: gtk/w3D_interface.c:317
 msgid "Fonts"
 msgstr "Fontes"
 
-#: gtk/w3D_interface.c:336
+#: gtk/w3D_interface.c:333
 msgid "Window 3D"
 msgstr "Janela 3D"
 
-#: gtk/w3D_interface.c:343
+#: gtk/w3D_interface.c:340
 msgid "Select the default font for 3D Graphics labels"
 msgstr ""
 
-#: gtk/w3D_interface.c:345
+#: gtk/w3D_interface.c:342
 msgid "Contour Label"
 msgstr "Rótulo de Contornos"
 
-#: gtk/w3D_interface.c:352
+#: gtk/w3D_interface.c:349
 msgid "Select the contour label font "
 msgstr "Fonte para Rótulo de Contorno "
 
-#: gtk/w3D_interface.c:354
+#: gtk/w3D_interface.c:351
 msgid "Files"
 msgstr "Arquivos"
 
-#: gtk/w3D_interface.c:370
+#: gtk/w3D_interface.c:367
 msgid "Topography"
 msgstr ""
 
-#: gtk/w3D_interface.c:395
+#: gtk/w3D_interface.c:392
 msgid "Save Options"
 msgstr "Salvar Opções"
 
-#: gtk/w3D_interface.c:403
+#: gtk/w3D_interface.c:400
 msgid "Procedures"
 msgstr "Procedimentos"
 
-#: gtk/PD_interface.c:90 gtk/w3D_interface.c:420
+#: gtk/PD_interface.c:90 gtk/w3D_interface.c:417
 msgid "Open"
 msgstr "Abrir"
 
-#: gtk/w3D_interface.c:428
+#: gtk/w3D_interface.c:425
 msgid "New"
 msgstr "Novo"
 
-#: gtk/w3D_interface.c:436
+#: gtk/w3D_interface.c:433
 msgid "Variables"
 msgstr "Variávels"
 
-#: gtk/w3D_interface.c:453
+#: gtk/w3D_interface.c:450
 msgid "2D"
 msgstr ""
 
-#: gtk/w3D_interface.c:469
+#: gtk/w3D_interface.c:466
 msgid "var2d"
 msgstr ""
 
-#: gtk/w3D_interface.c:477
+#: gtk/w3D_interface.c:474
 msgid "3D"
 msgstr ""
 
-#: gtk/w3D_interface.c:494
+#: gtk/w3D_interface.c:490
 msgid "var3d"
 msgstr ""
 
-#: gtk/w3D_interface.c:515
+#: gtk/w3D_interface.c:511
 msgid "First"
 msgstr "Primeiro"
 
-#: gtk/w3D_interface.c:516
+#: gtk/w3D_interface.c:512
 msgid "Display first frame."
 msgstr "Mostrar Primeiro Quadro "
 
-#: gtk/w3D_interface.c:528
+#: gtk/w3D_interface.c:524
 msgid "Previous"
 msgstr "Anterior"
 
-#: gtk/w3D_interface.c:529
+#: gtk/w3D_interface.c:525
 msgid "Display previous frame."
 msgstr "Mostrar Anterior Quadro"
 
-#: gtk/w3D_interface.c:541 gtk/w3D_interface.c:590
+#: gtk/w3D_interface.c:537 gtk/w3D_interface.c:586
 msgid "Animate"
 msgstr "Animar"
 
-#: gtk/w3D_interface.c:542
+#: gtk/w3D_interface.c:538
 msgid "Toggle backward animation.  "
 msgstr "Acionar animação para trás"
 
-#: gtk/w3D_interface.c:562
+#: gtk/w3D_interface.c:558
 msgid "button35"
 msgstr ""
 
-#: gtk/w3D_interface.c:563
+#: gtk/w3D_interface.c:559
 msgid "animate faster"
 msgstr "Animar mais rápida"
 
-#: gtk/w3D_interface.c:576
+#: gtk/w3D_interface.c:572
 msgid "button36"
 msgstr ""
 
-#: gtk/w3D_interface.c:577
+#: gtk/w3D_interface.c:573
 msgid "animate slower"
 msgstr "Animar mais devagar"
 
-#: gtk/w3D_interface.c:591
+#: gtk/w3D_interface.c:587
 msgid "Toggle forward animation.  "
 msgstr "Acionar animação para frente"
 
-#: gtk/w3D_interface.c:603
+#: gtk/w3D_interface.c:599
 msgid "Next"
 msgstr "Próxima"
 
-#: gtk/w3D_interface.c:604
+#: gtk/w3D_interface.c:600
 msgid "Display next frame."
 msgstr "Mostrar Próxima Quadro"
 
-#: gtk/w3D_interface.c:616
+#: gtk/w3D_interface.c:612
 msgid "Last"
 msgstr "Último"
 
-#: gtk/w3D_interface.c:617
+#: gtk/w3D_interface.c:613
 msgid "Display final frame."
 msgstr "Mostrar Último Quadro"
 
-#: gtk/w3D_interface.c:633
+#: gtk/w3D_interface.c:629
 msgid "Help"
 msgstr "Ajuda"
 
-#: gtk/w3D_interface.c:651
+#: gtk/w3D_interface.c:645
 msgid "About"
 msgstr "Sobre"
 
-#: gtk/window3D.c:96
+#: gtk/window3D.c:100
 msgid "Open Data File"
 msgstr "Abrir arquivo de dado"
 
-#: gtk/window3D.c:367
+#: gtk/window3D.c:371
 msgid "Open Procedure File"
 msgstr "Abrir arquivo de procedimento"
 
-#: gtk/window3D.c:401
+#: gtk/window3D.c:405
 msgid "Select Topography File"
 msgstr "Selecionar arquivo de Topography"
 
-#: gtk/window3D.c:433
+#: gtk/window3D.c:437
 msgid "Select Map File"
 msgstr "Selecionar arquivo de Mapa"
 
-#: gtk/window3D.c:995
+#: gtk/window3D.c:999
 #, c-format
 msgid "%s Variable Graphics Controls"
 msgstr "%s Controle Variável Gráficos"
@@ -513,4 +512,3 @@ msgstr "Diálogo nome de imagem "
 #: gtk/PD_interface.c:297
 msgid "Image Name:"
 msgstr "Nome de imagem:"
-

@@ -7,7 +7,7 @@
 #  include <config.h>
 #endif
 #include <gtk/gtk.h>
-
+#include <locale.h>
 #include <mcheck.h>
 #include <signal.h>
 
@@ -46,6 +46,12 @@ main (int argc, char *argv[])
   mtrace ();
   */
   gtk_set_locale ();
+
+  /* This is necessary so that numeric text files are read in 
+	  properly. 
+  */
+
+  setlocale(LC_NUMERIC,"C");
 
   /* TODO: need to look for gtkrc file, currently we just look in 
 	  the source dir since we don't install this version anyway

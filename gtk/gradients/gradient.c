@@ -6001,7 +6001,7 @@ grad_load_gradient (gchar *filename)
   grad_segment_t *seg;
   grad_segment_t *prev;
   gint            num_segments;
-  gint            i;
+  gint            i, scanout;
   gint            type, color;
   gchar           line[1024];
 
@@ -6046,15 +6046,15 @@ grad_load_gradient (gchar *filename)
 
       fgets (line, 1024, file);
 
-      if (sscanf (line, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%d%d",
+      if ((scanout=sscanf (line, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%d%d",
 		  &(seg->left), &(seg->middle), &(seg->right),
 		  &(seg->r0), &(seg->g0), &(seg->b0), &(seg->a0),
 		  &(seg->r1), &(seg->g1), &(seg->b1), &(seg->a1),
-		  &type, &color) != 13)
+		  &type, &color)) != 13)
 	{
 	  g_message ("grad_load_gradient(): badly formatted "
                      "gradient segment %d in \"%s\" --- bad things may "
-                     "happen soon", i, filename);
+                     "happen soon %d", i, filename, scanout);
 	}
       else
 	{

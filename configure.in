@@ -46,8 +46,8 @@ AM_PATH_GTK(1.2.9, ,
 
   dnl Add the languages which your application supports here.
 ALL_LINGUAS="pt_BR"
-AM_WITH_NLS('use-libtool')
-#AM_GNU_GETTEXT
+#AM_WITH_NLS('use-libtool')
+AM_GNU_GETTEXT
 INTLDIR=intl
 GTK_DIRS="gtk/gradients gtk po"
 else

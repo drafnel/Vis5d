@@ -286,9 +286,13 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->CHSliceRequest = (hslice_request *) allocate(ctx,sizeof(hslice_request));
 	  ctx->Variable[var]->CHSliceRequest->fillstyle = GL_FILL;
 	  ctx->Variable[var]->CHSliceRequest->textureflag=0;
+#ifdef USE_GLLISTS
 	  ctx->Variable[var]->CHSliceRequest->textureobject=0;
+#endif
 	}
    ctx->Variable[var]->CHSliceRequest->Level = l;
+   ctx->Variable[var]->CHSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
+   ctx->Variable[var]->CHSliceRequest->HighLimit = ctx->Variable[var]->MaxVal;
 
    new_hslice_pos( ctx, ctx->Variable[var]->CHSliceRequest->Level,
                    &ctx->Variable[var]->CHSliceRequest->Z, &ctx->Variable[var]->CHSliceRequest->Hgt );
@@ -312,6 +316,7 @@ void init_graphics_pos( Context ctx, int var )
 
    ctx->Variable[var]->VSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
    ctx->Variable[var]->VSliceRequest->HighLimit = ctx->Variable[var]->MaxVal;
+
    new_vslice_pos( ctx, ctx->Variable[var]->VSliceRequest->R1, ctx->Variable[var]->VSliceRequest->R2,
                    &ctx->Variable[var]->VSliceRequest->X1, &ctx->Variable[var]->VSliceRequest->Y1,
                    &ctx->Variable[var]->VSliceRequest->Lat1, &ctx->Variable[var]->VSliceRequest->Lon1 );
@@ -323,13 +328,18 @@ void init_graphics_pos( Context ctx, int var )
 	  ctx->Variable[var]->CVSliceRequest = (vslice_request *) allocate(ctx,sizeof(vslice_request));
 	  ctx->Variable[var]->CVSliceRequest->fillstyle = GL_FILL;
 	  ctx->Variable[var]->CVSliceRequest->textureflag=0;
+#ifdef USE_GLLISTS
 	  ctx->Variable[var]->CVSliceRequest->textureobject=0;
+#endif
 	}
 
    ctx->Variable[var]->CVSliceRequest->R1 = ctx->Variable[var]->VSliceRequest->R1;
    ctx->Variable[var]->CVSliceRequest->R2 = ctx->Variable[var]->VSliceRequest->R2; 
    ctx->Variable[var]->CVSliceRequest->C1 = ctx->Variable[var]->VSliceRequest->C1;
    ctx->Variable[var]->CVSliceRequest->C2 = ctx->Variable[var]->VSliceRequest->C2;
+   ctx->Variable[var]->CVSliceRequest->LowLimit = ctx->Variable[var]->MinVal;
+   ctx->Variable[var]->CVSliceRequest->HighLimit = ctx->Variable[var]->MaxVal;
+
    new_vslice_pos( ctx, ctx->Variable[var]->CVSliceRequest->R1, ctx->Variable[var]->CVSliceRequest->R2,
                    &ctx->Variable[var]->CVSliceRequest->X1, &ctx->Variable[var]->CVSliceRequest->Y1,
                    &ctx->Variable[var]->CVSliceRequest->Lat1, &ctx->Variable[var]->CVSliceRequest->Lon1 );

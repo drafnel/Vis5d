@@ -1331,7 +1331,7 @@ int vis5d_invalidate_vslice(int index, int var, int time) {
 
 /* WLH 12 Nov 98 */
 int vis5d_invalidate_chslice(int index, int var, int time) {
-  CONTEXT("vis5d_invalidate_isosurface");
+  CONTEXT("vis5d_invalidate_chslice");
   if(ctx->Variable[var])
 	 if(ctx->Variable[var]->CHSliceTable[time])
 		ctx->Variable[var]->CHSliceTable[time]->valid = 0;
@@ -8456,6 +8456,9 @@ int vis5d_set_chslice_limits(int index, int var, float low, float high, float le
       return VIS5D_BAD_VAR_NUMBER;
 	 }  
   
+  if(level< ctx->Variable[var]->LowLev){
+	 level = ctx->Variable[var]->LowLev;
+  }
   if(low>=high){
 	 set_hslice_pos(ctx,var,ctx->Variable[var]->CHSliceRequest, level);  
 	 return 0;

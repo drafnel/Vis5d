@@ -424,12 +424,14 @@ void request_cvslice( Context ctx, int time, int var, int urgent )
   if(! ctx->Variable[var]->CVSliceTable[time]){
 	 ctx->Variable[var]->CVSliceTable[time] = (struct cvslice *) allocate(ctx, sizeof(struct cvslice));
 	 memset(ctx->Variable[var]->CVSliceTable[time], 0, sizeof(struct cvslice));
+#ifdef USE_GLLISTS
 	 /* set up the texture object */
 	 if(ctx->Variable[var]->CVSliceRequest->textureobject<=0){
 		color_quadmesh_texture_object(&ctx->Variable[var]->CVSliceRequest->textureobject,
 												(GLubyte *) ctx->dpy_ctx->ColorTable[VIS5D_CVSLICE_CT]->Colors[ctx->context_index*MAXVARS+var]);
 	 }
 	 ctx->Variable[var]->CVSliceTable[time]->glList[1]=ctx->Variable[var]->CVSliceRequest->textureobject;
+#endif
   }
 
   if (ctx->Variable[var]->CVSliceTable[time]->valid==0 ||

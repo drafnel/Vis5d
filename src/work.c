@@ -2803,15 +2803,16 @@ static void calc_chslice( Context ctx, int time, int var,
 		  if (IS_MISSING(slicedata[i]))
 			 indexes[i]=255;
 		  else{
-			 int index = (slicedata[i]-ctx->Variable[var]->MinVal) * scale;
+			 int index = (slicedata[i] - low) * scale;
 			 indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
+
 		  }
       }
    }
    else {
       /* resampling needed */
       int row, col;
-      float minval = ctx->Variable[var]->MinVal;
+
       float rowscale = (float) (dtx->Nr-1) / (float) (slice_rows-1);
       float colscale = (float) (dtx->Nc-1) / (float) (slice_cols-1);
       int i = 0;
@@ -2846,7 +2847,6 @@ static void calc_chslice( Context ctx, int time, int var,
    /* store new slice */
    slice->level = level;
    slice->valid = 1;
-	printf("texture = %d\n",ctx->Variable[var]->CHSliceRequest->textureflag);
 	draw_color_quadmesh(slice_rows, slice_cols, cverts, indexes, 
 							  dtx->ColorTable[VIS5D_CHSLICE_CT]->Colors[ctx->context_index*MAXVARS+var],
 							  ctx->Variable[var]->CHSliceRequest->textureflag,	slice->glList, GL_COMPILE);
@@ -2889,6 +2889,7 @@ static void calc_chslice( Context ctx, int time, int var,
    Output:  resulting poly-triangle strip is saved in CVSliceTable.
 **********************************************************************/
 static void calc_cvslice( Context ctx, int time, int var,
+								  float lowlimit, float highlimit,
                           float r1, float c1, float r2, float c2,
                           int threadnum )
 {
@@ -2983,10 +2984,6 @@ static void calc_cvslice( Context ctx, int time, int var,
       for (j=0;j<cols;j++) {
          vr[n] = r;
          vc[n] = c;
-/* WLH 15 Oct 98
-         vl[n] = i+dtx->LowLev;
-*/
-         /* WLH 15 Oct 98 */
          vl[n] = i + ctxlow;
 
          r += dr;
@@ -2997,15 +2994,15 @@ static void calc_cvslice( Context ctx, int time, int var,
    gridPRIME_to_compXYZPRIME( dtx, time, var, rows*cols, vr, vc, vl, (void*) cverts );
 
    /* scale grid values to [0,254] with missing = 255 */
-   if (ctx->Variable[var]->MinVal==ctx->Variable[var]->MaxVal)
+   if (lowlimit==highlimit)
       scale = 0.0;
    else
-      scale = 254.0 / (ctx->Variable[var]->MaxVal-ctx->Variable[var]->MinVal);
+      scale = 254.0 / (highlimit-lowlimit);
    for (i=0;i<rows*cols;i++) {
 	  if (IS_MISSING(slice[i]))
 		 indexes[i]=255;
 	  else{
-		 int index = (slice[i]-ctx->Variable[var]->MinVal) * scale;
+		 int index = (slice[i] - lowlimit) * scale;
 		 indexes[i] = (index < 0) ? 0 : (index > 254) ? 254 : index;
 	  }
    }
@@ -6580,8 +6577,14 @@ int do_one_task( int threadnum )
          break;
       case TASK_CVSLICE:
          /* calculate a vertical colored slice */
-         calc_cvslice( ctx, time, var, ctx->Variable[var]->CVSliceRequest->R1, ctx->Variable[var]->CVSliceRequest->R2,
-                       ctx->Variable[var]->CVSliceRequest->C1, ctx->Variable[var]->CVSliceRequest->C2, threadnum);
+         calc_cvslice( ctx, time, var, 
+							  ctx->Variable[var]->CVSliceRequest->LowLimit,
+							  ctx->Variable[var]->CVSliceRequest->HighLimit,
+							  ctx->Variable[var]->CVSliceRequest->R1, 
+							  ctx->Variable[var]->CVSliceRequest->R2,
+                       ctx->Variable[var]->CVSliceRequest->C1, 
+							  ctx->Variable[var]->CVSliceRequest->C2, 
+							  threadnum);
          break;
       case TASK_HWIND:
          /* calculate a horizontal wind slice */

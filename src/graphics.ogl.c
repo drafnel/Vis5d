@@ -1866,8 +1866,6 @@ void draw_color_quadmesh( int rows, int columns, int_2 verts[][3],
 	
   }
 
-  printf("textureflag = %d\n",texture_method);							  									  
-
   if(texture_method){
 	 glBindTexture(GL_TEXTURE_1D, list[1] );
 

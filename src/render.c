@@ -2818,7 +2818,6 @@ void render_everything( Display_Context dtx, int animflag )
    set_3d( dtx->GfxProjection, dtx->FrntClip,
            dtx->Zoom, (float*) dtx->CTM);
 
-/* WLH 3 July 2000 */
    if (dtx->DisplayBox){
       int i, listflag=0;
 #ifdef USE_GLLISTS

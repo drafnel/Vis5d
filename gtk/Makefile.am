@@ -3,7 +3,7 @@
 #  Currently the vis5d gtk interface is built locally but not installed
 #
 
-INCLUDES = \
+INCLUDES = -I./gradients \
 	-I$(top_srcdir)/intl \
 	@GTK_CFLAGS@
 
@@ -12,14 +12,14 @@ noinst_PROGRAMS = vis5d
 noinst_LTLIBRARIES = libv5dgtk.la
 
 
-libv5dgtk_la_SOURCES = support.c support.h \
+libv5dgtk_la_SOURCES = window3D.c window3D.h \
+                       w3D_interface.c w3D_interface.h \
+                       HSliceControls.c HSliceControls.h \
+                       HSC_interface.c HSC_interface.h \
+							  support.c support.h \
+	                    support_cb.c support_cb.h \
                        interface.c interface.h \
-	                    callbacks.h \
-                       window3D.c  glarea.c \
-                       fileselection.c fontselectiondialog.c \
-                       colorselectiondialog.c \
 	                    procedure.c procedure.h \
-                       VarDialog.c HSliceControls.c \
 	                    graph_labels.c  
 
 libv5dgtk_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
@@ -33,4 +33,13 @@ vis5d_LDADD = libv5dgtk.la ../src/libvis5d.la ../src/libv5d.la \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@ \
                @GTK_LIBS@ -lgtkgl $(INTLLIBS) 
+
+HSC_interface.c HSC_interface.h : hslicecontrols.glade
+	glade -w $<
+
+support.c support.h interface.c interface.h callbacks.h : vis5d+.glade
+	glade -w $<
+
+w3D_interface.c w3D_interface.h : window3D.glade
+	glade -w $<
 

@@ -1,0 +1,599 @@
+<?xml version="1.0"?>
+<GTK-Interface>
+
+<project>
+  <name>vis5d+</name>
+  <program_name>vis5d+</program_name>
+  <directory></directory>
+  <source_directory>.</source_directory>
+  <pixmaps_directory>../pixmaps</pixmaps_directory>
+  <language>C</language>
+  <gnome_support>False</gnome_support>
+  <gettext_support>True</gettext_support>
+  <use_widget_names>True</use_widget_names>
+  <output_main_file>False</output_main_file>
+  <output_support_files>False</output_support_files>
+  <output_build_files>False</output_build_files>
+  <main_source_file>w3D_interface.c</main_source_file>
+  <main_header_file>w3D_interface.h</main_header_file>
+  <handler_source_file>window3D.c</handler_source_file>
+  <handler_header_file>window3D.h</handler_header_file>
+  <translatable_strings_file>langstrings.c</translatable_strings_file>
+</project>
+
+<widget>
+  <class>GtkWindow</class>
+  <name>window3D</name>
+  <title>Vis5D+</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <default_width>500</default_width>
+  <default_height>750</default_height>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+
+  <widget>
+    <class>GtkVBox</class>
+    <name>vbox10</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+
+    <widget>
+      <class>GtkHandleBox</class>
+      <name>handlebox1</name>
+      <shadow_type>GTK_SHADOW_OUT</shadow_type>
+      <handle_position>GTK_POS_LEFT</handle_position>
+      <snap_edge>GTK_POS_TOP</snap_edge>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkHBox</class>
+	<name>hbox14</name>
+	<homogeneous>False</homogeneous>
+	<spacing>0</spacing>
+
+	<widget>
+	  <class>GtkMenuBar</class>
+	  <name>menubar1</name>
+	  <shadow_type>GTK_SHADOW_OUT</shadow_type>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>file1</name>
+	    <stock_item>GNOMEUIINFO_MENU_FILE_TREE</stock_item>
+
+	    <widget>
+	      <class>GtkMenu</class>
+	      <name>file1_menu</name>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>open1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_open1_activate</handler>
+		  <last_modification_time>Wed, 18 Jul 2001 12:43:12 GMT</last_modification_time>
+		</signal>
+		<label>_Open Data...</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>open_in_new_frame1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_open_in_new_frame1_activate</handler>
+		  <last_modification_time>Tue, 31 Jul 2001 12:28:41 GMT</last_modification_time>
+		</signal>
+		<label>Open in new Frame...</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>separator2</name>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>delete_frame1</name>
+		<sensitive>False</sensitive>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_delete_frame1_activate</handler>
+		  <last_modification_time>Tue, 31 Jul 2001 12:31:12 GMT</last_modification_time>
+		</signal>
+		<label>Delete Frame</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>exit1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_exit1_activate</handler>
+		  <last_modification_time>Mon, 02 Jul 2001 13:54:37 GMT</last_modification_time>
+		</signal>
+		<label>E_xit Vis5d+</label>
+		<right_justify>False</right_justify>
+	      </widget>
+	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>options1</name>
+	    <label>Options</label>
+	    <right_justify>False</right_justify>
+
+	    <widget>
+	      <class>GtkMenu</class>
+	      <name>options1_menu</name>
+
+	      <widget>
+		<class>GtkCheckMenuItem</class>
+		<name>map1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_map1_activate</handler>
+		  <last_modification_time>Tue, 17 Jul 2001 19:52:39 GMT</last_modification_time>
+		</signal>
+		<label>Map</label>
+		<active>True</active>
+		<always_show_toggle>True</always_show_toggle>
+	      </widget>
+
+	      <widget>
+		<class>GtkCheckMenuItem</class>
+		<name>box1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_box1_activate</handler>
+		  <last_modification_time>Tue, 17 Jul 2001 19:52:28 GMT</last_modification_time>
+		</signal>
+		<label>Box</label>
+		<active>True</active>
+		<always_show_toggle>True</always_show_toggle>
+	      </widget>
+
+	      <widget>
+		<class>GtkCheckMenuItem</class>
+		<name>clock1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_clock1_activate</handler>
+		  <last_modification_time>Tue, 17 Jul 2001 19:52:14 GMT</last_modification_time>
+		</signal>
+		<label>Clock</label>
+		<active>False</active>
+		<always_show_toggle>True</always_show_toggle>
+	      </widget>
+
+	      <widget>
+		<class>GtkCheckMenuItem</class>
+		<name>topo1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_topo1_activate</handler>
+		  <last_modification_time>Tue, 17 Jul 2001 19:52:01 GMT</last_modification_time>
+		</signal>
+		<label>Topo</label>
+		<active>False</active>
+		<always_show_toggle>True</always_show_toggle>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>separator3</name>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>view1</name>
+		<label>View</label>
+		<right_justify>False</right_justify>
+
+		<widget>
+		  <class>GtkMenu</class>
+		  <name>view1_menu</name>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>top1</name>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_setview_activate</handler>
+		      <last_modification_time>Fri, 17 Aug 2001 12:36:10 GMT</last_modification_time>
+		    </signal>
+		    <label>Top</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>south1</name>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_setview_activate</handler>
+		      <last_modification_time>Fri, 17 Aug 2001 12:36:10 GMT</last_modification_time>
+		    </signal>
+		    <label>South</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+		</widget>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>separator8</name>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>fonts1</name>
+		<label>Fonts</label>
+		<right_justify>False</right_justify>
+
+		<widget>
+		  <class>GtkMenu</class>
+		  <name>fonts1_menu</name>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>window_3d1</name>
+		    <tooltip>Select the default font for 3D Graphics labels</tooltip>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_window_3d1_activate</handler>
+		      <last_modification_time>Mon, 06 Aug 2001 22:48:28 GMT</last_modification_time>
+		    </signal>
+		    <label>Window 3D</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>contour_label1</name>
+		    <tooltip>Select the contour label font </tooltip>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_contour_label1_activate</handler>
+		      <last_modification_time>Mon, 06 Aug 2001 22:48:59 GMT</last_modification_time>
+		    </signal>
+		    <label>Contour Label</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+		</widget>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>files1</name>
+		<label>Files</label>
+		<right_justify>False</right_justify>
+
+		<widget>
+		  <class>GtkMenu</class>
+		  <name>files1_menu</name>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>topography1</name>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_topography1_activate</handler>
+		      <last_modification_time>Mon, 06 Aug 2001 22:51:35 GMT</last_modification_time>
+		    </signal>
+		    <label>Topography</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+
+		  <widget>
+		    <class>GtkMenuItem</class>
+		    <name>map2</name>
+		    <signal>
+		      <name>activate</name>
+		      <handler>on_map2_activate</handler>
+		      <last_modification_time>Mon, 06 Aug 2001 22:51:51 GMT</last_modification_time>
+		    </signal>
+		    <label>Map</label>
+		    <right_justify>False</right_justify>
+		  </widget>
+		</widget>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>separator6</name>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>save_options1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_save_options1_activate</handler>
+		  <last_modification_time>Tue, 07 Aug 2001 12:51:02 GMT</last_modification_time>
+		</signal>
+		<label>Save Options</label>
+		<right_justify>False</right_justify>
+	      </widget>
+	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>procedures1</name>
+	    <label>Procedures</label>
+	    <right_justify>False</right_justify>
+
+	    <widget>
+	      <class>GtkMenu</class>
+	      <name>procedures1_menu</name>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>openprocedure</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_openprocedure_activate</handler>
+		  <last_modification_time>Tue, 07 Aug 2001 14:32:08 GMT</last_modification_time>
+		</signal>
+		<label>Open</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>newprocedure</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_newprocedure_activate</handler>
+		  <last_modification_time>Tue, 07 Aug 2001 14:32:08 GMT</last_modification_time>
+		</signal>
+		<label>New</label>
+		<right_justify>False</right_justify>
+	      </widget>
+	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>tools1</name>
+	    <label>Tools</label>
+	    <right_justify>False</right_justify>
+
+	    <widget>
+	      <class>GtkMenu</class>
+	      <name>tools1_menu</name>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>horizontal_contours1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_hslice_activate</handler>
+		  <last_modification_time>Fri, 17 Aug 2001 12:33:44 GMT</last_modification_time>
+		</signal>
+		<label>Horizontal Contours</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>vertical_contours1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_vslice_activate</handler>
+		  <last_modification_time>Fri, 17 Aug 2001 12:33:44 GMT</last_modification_time>
+		</signal>
+		<label>Vertical Contours</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>isosurface1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_isosurface_activate</handler>
+		  <last_modification_time>Fri, 10 Aug 2001 15:00:09 GMT</last_modification_time>
+		</signal>
+		<label>Isosurface</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>volume</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_volume_activate</handler>
+		  <last_modification_time>Fri, 10 Aug 2001 15:00:09 GMT</last_modification_time>
+		</signal>
+		<label>Volume</label>
+		<right_justify>False</right_justify>
+	      </widget>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkToolbar</class>
+	  <name>toolbar1</name>
+	  <orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
+	  <type>GTK_TOOLBAR_ICONS</type>
+	  <space_size>5</space_size>
+	  <space_style>GTK_TOOLBAR_SPACE_EMPTY</space_style>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	  <tooltips>True</tooltips>
+	  <child>
+	    <padding>0</padding>
+	    <expand>False</expand>
+	    <fill>False</fill>
+	  </child>
+
+	  <widget>
+	    <class>GtkButton</class>
+	    <child_name>Toolbar:button</child_name>
+	    <name>button31</name>
+	    <tooltip>Display first frame.</tooltip>
+	    <signal>
+	      <name>clicked</name>
+	      <handler>on_Arrow_clicked</handler>
+	      <data>&quot;first&quot;</data>
+	      <last_modification_time>Fri, 27 Jul 2001 17:28:02 GMT</last_modification_time>
+	    </signal>
+	    <label>First</label>
+	    <icon>first.xpm</icon>
+	  </widget>
+
+	  <widget>
+	    <class>GtkButton</class>
+	    <child_name>Toolbar:button</child_name>
+	    <name>button32</name>
+	    <tooltip>Display previous frame.</tooltip>
+	    <signal>
+	      <name>clicked</name>
+	      <handler>on_Arrow_clicked</handler>
+	      <data>&quot;previous&quot;</data>
+	      <last_modification_time>Fri, 27 Jul 2001 17:27:55 GMT</last_modification_time>
+	    </signal>
+	    <label>Previous</label>
+	    <icon>left.xpm</icon>
+	  </widget>
+
+	  <widget>
+	    <class>GtkToggleButton</class>
+	    <child_name>Toolbar:button</child_name>
+	    <name>togglebutton8</name>
+	    <tooltip>Toggle backward animation.  </tooltip>
+	    <signal>
+	      <name>toggled</name>
+	      <handler>on_animate_toggled</handler>
+	      <data>&quot;backward&quot;</data>
+	      <last_modification_time>Mon, 30 Jul 2001 17:20:08 GMT</last_modification_time>
+	    </signal>
+	    <label>Animate</label>
+	    <icon>animate_backward.xpm</icon>
+	    <active>False</active>
+	  </widget>
+
+	  <widget>
+	    <class>GtkToggleButton</class>
+	    <child_name>Toolbar:button</child_name>
+	    <name>togglebutton5</name>
+	    <tooltip>Toggle forward animation.  </tooltip>
+	    <signal>
+	      <name>toggled</name>
+	      <handler>on_animate_toggled</handler>
+	      <last_modification_time>Fri, 27 Jul 2001 17:25:31 GMT</last_modification_time>
+	    </signal>
+	    <label>Animate</label>
+	    <icon>animate_forward.xpm</icon>
+	    <active>False</active>
+	  </widget>
+
+	  <widget>
+	    <class>GtkButton</class>
+	    <child_name>Toolbar:button</child_name>
+	    <name>button33</name>
+	    <tooltip>Display next frame.</tooltip>
+	    <signal>
+	      <name>clicked</name>
+	      <handler>on_Arrow_clicked</handler>
+	      <data>&quot;next&quot;</data>
+	      <last_modification_time>Fri, 27 Jul 2001 17:27:40 GMT</last_modification_time>
+	    </signal>
+	    <label>Next</label>
+	    <icon>right.xpm</icon>
+	  </widget>
+
+	  <widget>
+	    <class>GtkButton</class>
+	    <child_name>Toolbar:button</child_name>
+	    <name>button34</name>
+	    <tooltip>Display final frame.</tooltip>
+	    <signal>
+	      <name>clicked</name>
+	      <handler>on_Arrow_clicked</handler>
+	      <data>&quot;last&quot;</data>
+	      <last_modification_time>Fri, 27 Jul 2001 17:27:29 GMT</last_modification_time>
+	    </signal>
+	    <label>Last</label>
+	    <icon>last.xpm</icon>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>Placeholder</class>
+	</widget>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>Custom</class>
+      <child_name>GnomeDock:contents</child_name>
+      <name>GtkGlArea</name>
+      <height>400</height>
+      <signal>
+	<name>button_release_event</name>
+	<handler>glarea_button_release</handler>
+	<last_modification_time>Sat, 17 Mar 2001 18:13:23 GMT</last_modification_time>
+      </signal>
+      <signal>
+	<name>button_press_event</name>
+	<handler>glarea_button_press</handler>
+	<last_modification_time>Sat, 17 Mar 2001 18:24:41 GMT</last_modification_time>
+      </signal>
+      <signal>
+	<name>motion_notify_event</name>
+	<handler>glarea_motion_notify</handler>
+	<last_modification_time>Sat, 17 Mar 2001 18:15:49 GMT</last_modification_time>
+      </signal>
+      <signal>
+	<name>expose_event</name>
+	<handler>glarea_draw</handler>
+	<last_modification_time>Sat, 17 Mar 2001 18:28:18 GMT</last_modification_time>
+      </signal>
+      <signal>
+	<name>configure_event</name>
+	<handler>glarea_reshape</handler>
+	<last_modification_time>Sat, 17 Mar 2001 18:16:54 GMT</last_modification_time>
+      </signal>
+      <signal>
+	<name>realize</name>
+	<handler>glarea_init</handler>
+	<last_modification_time>Sat, 17 Mar 2001 18:17:38 GMT</last_modification_time>
+      </signal>
+      <creation_function>create_glarea</creation_function>
+      <int1>0</int1>
+      <int2>0</int2>
+      <last_modification_time>Tue, 20 Feb 2001 19:04:40 GMT</last_modification_time>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+    </widget>
+  </widget>
+</widget>
+
+</GTK-Interface>

@@ -12,15 +12,17 @@
 #include <gtkgl/gtkglarea.h>
 #include "../src/api.h"
 
-#include "callbacks.h"
-#include "interface.h"
+#include "support_cb.h"
+#include "window3D.h"
+#include "HSC_interface.h"
 #include "support.h"
 #include "graph_labels.h"
-
-
+#include "gradient_cb.h"
+#include "interface.h"
 
 extern GtkWidget *ColorSelectionDialog;
 void hs_draw_color_sample(v5d_var_info *vinfo, gboolean resize);
+void delete_hslice(v5d_var_info *vinfo);
 
 #define COLOR_FILL(obj) GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(obj),"color_fill"))
 static gint last_level;
@@ -53,7 +55,6 @@ void on_level_vscale_value_changed(GtkAdjustment *adj, gpointer user_data)
   }
   gtk_label_set_text(GTK_LABEL(vinfo->hc->level_value),val);
   last_level = vinfo->hc->level;
-  
 }
 
 void hs_label(v5d_var_info *vinfo)
@@ -143,13 +144,10 @@ update_hslice_controls(v5d_var_info *vinfo)
   if(! vinfo->hc){
 	 float color[4];
 	 gint i;
-	 GtkWidget *hs_color_sample;
 
-	 vinfo->hc = (hslicecontrols *) g_malloc(sizeof(hslicecontrols));
-	 vinfo->hc->sample_buf=NULL;
-	 hs_color_sample = lookup_widget(HSliceControls,"hs_color_sample");
-	 vinfo->hc->sample_gc = gdk_gc_new(hs_color_sample->window);
-
+	 vinfo->hc = g_new(hslicecontrols,1);
+	 vinfo->hc->sample= g_new(preview_area,1);
+	 vinfo->hc->sample->buffer=NULL;
 	 vinfo->hc->onscreen = TRUE;
 	 vinfo->hc->label = NULL;
 	 vinfo->hc->level = last_level;
@@ -259,14 +257,6 @@ update_hslice_controls(v5d_var_info *vinfo)
   gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
   gtk_signal_emit_by_name (GTK_OBJECT (adj), "value_changed");
 
-  /*
-  colorselection = lookup_widget(HSliceControls,"colorselection1");
-  if(colorselection){
-	 gtk_color_selection_set_opacity(GTK_COLOR_SELECTION(colorselection),TRUE);
-	 gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorselection),vinfo->hc->color);
-  }
-  */
-
   if(vinfo->hc->label){
 	 delete_label(vinfo->info, vinfo->hc->label);
     vinfo->hc->label=NULL;
@@ -301,26 +291,31 @@ on_level_vscale_button_release_event   (GtkWidget       *widget,
   vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(HSliceControls),"v5d_var_info");
 
   if(!vinfo)
-	 return;
+	 return FALSE;
 
-  vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,
-						 0,0,vinfo->hc->level);
-	 
-  vis5d_get_hslice(vinfo->v5d_data_context,vinfo->varid,
-						 &(vinfo->hc->interval),&(vinfo->hc->min),
-						 &(vinfo->hc->max), &(vinfo->hc->level));
-
-  update_hslice_controls(vinfo);
   if(COLOR_FILL(HSliceControls)){
-	 vis5d_set_chslice(vinfo->v5d_data_context,vinfo->varid,vinfo->hc->level);
+	 vis5d_set_chslice_limits(vinfo->v5d_data_context,vinfo->varid, 0, 0, 
+									  vinfo->hc->level);
+	 vis5d_get_chslice_limits(vinfo->v5d_data_context,vinfo->varid,
+							&(vinfo->hc->min),&(vinfo->hc->max), &(vinfo->hc->level));
+
 	 for(time=0;time<vinfo->info->numtimes;time++){
 		vis5d_make_chslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
   }else{
+
+	 vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,
+							0,0,vinfo->hc->level);
+	 
+	 vis5d_get_hslice(vinfo->v5d_data_context,vinfo->varid,
+							&(vinfo->hc->interval),&(vinfo->hc->min),
+							&(vinfo->hc->max), &(vinfo->hc->level));
+
 	 for(time=0;time<vinfo->info->numtimes;time++){
 		vis5d_make_hslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
   }
+  update_hslice_controls(vinfo);
 	 
   glarea_draw(vinfo->info->GtkGlArea, NULL, NULL);
 
@@ -389,15 +384,17 @@ on_hsspin_changed                      (GtkEditable     *editable,
   }else{
 	 vinfo->hc->max = value;
   }
-  vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,vinfo->hc->interval,
-						 vinfo->hc->min,vinfo->hc->max,vinfo->hc->level);
 
   if(COLOR_FILL(HSliceControls)){
-	 vis5d_set_chslice(vinfo->v5d_data_context,vinfo->varid,vinfo->hc->level);
+	 vis5d_set_chslice_limits(vinfo->v5d_data_context,vinfo->varid, 
+									  vinfo->hc->min,vinfo->hc->max,vinfo->hc->level);
 	 for(time=0;time<vinfo->info->numtimes;time++){
+		vis5d_invalidate_chslice(vinfo->v5d_data_context, vinfo->varid, time);
 		vis5d_make_chslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
   }else{
+	 vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,vinfo->hc->interval,
+						 vinfo->hc->min,vinfo->hc->max,vinfo->hc->level);
 	 for(time=0;time<vinfo->info->numtimes;time++){
 		vis5d_make_hslice( vinfo->v5d_data_context, time, vinfo->varid, time==vinfo->info->timestep);
 	 }
@@ -462,7 +459,7 @@ void
 on_hsclear_clicked                  (GtkButton       *button,
                                         gpointer         user_data)
 {
-  int i;
+
   GtkWidget *HSliceControls = GTK_WIDGET(user_data);
   v5d_var_info *vinfo;
 
@@ -536,8 +533,8 @@ void delete_hslice(v5d_var_info *vinfo)
   }  
   delete_label(vinfo->info,vinfo->hc->label);
   
-  if (vinfo->hc->sample_buf != NULL)
-	 g_free (vinfo->hc->sample_buf);
+  g_free (vinfo->hc->sample->buffer);
+  g_free (vinfo->hc->sample);
   g_free (vinfo->hc);
   vinfo->hc=NULL;
   
@@ -547,7 +544,6 @@ void delete_hslice(v5d_var_info *vinfo)
 /* activated when button 2 is pressed over the label */
 void hslice_toggle(v5d_var_info *vinfo)
 {
-  gint i, cnt=0;
 
   if(vinfo->hc->onscreen){
 	 vinfo->hc->onscreen=FALSE;
@@ -611,47 +607,26 @@ on_colorselect_clicked                 (GtkButton       *button,
 
 
 void
-on_hsstyle_toggled                     (GtkToggleButton *togglebutton,
+on_notebook1_switch_page               (GtkNotebook     *notebook,
+                                        GtkNotebookPage *page,
+                                        gint             page_num,
                                         gpointer         user_data)
 {
-  v5d_graph_type which;
-  GtkWidget *HSliceControls, *colorcnt;
-  GtkWidget *hs_colortable, *hs_color, *linewidth, *linestyle;
+  GtkWidget *HSliceControls;
+
   v5d_var_info *vinfo;
 
-  /* just look at the one activated */
-  if(! gtk_toggle_button_get_active(togglebutton))
-	 return;
+  HSliceControls = GTK_WIDGET(user_data); 
 
-  which = GPOINTER_TO_INT(user_data);
-  
-  HSliceControls = lookup_widget(GTK_WIDGET(togglebutton), "HSliceControls");
-
-  hs_colortable = lookup_widget(HSliceControls,"hs_colortable_select");
-  hs_color = lookup_widget(HSliceControls,"hs_colorselect");
-  linewidth = lookup_widget(HSliceControls,"linewidth");
-  linestyle = lookup_widget(HSliceControls,"linestyle");
-  colorcnt = lookup_widget(HSliceControls,"colorcnt");
-
-  vinfo = (v5d_var_info *) gtk_object_get_data(HSliceControls,"v5d_var_info");
+  vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(HSliceControls),"v5d_var_info");
   /* TODO: How to get both hs and chs? */
   if(vinfo)
 	 delete_hslice(vinfo);
 
-  if(which==CHSLICE){    
+  if(page_num==CHSLICE){    
 	 gtk_object_set_data(GTK_OBJECT(HSliceControls),"color_fill",GINT_TO_POINTER(TRUE));
-	 gtk_widget_set_sensitive(hs_colortable,TRUE);
-	 gtk_widget_set_sensitive(colorcnt,TRUE);
-	 gtk_widget_set_sensitive(hs_color,FALSE);
-	 gtk_widget_set_sensitive(linewidth,FALSE);
-	 gtk_widget_set_sensitive(linestyle,FALSE);
   }else{
 	 gtk_object_set_data(GTK_OBJECT(HSliceControls),"color_fill",GINT_TO_POINTER(FALSE));
-	 gtk_widget_set_sensitive(hs_colortable,FALSE);
-	 gtk_widget_set_sensitive(colorcnt,FALSE);
-	 gtk_widget_set_sensitive(hs_color,TRUE);
-	 gtk_widget_set_sensitive(linewidth,TRUE);
-	 gtk_widget_set_sensitive(linestyle,TRUE);
   }
   if(vinfo)
 	 on_hslicectree_tree_select_row         (NULL,NULL,0,(gpointer) vinfo);
@@ -665,98 +640,39 @@ on_colortable_select_clicked           (GtkButton       *button,
   GtkWidget *Gradient, *HSliceControls;
   v5d_var_info *vinfo;
 
-  HSliceControls = lookup_widget(GTK_WIDGET(button), "HSliceControls");
-  vinfo = (v5d_var_info *) gtk_object_get_data(HSliceControls,"v5d_var_info");
+  HSliceControls = GTK_WIDGET(user_data);
+  vinfo = (v5d_var_info *) gtk_object_get_data(GTK_OBJECT(HSliceControls),"v5d_var_info");
 
   Gradient = new_GtkGradient();
 
-  gtk_object_set_data(GTK_OBJECT(Gradient), "V5DColorTablePtr", (gpointer) vinfo->hc->colors);  
+  gtk_object_set_data(GTK_OBJECT(Gradient), "Sample", (gpointer) vinfo->hc->sample);  
+  gtk_object_set_data(GTK_OBJECT(Gradient), "GtkGlArea", (gpointer) vinfo->info->GtkGlArea);  
+  
 }
 
 
 void hs_draw_color_sample(v5d_var_info *vinfo, gboolean resize)
 {
-  gint x, y, i, wid, heig, f, half, n;
-  guchar c[3 * 2], cc[3 * 4], *cp = c;
-  gdouble o, oldo;
-  GtkWidget *sample_area;
-  gboolean colorfill;
+  static guint color;
 
-  colorfill = COLOR_FILL(vinfo->info->HSliceControls);
+  vinfo->hc->sample->preview = lookup_widget(vinfo->info->HSliceControls,"hs_color_sample");
 
-  sample_area = lookup_widget(vinfo->info->HSliceControls,"hs_color_sample");
-  if (! GTK_WIDGET_DRAWABLE (GTK_WIDGET (sample_area)))
-	 return;
 
-  wid = sample_area->allocation.width;
-  heig = sample_area->allocation.height;
-  half = wid >> 1;
-
-  if (resize)
-    {
-      if (vinfo->hc->sample_buf != NULL)
-		  g_free (vinfo->hc->sample_buf);
-		
-      vinfo->hc->sample_buf = g_new(guchar, 3 * wid);
-    }
-
-  i = 0;
-  
-  if(colorfill){
+  if( COLOR_FILL(vinfo->info->HSliceControls)){
 	 vis5d_get_color_table_address(vinfo->info->v5d_display_context, VIS5D_CHSLICE, vinfo->v5d_data_context,
-											 vinfo->varid, &vinfo->hc->colors);
-  }else{  
-	 for (n = 0; n < 3; n++)
-		{
-		  c[n] = (guchar) (255.0 * vinfo->hc->color[i]);
-		  c[n + 3] = (guchar) (255.0 * vinfo->hc->color[i++]);
-		}
+											 vinfo->varid, &vinfo->hc->sample->colors);
+	 vinfo->hc->sample->ncolors = 255;
+  }else{
+	 vinfo->hc->sample->ncolors = 1;
+	 color = PACK_COLOR((guint) (255*vinfo->hc->color[0]), (guint) (255*vinfo->hc->color[1]), 
+							  (guint) (255*vinfo->hc->color[2]),(guint)  (255*vinfo->hc->color[3])); 
+	 /* this may be a bug since color will go away*/
+	 vinfo->hc->sample->colors = &color;
+	 vinfo->hc->sample->ncolors = 1;
   }
-
-  /* TODO - handle opacity
-  if (colorsel->use_opacity)
-    {
-      o = colorsel->values[OPACITY];
-      oldo = colorsel->old_values[OPACITY];
-		
-      for (n = 0; n < 3; n++)
-		  {
-			 cc[n] = (guchar) ((1.0 - oldo) * 192 + (oldo * (gdouble) c[n]));
-			 cc[n + 3] = (guchar) ((1.0 - oldo) * 128 + (oldo * (gdouble) c[n]));
-			 cc[n + 6] = (guchar) ((1.0 - o) * 192 + (o * (gdouble) c[n + 3]));
-			 cc[n + 9] = (guchar) ((1.0 - o) * 128 + (o * (gdouble) c[n + 3]));
-		  }
-      cp = cc;
-    }
-  */
-
-  for (y = 0; y < heig; y++)
-    {
-      i = 0;
-      for (x = 0; x < wid; x++)
-		  {
-			 /*
-			 if (colorsel->use_opacity)
-				{
-				  f = 3 * (((x % 32) < 16) ^ ((y % 32) < 16));
-				  f += (x > half) * 6;
-				}
-			 else
-			 */
-				if(colorfill){
-				  f = x*255/wid;
-				  vinfo->hc->sample_buf[i++] = UNPACK_RED(vinfo->hc->colors[f]);
-				  vinfo->hc->sample_buf[i++] = UNPACK_GREEN(vinfo->hc->colors[f]);
-				  vinfo->hc->sample_buf[i++] = UNPACK_BLUE(vinfo->hc->colors[f]);
-				}else{
-				  f = (x > half) * 3;
-				  for (n = 0; n < 3; n++)
-					 vinfo->hc->sample_buf[i++] = cp[n + f];
-				}
-		  }
-		
-      gtk_preview_draw_row (GTK_PREVIEW (sample_area), vinfo->hc->sample_buf, 0, y, wid);
-    }
-  gtk_widget_queue_draw (sample_area);
+  gradient_preview_update(vinfo->hc->sample,resize);
 }
+
+
+
 

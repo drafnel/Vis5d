@@ -8,14 +8,13 @@
 #endif
 #include <gtk/gtk.h>
 
-#include "interface.h"
+#include "window3D.h"
 #include "support.h"
 
 int
 main (int argc, char *argv[])
 { 
   GtkWidget *window3D;
-  GtkMenuItem *delete_frame;
 
 #ifdef ENABLE_NLS
   bindtextdomain (PACKAGE, VIS5D_LOCALE_DIR);
@@ -35,6 +34,9 @@ main (int argc, char *argv[])
   add_pixmap_directory (VIS5D_SOURCE_DIR "/pixmaps");
 
   window3D = new_window3D(NULL);
+
+  /* when we handle command line options we will change this */
+  on_open1_activate(NULL, (gpointer) window3D);
   
   gtk_main ();
   return 0;

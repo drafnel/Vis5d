@@ -13,11 +13,10 @@
 #include "../src/api.h"
 #include <math.h> /* for HUGE */
 
-#include "callbacks.h"
+#include "support_cb.h"
 #include "interface.h"
 #include "support.h"
 #include "graph_labels.h"
-
 
 void label_position(int dc, int cnt, int *x, int *y)
 {

@@ -1,3 +1,50 @@
+2001-07-17  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/Makefile.am: whoops
+
+	* /cvsroot/vis5d/vis5d/src/box.c: whoops, fixed fix
+
+	* /cvsroot/vis5d/vis5d/NEWS, /cvsroot/vis5d/vis5d/src/box.c,
+	/cvsroot/vis5d/vis5d/src/isocolor.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/work.c: synchronized with mainline
+
+	* /cvsroot/vis5d/vis5d/acconfig.h,
+	/cvsroot/vis5d/vis5d/acinclude.m4,
+	/cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/src/Makefile.am: updated to autoconf 2.50
+
+2001-07-16  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/NEWS: added message about vcs bug fix in
+	v5dimport
+
+	* /cvsroot/vis5d/vis5d/src/topo_i.c,
+	/cvsroot/vis5d/vis5d/src/topo_i.h: no longer used
+
+2001-07-14  stevengj  <stevengj@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/globals.h: fixed threads compile
+	failure introduced in last commit
+
+	* /cvsroot/vis5d/vis5d/acx_pthread.m4: new upstream version
+	(slight improvement on Solaris)
+
+	* /cvsroot/vis5d/vis5d/src/box.c: slight reformatting
+
+	* /cvsroot/vis5d/vis5d/ChangeLog, /cvsroot/vis5d/vis5d/NEWS:
+	updated
+
+	* /cvsroot/vis5d/vis5d/src/ui_i.c,
+	/cvsroot/vis5d/vis5d/src/work.c: slight formatting change...fit in
+	80-column display
+
+	* /cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/sync.h: fixed threads compile failure
+	introduced in last commit
+
+	* /cvsroot/vis5d/vis5d/src/sounding.c: removed unused decls
+
 2001-07-12  jedwards  <jedwards@sourceforge.net>
 
 	* /cvsroot/vis5d/vis5d/src/analysis.c,

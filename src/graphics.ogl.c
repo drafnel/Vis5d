@@ -1335,6 +1335,7 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
 
    if(!VIS5DInitializedFormats) (void)save_formats();
 
+#ifdef HAVE_LIBPNG
    if (format == VIS5D_PNG) {
 	if (!(f = fopen(filename, "w"))) {
 	     fprintf(stderr, "vis5d: can't open %s for writing\n", filename);
@@ -1346,6 +1347,7 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
 	set_pointer(0);
 	return 1;
    }
+#endif
 
    if (format==VIS5D_RGB) {
       strcpy( rgbname, filename );

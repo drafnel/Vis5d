@@ -59,10 +59,11 @@ static struct entry queue[QSIZE];
 static int qsize;
 static int qhead, qtail;      /* remove from head, add to tail */
 static int qwaiters;
-/* JPE: Not used
+
+#ifdef SEMAPHORE
 static LOCK qlock;
 static SEMAPHORE qnotempty;
-*/
+#endif
 
 
 

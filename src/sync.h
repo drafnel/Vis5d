@@ -232,7 +232,6 @@ extern void term_sync( void );
 
 /* otherwise: */
 #ifndef SEMAPHORE
-#  define SEMAPHORE          int
 #  define ALLOC_SEM( S, N )  ;
 #  define FREE_SEM( S )      ;
 #  define WAIT_SEM( S )      ;

@@ -11,6 +11,8 @@ Summary of changes for new releases of Vis5d+:
 
   * Better GrADS support in v5dimport (case-insensitive keywords, support
     for the PDEF statement, and template and byteswapped options).
+    Removed an abitrary restriction on the minimum size of a file to be
+    imported, which caused certain small GrADS header files to fail.
 
   * v5dimport is now built using the same sources as the "import" command
     in Vis5d, in the src/ directory (the import/ directory is removed).
@@ -19,6 +21,14 @@ Summary of changes for new releases of Vis5d+:
     by default, although they are still not installed since you need to
     edit the source code for them to be useful.  Thanks to Markus
     Neteler for the suggestion.
+
+  * Possible bug fix when reading profiles from NetCDF files.
+
+  * Eliminate gcc compiler warnings; many code cleanups.
+
+  * v5dimport now looks for EARTH.topo in the installation prefix, or
+    in the VIS5D_PATH/VIS5D_TOPO environment variables if one of those
+    are defined.
 
 Vis5d+ 1.0.2
 

@@ -1,6 +1,215 @@
-2001-01-28  stevengj  <stevengj@users.sourceforge.net>
+2001-07-12  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/analysis.c,
+	/cvsroot/vis5d/vis5d/src/analyze_i.c,
+	/cvsroot/vis5d/vis5d/src/box.c, /cvsroot/vis5d/vis5d/src/chrono.c,
+	/cvsroot/vis5d/vis5d/src/compute.c,
+	/cvsroot/vis5d/vis5d/src/contour.c,
+	/cvsroot/vis5d/vis5d/src/file.c,
+	/cvsroot/vis5d/vis5d/src/file_i.c,
+	/cvsroot/vis5d/vis5d/src/gl_to_ppm.c,
+	/cvsroot/vis5d/vis5d/src/graphics.ogl.c,
+	/cvsroot/vis5d/vis5d/src/grid_i.c,
+	/cvsroot/vis5d/vis5d/src/groupchrono.c,
+	/cvsroot/vis5d/vis5d/src/iapi.c,
+	/cvsroot/vis5d/vis5d/src/irregular_v5d.c,
+	/cvsroot/vis5d/vis5d/src/irregular_v5d.h,
+	/cvsroot/vis5d/vis5d/src/map.c, /cvsroot/vis5d/vis5d/src/misc.c,
+	/cvsroot/vis5d/vis5d/src/misc.h,
+	/cvsroot/vis5d/vis5d/src/output_i.c,
+	/cvsroot/vis5d/vis5d/src/proj.c,
+	/cvsroot/vis5d/vis5d/src/projlist_i.c,
+	/cvsroot/vis5d/vis5d/src/queue.c,
+	/cvsroot/vis5d/vis5d/src/read_epa_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grads_i.c,
+	/cvsroot/vis5d/vis5d/src/read_uwvis_i.c,
+	/cvsroot/vis5d/vis5d/src/record.c,
+	/cvsroot/vis5d/vis5d/src/save.c,
+	/cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/stream.c,
+	/cvsroot/vis5d/vis5d/src/tclsave.c,
+	/cvsroot/vis5d/vis5d/src/textplot.c,
+	/cvsroot/vis5d/vis5d/src/topo.c, /cvsroot/vis5d/vis5d/src/traj.c,
+	/cvsroot/vis5d/vis5d/src/ui_i.c,
+	/cvsroot/vis5d/vis5d/src/user_data.c,
+	/cvsroot/vis5d/vis5d/src/v5dimport.c,
+	/cvsroot/vis5d/vis5d/src/volume.c,
+	/cvsroot/vis5d/vis5d/src/vtmcP.c, /cvsroot/vis5d/vis5d/src/work.c:
+	Got rid of nearly every warning produced by the gcc version 2.96
+	20000731 (Red Hat Linux 7.1 2.96-81) (libv5dgui excepted).  This
+	may also have fixed a bug in iapi.c when reading a netcdf file.
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/grid.h: got rid of all warnings in api.c
+	as produced by gcc compiler version 2.96 20000731 (Red Hat Linux
+	7.1 2.96-81)
+
+2001-07-11  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/configure.in,
+	/cvsroot/vis5d/vis5d/src/Makefile.am: modified for compatibility
+	with the new vis5d+gtk which shares the same repository for
+	vis5d/src with the old lui5 distribution.  I will strive to
+	maintain backward compatibility in development of the gtk+
+	interface but if any problems do come up contact me at
+	jedwards@inmet.gov.br and I'll try to take care of them.
+
+	* /cvsroot/vis5d/vis5d/src/gui.h,
+	/cvsroot/vis5d/vis5d/src/main_i.c,
+	/cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/tclsave.c,
+	/cvsroot/vis5d/vis5d/src/ui_i.c,
+	/cvsroot/vis5d/vis5d/src/v5dimport.c: added macro variable
+	VIS5DPLUS to indicate whether this is the new gtk distribution or
+	the old lui5 distribution.
+
+	* /cvsroot/vis5d/vis5d/src/main_i.c,
+	/cvsroot/vis5d/vis5d/src/read_gr3d_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grads_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grid_i.c,
+	/cvsroot/vis5d/vis5d/src/read_uwvis_i.c,
+	/cvsroot/vis5d/vis5d/src/read_v5d_i.c: changed reference to
+	include file v5d.h from ../src/v5d.h to v5d.h
+
+	* /cvsroot/vis5d/vis5d/src/ui_i.c: modified to allow number of
+	vertical levels = 1
+
+	* /cvsroot/vis5d/vis5d/src/render.c: fixed a null pointer
+	assigment introduced in the topo structure change
+
+	* /cvsroot/vis5d/vis5d/src/api.c: fixed a null pointer error
+	introduced in the recent topo structure change.
+
+	* /cvsroot/vis5d/vis5d/src/box.c: no need to call opengl routine
+	if vertices==0
+
+2001-06-08  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/api.h,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/main.c,
+	/cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/save.c, /cvsroot/vis5d/vis5d/src/topo.c:
+	Moved the ColorTable information out of Display_Context and into
+	its own structure.  Display_Context now has an array of pointers
+	to ColorTables, which are allocated in new_display_context.
+
+	TODO: I think it would be better to defer the allocation until
+	they are going to be assigned and used.
+
+	* /cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/displaywidget.c,
+	/cvsroot/vis5d/vis5d/src/grid_i.c,
+	/cvsroot/vis5d/vis5d/src/gui_i.c,
+	/cvsroot/vis5d/vis5d/src/memory.c,
+	/cvsroot/vis5d/vis5d/src/memory.h,
+	/cvsroot/vis5d/vis5d/src/output_i.c,
+	/cvsroot/vis5d/vis5d/src/projlist_i.c,
+	/cvsroot/vis5d/vis5d/src/read_grid_i.c,
+	/cvsroot/vis5d/vis5d/src/resample_i.c: moved code from memory_i.c
+	to memory.c and removed memory_i from Makefile.am modified include
+	of memory_i.h to memory.h
+
+	memory_i.c and memory_i.h are no longer needed in distribution
+
+	* /cvsroot/vis5d/vis5d/src/api.c, /cvsroot/vis5d/vis5d/src/main.c:
+	removed call to vis5d_init_topo_and_map_ctx and replaced with a
+	call to vis5d_init_topo - vis5d_init_map had already been called
+	in main.
+
+2001-06-07  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/Makefile.am,
+	/cvsroot/vis5d/vis5d/src/api.c,
+	/cvsroot/vis5d/vis5d/src/globals.h,
+	/cvsroot/vis5d/vis5d/src/map.c, /cvsroot/vis5d/vis5d/src/render.c,
+	/cvsroot/vis5d/vis5d/src/resample_i.c,
+	/cvsroot/vis5d/vis5d/src/sounding.c,
+	/cvsroot/vis5d/vis5d/src/topo.c, /cvsroot/vis5d/vis5d/src/topo.h,
+	/cvsroot/vis5d/vis5d/src/user_data.c,
+	/cvsroot/vis5d/vis5d/src/work.c: Hi,
+
+	By taking the topo information out of the monolithic
+	Display_context structure and creating a seperate topo structure I
+	was able to call the functions in topo.c from resample_i.c and
+	thus could get rid of file topo_i.c.  I've removed that file from
+	the Makefile.am and thus the library, should also do a cvs remove
+	but will wait a little.
+
+	Jim
+
+	* /cvsroot/vis5d/vis5d/src/resample_i.c,
+	/cvsroot/vis5d/vis5d/src/resample_i.h,
+	/cvsroot/vis5d/vis5d/src/topo_i.c,
+	/cvsroot/vis5d/vis5d/src/v5dimport.c: The topo file used when
+	doing interpolation in v5dimport was hard coded to EARTH.topo in
+	the local directory.  I modified it to accept environment
+	variables VIS5D_PATH and VIS5D_TOPO and to use the DATA_PREFIX
+	defined in ../config.h and EARTH.TOPO otherwise.
+
+	I put these in v5dimport.c so it is probably still broken when run
+	from vis5d proper.
+
+	* /cvsroot/vis5d/vis5d/src/file_i.c: Removed an abitrary
+	restriction on the minimum size of a file to be imported which
+	caused certain small grads header files to fail to be imported.
+
+2001-06-06  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/projlist_i.c: Function new_vcs was not
+	correctly handling the lowlev variable when importing from a vis5d
+	file.For example, if a vcs had 4 levels 1012 1000 750 500 and a
+	variable had lowlev=1 Nl=3, that variable should be defined on
+	levels 1000 750 and 500, but v5dimport was ignoring the lowlev and
+	using levels 1012 1000 and 750.
+
+	* /cvsroot/vis5d/vis5d/src/read_grads_i.c: Treat a grads 2d var
+	with levels specified as 0 as a surface var.
+
+	* /cvsroot/vis5d/vis5d/src/output_i.c: Now prints a warning to
+	stdout when an entire field is written as missing.
+
+	* /cvsroot/vis5d/vis5d/src/select_i.c: modified so that selecting
+	a variable to keep also selects it's projection and vcs.
+
+2001-06-05  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/read_grads_i.c: Fixed a bug in getting
+	the grads file name when the dset name in the control file begins
+	with ^ which, according to the grads manual, means that the data
+	file is to be found in the same directory as the control file.
+
+2001-06-01  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/projlist_i.c: corrected error message
+	and improved output from list command for vcs when unequal_mb is
+	used.
+
+	* /cvsroot/vis5d/vis5d/src/read_grads_i.c: Fixed a bug introduced
+	in the last commit which caused the first character of the data
+	file name to be lost when the grads ctl and data file are both in
+	the current directory.  Corrected reading of levels to be
+	unequal_mb (was unequal_heights) and replaced pressure to height
+	conversion with the one used by the rest of vis5d.
+
+	* /cvsroot/vis5d/vis5d/src/ui_i.c: fixed bug in 'omit all' option.
+	Replaced hard coded values for vcs with vcs macro values.
+	corrected info printed for VERT_UNEQUAL_MB.
+
+2001-05-07  jedwards  <jedwards@sourceforge.net>
+
+	* /cvsroot/vis5d/vis5d/src/read_grads_i.c: added support for grads
+	control file OPTIONS BIG_ENDIAN and LITTLE_ENDIAN.
+
+2001-01-28  stevengj  <stevengj@sourceforge.net>
 
 	* /cvsroot/vis5d/vis5d/NEWS: updated
+
+	* /cvsroot/vis5d/vis5d/util/Makefile.am: don't build useless
+	'help' program
+
+	* /cvsroot/vis5d/vis5d/ChangeLog, /cvsroot/vis5d/vis5d/NEWS:
+	updated
 
 	* /cvsroot/vis5d/vis5d/util/Makefile.am: build more tools by
 	default, but don't install them since the original Vis5d doesn't

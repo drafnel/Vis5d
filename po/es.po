@@ -1,58 +1,57 @@
-# Vis5d GTK interface
+# Spanish messages for Vis5d+
 # Copyright (C) 2001 Free Software Foundation, Inc.
-# Jim Edwards <JimEdwards@altavista.com>, 2001.
+# Andres Sepulveda <andres@ccpo.odu.edu>, 2001.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Vis5d+ 0.01\n"
-"POT-Creation-Date: 2001-10-02 09:44-0300\n"
-"PO-Revision-Date: 2001-09-26 13:02-0300\n"
-"Last-Translator: Jim Edwards <JimEdwards@altavista.com>\n"
-"Language-Team: Brazilian Portuguese <ldp-br@bazar.conectiva.com.br>\n"
+"Project-Id-Version: VIZ5d\n"
+"POT-Creation-Date: 2001-10-03 11:25-0300\n"
+"PO-Revision-Date: 2001-10-04 12:15+0500\n"
+"Last-Translator: Andres Sepulveda <andres@ccpo.odu.edu>\n"
+"Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Type: text/plain; charset=ISO-8895-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #. file already exists dialog
 #: gtk/ProcedureDialog.c:768
 #, c-format
 msgid "Overwrite existing file %s?"
-msgstr "%s já existe. Sobregravar?"
+msgstr "¿Sobreescribir el archivo actual %s?"
 
 #: gtk/ProcedureDialog.c:789
 msgid "Save Procedure As..."
-msgstr "Salvar procedimento como..."
+msgstr "Guardar Procedimiento Como..."
 
 #: gtk/support.c:121
 #, c-format
 msgid "Couldn't find pixmap file: %s"
-msgstr "Não encontrei arquivo de pixmap: %s"
+msgstr "No pude encontrar el archivo pixmap: %s"
 
 #: gtk/support.c:130
 #, c-format
 msgid "Error loading pixmap file: %s"
-msgstr "Erro carregando arquivo de pixmap: %s"
+msgstr "Error cargando el archivo pixmap: %s"
 
 #: gtk/VGC_interface.c:145
 msgid "Vis5d+ Variable Graphics Controls"
-msgstr "Vis5d+ Controle Variável Gráficos"
+msgstr "Vis5d+ Controles de Gráficos Variables"
 
 #: gtk/VGC_interface.c:189
 msgid ""
 "Horizontal\n"
 "Isolines"
 msgstr ""
-"Isolinhas\n"
-"Horizontais"
+"Isolineas\n"
+"Horizontales"
 
 #: gtk/VGC_interface.c:201
 msgid ""
 "Vertical\n"
 "Isolines"
 msgstr ""
-"Isolinhas\n"
-"Verticais"
+"Isolineas\n"
+"Verticales"
 
 #: gtk/VGC_interface.c:214
 msgid ""
@@ -60,7 +59,7 @@ msgid ""
 "Contours"
 msgstr ""
 "Contornos\n"
-"Horizontais"
+"Horizontales"
 
 #: gtk/VGC_interface.c:226
 msgid ""
@@ -68,15 +67,15 @@ msgid ""
 "Contours"
 msgstr ""
 "Contornos\n"
-"Verticais"
+"Verticales"
 
 #: gtk/VGC_interface.c:239
 msgid "Isosurface\n"
-msgstr ""
+msgstr "Isosuperficies\n"
 
 #: gtk/VGC_interface.c:252
 msgid "Volume\n"
-msgstr "Volume\n"
+msgstr "Volumen\n"
 
 #: gtk/VGC_interface.c:297 gtk/VGC_interface.c:561 gtk/VGC_interface.c:764
 #: gtk/VGC_interface.c:979
@@ -90,39 +89,39 @@ msgstr "Intervalo:"
 #: gtk/VGC_interface.c:355 gtk/VGC_interface.c:572 gtk/VGC_interface.c:822
 #: gtk/VGC_interface.c:990
 msgid "Maximum:"
-msgstr "Máxima:"
+msgstr "Máximo:"
 
 #: gtk/VGC_interface.c:366 gtk/VGC_interface.c:855
 msgid "Settings"
-msgstr "Configurações"
+msgstr "Configuración"
 
 #: gtk/VGC_interface.c:382 gtk/VGC_interface.c:871 gtk/interface.c:109
 msgid "Select Color"
-msgstr "Selecionar cor"
+msgstr "Seleccionar Color"
 
 #: gtk/VGC_interface.c:392 gtk/VGC_interface.c:907
 msgid "Line Width:"
-msgstr "Largura do Linha:"
+msgstr "Ancho de Línea:"
 
 #: gtk/VGC_interface.c:417
 msgid "radiobutton1"
-msgstr ""
+msgstr "botónradial1"
 
 #: gtk/VGC_interface.c:431
 msgid "radiobutton2"
-msgstr ""
+msgstr "botónradial2"
 
 #: gtk/VGC_interface.c:445
 msgid "radiobutton3"
-msgstr ""
+msgstr "botónradial3"
 
 #: gtk/VGC_interface.c:459
 msgid "radiobutton5"
-msgstr ""
+msgstr "botónradial5"
 
 #: gtk/VGC_interface.c:481 gtk/VGC_interface.c:881
 msgid "Line Style:"
-msgstr "Estilo da Linha:"
+msgstr "Estilo de Línea"
 
 #: gtk/VGC_interface.c:492 gtk/VGC_interface.c:945
 msgid "Style"
@@ -130,35 +129,35 @@ msgstr "Estilo"
 
 #: gtk/VGC_interface.c:508 gtk/VGC_interface.c:702 gtk/VGC_interface.c:1114
 msgid "Level"
-msgstr "Nível"
+msgstr "Nivel"
 
 #: gtk/VGC_interface.c:535
 msgid "HI"
-msgstr ""
+msgstr "HI"
 
 #: gtk/VGC_interface.c:607 gtk/VGC_interface.c:1025
 msgid "Select ColorTable"
-msgstr "Selecione tabela de cores"
+msgstr "Seleccionar Tabla de Colores"
 
 #: gtk/VGC_interface.c:617 gtk/VGC_interface.c:1035
 msgid ""
 "Polygon \n"
 "Fill Style"
 msgstr ""
-"Estilo de preenchimento\n"
-"do polígono"
+"Polígono \n"
+"Estilo de Llenado"
 
 #: gtk/VGC_interface.c:638 gtk/VGC_interface.c:1056
 msgid "Fill"
-msgstr "Preenchimento"
+msgstr "Llenar"
 
 #: gtk/VGC_interface.c:641 gtk/VGC_interface.c:1059
 msgid "Lines"
-msgstr "Linhas"
+msgstr "Líneas"
 
 #: gtk/VGC_interface.c:644 gtk/VGC_interface.c:1062
 msgid "Points"
-msgstr "Pontos"
+msgstr "Puntos"
 
 #: gtk/VGC_interface.c:649 gtk/VGC_interface.c:1067
 msgid "Alpha:"
@@ -166,11 +165,11 @@ msgstr "Alfa:"
 
 #: gtk/VGC_interface.c:729
 msgid "HC"
-msgstr ""
+msgstr "HC"
 
 #: gtk/VGC_interface.c:846 gtk/VGC_interface.c:847
 msgid "Move Slice"
-msgstr "Mover parte selectionado"
+msgstr "Mover Sección"
 
 #: gtk/VGC_interface.c:902
 msgid "Solid"
@@ -178,100 +177,99 @@ msgstr "Sólido"
 
 #: gtk/VGC_interface.c:928
 msgid "1"
-msgstr ""
+msgstr "1"
 
 #: gtk/VGC_interface.c:931
 msgid "2"
-msgstr ""
+msgstr "2"
 
 #: gtk/VGC_interface.c:934
 msgid "3"
-msgstr ""
+msgstr "3"
 
 #: gtk/VGC_interface.c:937
 msgid "4"
-msgstr ""
+msgstr "4"
 
 #: gtk/VGC_interface.c:940
 msgid "5"
-msgstr ""
+msgstr "5"
 
 #: gtk/VGC_interface.c:953
 msgid "VI"
-msgstr ""
+msgstr "VI"
 
 #: gtk/VGC_interface.c:1090
 msgid "VC"
-msgstr ""
+msgstr "VC"
 
 #: gtk/VGC_interface.c:1131
 msgid "ISO"
-msgstr ""
+msgstr "ISO"
 
 #: gtk/VGC_interface.c:1143
 msgid "Vol"
-msgstr ""
+msgstr "Vol"
 
 #: gtk/VGC_interface.c:1165
 msgid "Clear"
-msgstr "Limpar"
+msgstr "Limpiar"
 
 #: gtk/PD_interface.c:211 gtk/VGC_interface.c:1174
 msgid "Close"
-msgstr "Fecha"
+msgstr "Cerrar"
 
 #: gtk/interface.c:28
 msgid "Select File"
-msgstr "Selecionar arquivo"
+msgstr "Seleccionar Archivo"
 
 #: gtk/interface.c:64
 msgid "Select Font"
-msgstr "Selecionar fonte"
+msgstr "Seleccionar Font"
 
 #: gtk/interface.c:157
 msgid "Vis5d+"
-msgstr ""
+msgstr "Vis5d+"
 
 #: gtk/interface.c:165
 msgid "Overwrite existing file ?"
-msgstr "Arquivo existente! Sobregravar?"
+msgstr "¿Sobreescribir el archivo actual ?"
 
 #: gtk/PD_interface.c:324 gtk/interface.c:189
 msgid "Okay"
-msgstr ""
+msgstr "Sí"
 
-#: gtk/PD_interface.c:332
-#: gtk/interface.c:198
+#: gtk/PD_interface.c:332 gtk/interface.c:198
 msgid "Cancel"
 msgstr "Cancelar"
 
 #: gtk/w3D_interface.c:108
 msgid "Vis5D+"
-msgstr ""
+msgstr "Vis5D+"
 
 #: gtk/w3D_interface.c:146
 msgid "_File"
-msgstr "Arquivo"
+msgstr "_Archivo"
 
 #: gtk/w3D_interface.c:166
 msgid "_Open Data..."
-msgstr "Abrir Dados"
+msgstr "Abrir _Datos..."
 
 #: gtk/w3D_interface.c:177
 msgid "Open in new Frame..."
-msgstr "Abrir dentro novo quadro..."
+msgstr "Abrir en otro Marco..."
 
 #: gtk/w3D_interface.c:194
 msgid "Delete Frame"
-msgstr "Apagar quadro"
+msgstr "Borrar Marco"
 
 #: gtk/w3D_interface.c:205
 msgid "E_xit Vis5d+"
-msgstr "Sair"
+msgstr "_Salir Vis5d+"
 
 #: gtk/w3D_interface.c:215
 msgid "Options"
-msgstr "Opções"
+msgstr "Opciones"
 
 #: gtk/w3D_interface.c:232 gtk/w3D_interface.c:378
 msgid "Map"
@@ -279,63 +277,63 @@ msgstr "Mapa"
 
 #: gtk/w3D_interface.c:242
 msgid "Box"
-msgstr "Caixa"
+msgstr "Caja"
 
 #: gtk/w3D_interface.c:252
 msgid "Clock"
-msgstr "Relógio"
+msgstr "Reloj"
 
 #: gtk/w3D_interface.c:261
 msgid "Topo"
-msgstr ""
+msgstr "Topo"
 
 #: gtk/w3D_interface.c:279
 msgid "View"
-msgstr "Exibir"
+msgstr "Ver"
 
 #: gtk/w3D_interface.c:295
 msgid "Top"
-msgstr "Topo"
+msgstr "Arriba"
 
 #: gtk/w3D_interface.c:303
 msgid "South"
-msgstr "Sol"
+msgstr "Sur"
 
 #: gtk/w3D_interface.c:320
 msgid "Fonts"
-msgstr "Fontes"
+msgstr "Fonts"
 
 #: gtk/w3D_interface.c:336
 msgid "Window 3D"
-msgstr "Janela 3D"
+msgstr "Ventana 3D"
 
 #: gtk/w3D_interface.c:343
 msgid "Select the default font for 3D Graphics labels"
-msgstr ""
+msgstr "Seleccionar el font predefinido para las marcas de los Gráficos 3D"
 
 #: gtk/w3D_interface.c:345
 msgid "Contour Label"
-msgstr "Rótulo de Contornos"
+msgstr "Marcas de Contorno"
 
 #: gtk/w3D_interface.c:352
 msgid "Select the contour label font "
-msgstr "Fonte para Rótulo de Contorno "
+msgstr "Seleccione el font para las marcas de contorno"
 
 #: gtk/w3D_interface.c:354
 msgid "Files"
-msgstr "Arquivos"
+msgstr "Archivos"
 
 #: gtk/w3D_interface.c:370
 msgid "Topography"
-msgstr ""
+msgstr "Topografía"
 
 #: gtk/w3D_interface.c:395
 msgid "Save Options"
-msgstr "Salvar Opções"
+msgstr "Guardar Opciones"
 
 #: gtk/w3D_interface.c:403
 msgid "Procedures"
-msgstr "Procedimentos"
+msgstr "Procedimientos"
 
 #: gtk/PD_interface.c:90 gtk/w3D_interface.c:420
 msgid "Open"
@@ -343,43 +341,43 @@ msgstr "Abrir"
 
 #: gtk/w3D_interface.c:428
 msgid "New"
-msgstr "Novo"
+msgstr "Nuevo"
 
 #: gtk/w3D_interface.c:436
 msgid "Variables"
-msgstr "Variávels"
+msgstr "Variables"
 
 #: gtk/w3D_interface.c:453
 msgid "2D"
-msgstr ""
+msgstr "2D"
 
 #: gtk/w3D_interface.c:469
 msgid "var2d"
-msgstr ""
+msgstr "var2d"
 
 #: gtk/w3D_interface.c:477
 msgid "3D"
-msgstr ""
+msgstr "3D"
 
 #: gtk/w3D_interface.c:494
 msgid "var3d"
-msgstr ""
+msgstr "var3d"
 
 #: gtk/w3D_interface.c:515
 msgid "First"
-msgstr "Primeiro"
+msgstr "Primero"
 
 #: gtk/w3D_interface.c:516
 msgid "Display first frame."
-msgstr "Mostrar Primeiro Quadro "
+msgstr "Mostrar el primer marco."
 
 #: gtk/w3D_interface.c:528
 msgid "Previous"
-msgstr "Anterior"
+msgstr "Previo"
 
 #: gtk/w3D_interface.c:529
 msgid "Display previous frame."
-msgstr "Mostrar Anterior Quadro"
+msgstr "Mostrar el marco previo."
 
 #: gtk/w3D_interface.c:541 gtk/w3D_interface.c:590
 msgid "Animate"
@@ -387,35 +385,35 @@ msgstr "Animar"
 
 #: gtk/w3D_interface.c:542
 msgid "Toggle backward animation.  "
-msgstr "Acionar animação para trás"
+msgstr "Alternar la animación en reversa.  "
 
 #: gtk/w3D_interface.c:562
 msgid "button35"
-msgstr ""
+msgstr "botón35"
 
 #: gtk/w3D_interface.c:563
 msgid "animate faster"
-msgstr "Animar mais rápida"
+msgstr "animar más rápido"
 
 #: gtk/w3D_interface.c:576
 msgid "button36"
-msgstr ""
+msgstr "botón36"
 
 #: gtk/w3D_interface.c:577
 msgid "animate slower"
-msgstr "Animar mais devagar"
+msgstr "animar más lento"
 
 #: gtk/w3D_interface.c:591
 msgid "Toggle forward animation.  "
-msgstr "Acionar animação para frente"
+msgstr "Alternar la animación hacia adelante"
 
 #: gtk/w3D_interface.c:603
 msgid "Next"
-msgstr "Próxima"
+msgstr "Siguiente"
 
 #: gtk/w3D_interface.c:604
 msgid "Display next frame."
-msgstr "Mostrar Próxima Quadro"
+msgstr "Mostrar siguiente marco"
 
 #: gtk/w3D_interface.c:616
 msgid "Last"
@@ -423,52 +421,52 @@ msgstr "Último"
 
 #: gtk/w3D_interface.c:617
 msgid "Display final frame."
-msgstr "Mostrar Último Quadro"
+msgstr "Mostrar último marco."
 
 #: gtk/w3D_interface.c:633
 msgid "Help"
-msgstr "Ajuda"
+msgstr "Ayuda"
 
 #: gtk/w3D_interface.c:651
 msgid "About"
-msgstr "Sobre"
+msgstr "Acerca de"
 
 #: gtk/window3D.c:96
 msgid "Open Data File"
-msgstr "Abrir arquivo de dado"
+msgstr "Abrir Archivo de Datos"
 
 #: gtk/window3D.c:367
 msgid "Open Procedure File"
-msgstr "Abrir arquivo de procedimento"
+msgstr "Abrir Archivo de Procedimientos"
 
 #: gtk/window3D.c:401
 msgid "Select Topography File"
-msgstr "Selecionar arquivo de Topography"
+msgstr "Seleccionar Archivo de Topografía"
 
 #: gtk/window3D.c:433
 msgid "Select Map File"
-msgstr "Selecionar arquivo de Mapa"
+msgstr "Selecionar Archivo de Mapas"
 
 #: gtk/window3D.c:995
 #, c-format
 msgid "%s Variable Graphics Controls"
-msgstr "%s Controle Variável Gráficos"
+msgstr "%s Controles de Graficos Variables"
 
 #: gtk/PD_interface.c:53
 msgid "Procedure"
-msgstr "Procedimento"
+msgstr "Procedimiento"
 
 #: gtk/PD_interface.c:76
 msgid "File"
-msgstr "Arquivo"
+msgstr "Archivo"
 
 #: gtk/PD_interface.c:97
 msgid "Save"
-msgstr "Salvar"
+msgstr "Guardar"
 
 #: gtk/PD_interface.c:104
 msgid "Save as"
-msgstr "Salvar como"
+msgstr "Guardar como"
 
 #: gtk/PD_interface.c:111
 msgid "Edit"
@@ -476,7 +474,7 @@ msgstr "Editar"
 
 #: gtk/PD_interface.c:125
 msgid "Capture"
-msgstr ""
+msgstr "Capturar"
 
 #: gtk/PD_interface.c:132
 msgid "Cut"
@@ -488,29 +486,29 @@ msgstr "Copiar"
 
 #: gtk/PD_interface.c:146
 msgid "Paste"
-msgstr "Colar"
+msgstr "Pegar"
 
 #: gtk/PD_interface.c:153
 msgid "Delete"
-msgstr "Apagar"
+msgstr "Borrar"
 
 #: gtk/PD_interface.c:178
 msgid "Image Name"
-msgstr "Nome de imagem"
+msgstr "Nombre de la Imagen"
 
 #: gtk/PD_interface.c:185
 msgid "Graphic Type"
-msgstr "Tipo do Gráfico"
+msgstr "Tipo de Gráfico"
 
 #: gtk/PD_interface.c:192
 msgid "Variable"
-msgstr "Variável"
+msgstr "Variable"
 
 #: gtk/PD_interface.c:280
 msgid "Image Name Dialog"
-msgstr "Diálogo nome de imagem "
+msgstr "Diálogo de Nombre de Imágen"
 
 #: gtk/PD_interface.c:297
 msgid "Image Name:"
-msgstr "Nome de imagem:"
+msgstr "Nombre de la Imágen:"
 

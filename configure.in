@@ -1,5 +1,5 @@
 AC_INIT
-AC_PREREQ(2.50)
+AC_PREREQ(2.52)
 AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(vis5d+, 1.1)
 
@@ -53,10 +53,16 @@ if test "$enable_fortran" = "yes"; then
 	AC_PROG_F77
 	if test -n "$F77"; then
 		AC_F77_LIBRARY_LDFLAGS
-		AC_F77_WRAPPERS
+	
+		# Call AC_F77_DUMMY_MAIN explicitly, since it otherwise
+		# will cause configure to fail if C-F77 linking fails.
+		AC_F77_DUMMY_MAIN([], skip_f77=yes)
+		if test "x$skip_f77" != xyes; then
+		        AC_F77_WRAPPERS
 		
-		# enable Fortran packages in util/ subdirectory:
-		OPT_UTILS="$OPT_UTILS \$(FPROGS)"
+			# enable Fortran packages in util/ subdirectory:
+			OPT_UTILS="$OPT_UTILS \$(FPROGS)"
+		fi
 	else
 		AC_MSG_WARN([didn't find any Fortran compiler])
 	fi

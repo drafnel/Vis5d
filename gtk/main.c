@@ -34,10 +34,9 @@ main (int argc, char *argv[])
   add_pixmap_directory (DATA_PREFIX "/pixmaps");
   add_pixmap_directory (VIS5D_SOURCE_DIR "/pixmaps");
 
-
   window3D = create_window3D ();
   
-  printf("In main 0x%x\n",(unsigned int) window3D);
+  printf("main: window3D = 0x%x\n",(unsigned int) window3D);
 
   gtk_widget_show (window3D);
 

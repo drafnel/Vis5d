@@ -27,6 +27,13 @@ typedef struct {
 
   GtkWidget *VarSelectionDialog;
   GtkWidget *GtkGlArea;
+  int animate;
+  guint32 animate_speed;
+  gint timeout_id;
+  gint stepsize;
+  int timestep;
+  int numtimes;
+
 } v5d_info;
 
 typedef struct {
@@ -79,6 +86,13 @@ void
 on_exit1_activate                      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+
+  v5d_info *info = (v5d_info*)gtk_object_get_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(menuitem),"window3D")),"v5d_info");
+
+  if(info->timeout_id){
+	 gtk_timeout_remove(info->timeout_id);
+  }
+  free(info);
 
   vis5d_terminate(1);
   gtk_main_quit();
@@ -331,6 +345,60 @@ gboolean glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event,
   return TRUE;
 }
 
+gint vis5d_do_work_gtk( gpointer data )
+{
+
+  vis5d_do_work();
+  return 1;
+
+}
+	 
+ 
+
+gint _glarea_draw(gpointer infoptr)
+{
+  int redraw;
+  v5d_info *info=(v5d_info *) infoptr;
+  
+  /* Clear the drawing color buffer and depth buffers */
+  /* before drawing.                                  */
+  if(info->timeout_id==0){
+    printf("glarea_draw \n");
+	 return TRUE;
+  }
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  
+  if(info->animate){
+	 info->timestep += (info->animate*info->stepsize);
+	 if(info->timestep<0){
+		info->timestep = info->numtimes-info->timestep;
+	 }else if(info->timestep>=info->numtimes){
+		info->timestep = info->timestep-info->numtimes;
+	 }
+	 vis5d_make_timestep_graphics(info->v5d_display_context, info->timestep);
+	 vis5d_set_dtx_timestep(info->v5d_display_context  ,info->timestep);
+	 redraw=1;
+  }else{
+	 vis5d_check_redraw( info->v5d_display_context, &redraw );
+  }
+
+
+  if(redraw){
+	 vis5d_draw_frame(info->v5d_display_context,info->animate);
+	 /* is definitely recommended! Take a look at the red    */
+	 /* book if you don't already have an understanding of   */
+	 /* single vs. double buffered windows.                  */
+	 gtk_gl_area_swapbuffers (GTK_GL_AREA(info->GtkGlArea));
+  }
+
+#ifdef SINGLE_TASK		
+	 vis5d_do_work_gtk(NULL);
+#endif
+  return TRUE;
+}
+
+
 /*****************************************************************************/
 /*                                                                           */
 /* Function: glarea_draw (GtkWidget*, GdkEventExpose*)                       */
@@ -340,40 +408,26 @@ gboolean glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event,
 /*                                                                           */
 /*****************************************************************************/
 
-gboolean glarea_draw (GtkWidget* widget, GdkEventExpose* event, gpointer         user_data) {
+gboolean glarea_draw (GtkWidget* widget, GdkEventExpose* event, gpointer user_data) {
 
   /* Draw only on the last expose event. */
   /* If event is null called from other than a callback */
+  v5d_info *info;
   if (event && event->count > 0) {
     return(TRUE);
   }
+
+
+  info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(gtk_widget_get_toplevel(widget)),"v5d_info");
+
+  if(info)  
+	 vis5d_signal_redraw(info->v5d_display_context,1);
 
   /* gtk_gl_area_make_current MUST be called before rendering */
   /* into the GtkGLArea.                                      */
 
   if (gtk_gl_area_make_current(GTK_GL_AREA(widget))) {
-
-	 v5d_info *info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(gtk_widget_get_toplevel(widget)),"v5d_info");
-
-    /* Clear the drawing color buffer and depth buffers */
-    /* before drawing.                                  */
-
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    /*                                */
-    /* Insert your drawing code here. */
-    /*                                */
-
-    
-	 vis5d_draw_frame(info->v5d_display_context,0);
-
-    /* Swap the back and front buffers. Using doublebuffers */
-    /* is definitely recommended! Take a look at the red    */
-    /* book if you don't already have an understanding of   */
-    /* single vs. double buffered windows.                  */
-
-    gtk_gl_area_swapbuffers (GTK_GL_AREA(widget));
-    
+	 _glarea_draw(info);
   }
 
   return (TRUE);
@@ -404,9 +458,9 @@ gboolean glarea_reshape (GtkWidget* widget, GdkEventConfigure* event, gpointer u
 	 v5d_info *info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(gtk_widget_get_toplevel(widget)),"v5d_info");
 	 if(info) {
 		vis5d_resize_3d_window(info->v5d_display_context,w,h);
+		vis5d_signal_redraw(info->v5d_display_context,1);
 	 }
   }
-  
   return (TRUE);
 
 }
@@ -419,16 +473,6 @@ gboolean glarea_reshape (GtkWidget* widget, GdkEventConfigure* event, gpointer u
 /* You should do any OpenGL initialization here.                             */
 /*                                                                           */
 /*****************************************************************************/
-
-gint vis5d_do_work_gtk( gpointer data )
-{
-
-  vis5d_do_work();
-  return 1;
-
-}
-	 
- 
 
 
 void glarea_init (GtkWidget* widget, gpointer user_data) {
@@ -449,23 +493,13 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 
 	 window3D = gtk_widget_get_toplevel(widget);
 
-	 /* set the clist background to black */
-	 /*
-	 clist = lookup_widget(widget,"Graphs_CList");
-
-	 clist_style = gtk_widget_get_style(clist);
-
-	 mystyle.base[
-	 clist_style->base[0]=clist_style->black;
-
-
-	 gtk_widget_set_style(clist,clist_style);
-	 */
-
+	 
 	 info = (v5d_info *) g_malloc(sizeof(v5d_info));
 
 	 info->beginx = 0;
 	 info->beginy = 0;
+	 info->animate=0;
+	 info->stepsize=1;
 	 info->v5d_display_context=-1;
 	 info->VarSelectionDialog=NULL;
 	 info->GtkGlArea=widget;
@@ -492,15 +526,18 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 		Xwindow = GDK_WINDOW_XWINDOW(widget->window);
 
 		info->zoom = 1;
+		info->animate_speed=500;
 
 		vis5d_initialize(0);
-
+		/*
+		vis5d_set_verbose_level(VERBOSE_DISPLAY);
+		*/
 		vis5d_noexit(1);
 
 		info->v5d_display_context = vis5d_alloc_display_context();
-		
-		vis5d_set_BigWindow(Xdisplay, Xwindow, glcontext);
 
+		vis5d_set_BigWindow(Xdisplay, Xwindow, glcontext);
+		
 		vis5d_init_opengl_window(info->v5d_display_context,Xdisplay, Xwindow, glcontext);
 
 		vis5d_init_path(DATA_PREFIX);
@@ -508,14 +545,10 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_CLOCK,VIS5D_OFF);
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_MAP,VIS5D_ON);
 
+		vis5d_signal_redraw(info->v5d_display_context,3);
 
-#ifdef SINGLE_TASK		
-		gtk_idle_add((GtkFunction ) (vis5d_do_work_gtk), NULL);
-#endif
-		
-		
-		
 
+		info->timeout_id = gtk_timeout_add(info->animate_speed, (GtkFunction) (_glarea_draw),(gpointer) info);
 
 	 }
 
@@ -579,6 +612,10 @@ load_data_file  (v5d_info *info, gchar *filename)
 	 /* TODO: message dialog - open failed */
 	 return;
   }
+
+  vis5d_get_dtx_timestep(info->v5d_display_context  ,&info->timestep);
+  /* returns Numtimes - lasttime is one less */
+  vis5d_get_dtx_numtimes(info->v5d_display_context, &info->numtimes);
 
   glarea_draw(info->GtkGlArea,NULL,NULL);
 
@@ -844,21 +881,21 @@ on_VarGraphicsDialog_expose_event      (GtkWidget       *widget,
 
 void on_option_toggle(GtkMenuItem *menuitem,gpointer user_data, int v5dwhat)
 {
-  GtkWidget *glarea;
+  GtkWidget *window3D;
   v5d_info *info;
+  
 
-  if(user_data==NULL) return;
-
-  glarea = GTK_WIDGET(user_data);
-
-  info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(glarea),"v5d_info");
-
+  window3D = lookup_widget(GTK_WIDGET(menuitem),"window3D");
+  info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(window3D),"v5d_info");
+  
   if(info){
 	 if( GTK_CHECK_MENU_ITEM(menuitem)->active ){
 		vis5d_graphics_mode(info->v5d_display_context,v5dwhat,VIS5D_ON);
 	 }else{
 		vis5d_graphics_mode(info->v5d_display_context,v5dwhat,VIS5D_OFF);
 	 }
+  }else{
+	 printf("ERROR: info undefined in option_toggle\n");
   }
 }
 
@@ -901,23 +938,23 @@ void
 on_preferences1_activate               (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-  GtkWidget *glarea, *prefs, *map_entry, *topo_entry;
+  GtkWidget *window3D, *prefs, *map_entry, *topo_entry;
   v5d_info *info;
   gchar v5dstr[V5D_MAXSTRLEN];
 
   if(user_data==NULL) return;
 
-  glarea = GTK_WIDGET(user_data);
+  window3D = GTK_WIDGET(user_data);
 
-  info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(glarea),"v5d_info");
+  info = (v5d_info *)gtk_object_get_data(GTK_OBJECT(window3D),"v5d_info");
 
   prefs = create_PreferenceDialog();
   
   gtk_grab_add(prefs);
+  gtk_window_set_transient_for(GTK_WINDOW(prefs),GTK_WINDOW(window3D));
 
   if(info){
 	 gtk_object_set_data (GTK_OBJECT(prefs), "v5d_info", info);
-  
 	 map_entry = lookup_widget(prefs, "Map_entry");
 
 	 vis5d_get_map(info->v5d_display_context , (char *) v5dstr);
@@ -950,15 +987,36 @@ on_browse_clicked                      (GtkButton       *button,
 
   gtk_window_set_title(fileselection,title);
   gtk_grab_add(fileselection);
+
   /* TODO: Need to set the default directory? */
   Prefs = gtk_widget_get_toplevel (GTK_WIDGET (button));
 
   gtk_object_set_data(GTK_OBJECT(fileselection),"OpenWhat" ,user_data);
 
+  
+  if(! strncmp("map",(gchar *) user_data,3)){
+	 char v5dstr[V5D_MAXSTRLEN];
+	 v5d_info *info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(Prefs), "v5d_info");
+	 vis5d_get_map(info->v5d_display_context , (char *) v5dstr);
+	 if(v5dstr[0]=='/'){
+		gtk_file_selection_set_filename(fileselection,v5dstr);
+	 }else{
+		gtk_file_selection_set_filename(fileselection,DATA_PREFIX );
+	 }
+  }else if(! strncmp("topo",(gchar *) user_data,4)){
+	 char v5dstr[V5D_MAXSTRLEN];
+	 v5d_info *info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(Prefs), "v5d_info");
+	 vis5d_get_topo(info->v5d_display_context , (char *) v5dstr);
+	 if(v5dstr[0]=='/'){
+		gtk_file_selection_set_filename(fileselection,v5dstr);
+	 }else{
+		gtk_file_selection_set_filename(fileselection,DATA_PREFIX );
+	 }
+  }
   gtk_object_set_data(GTK_OBJECT(fileselection),"PrefsDialog" ,Prefs );
 
   gtk_widget_show (fileselection);
-
+  gtk_grab_add(fileselection);
   gtk_window_set_transient_for(GTK_WINDOW(fileselection),GTK_WINDOW(Prefs));
 
 }
@@ -971,6 +1029,7 @@ on_Prefs_OK_clicked                    (GtkButton       *button,
   GtkWidget *Prefs, *map_entry, *topo_entry;
   v5d_info *info;
   int hires;
+
   Prefs = gtk_widget_get_toplevel (GTK_WIDGET (button));
 
   info = (v5d_info*) gtk_object_get_data(GTK_OBJECT(Prefs), "v5d_info");
@@ -1100,10 +1159,7 @@ on_VariableCTree_tree_select_row       (GtkCTree        *ctree,
 								  vinfo->varid, VIS5D_ON);
 
 
-
-	 vis5d_signal_redraw(vinfo->info->v5d_display_context   ,1);
-
-
+	 
   }
 
 
@@ -1134,5 +1190,99 @@ on_VSDClose_clicked                    (GtkButton       *button,
   gtk_widget_hide (GTK_WIDGET(user_data));
 
 }
+
+
+
+void
+on_ColorSelectionOk_clicked            (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_Cancel_Clicked                      (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+
+
+void
+on_Arrow_clicked                       (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  v5d_info *info;
+
+  info = (v5d_info*)gtk_object_get_data(GTK_OBJECT(
+			  lookup_widget(GTK_WIDGET(button),"window3D")),"v5d_info");
+  
+  if(info==NULL)
+	 return;
+
+  vis5d_get_dtx_timestep(info->v5d_display_context  ,&info->timestep);
+  /* returns Numtimes - lasttime is one less */
+  vis5d_get_dtx_numtimes(info->v5d_display_context, &info->numtimes);
+
+  if(strncmp("next",user_data,4)==0)
+	 {
+		info->timestep+=info->stepsize;
+	 }
+  else if(strncmp("previous",user_data,8)==0)
+	 {
+		info->timestep-=info->stepsize;
+	 }
+  else if(strncmp("first",user_data,5)==0)
+	 {
+		info->timestep=0;
+	 }
+  else if(strncmp("last",user_data,4)==0)
+	 {
+		info->timestep = info->numtimes-1;
+	 }
+  if(info->timestep<0){
+	 info->timestep = info->numtimes-info->timestep;
+  }else if(info->timestep>=info->numtimes){
+	 info->timestep = info->timestep-info->numtimes;
+  }
+
+  vis5d_make_timestep_graphics(info->v5d_display_context, info->timestep);
+#ifdef SINGLE_TASK
+  vis5d_finish_work();
+#endif
+  vis5d_set_dtx_timestep(info->v5d_display_context  ,info->timestep);
+
+  glarea_draw (info->GtkGlArea,NULL,NULL);
+
+}
+
+
+void
+on_animate_toggled                     (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  v5d_info *info = (v5d_info*)gtk_object_get_data(GTK_OBJECT(
+			  lookup_widget(GTK_WIDGET(togglebutton),"window3D")),"v5d_info");
+
+  if(info==NULL) return;
+
+  if(gtk_toggle_button_get_active(togglebutton)&&info->numtimes>0){
+	 if(user_data){
+		info->animate=-1; /* animate backwards */
+	 }else{
+		info->animate=1;
+	 }
+	 printf("animate on\n");
+  }else{
+	 info->animate=0;
+	 printf("animate off\n");
+  }
+
+}
+
 
 

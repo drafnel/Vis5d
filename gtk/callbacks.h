@@ -305,3 +305,40 @@ on_VariableCTree_tree_unselect_row     (GtkCTree        *ctree,
 void
 on_VSDClose_clicked                    (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_ColorSelectionOk_clicked            (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_Cancel_Clicked                      (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_Arrow_clicked                       (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_Arrow_clicked                       (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_animate_toggled                     (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_Arrow_clicked                       (GtkButton       *button,
+                                        gpointer         user_data);
+
+gboolean
+on_animate_pressed                     (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data);
+
+void
+on_animate_toggled                     (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_animate_toggled                     (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);

@@ -34,15 +34,12 @@ dnl (with help from M. Frigo), as well as ac_pthread and hb_pthread
 dnl macros posted by AFC to the autoconf macro repository.  We are also
 dnl grateful for the helpful feedback of numerous users.
 dnl
-dnl @version $Id: acx_pthread.m4,v 1.2 2000/11/07 16:46:22 stevengj Exp $
+dnl @version $Id: acx_pthread.m4,v 1.3 2000/12/10 05:34:42 stevengj Exp $
 dnl @author Steven G. Johnson <stevenj@alum.mit.edu> and Alejandro Forero Cuervo <bachue@bachue.com>
 
 AC_DEFUN([ACX_PTHREAD], [
-
+AC_REQUIRE([AC_CANONICAL_HOST])
 acx_pthread_ok=no
-
-# variable to keep track of whether we have already added -D_THREAD_SAFE
-using_THREAD_SAFE=no
 
 # First, check if the POSIX threads header, pthread.h, is available.
 # If it isn't, don't bother looking for the threads libraries.
@@ -189,7 +186,6 @@ if test "x$acx_pthread_ok" = xyes; then
 
         AC_MSG_CHECKING([if more special flags are required for pthreads])
         flag=no
-        AC_REQUIRE([AC_CANONICAL_HOST])
         case "${host_cpu}-${host_os}" in
                 *-aix* | *-freebsd*)     flag="-D_THREAD_SAFE";;
                 *solaris* | alpha*-osf*) flag="-D_REENTRANT";;

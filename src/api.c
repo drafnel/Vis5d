@@ -6595,7 +6595,9 @@ int vis5d_set_color( int index, int type, int number,
    g = (int) (green * 255.0);
    b = (int) (blue * 255.0);
    a = (int) (alpha * 255.0);
+  
    *ptr = PACK_COLOR(r,g,b,a);
+
    return 0;
 }
 
@@ -8111,8 +8113,8 @@ int vis5d_set_hslice( int index, int var, float interval,
    }
 
    maxlev = ctx->dpy_ctx->MaxNl-1;
-   if (level<0.0) {
-      level = 0.0;
+   if (level<ctx->LowLev[var]) {
+	  level = ctx->LowLev[var];
    }
    else if (level>maxlev) {
       level = maxlev;
@@ -8124,8 +8126,6 @@ int vis5d_set_hslice( int index, int var, float interval,
 	if(interval==0){
 	  void set_hslice_pos(Context ctx, int var, float level); /* in work.c */
 	  set_hslice_pos(ctx,var,level);
-	  printf("hslice_pos %f %f %f\n",ctx->HSliceInterval[var],
-				ctx->HSliceLowLimit[var],ctx->HSliceHighLimit[var]);
 	  return 0;
 	}
 	/* end of JPE */
@@ -9674,6 +9674,14 @@ int vis5d_gridlevel_to_height( int index, int time, int var,
 {
    CONTEXT("vis5d_gridlevel_to_height")
    *hgt = gridlevel_to_height( ctx, lev);
+   return 0;
+}
+
+int vis5d_gridlevel_to_pressure( int index, int var,
+											float lev, float *pressure)
+{
+   CONTEXT("vis5d_gridlevel_to_pressure")
+	*pressure = height_to_pressure(gridlevel_to_height( ctx, lev));	
    return 0;
 }
 

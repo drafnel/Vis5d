@@ -1021,6 +1021,9 @@ extern int vis5d_geo_to_gridPRIME( int index, int time, int var,
 extern int vis5d_gridlevel_to_height( int index, int time, int var,
                              float lev, float *hgt);
 
+extern int vis5d_gridlevel_to_pressure( int index, int var,
+													 float lev, float *pressure);
+
 extern int vis5d_gridlevelPRIME_to_height( int index, int time, int var,
                              float lev, float *hgt);
 

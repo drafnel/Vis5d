@@ -30,6 +30,13 @@ Summary of changes for new releases of Vis5d+:
     in the VIS5D_PATH/VIS5D_TOPO environment variables if one of those
     are defined.
 
+  * Fixed a bug in v5dimport so that it properly handles the lowest level
+    setting in the vertical coordinate system.  For example, if a vcs
+    had 4 levels 1012 1000 750 500 and a variable had lowlev=1 Nl=3,
+    that variable should be defined on levels 1000 750 and 500, but
+    v5dimport was ignoring the lowlev and using levels 1012 1000 and
+    750.
+
 Vis5d+ 1.0.2
 
   * Converted the manual to DocBook format, thanks to a contribution by

@@ -821,3 +821,19 @@ on_save_options1_activate              (GtkMenuItem     *menuitem,
 
 
 
+
+void
+on_hslicecontrolsapply_clicked         (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+
+
+void
+on_hslicecontrolsclose_clicked         (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+}
+

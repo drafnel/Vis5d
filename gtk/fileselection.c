@@ -27,17 +27,17 @@ VarSelectionDialog_Append(GtkWidget *window,v5d_info *info, char *fname, int dc)
 }
 
 void
-load_data_file  (v5d_info *info, gchar *filename)
+load_data_file  (GtkWidget *window3D, gchar *filename)
 {
   gint dc;
-  GtkCTree *ctree;
-  GtkCTreeNode *pnode, *node;
   gint numvars, i;
   gchar vname[10];
-  gchar *nstr[1];
   v5d_var_info *vinfo;
-  
+  v5d_info *info;
+  GtkWidget *VarDialog;
+
   /* todo: should check for errors here */
+  info = (v5d_info *) lookup_widget(window3D,"v5d_info");
 
   dc = vis5d_load_v5dfile(info->v5d_display_context,0,filename,"context");
 
@@ -52,40 +52,24 @@ load_data_file  (v5d_info *info, gchar *filename)
 
   glarea_draw(info->GtkGlArea,NULL,NULL);
 
-  
-  /*
-  if(info->VarSelectionDialog==NULL){
-	 info->VarSelectionDialog = create_VarSelectionDialog();
-	 gtk_object_set_data(GTK_OBJECT(info->VarSelectionDialog), "v5d_info", info);
-  }
-  gtk_widget_show(info->VarSelectionDialog);
-  VarSelectionDialog_Append(info->VarSelectionDialog,info,filename,dc);
-  */
-
-  ctree = GTK_CTREE(lookup_widget(info->GtkGlArea,"VariableCTree"));
-  
-  nstr[0] = filename;
-
-  pnode = gtk_ctree_insert_node(ctree,NULL,NULL,nstr,0,NULL,NULL,NULL,NULL,0,1);
-  gtk_ctree_node_set_selectable(ctree,pnode,0);
-
   vis5d_get_ctx_numvars(dc,&numvars);
+  
+  VarDialog = create_VarDialog();
 
   for(i=0;i < numvars; i++){
 	 vinfo = (v5d_var_info *) g_malloc(sizeof(v5d_var_info));
 	 
-	 vinfo->VarGraphicsDialog = NULL;
+	 vinfo->HSliceControls = NULL;
 	 vinfo->varid=i;
 	 vinfo->v5d_data_context=dc;
 	 vinfo->info = info;
 	 vis5d_get_ctx_var_name(dc,i,vname);
-	 nstr[0] = vname;
-	 node = gtk_ctree_insert_node(ctree,pnode,NULL,nstr,0,NULL,NULL,NULL,NULL,1,0);
 
-	 gtk_ctree_node_set_row_data(ctree,node,(gpointer) vinfo);
+	 add_variable_toolbar(VarDialog , vinfo);
 
   }
 
+  gtk_widget_show(VarDialog);
 
 }
 
@@ -113,7 +97,7 @@ on_fileselect_ok                       (GtkButton       *button,
   info = (v5d_info *) lookup_widget(window3D,"v5d_info");
   switch(what){
   case DATA_FILE:
-	 load_data_file(info,filename);  
+	 load_data_file(window3D,filename);  
 	 break;
   case TOPO_FILE:
 	 hires = vis5d_graphics_mode(info->v5d_display_context,VIS5D_HIRESTOPO,VIS5D_GET);

@@ -299,7 +299,7 @@ GdkColor *vis5d_color_to_gdk(GtkWidget *widget, float red, float green, float bl
   /* the pixel value indicates the index in the colormap of the color.
 	* it is simply a combination of the RGB values we set earlier
 	*/
-  color->pixel = (gulong)(red*65536 + green*256 + blue);
+  color->pixel = (gulong)(256.*(256.*(256.*red + green) + blue));
 
   /* However, the pixel value is only truly valid on 24-bit (TrueColor)
 	* displays. Therefore, this call is required so that GDK and X can
@@ -310,107 +310,7 @@ GdkColor *vis5d_color_to_gdk(GtkWidget *widget, float red, float green, float bl
   return color;
 }
 
-void
-update_hslice_controls(GtkWidget *HSliceControls, float min, float max, float interval, float level)
-{
-  if(! GTK_WIDGET_VISIBLE(HSliceControls))
-	 gtk_widget_show(HSliceControls);
-  if(! GTK_WIDGET_SENSITIVE(HSliceControls))
-	 gtk_widget_set_sensitive(HSliceControls,TRUE);
 
-  
-
-  
-
-}
-
-void
-show_hslice(GtkCTree *ctree, GList*node, v5d_var_info *vinfo)
-{
-  int times, numtimes,curtime;
-  float interval, low, high, level, pressure;
-  gchar labelstring[80];
-  gchar *listentry[1];
-  gchar varname[10];
-  GtkCList *clist;
-  GdkColor *gcolor;
-  GList *newnode;
-  gchar *nstr[1];
-  float alpha, red, green, blue;
-  GtkWidget *HSliceControls;
-
-  vis5d_get_ctx_numtimes( vinfo->v5d_data_context, &numtimes );
-  vis5d_get_ctx_timestep( vinfo->v5d_data_context,  &curtime);
-  for ( times = 0; times < numtimes; times++){
-	 vis5d_make_hslice( vinfo->v5d_data_context, times, vinfo->varid, times==curtime);
-  }
-  vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,0,0,0);
-  
-  vis5d_get_hslice(vinfo->v5d_data_context,vinfo->varid, &interval, &low, &high, &level);
-  
-  vis5d_get_ctx_var_name(vinfo->v5d_data_context,vinfo->varid,varname);
-  
-  vis5d_gridlevel_to_pressure(vinfo->v5d_data_context,vinfo->varid,level,&pressure);
-  
-  g_snprintf(labelstring,80,_("HSlice from %4.4g to %4.4g by %4.4g at %4.4g MB"),
-				 low,high,interval,pressure);
-  
-
-
-  vis5d_get_color( vinfo->v5d_data_context, VIS5D_HSLICE, vinfo->varid,
-						 &red,&green,&blue,&alpha);
-  
-  gcolor = vis5d_color_to_gdk(GTK_WIDGET(ctree), red,green,blue);
-
-  if(GTK_CTREE_ROW(node)->is_leaf){
-	 gtk_ctree_set_node_info(ctree,node,varname,0,NULL,NULL,NULL,NULL,FALSE,TRUE);
-  }
-  nstr[0] = labelstring;
-  newnode = gtk_ctree_insert_node(ctree,node,NULL,nstr,0,NULL,NULL,NULL,NULL,1,0);
-
-  gtk_ctree_node_set_foreground(ctree,newnode,gcolor);
-
-  vis5d_enable_graphics(vinfo->v5d_data_context, VIS5D_HSLICE,
-								vinfo->varid, VIS5D_ON);
-
-  HSliceControls = create_HsliceControls();
-  
-  update_hslice_controls(HSliceControls, low, high, interval, pressure);
-
-
-}
-
-
-void
-on_VariableCTree_tree_select_row       (GtkCTree        *ctree,
-                                        GList           *node,
-                                        gint             column,
-                                        gpointer         user_data)
-{
-  v5d_var_info *vinfo;
-  
-  vinfo = (v5d_var_info *) gtk_ctree_node_get_row_data(ctree,GTK_CTREE_NODE(node));
-
-
-  if(GTK_CTREE_ROW(node)->is_leaf){
-	 show_hslice(ctree,node,vinfo);
-  }
-}
-
-
-void
-on_VariableCTree_tree_unselect_row     (GtkCTree        *ctree,
-                                        GList           *node,
-                                        gint             column,
-                                        gpointer         user_data)
-{
-  v5d_var_info *vinfo;
-
-  vinfo = (v5d_var_info *) gtk_ctree_node_get_row_data(ctree,GTK_CTREE_NODE(node));
-
-  printf("Row unselected\n");
-
-}
 
 void
 on_save_options1_activate              (GtkMenuItem     *menuitem,

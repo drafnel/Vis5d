@@ -23,7 +23,8 @@ typedef struct {
   gint varid;
   v5d_info *info;
 
-  GtkWidget *VarGraphicsDialog;
+  GtkWidget *HSliceControls;
+  
   gint clistrow;
 } v5d_var_info;
 
@@ -440,4 +441,16 @@ on_openprocedure_activate              (GtkMenuItem     *menuitem,
 
 void
 on_newprocedure_activate               (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+GtkWidget *new_window3D(GtkWidget *oldwindow3D);
+GdkColor *vis5d_color_to_gdk(GtkWidget *widget, float red, float green, float blue);
+void update_hslice_controls(GtkWidget *HSliceControls, float vals[5], gdouble color[4]);
+
+void
+on_hslicecontrolsapply_clicked         (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_hslicecontrolsclose_clicked         (GtkButton       *button,
                                         gpointer         user_data);

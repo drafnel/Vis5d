@@ -11,6 +11,8 @@
   <gnome_support>False</gnome_support>
   <gettext_support>True</gettext_support>
   <use_widget_names>True</use_widget_names>
+  <output_main_file>False</output_main_file>
+  <output_build_files>False</output_build_files>
   <translatable_strings_file>langstrings.c</translatable_strings_file>
 </project>
 
@@ -120,7 +122,49 @@
 		  <handler>on_open1_activate</handler>
 		  <last_modification_time>Wed, 18 Jul 2001 12:43:12 GMT</last_modification_time>
 		</signal>
-		<label>_Open</label>
+		<label>_Open Data...</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>open_in_new_frame1</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_open_in_new_frame1_activate</handler>
+		  <last_modification_time>Tue, 31 Jul 2001 12:28:41 GMT</last_modification_time>
+		</signal>
+		<label>Open in new Frame...</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>separator5</name>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>open_profile</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_open_profile_activate</handler>
+		  <last_modification_time>Tue, 31 Jul 2001 12:28:41 GMT</last_modification_time>
+		</signal>
+		<label>Open Profile...</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>new_profile</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_new_profile_activate</handler>
+		  <last_modification_time>Tue, 31 Jul 2001 12:28:41 GMT</last_modification_time>
+		</signal>
+		<label>New Profile...</label>
 		<right_justify>False</right_justify>
 	      </widget>
 
@@ -132,13 +176,26 @@
 
 	      <widget>
 		<class>GtkMenuItem</class>
+		<name>delete_frame1</name>
+		<sensitive>False</sensitive>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_delete_frame1_activate</handler>
+		  <last_modification_time>Tue, 31 Jul 2001 12:31:12 GMT</last_modification_time>
+		</signal>
+		<label>Delete Frame</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
 		<name>exit1</name>
 		<signal>
 		  <name>activate</name>
 		  <handler>on_exit1_activate</handler>
 		  <last_modification_time>Mon, 02 Jul 2001 13:54:37 GMT</last_modification_time>
 		</signal>
-		<label>E_xit</label>
+		<label>E_xit Vis5d+</label>
 		<right_justify>False</right_justify>
 	      </widget>
 	    </widget>

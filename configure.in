@@ -359,7 +359,7 @@ AM_CONDITIONAL(MCIDAS, test -n "$MCIDAS_LIBS")
 ##########################################################################
 
 # Checks for header files.
-AC_CHECK_HEADERS(X11/Xm/MwmUtil.h sys/types.h sys/prctl.h sys/sysmp.h sysmp.h sys/lock.h)
+AC_CHECK_HEADERS(X11/Xm/MwmUtil.h sys/types.h sys/prctl.h sys/sysmp.h sysmp.h sys/lock.h sys/stat.h fcntl.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 

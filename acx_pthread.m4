@@ -34,7 +34,7 @@ dnl (with help from M. Frigo), as well as ac_pthread and hb_pthread
 dnl macros posted by AFC to the autoconf macro repository.  We are also
 dnl grateful for the helpful feedback of numerous users.
 dnl
-dnl @version $Id: acx_pthread.m4,v 1.4 2001/01/04 05:41:39 stevengj Exp $
+dnl @version $Id: acx_pthread.m4,v 1.5 2001/07/14 17:24:44 stevengj Exp $
 dnl @author Steven G. Johnson <stevenj@alum.mit.edu> and Alejandro Forero Cuervo <bachue@bachue.com>
 
 AC_DEFUN([ACX_PTHREAD], [
@@ -71,9 +71,9 @@ fi
 
 # Create a list of thread flags to try.  Items starting with a "-" are
 # C compiler flags, and other items are library names, except for "none"
-# which indicates we try without any flags at all.
+# which indicates that we try without any flags at all.
 
-acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads -mt pthread --thread-safe"
+acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt"
 
 # The ordering *is* (sometimes) important.  Some notes on the
 # individual items follow:
@@ -87,7 +87,9 @@ acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -m
 # -pthread: Linux/gcc (kernel threads), BSD/gcc (userland threads)
 # -pthreads: Solaris/gcc
 # -mthreads: Mingw32/gcc, Lynx/gcc
-# -mt: Sun Workshop CC
+# -mt: Sun Workshop C (may only link SunOS threads [-lthread], but it 
+#      doesn't hurt to check since this sometimes defines pthreads too;
+#      also defines -D_REENTRANT)
 # pthread: Linux, etcetera
 # --thread-safe: KAI C++
 
@@ -102,7 +104,7 @@ case "${host_cpu}-${host_os}" in
 	# who knows whether they'll stub that too in a future libc.)  So,
 	# we'll just look for -pthreads and -lpthread first:
 
-	acx_pthread_flags="-pthread -pthreads -mt pthread $acx_pthread_flags"
+	acx_pthread_flags="-pthread -pthreads pthread -mt $acx_pthread_flags"
 	;;
 esac
 

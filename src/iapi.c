@@ -268,12 +268,25 @@ int Read_NetCDF( char *filename, int *general_type, int *specific_type, int *fid
    /* Try FSL_NETCDF_METAR 1st */
    /****************************/
    status = nc_inq_dimid( nc_id, FSL_METAR->METAR_REPORT_TYPE_LENGTH, &id1);
+
+	if(status !=  NC_NOERR){
+	  status = nc_inq_varid( nc_id, FSL_METAR->TIME, &id1);
+	}
+
    if (status == NC_NOERR){
+		/* 28-10-2000 this test doesn't work on my my FSL-like synop files */
+      /* If you see some reason that this test should be required please 
+			contact me and I will happily seek to resolve the problem in a 
+			mutually suitable manner.  Jim Edwards jedwards@fsl.noaa.gov
+			jedwards@inmet.gov.br  */
+	  /*
       status = nc_inq_dimlen( nc_id, id1, &len1);
       if (status != NC_NOERR){
          nc_close(nc_id);
          return 0;
       }
+
+
       status = nc_inq_varid( nc_id, FSL_METAR->METAR_REPORT_TYPE, &id2);
       if (status != NC_NOERR){
          nc_close(nc_id);
@@ -289,18 +302,14 @@ int Read_NetCDF( char *filename, int *general_type, int *specific_type, int *fid
             temp[1]++;
          }
       }
-		/* 28-10-2000 this test doesn't work on my my FSL-like synop files */
-      /* If you see some reason that this test should be required please 
-			contact me and I will happily seek to resolve the problem in a 
-			mutually suitable manner.  Jim Edwards jedwards@fsl.noaa.gov
-			jedwards@inmet.gov.br  */
 
 
  
-		/*      if (strcmp(FSL_METAR->METAR, text1)==0 ||
-				  strcmp(FSL_METAR->SPECI, text1)==0){  */
+		if (strcmp(FSL_METAR->METAR, text1)==0 ||
+				  strcmp(FSL_METAR->SPECI, text1)==0){  
 
          free(text1);  
+	  */
          *general_type = NETCDF_SURFACE;
          *specific_type = fsl_netcdf_metar;
          return 1;
@@ -1408,7 +1417,7 @@ int Read_NetCDF_Vars( NetCDF_Format_Info finfo,
                      }
                      get_min_and_max( numrecs, mmdata, fillvalue, &varmin[k],
                                       &varmax[k]);
-
+							
                   }
                   /******************************/   
                   /* other number of dimesnions */

@@ -53,12 +53,17 @@ static void init_file_db( FileDB fdb);
 int fdb_initialize( void )
 {
    int i;
-  
+
+	if(fdb_table!=NULL)
+	  free(fdb_table);
+
+	fdb_table = (FileDB **) calloc(MAX_FDBS, sizeof(FileDB *));
+	/*
    fdb_table = malloc( sizeof(FileDB *) * MAX_FDBS );
    for (i = 0; i < MAX_FDBS; i++){
       fdb_table[i] = NULL;
    }
-
+	*/
    Initialize_NetCDF_Format_Info();
 
    return 1;
@@ -592,17 +597,28 @@ printf("adding file %s\n", filename);
    F->FileType = specific_type;
    F->Finfo = finfo;
    /**************************/
-   /* add vars tp file_info */
+   /* add vars to file_info */
    /**************************/
+	F->NumVars=0;
+	/*
    F->NumVars = num_vars;
+	*/
+
    for( i = 0; i < num_vars; i++){
-      strcpy(F->VarName[i], var_name[i]);
-      F->VarType[i] = var_type[i];
-      F->CharVarLength[i] = char_var_length[i];
-      F->VarSelected[i] = 1;
-      F->VarDimensions[i] = var_dim[i];
-      F->VarMin[i] = varmin[i];
-      F->VarMax[i] = varmax[i];
+	  strcpy(F->VarName[F->NumVars], var_name[i]);
+	  F->VarType[F->NumVars] = var_type[i];
+	  F->CharVarLength[F->NumVars] = char_var_length[i];
+	  if(var_type[i] == CHAR_VAR || (varmin[i] < varmax[i])){
+		 F->VarSelected[F->NumVars] = 1;
+	  }else{
+		 F->VarSelected[F->NumVars] = 0;
+	  }
+	  F->VarDimensions[F->NumVars] = var_dim[i];
+	  F->VarMin[F->NumVars] = varmin[i];
+	  F->VarMax[F->NumVars] = varmax[i];
+	  F->NumVars++;
+	  
+
    }
     
    /**************/
@@ -708,7 +724,8 @@ printf("adding file %s\n", filename);
       }
       if (!dont_add_it){
          strcpy(fdb->VarName[fdb->NumVars], F->VarName[j]);
-         fdb->VarSelected[fdb->NumVars] = 1; 
+
+         fdb->VarSelected[fdb->NumVars] = F->VarSelected[j]; 
          fdb->VarType[fdb->NumVars] = F->VarType[j];
          fdb->VarDimensions[fdb->NumVars] = F->VarDimensions[j];
          fdb->CharVarLength[fdb->NumVars] = F->CharVarLength[j];

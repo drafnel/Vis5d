@@ -477,13 +477,16 @@ void preload_irregular_cache( Irregular_Context itx )
    int numrecs = 0; 
    int time = 0;
    int trec = 0;
-
+	/*
    printf("Loading Records for time %d\n", time);
+	*/
    while ( numrecs < itx->MaxCachedRecs){
       if (trec == itx->NumRecs[time]){
          trec = 0;
          time++;
+			/*
          printf("Loading Records for time %d\n", time);   
+			*/
       }
       load_record(itx, time, trec);
       numrecs++;

@@ -874,7 +874,7 @@ main( int argc, char *argv[] )
    char windowname[100];
    char swindowname[100];
    int volflag;
-   int index, do_once;
+   int index=-1, do_once, iindex=-1;
    int workers = 0;
    int filepointer = 0;
    int gopointer = 0;
@@ -1548,11 +1548,14 @@ main( int argc, char *argv[] )
          vis5d_set_user_flags (dindex, user_topo[dindex], user_maps[dindex]);
 
 
-
-
          if (vis5d_open_gridfile( index, v5dfile[dindex], preload[dindex] )<0) {
-            vis5d_terminate(1);
-            exit(0);
+			  vis5d_destroy_data_context(index);
+			  index = -1;
+
+			  if(iindex = vis5d_load_irregular_v5dfile(dindex, mbs, v5dfile[dindex], v5dfile[dindex])<0){
+				 vis5d_terminate(1);
+				 exit(0);
+			  }
          }
          if (first_area[dindex]){
             vis5d_init_firstarea(dindex, first_area[dindex]);
@@ -1583,7 +1586,7 @@ main( int argc, char *argv[] )
          vis5d_set_topo_base (dindex, topo_base[dindex], topo_base_lev[dindex]);
          in_the_init_stage = 0;
 
-         vis5d_init_display_values ( index, -1, dindex );
+         vis5d_init_display_values ( index, iindex, dindex );
 
          in_the_init_stage = 1;
 
@@ -1594,13 +1597,13 @@ main( int argc, char *argv[] )
             float projargs[100];
             prompt_for_projection_args( dindex, user_projection[dindex], projargs );
             vis5d_init_projection( dindex, user_projection[dindex], projargs );
-            vis5d_init_display_values ( index, -1, dindex );
+            vis5d_init_display_values ( index, iindex, dindex );
          }
          else if (user_vertsys[dindex]>-1) {
             float vertargs[MAXLEVELS];
             prompt_for_vertical_args( dindex, user_vertsys[dindex], vertargs );
             vis5d_init_vertical( dindex, user_vertsys[dindex], vertargs );
-            vis5d_init_display_values ( index, -1, dindex );         
+            vis5d_init_display_values ( index, iindex, dindex );         
          }
 
 
@@ -1616,14 +1619,15 @@ main( int argc, char *argv[] )
             vis5d_init_log( dindex, 0, scale[dindex], exponent[dindex] );
          }
 
-         if (vis5d_init_data_end( index )<0) {
-            printf("Error in vis5d_init_data_end\n");
-            vis5d_terminate(1);
-            exit(0);
-         }
+			if(index>-1){
+			  if (vis5d_init_data_end( index )<0) {
+				 printf("Error in vis5d_init_data_end\n");
+				 vis5d_terminate(1);
+				 exit(0);
+			  }
 
-         /* setup trajectory and wind variables */
-         vis5d_set_wind_vars( dindex, index, vis5d_find_var(index,"U"),
+			  /* setup trajectory and wind variables */
+			  vis5d_set_wind_vars( dindex, index, vis5d_find_var(index,"U"),
                                      index, vis5d_find_var(index,"V"),
                                      index, vis5d_find_var(index,"W"),
                                      index, vis5d_find_var(index,u2[dindex]),
@@ -1633,19 +1637,19 @@ main( int argc, char *argv[] )
                                      index, vis5d_find_var(index,trajv[dindex]),
                                      index, vis5d_find_var(index,trajw[dindex]) );
 
-         vis5d_set_sound_vars( index, index, vis5d_find_var(index,"T"),
+			  vis5d_set_sound_vars( index, index, vis5d_find_var(index,"T"),
                                       index, vis5d_find_var(index,"TD"),
                                       index, vis5d_find_var(index,"U"),
                                       index, vis5d_find_var(index,"V"),
                                       index, -1, 0, -1, 0, -1 );
 
-         if (verylarge[dindex] == 1) {
-            vis5d_verylarge_mode(index, VIS5D_ON);
-         }
-         else if (verylarge[dindex] == 0) {
-            vis5d_verylarge_mode(index, VIS5D_OFF);
-         }
-
+			  if (verylarge[dindex] == 1) {
+				 vis5d_verylarge_mode(index, VIS5D_ON);
+			  }
+			  else if (verylarge[dindex] == 0) {
+				 vis5d_verylarge_mode(index, VIS5D_OFF);
+			  }
+			}
          if (barbs[dindex] == 1) vis5d_graphics_mode(dindex, VIS5D_BARBS, VIS5D_ON);
          else vis5d_graphics_mode(dindex, VIS5D_BARBS, VIS5D_OFF);
 
@@ -1769,7 +1773,7 @@ main( int argc, char *argv[] )
    XMapWindow(GuiDpy, gtx->CpWindow);
    LUI_MoveResizeWindow( gtx->CpWindow, gtx->cpx, gtx->cpy, CP_WIDTH, gtx->CpHeight );
 
-   if (!nofile){
+   if (!nofile && index>=0){
       sprintf( swindowname," Skew-T and Vertical Plot Display (%s)", v5dfile[0] );
       make_snd_window( 0, swindowname, gtx->SoundCtrlWindow, wdpy_name );
       if (gtx->othersnddpy ){

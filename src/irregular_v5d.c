@@ -129,7 +129,14 @@ int irregular_v5dReadRecordGeoData( irregular_v5dstruct *iv, int time, int id,
       }
    }
    else{
-      printf(" can't handle this right now\n");
+	  /*
+      printf("1 can't handle this right now\n");
+	  */
+	  /* TODO: index is hard coded here! */ 
+		index = 0;
+		read_fdb_record_geo_data( index,  time, id, lat, lon, alt);
+		return 1;
+
       return 0;
    }
    return 1;
@@ -185,7 +192,14 @@ int irregular_v5dReadRecord( irregular_v5dstruct *iv, int time, int id,
       }
    }
    else{
-      printf(" can't handle this right now\n");
+	  /*
+      printf("2 can't handle this right now\n");
+	  */
+	  /* TODO: index is hard coded here */
+      index = 0;
+		read_fdb_record( index, iv, time, id, fdata, sdata, cdata, ldata);
+		return 1;
+
       return 0;
    }
    return 1;
@@ -275,8 +289,26 @@ static int irregular_read_v5d_header( char *filename, irregular_v5dstruct *iv )
       }
    }
    else{
-      printf(" can't handle this right now\n");
-      return 0;
+	  FileDB FDB;
+	  /*
+	  printf("3 can't handle this right now\n");
+	  */
+
+	  fdb_initialize();
+	  /* handle it */
+	  FDB = make_new_fdb( );
+	  /* TODO: index is hardcoded here */
+	  index = 0;
+	  if (!add_a_file( FDB, filename)){
+		 printf("4 can't handle this right now\n");
+
+		 return 0;
+	  }
+	  
+	  load_fdb_into_v5d( index, iv);
+
+
+	  return 1;
    }
 
    return 1;

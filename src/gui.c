@@ -1322,14 +1322,16 @@ void map_all_windows( int onlyrecolor )
    for (yo=0; yo<number_of_titles; yo++){
       char ring[200];
       int len;
-      if (!XLoadFont(GfxDpy, title_font[yo])){
-         printf("can't load title font\n");
+      XFontStruct *fontinfo;
+      if (!(fontinfo = XLoadQueryFont(GfxDpy, title_font[yo]))){
+         printf("can't load title font \"%s\"\n", title_font[yo]);
       }
       else{
          vals.background = LUI_AllocateColorInt(0, 0, 0);
          vals.foreground = LUI_AllocateColorInt(255, 255, 255);
          gc = XCreateGC( GfxDpy, BigWindow, GCForeground | GCBackground, &vals );
-         XSetFont(GfxDpy, gc, XLoadFont(GfxDpy, title_font[yo]));
+         XSetFont(GfxDpy, gc, fontinfo->fid);
+	 XFreeFontInfo(NULL, fontinfo, 0);
          strcpy(ring,title_string[yo]);
          len = strlen(ring);
          XDrawString(GfxDpy, BigWindow, gc,

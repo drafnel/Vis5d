@@ -428,6 +428,25 @@ void SND_Initialize(  Display_Context dtx, Display *display,
    else {
       pixelformat = PF_XALLOC;
    }
+
+   /* Make sure SoundFontName is okay: */
+   {
+	XFontStruct *fontinfo;
+	if (!(fontinfo = XLoadQueryFont(SndDpy, dtx->SoundFontName))) {
+	     if (fontinfo = XLoadQueryFont(SndDpy, DEFAULT_SOUNDFONTNAME))
+		  strcpy(dtx->SoundFontName, DEFAULT_SOUNDFONTNAME);
+	     else if (fontinfo = XLoadQueryFont(SndDpy, "fixed")) {
+		  fprintf(stderr, "SoundFontName defaulting to \"fixed\"\n");
+		  strcpy(dtx->SoundFontName, "fixed");
+	     }
+	}
+	if (fontinfo)
+	     XFreeFontInfo(0, fontinfo, 0);
+	else {
+	     fprintf(stderr, "Failed opening DEFAULT_SOUNDFONTNAME (\"%s\")\n",
+		     DEFAULT_SOUNDFONTNAME);
+	}
+   }
 }
 
 
@@ -618,10 +637,17 @@ int make_soundGFX_window( Display_Context dtx, char *title, int xpos, int ypos,
    dtx->Sound.box_gc =  make_gc(dtx, 169, 169, 169, 0, 0, 0, 1);
 */
 
-   if  (XLoadFont(SndDpy, dtx->SoundFontName)){
-      XSetFont(SndDpy, dtx->Sound.var1_gc, XLoadFont(SndDpy, dtx->SoundFontName));
-      XSetFont(SndDpy, dtx->Sound.var2_gc, XLoadFont(SndDpy, dtx->SoundFontName));
-      XSetFont(SndDpy, dtx->Sound.var3_gc, XLoadFont(SndDpy, dtx->SoundFontName));
+   {
+	XFontStruct *fontinfo;
+	if (fontinfo = XLoadQueryFont(SndDpy, dtx->SoundFontName)){
+	     XSetFont(SndDpy, dtx->Sound.var1_gc, fontinfo->fid);
+	     XSetFont(SndDpy, dtx->Sound.var2_gc, fontinfo->fid);
+	     XSetFont(SndDpy, dtx->Sound.var3_gc, fontinfo->fid);
+	     XFreeFontInfo(NULL, fontinfo, 0);
+	}
+	else
+	     fprintf(stderr, "warning: couldn't load font \"%s\"\n",
+		     dtx->SoundFontName);
    }
    do_pixmap_art(dtx);
 
@@ -1129,12 +1155,14 @@ static void draw_wlines( Display_Context dtx)
    x = -9999;
    y = -9999;
 
-   if (XLoadFont(SndDpy, dtx->SoundFontName)) {
-      font_info = XLoadQueryFont (SndDpy, dtx->SoundFontName);
-      XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
-      txth      = font_info->ascent;
-      txth2     = txth / 2;
+   if (!(font_info = XLoadQueryFont(SndDpy, dtx->SoundFontName))) {
+	fprintf(stderr, "failed to load font \"%s\"", dtx->SoundFontName);
+	return;
    }
+   XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
+   txth      = font_info->ascent;
+   txth2     = txth / 2;
+
    XSetLineAttributes (SndDpy, dtx->Sound.box_gc, 1, LineOnOffDash,
                        CapRound, JoinRound);
 
@@ -1186,7 +1214,7 @@ static void draw_wlines( Display_Context dtx)
    XSetLineAttributes (SndDpy, dtx->Sound.box_gc, 1, LineSolid,
                        CapRound, JoinRound);
       
-      
+   XFreeFontInfo(NULL, font_info, 0);
 #undef N_MIXRAT
 }
 
@@ -1251,12 +1279,14 @@ static void draw_thtalines( Display_Context dtx )
    char thtastring [8];
    XFontStruct *font_info;
 
-   if (XLoadFont(SndDpy, dtx->SoundFontName)){
-      font_info = XLoadQueryFont (SndDpy, dtx->SoundFontName);
-      XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
-      txtw      = XTextWidth (font_info, "999", 3) / 2;
-      txth      = font_info->ascent;
+   if (!(font_info = XLoadQueryFont(SndDpy, dtx->SoundFontName))) {
+	fprintf(stderr, "failed to load font \"%s\"", dtx->SoundFontName);
+	return;
    }
+   XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
+   txtw      = XTextWidth (font_info, "999", 3) / 2;
+   txth      = font_info->ascent;
+   XFreeFontInfo(NULL, font_info, 0);
 
    x     = dtx->Sound.sndwidth / (txtw * 8 / 3);
    y     = (470 - 290) / 5;
@@ -1306,12 +1336,14 @@ static void draw_templines( Display_Context dtx )
    char tempstring [8];
    XFontStruct *font_info;
 
-   if (XLoadFont(SndDpy, dtx->SoundFontName)){
-      font_info = XLoadQueryFont (SndDpy, dtx->SoundFontName);
-      XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
-      txth      = font_info->ascent;
-      txth2     = txth / 2;
+   if (!(font_info = XLoadQueryFont(SndDpy, dtx->SoundFontName))) {
+	fprintf(stderr, "failed to load font \"%s\"", dtx->SoundFontName);
+	return;
    }
+   XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
+   txth      = font_info->ascent;
+   txth2     = txth / 2;
+   XFreeFontInfo(NULL, font_info, 0);
 
    if ((dtx->Sound.sndwidth < 300) || (dtx->Sound.sndheight < 300)){
       step = 20;
@@ -1366,12 +1398,13 @@ static void draw_millibarlines ( Display_Context dtx )
    xright = BORDER + dtx->Sound.sndwidth;
    xmid   = (xleft + xright) / 2;
 
-   if (XLoadFont(SndDpy, dtx->SoundFontName)) {
-      font_info = XLoadQueryFont (SndDpy, dtx->SoundFontName);
-      XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
-      txth2     = font_info->ascent / 2;
-      txts      = XTextWidth (font_info, " ", 1);
+   if (!(font_info = XLoadQueryFont(SndDpy, dtx->SoundFontName))) {
+	fprintf(stderr, "failed to load font \"%s\"", dtx->SoundFontName);
+	return;
    }
+   XSetFont(SndDpy, dtx->Sound.box_gc, font_info->fid);
+   txth2     = font_info->ascent / 2;
+   txts      = XTextWidth (font_info, " ", 1);
 
    for (press = dtx->Sound.BotPress; press >= dtx->Sound.TopPress;
         press -= 50) {
@@ -1396,6 +1429,7 @@ static void draw_millibarlines ( Display_Context dtx )
                      xleft, y+BORDER-HEBGBS, xright, y+BORDER-HEBGBS);
       }
    }
+   XFreeFontInfo(NULL, font_info, 0);
 }
 
     /**********************************************************************/
@@ -1559,6 +1593,8 @@ static void draw_vert_stuff( Display_Context dtx )
    char num[10];
    int stringnumber;
    double average;
+   XFontStruct *font_info;
+   font_info = XLoadQueryFont(SndDpy, dtx->SoundFontName);
 
    if (!dtx->Sound.vert_gc){
       dtx->Sound.vert_gc = make_gc(dtx, 255, 255, 255, 0, 0, 0, 2);
@@ -1591,9 +1627,8 @@ static void draw_vert_stuff( Display_Context dtx )
       }
       stringnumber = strlen(num)-1;
       dtx->Sound.vert_gc = make_gc(dtx, 255, 255, 255, 0, 0, 0, 1);
-      if (XLoadFont(SndDpy, dtx->SoundFontName)){
-         XSetFont(SndDpy, dtx->Sound.vert_gc, XLoadFont(SndDpy, dtx->SoundFontName));
-      }
+      if (font_info)
+	   XSetFont(SndDpy, dtx->Sound.vert_gc, font_info->fid);
       XDrawString( SndDpy, dtx->Sound.soundpix, dtx->Sound.vert_gc,
                    dtx->Sound.sndwidth + BORDER + 25, y + BORDER - HEBGBS + 4,
                    num, stringnumber);
@@ -1608,6 +1643,9 @@ static void draw_vert_stuff( Display_Context dtx )
       XDrawString( SndDpy, dtx->Sound.soundpix, dtx->Sound.vert_gc,
                  dtx->Sound.sndwidth + BORDER + 25+5,  BORDER - HEBGBS -8,
                  num, 2);
+
+   if (font_info)
+	XFreeFontInfo(NULL, font_info, 0);   
 }     
 
     /**********************************************************************/
@@ -1972,6 +2010,8 @@ int draw_sounding( Display_Context dtx, int time )
    unsigned int line_width;
    Context      varownerctx, prvownerctx, var2ownerctx, prv2ownerctx;
 
+   XFontStruct *font_info;
+   font_info = XLoadQueryFont(SndDpy, dtx->SoundFontName);
 
    /* this will get the heights for the levels*/
    /* and put them in dtx->Sound.vertdata, and the first number in this array */
@@ -2316,10 +2356,8 @@ int draw_sounding( Display_Context dtx, int time )
                                 row, col );
       }
 
-      if (XLoadFont(SndDpy, dtx->SoundFontName)){
-         XSetFont(SndDpy, dtx->Sound.var1_gc,
-                  XLoadFont(SndDpy, dtx->SoundFontName));
-      }
+      if (font_info)
+	   XSetFont(SndDpy, dtx->Sound.var1_gc, font_info->fid);
       draw_sounding_line (dtx, dtx->Sound.var1_gc, -1, -1, RESET_ELEV, elev);
 
       for (yo=0; yo < varownerctx->Nl[dtx->Sound.SoundVar1]; yo++){
@@ -2374,11 +2412,9 @@ int draw_sounding( Display_Context dtx, int time )
                                 varownerctx->LowLev[dtx->Sound.SoundVar2],
                                 row, col );
       }
-
-      if (XLoadFont(SndDpy, dtx->SoundFontName)){
-         XSetFont(SndDpy, dtx->Sound.var2_gc,
-                  XLoadFont(SndDpy, dtx->SoundFontName));
-      }
+      
+      if (font_info)
+	   XSetFont(SndDpy, dtx->Sound.var2_gc, font_info->fid);
       draw_sounding_line (dtx, dtx->Sound.var2_gc, -1, -1, RESET_ELEV, elev);
 
       for (yo=0; yo < varownerctx->Nl[dtx->Sound.SoundVar2]; yo++){
@@ -2434,10 +2470,8 @@ int draw_sounding( Display_Context dtx, int time )
                                 row, col );
       }
 
-      if (XLoadFont(SndDpy, dtx->SoundFontName)){
-         XSetFont(SndDpy, dtx->Sound.var3_gc,
-                  XLoadFont(SndDpy, dtx->SoundFontName));
-      }
+      if (font_info)
+	   XSetFont(SndDpy, dtx->Sound.var3_gc, font_info->fid);
       draw_sounding_line (dtx, dtx->Sound.var3_gc, -1, -1, RESET_ELEV, elev);
 
       for (yo=0; yo < varownerctx->Nl[dtx->Sound.SoundVar3]; yo++){
@@ -2458,6 +2492,9 @@ int draw_sounding( Display_Context dtx, int time )
          dtx->Sound.var3grid = NULL;
       }
    }
+
+   if (font_info)
+	XFreeFontInfo(NULL, font_info, 0);
 
    return 1;
 }
@@ -2598,9 +2635,6 @@ void data_to_y (Display_Context dtx, float alt, int *y)
 }
 
 /* MJK 12.15.98 end */
-
-
-
 
     /**********************************************************************/
     /* This converts a grid level to a height                             */

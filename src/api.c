@@ -275,7 +275,6 @@ Irregular_Context vis5d_get_itx( int index )
 
 static void init_irregular_context( Irregular_Context itx )
 {
-   int i;
    
    /* initialize everything to zero for starters */
    memset( itx, 0, sizeof(struct irregular_context) );
@@ -285,9 +284,7 @@ static void init_irregular_context( Irregular_Context itx )
    itx->TextPlotFontX = 10.0;
    itx->TextPlotFontY = 10.0;
    itx->TextPlotFontSpace = 1.0;
-   for (i = 0; i < MAXVARS; i++){
-      itx->Variable[i]->TextPlotColorStatus = VIS5D_OFF;
-   }
+
 }
 
 static Irregular_Context new_irregular_context (void )

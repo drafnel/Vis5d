@@ -516,10 +516,6 @@ int open_recordfile(Irregular_Context itx, char filename[])
       return 0;
    }
 
-   /* Initalize parameter type table */
-   for (i=0;i<MAXVARS;i++) {
-      itx->Variable[i]->VarType = -1;
-   }
   
    /* Copy header info from G to global variables */
    strcpy(itx->DataFile, filename);
@@ -534,16 +530,18 @@ int open_recordfile(Irregular_Context itx, char filename[])
    itx->EastBound = itx->G.EastBound;
    itx->NorthBound = itx->G.NorthBound;
    itx->SouthBound = itx->G.SouthBound;
+	
    for (i = 0; i < itx->NumVars; i++){
-      strcpy(itx->Variable[i]->VarName, itx->G.VarName[i]);
-      itx->Variable[i]->VarType = itx->G.VarType[i];
-      itx->Variable[i]->CharVarLength = itx->G.CharVarLength[i];
-      itx->Variable[i]->CharPointer = itx->G.CharPointer[i];
-      itx->Variable[i]->SoundingPointer = itx->G.SoundingPointer[i];
-      itx->Variable[i]->MinVal = itx->G.VarMin[i];
-      itx->Variable[i]->MaxVal = itx->G.VarMax[i];
+	  itx->Variable[i] = (vis5d_irregular_variable *) i_allocate(itx,sizeof(vis5d_irregular_variable));
+	  strcpy(itx->Variable[i]->VarName, itx->G.VarName[i]);
+	  itx->Variable[i]->VarType = itx->G.VarType[i];
+	  itx->Variable[i]->CharVarLength = itx->G.CharVarLength[i];
+	  itx->Variable[i]->CharPointer = itx->G.CharPointer[i];
+	  itx->Variable[i]->SoundingPointer = itx->G.SoundingPointer[i];
+	  itx->Variable[i]->MinVal = itx->G.VarMin[i];
+	  itx->Variable[i]->MaxVal = itx->G.VarMax[i];
 
-  }
+	}
   itx->TopBound = 10.0;
   itx->BottomBound = -0.1;
   if (itx->WestBound == itx->EastBound){

@@ -156,7 +156,7 @@ int get_grid_info( char *name, struct grid_db *db )
       /* k==0 means OK */
 
       info = alloc_grid_info();
-      info->FileName = str_dup( name );
+      info->FileName = strdup( name );
       info->Format = FILE_GRID;
       info->FileNumber = filenumber;
       info->Position = i;
@@ -188,7 +188,7 @@ int get_grid_info( char *name, struct grid_db *db )
          for (j=3;j>=0 && varname[j]==' ';j--) {
             varname[j] = 0;
          }
-         info->VarName = str_dup( varname );
+         info->VarName = strdup( varname );
       }
 
 

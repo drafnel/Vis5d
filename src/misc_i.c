@@ -36,12 +36,10 @@
 #include <stdlib.h>
 #include "v5d.h"
 
-
-/*
- * This function works just like strdup() found on _most_ but not _all_
- * systems.
- */
-char *str_dup( char *s )
+/* replacement for the common, but non-POSIX, strdup function if it is
+ * not available: */
+#ifndef HAVE_STRDUP
+char *strdup(const char *s)
 {
    int len = strlen(s) + 1;
    char *s2 = (char *) malloc( len );
@@ -50,8 +48,21 @@ char *str_dup( char *s )
    }
    return s2;
 }
+#endif
 
-
+/* replacement for the BSD strncasecmp function if it is not available: */
+#ifndef HAVE_STRNCASECMP
+#  include <ctype.h>
+int strncasecmp(const char *s1, const char *s2, size_t n)
+{
+     while (n-- > 0) {
+	  char c1 = tolower(*s1++), c2 = tolower(*s2++);
+	  if (!c1 || c1 != c2)
+	       return (c1 - c2);
+     }
+     return 0;
+}
+#endif /* HAVE_STRNCASECMP */
 
 void print_min_max( float *data, int n )
 {

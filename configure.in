@@ -89,6 +89,8 @@ AC_C_BIGENDIAN
 # Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
 
+AC_CHECK_FUNCS(strcasecmp strncasecmp strdup)
+
 # Find X11 libs and flags:
 AC_PATH_X
 AC_PATH_XTRA

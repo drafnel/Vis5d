@@ -94,7 +94,7 @@ int get_gr3d_info( char *name, struct grid_db *db )
           && header[3]>=2 && header[3]<=MAXLEVELS) {
 
          info = alloc_grid_info();
-         info->FileName = str_dup( name );
+         info->FileName = strdup( name );
          info->Format = FILE_GR3D;
          info->Position = header[4]*4;  /* offset to start of data, in bytes */
 
@@ -116,7 +116,7 @@ int get_gr3d_info( char *name, struct grid_db *db )
             for (j=3;j>=0 && varname[j]==' ';j--) {
                varname[j] = 0;
             }
-            info->VarName = str_dup( varname );
+            info->VarName = strdup( varname );
          }
 
          mapproj = header[21];

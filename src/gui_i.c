@@ -404,7 +404,7 @@ static void load_time_window( void )
    for (i=0;i<DB->NumTimes;i++) {
       char str[100];
       sprintf( str, "%3d %05d %06d", i+1, DB->DateStamp[i], DB->TimeStamp[i] );
-      strings[i] = str_dup( str );
+      strings[i] = strdup( str );
    }
 
    LUI_ListLoad( timelister, DB->NumTimes, strings, 1 );

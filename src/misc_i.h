@@ -31,22 +31,21 @@
 #ifndef MISC_i_H
 #define MISC_i_H
 
+#ifndef HAVE_STRDUP
+extern char *strdup(const char *s);
+#endif
 
-extern char *str_dup( char *s );
+#ifndef HAVE_STRNCASECMP
+extern int strncasecmp(const char *s1, const char *s2, size_t n);
+#endif
 
+#ifndef HAVE_STRCASECMP
+/* define strcasecmp in terms of strncasecmp, which we'll define
+   in misc_i.c if it's not available: */
+#  define strcasecmp(a,b) strncasecmp(a,b,strlen(b)+1)
+#endif
 
 extern void print_min_max( float *data, int n );
-
-/* Case-insensitive versions of strcmp and strncmp are available on
-   UNIX, on windows the same routines are called _stricmp and _strnicmp.
-   "You say strncasecmp. I say _strnicmp. Let's call the whole thing off!"
-   An autoconf guru should handle this in config.h via the configure script
-   instead of here... I haven't tested this on Win32...
-*/
-#ifdef WIN32
-#define strcasecmp( sz1, sz2 ) _stricmp ( sz1, sz2 )
-#define strncasecmp( sz1, sz2, size ) _strnicmp ( sz1, sz2, size )
-#endif
 
 #endif
 

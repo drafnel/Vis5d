@@ -279,7 +279,7 @@ int get_uwvis_info( char *name, struct grid_db *db )
        */
       info = alloc_grid_info();
 
-      info->FileName = str_dup( name );
+      info->FileName = strdup( name );
       info->Format = FILE_UWVIS;
       info->Position = ftell(f);    /* save position of data in file */
 
@@ -289,7 +289,7 @@ int get_uwvis_info( char *name, struct grid_db *db )
 
       info->DateStamp = header[5];
       info->TimeStamp = header[6];
-      info->VarName = str_dup( varname );
+      info->VarName = strdup( varname );
 
       args[0] = (float) header[22] / 10000.0;
       args[1] = (float) header[23] / 10000.0;

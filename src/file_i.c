@@ -52,8 +52,6 @@
 #include "read_v5d_i.h"
 #include "grid_i.h"
 
-
-
 /*
  * Determine the format of the named file.
  * Input:  a path/file name

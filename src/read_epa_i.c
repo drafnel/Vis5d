@@ -513,7 +513,7 @@ int get_epa_info( char *name, struct grid_db *db )
          struct grid_info *info;
 
          info = alloc_grid_info();
-         info->FileName = str_dup( name );
+         info->FileName = strdup( name );
          info->Format = FILE_EPA;
          info->TimeStep = time;
          info->VarNum = varnumber[var];
@@ -524,7 +524,7 @@ int get_epa_info( char *name, struct grid_db *db )
 
          info->DateStamp = datestamp[time];
          info->TimeStamp = timestamp[time];
-         info->VarName = str_dup( varname[var] );
+         info->VarName = strdup( varname[var] );
 
          /* map projection & vcs */
          info->Proj = proj;

@@ -86,7 +86,7 @@ int get_v5d_info( char *name, struct grid_db *db )
       for (var=0; var<v->NumVars; var++) {
 
          info = alloc_grid_info();
-         info->FileName = str_dup( name );
+         info->FileName = strdup( name );
          info->Format = FILE_V5D;
          info->TimeStep = time;
          info->VarNum = var;
@@ -97,9 +97,9 @@ int get_v5d_info( char *name, struct grid_db *db )
 
          info->DateStamp = v->DateStamp[time];
          info->TimeStamp = v->TimeStamp[time];
-         info->VarName = str_dup( v->VarName[var] );
+         info->VarName = strdup( v->VarName[var] );
          if (v->Units[var][0]) {
-            info->Units = str_dup( v->Units[var] );
+            info->Units = strdup( v->Units[var] );
          }
 
          info->Proj = proj;

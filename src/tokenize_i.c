@@ -69,7 +69,7 @@ char **tokenize( char *str, int *ntokens )
             /* end of a token */
             temp[j] = 0;
             if (n>=MAX_TOKENS) break;  /*done*/
-            tokens[n++] = str_dup(temp);
+            tokens[n++] = strdup(temp);
             j = 0;
          }
          if (str[i]==0) break;  /*all done*/

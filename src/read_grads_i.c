@@ -403,7 +403,6 @@ int yy2yyyy( int inYearYY )
   }
 }
 
-
 /*
  * Scan the named file, createing a grid_info struct for each grid.  Store
  * the grid_info structs in the grid data base.
@@ -795,7 +794,7 @@ int get_grads_info( char *name, struct grid_db *db )
          info = alloc_grid_info();
 
 
-         info->FileName = str_dup( specific_file_name );
+         info->FileName = strdup( specific_file_name );
          info->Format = FILE_GRADS;
          info->TimeStep = time;
          info->VarNum = var;
@@ -808,7 +807,7 @@ int get_grads_info( char *name, struct grid_db *db )
 
          info->DateStamp = datestamp[time];
          info->TimeStamp = timestamp[time];
-         info->VarName = str_dup( varname[var] );
+         info->VarName = strdup( varname[var] );
 
          info->Proj = proj;
          info->Vcs = vcs[var];

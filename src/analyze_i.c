@@ -147,7 +147,7 @@ void sort_grids( struct grid_db *db )
             inlist = 1;
             /* grab this units string if we don't already have one */
             if (!db->Units[i] && g->Units) {
-               db->Units[i] = str_dup( g->Units );
+               db->Units[i] = strdup( g->Units );
             }
             break;
          }
@@ -155,9 +155,9 @@ void sort_grids( struct grid_db *db )
       if (!inlist) {
          /* add to list */
          if (db->NumVars<IMAXVARS) {
-            db->VarNames[db->NumVars] = str_dup( g->VarName );
+            db->VarNames[db->NumVars] = strdup( g->VarName );
             if (g->Units) {
-               db->Units[db->NumVars] = str_dup( g->Units );
+               db->Units[db->NumVars] = strdup( g->Units );
             }
             db->NumVars++;
          }
@@ -236,7 +236,7 @@ static void make_var_list( struct grid_db *db )
             inlist = 1;
             /* grab the units string if don't already have one */
             if (!db->Units[i] && g->Units) {
-               db->Units[i] = str_dup( g->Units );
+               db->Units[i] = strdup( g->Units );
             }
             break;
          }
@@ -244,9 +244,9 @@ static void make_var_list( struct grid_db *db )
 
       if (!inlist) {
          /* add to list */
-         db->VarNames[db->NumVars] = str_dup( g->VarName );
+         db->VarNames[db->NumVars] = strdup( g->VarName );
          if (g->Units) {
-            db->Units[db->NumVars] = str_dup( g->Units );
+            db->Units[db->NumVars] = strdup( g->Units );
          }
          db->NumVars++;
       }

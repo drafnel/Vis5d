@@ -262,6 +262,8 @@ int v5dYYDDDtoDays( int yyddd )
    id = yyddd - 1000*iy;
    if (iy >= 1900)
      iy -= 1900;
+   else if (iy < 50)
+     iy += 100; /* WLH 31 July 96 << 31 Dec 99 */
    idays = 365*iy + (iy-1)/4 - (iy-1)/100 + (iy+299)/400 + id;
 
    return idays;

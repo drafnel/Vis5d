@@ -1,4 +1,3 @@
-
 /*
  * Vis5D system for visualizing five dimensional gridded data sets.
  * Copyright (C) 1990 - 2000 Bill Hibbard, Johan Kellum, Brian Paul,
@@ -329,7 +328,12 @@ int get_token( char **s, int *index, float *fval, char *name )
 
   /* check if token is a variable */
   if (isalpha(ss[0])) {
-    for (i=0; (isalnum(ss[0]) || ss[0] == '\'' || ss[0] == '_') && i<99; i++, ss++) {
+
+/* MJK 4.19.99 */
+/*
+    for (i=0; (isalnum(ss[0]) || ss[0] == '\'' || ss[0] == '_') && i<99; i++, ss++) {*/
+    for (i=0; (isalnum(ss[0]) || ss[0] == '.' || 
+               ss[0] == '\'' || ss[0] == '_') && i<99; i++, ss++) {
       name[i] = ss[0];
       name[i+1] = 0;
     }
@@ -1196,5 +1200,3 @@ int compute_var( Display_Context dtx, char *expression, int *expressionowner,
   }
   return var;
 }
-
-

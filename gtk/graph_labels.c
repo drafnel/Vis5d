@@ -24,7 +24,11 @@ void label_position(int dc, int cnt, int *x, int *y)
   gint text_height, height, width;
   Window throwaway;
 
+#ifdef USE_SYSTEM_FONTS
   vis5d_get_font_height(dc, &text_height, WINDOW_3D_FONT);
+#else
+  vis5d_get_font_height(dc, &text_height);
+#endif
 
   vis5d_get_window(dc, &throwaway, &width, &height);
 

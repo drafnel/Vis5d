@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
@@ -4380,6 +4381,33 @@ int vis5d_get_ctx_time_stamp( int index, int timestep, int *day, int *time )
      return 0;
   }
 }
+
+
+/* converts the vis5d date/time stamp format into seconds since Jan 1, 1970 */
+
+
+time_t vis5d_time2ctime(int daystamp, int timestamp)
+{
+  struct tm ctm;
+  int yyddd, jday;
+
+  ctm.tm_sec = timestamp % 60;
+  ctm.tm_min = (timestamp / 60) % 60;
+  ctm.tm_hour = timestamp / 3600;
+
+  yyddd = v5dDaysToYYDDD( daystamp );
+
+  ctm.tm_year = yyddd/1000 - 1900;
+
+  jday = yyddd - 1000*(yyddd/1000);
+
+  julian2mmdd(ctm.tm_year, jday, &ctm.tm_mon, &ctm.tm_mday);
+
+  ctm.tm_mon--;
+
+  return mktime(&ctm);
+}
+
 
 /****************************************/
 /******* index => DISPLAY CONTEXT *******/

@@ -1267,6 +1267,8 @@ int vis5d_get_maxtmesh(int index, int *maxtmesh);
 int vis5d_set_vstride(int index, int vstride);
 int vis5d_get_vstride(int index, int *vstride);
 
+time_t vis5d_time2ctime(int daystamp, int timestamp);
+
 
 
 #ifdef __cplusplus

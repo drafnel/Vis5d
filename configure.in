@@ -55,7 +55,6 @@ if test "$enable_fortran" = "yes"; then
 		
 		/* enable Fortran packages in util/ subdirectory: */
 		OPT_UTILS="$OPT_UTILS \$(FPROGS)"
-		OPT_LIBMAIN="libmain.a"
 	else
 		AC_MSG_WARN([didn't find any Fortran compiler])
 	fi
@@ -250,9 +249,10 @@ if test "$with_netcdf" != "no"; then
 	# first, check a couple common locations for the netcdf libs:
 	if test "$with_netcdf" != "yes"; then
 		netcdf_dir=`dirname $with_netcdf`
-		if test -z "`echo $netcdf_dir | grep ^/`"; then
-			netcdf_dir="`pwd`/$netcdf_dir"
-		fi
+		case $netcdf_dir in
+			/*) ;; # already an absolute path
+			*) netcdf_dir="`pwd`/$netcdf_dir" ;;
+		esac
 		LDFLAGS="-L$netcdf_dir $LDFLAGS"
 	elif test -r $srcdir/libnetcdf.a; then
 		LDFLAGS="-L`pwd`/$srcdir $LDFLAGS"
@@ -275,7 +275,15 @@ if test "$with_netcdf" != "no"; then
 		[AC_DEFINE(HAVE_LIBNETCDF)
                  V5D_LIBS_AUX="-lnetcdf $V5D_LIBS_AUX"],:, $V5D_LIBS_AUX)
 
-	if test -z "`echo $V5D_LIBS_AUX | grep netcdf`"; then
+	case $V5D_LIBS_AUX in
+		*netcdf*)
+		# Look for the header; if we don't find it, we'll use the
+		# one in our src/ directory.
+    echo "checking whether to use system <netcdf.h> instead of src/netcdf.h..."
+		AC_CHECK_HEADERS(netcdf.h)
+		;;
+
+		*)
 		echo "****************************************************"
 		echo "Didn't find the NetCDF library; irregular data features"
 		echo "will be disabled.  You can download the NetCDF source"
@@ -284,12 +292,8 @@ if test "$with_netcdf" != "no"; then
 		echo "and/or use --with-netcdf=<lib> to specify the location"
 		echo "of libnetcdf.a."
 		echo "****************************************************"
-	else
-		# Look for the header; if we don't find it, we'll use the
-		# one in our src/ directory.
-    echo "checking whether to use system <netcdf.h> instead of src/netcdf.h..."
-		AC_CHECK_HEADERS(netcdf.h)
-	fi
+		;;
+	esac
 fi
 
 ##########################################################################
@@ -304,9 +308,10 @@ if test "$with_mcidas" != "no" -a -n "$F77"; then
         if test "$with_mcidas" != "yes"; then
                 mcidas_dir=`dirname $with_mcidas`
 		mcidas_lib=`basename $with_mcidas | sed 's/\.a$//;s/^lib//'`
-                if test -z "`echo $mcidas_dir | grep ^/`"; then
-                        mcidas_dir="`pwd`/$mcidas_dir"
-                fi
+		case $mcidas_dir in
+			/*) ;; # already an absolute path
+			*) mcidas_dir="`pwd`/$mcidas_dir" ;;
+		esac
                 MCIDAS_LIBS="-L$mcidas_dir"
         elif test -r $srcdir/libmcidas5.a; then
                 MCIDAS_LIBS="-L`pwd`/$srcdir"
@@ -418,6 +423,5 @@ fi
 
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
-AC_SUBST(OPT_LIBMAIN)
 
 AC_OUTPUT(Makefile src/Makefile lui5/Makefile util/Makefile import/Makefile doc/Makefile)

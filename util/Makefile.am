@@ -31,20 +31,18 @@ outlgrid_LDADD = $(V5D_LIB)
 
 # McIDAS grid utilities: (only built when we have Fortran)
 
-noinst_LIBRARIES = @OPT_LIBMAIN@
-EXTRA_LIBRARIES = libmain.a
-libmain_a_SOURCES = doubt.f igmk3d.f kludge.f main.c sdest.f topo.f
+MAIN_SRC = main.c doubt.f igmk3d.f kludge.f sdest.f topo.f
 
-igg3d_SOURCES = igg3d.f
-igg3d_LDADD = libmain.a $(FLIBS)
+igg3d_SOURCES = $(MAIN_SRC) igg3d.f
+igg3d_LDADD = $(FLIBS)
 
-igu3d_SOURCES = igu3d.f
-igu3d_LDADD = libmain.a $(FLIBS)
+igu3d_SOURCES = $(MAIN_SRC) igu3d.f
+igu3d_LDADD = $(FLIBS)
 
-gg3d_SOURCES = gg3d.f
-gg3d_LDADD = libmain.a $(FLIBS)
+gg3d_SOURCES = $(MAIN_SRC) gg3d.f
+gg3d_LDADD = $(FLIBS)
 
-gr3d_to_v5d_SOURCES = gr3d_to_v5d.f get5d.f vis5d.h
-gr3d_to_v5d_LDADD = libmain.a $(V5D_LIB) $(FLIBS)
+gr3d_to_v5d_SOURCES = $(MAIN_SRC) gr3d_to_v5d.f get5d.f vis5d.h
+gr3d_to_v5d_LDADD = $(V5D_LIB) $(FLIBS)
 
 EXTRA_DIST = igmk3d.f vis_to_v5d.c

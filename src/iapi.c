@@ -289,19 +289,32 @@ int Read_NetCDF( char *filename, int *general_type, int *specific_type, int *fid
             temp[1]++;
          }
       }
+		/* 28-10-2000 this test doesn't work on my my FSL-like synop files */
+      /* If you see some reason that this test should be required please 
+			contact me and I will happily seek to resolve the problem in a 
+			mutually suitable manner.  Jim Edwards jedwards@fsl.noaa.gov
+			jedwards@inmet.gov.br  */
 
-      if (strcmp(FSL_METAR->METAR, text1)==0 ||
-          strcmp(FSL_METAR->SPECI, text1)==0){
-         free(text1);
+
+ 
+		/*      if (strcmp(FSL_METAR->METAR, text1)==0 ||
+				  strcmp(FSL_METAR->SPECI, text1)==0){  */
+
+         free(text1);  
          *general_type = NETCDF_SURFACE;
          *specific_type = fsl_netcdf_metar;
          return 1;
-      }
+			/*      }
       else{
+		  
+		  printf("Looks like an FSL type file but %s doesn't match %s or %s\n",
+					text1, FSL_METAR->METAR, FSL_METAR->SPECI);
+
          free(text1);
          nc_close(nc_id);
          return 0;
       }
+			*/
    }
 
    /*********************************/   

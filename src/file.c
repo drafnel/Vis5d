@@ -464,11 +464,14 @@ int add_a_file( FileDB fdb, char *filename)
          return 0;
       }
    }
+
 printf("adding file %s\n", filename);
+
    /************************/
    /* get file type if any */
    /************************/
    if (!Read_NetCDF( filename, &general_type, &specific_type, &fileid)){
+	  printf("ERROR: Failed to open file %s as NetCDF\n",filename);
       return 0;
    }
    if (fdb->NumFiles==0){

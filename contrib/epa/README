@@ -1,0 +1,10 @@
+This directory contains files that were formerly in the vis5d-5.2/import
+directory but were not being used at all, with the exception of model.h.
+(Nearly identical copies of these files existed in the vis5d-5.2/src directory,
+but with "_i" added to all of the file names. They were unused there also.) The
+Makefile implied that they had been received from the EPA, so perhaps they had
+been used for "inspiration" in constructing the EPA file import capability
+of v5dimport. They are being saved here for posterity but they do not compile
+into a useful executable of any sort as far as I can tell.
+
+-- Conrad J. Poelman, cp@stellarscience.com, 22 Sep 2000

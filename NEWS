@@ -15,7 +15,7 @@ Vis5d 5.2.5a:
   * Maximum memory used by Vis5d can now be set by the --with-memory=<MB>
     configure option, instead of editing vis5d.h.
 
-  * Merged in fixes from main tree to volum rendering box clipping.
+  * Merged in fixes from main tree to volume rendering box clipping.
 
   * Fixed bug where -topo <file> wouldn't work if <file> was an absolute path.
     Thanks to Michael Boettinger for the bug report.  (Same fix submitted

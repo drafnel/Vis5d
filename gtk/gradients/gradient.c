@@ -64,6 +64,7 @@
 #include "support.h"
 #include "gradient.h"
 #include "gradient_header.h"
+#include "gradientP.h"
 #include "datafiles.h"
 /*
 #include "pixmaps/zoom_in.xpm"

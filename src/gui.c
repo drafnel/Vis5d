@@ -7733,7 +7733,7 @@ static int import_cb( LUI_NEWBUTTON *b )
    int index = b->context_index;
    GuiContext gtx = get_gui_gtx(index);
 
-   main_irun( GuiDpy, 0, NULL);
+   main_irun( GuiDpy, 0, 0, NULL);
    return 0;
 }
 

@@ -49,7 +49,7 @@ int Debug_i;           /* -debug */
 char *path = NULL;   /* -path */
 
 
-int main_irun( Display *guidpy, int argc, char *argv[] )
+int main_irun( Display *guidpy, int standalone, int argc, char *argv[] )
 {
    struct grid_db *db;
    v5dstruct *v5dout;
@@ -92,7 +92,7 @@ int main_irun( Display *guidpy, int argc, char *argv[] )
    }
    else {
       /* Graphical user interface */
-      make_gui_i(guidpy);
+      make_gui_i(guidpy, standalone );
       gui_loop( db, v5dout );
    }
 

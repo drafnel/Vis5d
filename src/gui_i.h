@@ -33,7 +33,7 @@
 #define GUI_i_H
 
 
-extern void  make_gui_i( Display *guidpy );
+extern void  make_gui_i( Display *guidpy, int standalone );
 
 
 extern int gui_loop( struct grid_db *db, v5dstruct *v5dout );

@@ -29,7 +29,7 @@
 #ifndef MAIN_I_H
 #define MAIN_I_H
 
-extern int main_irun( Display *guidpy, int argc, char *argv[] );
+extern int main_irun( Display *guidpy, int standalone, int argc, char *argv[]);
 
 
 #endif

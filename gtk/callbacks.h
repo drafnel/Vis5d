@@ -1,5 +1,33 @@
 #include <gtk/gtk.h>
 
+typedef struct {
+  gint v5d_display_context;
+
+  float beginx,beginy;  /* position of mouse */
+
+  float zoom;           /* field of view in degrees */
+
+  GtkWidget *VarSelectionDialog;
+  GtkWidget *GtkGlArea;
+  int animate;
+  guint32 animate_speed;
+  gint timeout_id;
+  gint stepsize;
+  int timestep;
+  int numtimes;
+
+} v5d_info;
+
+typedef struct {
+  gint v5d_data_context;
+  gint varid;
+  v5d_info *info;
+
+  GtkWidget *VarGraphicsDialog;
+  gint clistrow;
+} v5d_var_info;
+
+
 
 GtkWidget *new_window3D(GtkWidget *oldwindow3D);
 
@@ -375,4 +403,28 @@ on_map2_activate                       (GtkMenuItem     *menuitem,
 
 void
 on_fontselectionbutton_clicked         (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_window_3d1_activate                 (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_contour_label1_activate             (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_topography1_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_map2_activate                       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_fontselectionbutton_clicked         (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_save_options1_activate              (GtkMenuItem     *menuitem,
                                         gpointer         user_data);

@@ -894,7 +894,7 @@ void make_output_file( struct grid_db *db, v5dstruct *v5d, char *filename,
             FREE( data, 9 );
          }
          else {
-            if (Debug_i)  printf("missing: %d %d\n", time, var );
+            printf("WARNING: writing missing field for: time=%d var=%d\n", time, var );
             write_missing_grid( v5d, time, var, v5d->Nr, v5d->Nc,v5d->Nl[var]);
          }
       }

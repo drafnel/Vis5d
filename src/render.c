@@ -2454,7 +2454,7 @@ void render_3d_only( Display_Context dtx, int animflag )
       /*** Draw opaque 3-D graphics ***/
       /* MJK 12.02.98 begin */
       set_depthcue( dtx->DepthCue );
-      if (dtx->topo->TopoFlag && dtx->topo->DisplayTopo) {
+      if (dtx->topo && dtx->topo->TopoFlag && dtx->topo->DisplayTopo) {
          set_depthcue(0);
          draw_topo( dtx, dtx->CurTime, dtx->DisplayTexture, 0 );
       }

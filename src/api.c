@@ -3426,7 +3426,8 @@ int vis5d_init_map( int index, char *mapname )
    else{
       dtx->MapName[0] = 0;
    }
-   return 0;
+	dtx->MapFlag = 1; 
+   return dtx->MapFlag;
 }
 
 /****************************************/
@@ -3442,13 +3443,13 @@ int vis5d_get_map( int index, char *mapname )
 /****************************************/
 /******* index => DISPLAY CONTEXT *******/
 /****************************************/
+/* JPE - I think this function is obsolete - remove from api? */
 int vis5d_init_topo_and_map_ctx( int index, char *toponame, int highres_flag )
 {
    DPY_CONTEXT("vis5d_init_topo_and_map_ctx");
-   strcpy( dtx->topo->TopoName, toponame );
-   dtx->topo->HiResTopo = highres_flag;
-   dtx->topo->TopoFlag = 1;
-   dtx->MapFlag = 1; 
+
+	vis5d_init_topo(index,toponame,highres_flag);
+	dtx->MapFlag = 1; 
    return 0;
 }
 
@@ -3479,6 +3480,8 @@ int vis5d_init_topo( int index, char *toponame, int highres_flag )
 	}
    dtx->topo->DisplayTopoBase = 0;
    dtx->topo->TopoBaseLev     = 0.0;
+
+   dtx->topo->TopoFlag = 1;
    strcpy( dtx->topo->TopoName, toponame );
    dtx->topo->HiResTopo = highres_flag;
 

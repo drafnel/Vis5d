@@ -1531,7 +1531,10 @@ main( int argc, char *argv[] )
          if (texture[dindex]) {
             vis5d_init_texture( dindex, texture[dindex] );
          }
+			/* JPE
          vis5d_init_topo_and_map_ctx( dindex, toponame[dindex], hirestopo[dindex]);
+			*/
+			vis5d_init_topo( dindex, toponame[dindex], hirestopo[dindex]);
 
          vis5d_init_display_values ( index, -1, dindex );
 

@@ -3013,7 +3013,7 @@ int vis5d_init_display_values ( int index, int iindex, int display )
       vis5d_assign_display_to_irregular_data( iindex, display);
    }
 
-   if (dtx->topo->TopoName[0] == 0){
+   if (dtx->topo == NULL){
       vis5d_init_topo(display, "EARTH.TOPO", 0); 
    }
    vis5d_init_map(display, dtx->MapName);

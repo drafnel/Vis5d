@@ -40,7 +40,6 @@
 
 
 #include <math.h>
-#include "../lui5/lui.h"
 #include <stdlib.h>
 #include <strings.h>
 #include "globals.h"

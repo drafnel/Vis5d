@@ -1,0 +1,191 @@
+<sect1>
+<title>SAMPLE DATA SETS</title>
+<para>
+To demonstrate or experiment with Vis5D we provide two sample datasets.
+</para>
+<sect2>
+<title>Bob Schlesinger's thunderstorm simulation</title>
+<para>
+To visualize the Schlensinger thunderstorm file enter the command
+</para>
+<para>
+<command>
+     vis5d SCHL.v5d
+</command>
+</para>
+<para>
+To view an isosurface of QL (moisture content):
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>
+      Click on the QL button in the left column of the button matrix.
+</para>
+</listitem>
+<listitem>
+<para>
+      On the slider, select a value near 1.0, then click on the OK button.
+</para>
+</listitem>
+<listitem>
+<para>
+      Turn on animation with the ANIMATE button.
+</para>
+</listitem>
+</orderedlist>
+</para>
+<para>
+To view a vertical contour line slice of QL:
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>
+      Turn off animation by clicking on ANIMATE again.
+</para>
+</listitem>
+<listitem>
+<para>
+      Click on the QL button in the third column.
+</para>
+</listitem>
+<listitem>
+<para>
+      Move the slice by first selecting the SLICE radio button.  Then use the
+      right mouse button to drag any corner of the slice along the edges of
+      the 3-D box.
+</para>
+</listitem>
+</orderedlist>
+</para>
+</sect2>
+<sect2>
+<title> LAMPS model</title>
+<para>
+To visualize a LAMPS (Limited Area Meso-Scale Prediction System) model
+simulation of an extratropical cyclone, enter the command:
+</para>
+<para>
+<command>
+     vis5d LAMPS.v5d
+</command>
+</para>
+<para>
+To view an isosurface of wind speed over a topography with map lines:
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>
+      Click on the TOPO and MAP buttons.
+</para>
+</listitem>
+<listitem>
+<para>
+      Click on the SPD button in the first column.  Then select a value near
+      45.0 on the slider and click on OK.
+</para>
+</listitem>
+<listitem>
+<para>
+      Turn on ANIMATE and you will see an animation of the 45 m/s wind
+      isosurface.
+</para>
+</listitem>
+</orderedlist>
+</para>
+<para>
+To make some interactive wind trajectories:
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>
+      Turn off the wind speed isosurface by clicking on the SPD button again
+</para>
+</listitem>
+<listitem>
+<para>
+      Select the TRAJECTORY button.
+</para>
+</listitem>
+<listitem>
+<para>
+      Move the mouse pointer into the 3-D window and press the middle mouse
+      button.  You will get a series of white wind trajectory lines passing
+      through the 3-D cursor location.
+</para>
+</listitem>
+<listitem>
+<para>
+      Move the 3-D cursor by dragging it with the right mouse button then
+      click the middle button to make more trajectories.
+</para>
+</listitem>
+<listitem>
+<para>
+      Select RIBBON and then the SET 2 button and try making some yellow
+      ribbon trajectories.
+</para>
+</listitem>
+</orderedlist>
+</para>
+</sect2>
+<sect2>
+<title>Example McIDAS files and utilities</title>
+<para>
+     The Schlesinger and LAMPS data sets are also available as the 3D McIDAS
+grid files named GR3D0001 and GR3D0002.  They are available on the Vis5D ftp
+site.  See section 2 for more information.
+</para>
+<para>
+To list the grids in GR3D0001 and to see statistics about them, enter the
+commands:
+</para>
+<para>
+<command>
+     igg3d list 1 190 -gr3df 1
+</command>
+</para>
+<para>
+<command>
+     igg3d info 1 190 -gr3df 1
+</command>
+</para>
+<para>
+The SCHL.v5d file was made from the GR3D0001 file with the command:
+</para>
+<para>
+<command>
+     gr3d_to_v5d 1 1 SCHL.v5d
+</command>
+</para>
+<para>
+To list the grids in GR3D0002 and to see statistics about them, enter the
+commands:
+</para>
+<para>
+<command>
+     igg3d list 1 189 -gr3df 2
+</command>
+</para>
+<para>
+<command>
+     igg3d info 1 189 -gr3df 2
+</command>
+</para>
+<para>
+The LAMPS.v5d file was made from the GR3D0002 file with the command:
+</para>
+<para>
+<command>
+     gr3d_to_v5d 2 1 LAMPS.v5d
+</command>
+</para>
+<para>
+A variety of other sample datasets are available on the ftp site or upon
+request.
+</para>
+</sect2>
+</sect1>

@@ -1,0 +1,116 @@
+<sect1>
+<title>OVERVIEW OF Vis5D</title>
+<para>
+      Vis5D is a software system that can be used to visualize both
+gridded data and irregularly located data.  Sources for this data can
+come from numerical weather models, surface observations and other
+similar sources.  Vis5D can work on data in the form of a
+five-dimensional rectangle.  That is, the data are real numbers at
+each point of a "grid" which spans three space dimensions, one time
+dimension and a dimension for enumerating multiple physical variables.
+Of course, Vis5D works perfectly well on data sets with only one
+variable, one time step (i.e. no time dynamics) or one vertical level.
+However, your data grids should have at least two rows and columns.
+Vis5D can also work with irregularly spaced data which are stored as
+"records".  Each record contains a geographic location, a time, and a
+set of variables which can contain either character or numerical data.
+</para>
+<para>
+      A major feature of Vis5D is support for comparing multiple data
+sets.  This extra data can be incorporated at run-time as a list of
+*.v5d files or imported at anytime after Vis5D is running. Data can be
+overlaid in the same 3-D display and/or viewed side-by-side spread
+sheet style.  Data sets that are overlaid are aligned in space and
+time.  In the spread sheet style, multiple displays can be linked.
+Once linked, the time steps from all data sets are merged and the
+controls of the linked displays are synchronized.
+</para>
+<para>
+      The Vis5D system includes the vis5d visualization program,
+several programs for managing and analyzing five-dimensional data
+grids, and instructions and sample source code for converting your
+data into its file format.  We have included the Vis5D source code so
+you can modify it or write new programs. You can download the sample
+data sets from the LAMPS model and from Bob Schlesinger's thunderstorm
+model, so you can work through our examples.  (We have also included a
+small dataset, hole.v5d, so you can verify that Vis5D works and try a
+couple of simple plots.)
+</para>
+<para>
+      Vis5D version 1.0 was written by Bill Hibbard and Dave Santek of
+the University of Wisconsin Space Science and Engineering Center,
+supported by the NASA Marshall Space Flight Center, and by
+Marie-Francoise Voidrot-Martinez of the French Meteorology Office.
+Later version enhancements were written by Bill Hibbard, Brian Paul,
+Johan Kellum, and Andre Battaiola. Dave Kamins and Jeff Vroom of
+Stellar Computer, Inc. provided substantial help and advice in using
+the Stellar software libraries.  Simon Baas and Hans de Jong of the
+Netherlands ported Vis5D to HP workstations.  Pratish Shah of Kubota
+Inc. ported Vis5D to the Kubota Alpha/Denali workstation.  Mike
+Stroyan of Hewlett Packard added PEX support.  Steven G. Johnson of
+MIT added autoconf/automake support.
+</para>
+<para>
+      Vis5D is offered under the terms of the GNU General Public
+License, which you can find in the file COPYING, with the copyright
+statement in the file COPYRIGHT.  As the notice states, there is no
+warranty for the Vis5D system, but we would be interested in hearing
+about your questions and problems.  You can join the Vis5D mailing
+list by sending email to <email>majordomo@ssec.wisc.edu</email> with:
+</para>
+<para>
+      <emphasis>subscribe vis5d-list </emphasis>
+</para>
+<para>
+      as the first line of the message body (not the subject line).
+You can also send questions to Bill Hibbard
+<email>whibbard@macc.wisc.edu</email> and Johan Kellum
+<email>johan@ssec.wisc.edu</email>.
+</para>
+<para>
+      Our postal address is:
+      <address>
+      Space Science and Engineering Center
+      University of Wisconsin - Madison
+      1225 <street>West Dayton Street</street>
+      <city>Madison</city>, <state>WI</state>53706
+      </address>
+      This document is the complete guide for using Vis5D..
+</para>
+<sect2>
+<title>Vis5D Documentation on the World Wide Web</title>
+<para>
+The 
+<ulink url="http://www.ssec.wisc.edu/~billh/vis5d.html">
+    Vis5D Home Page  
+</ulink>
+is available on the World Wide Web.
+</para>
+<para>
+      It is linked to 
+<ulink url="http://www.ssec.wisc.edu/~billh/view5d.html"> 
+      another Web document 	 
+</ulink>
+      that describes how to use Vis5D
+      files as a World Wide Web medium for exchanging model output.
+</para>
+<para>
+      There is a Web document describing the 
+<ulink url="http://www.ssec.wisc.edu/~billh/api.html">
+      Vis5D API 
+</ulink>
+      (Application Programmer Interface), intented to help 
+system developers use Vis5D as a visualization subsystem of other systems.
+</para>
+<para>
+      There is also a Web document describing the Vis5D 
+<ulink url="http://www.ssec.wisc.edu/~billh/script.html">
+      Tcl scripting interface.
+</ulink>
+</para>
+<para>
+      Copies of the <filename>api.html</filename> and <filename>script.html
+</filename> files are included with the Vis5D ftp distribution.
+</para>
+</sect2>
+</sect1>

@@ -1,0 +1,240 @@
+<sect1>
+<title>Vis5D UTILITIES</title>
+<para>
+Vis5D includes a number of utility programs.  This section describes each one.
+The v5dimport program is described seperately in section 7.
+</para>
+<para>
+<itemizedlist>
+<listitem>
+<para>
+<command>v5dinfo</command>
+     Usage:  v5dinfo file
+</para>
+<para>     
+     Description:  v5dinfo prints information about the given v5d file such
+     as the size of the 3-D grid, the number of time steps, the names of
+     the variables, etc.
+</para>
+<para>     
+     This program will also work on comp5d files.  Therefore, the old
+     compinfo program has been removed.
+</para>
+</listitem>
+<listitem>
+<para>
+<command>v5dstats</command>
+     Usage:  v5dstats file
+</para>
+<para>     
+     Description:  v5dstats prints simple statistical information about the
+     grid data in the named v5d file.  Again, comp5d files are also
+     accepted.
+</para>
+</listitem>
+<listitem>
+<para>
+<command>v5dedit</command>
+     Usage:  v5dedit file.v5d
+</para>
+<para>     
+     Description:  v5dedit allows you to change header information such as
+     the map projection, vertical coordinate system and variables names in
+     the named file.  It is an interacive, menu-driven program and is
+     intended to be self explanatory.  This program does NOT work with
+     comp5d files.
+</para>
+</listitem>     
+<listitem>     
+<para>
+<command>v5dappend</command>
+     Usage:  v5dappend [-var] [...] file.v5d [...] target.v5d
+</para>
+<para>     
+     Description:  v5dappend allows you to append a number of v5d files
+     together to make one larger file.  This might be useful if your
+     weather model generates a separate .v5d file for each timestep because
+     you'll want to join those files together to view the data in vis5d.
+</para>
+<para>     
+     The arguments are, in order:
+     </para>
+     <para>
+<orderedlist>
+          <listitem>
+          <para>
+          An optional list of variables to omit from the output file. For
+          example, if you want to omit the variables U and THETA you would
+          use the arguments <option>-U</option> and <option>-THETA</option>.
+          </para>
+          </listitem>
+          <listitem>
+         <para>
+         The list of v5d files to append onto the target file.
+         </para> 
+         </listitem>
+         <listitem>
+         <para>
+          The name of the target v5d file to create (if it doesn't exit)
+          or append onto (if the target file already exists).
+         </para>
+         </listitem>
+</orderedlist>
+</para>
+<para>     
+     Note that the dimensions of the grids (rows, columns and levels) must
+     be the same in each file to append them together.  The map projection
+     and vertical coordinate system information will be taken from the
+     first input file and ignored the the remaining files.
+</para>
+</listitem>     
+<listitem>
+<para>
+<command>gr3d_to_v5d</command>
+     Usage:  gr3d_to_v5d N M file.v5d C
+</para>
+<para>     
+     Description:  gr3d_to_v5d converts (a) McIDAS GR3D file(s) to a v5d
+     file.  N is a number which indicates the name of the first grid file,
+     M is the number of grid files to convert, file.v5d is the name of the
+     file to produce, and C is 1, 2 or 4 to indicate how many bytes per
+     grid point to use for compression (the default is 1).  Example:  if
+     N=20 and M=4 then the files GR3D0020, GR3D0021, GR3D0022, and GR3D0023
+     will be read an converted to the named file.v5d.
+</para>
+</listitem>
+<listitem>
+<para>
+<command>igg3d</command>
+     Usage:  igg3d ...
+</para>
+<para>     
+     Description:  igg3d is used to perform a variety of manipulations on
+     McIDAS GR3D files.  See section 4.2 for more details.
+</para>
+</listitem>     
+<listitem>     
+<para>
+<command>igu3d</command>
+     Usage:  igu3d  ...
+</para>
+<para>     
+     Description:  igu3d is a utility to perform a variety of manipulations
+     on McIDAS GR3D files.  See section 4.2 for more details.
+</para>
+</listitem>     
+<listitem>
+<para>
+<command>gg3d</command>
+     Usage:  gg3d ...
+</para>
+<para>     
+     Description:  gg3d is a utility for resampling McIDAS GR3D files.  See
+     section 4.2 for more details.
+</para>
+</listitem>
+<listitem>
+<para>
+<command>listfonts</command>
+     Usage:  listfonts
+</para>
+<para>     
+     Description:  listfonts, used on SGI systems only, lists the IRIS GL
+     fonts available for use in vis5d's 3-D window.  After listing the
+     fonts you may use one in vis5d by specifying it with the <option>-font</option>
+     option.
+     For non-SGI systems or systems using OpenGL, use the xlsfonts or
+     xfontsel program to select a font.
+</para>
+</listitem>     
+<listitem>
+<para>
+<command>comp5d</command>
+     Usage:  comp5d N M filename
+</para>
+<para>     
+     Description:  comp5d converts one or more McIDAS GR3D files to the
+     comp5d format used in previous (and the current) versions of vis5d.
+</para>
+<para>     
+     N is the first 3D grid file number and M is the number of grid files
+     in the data set.  The M parameter allows data sets which span multiple
+     grid files and should not be confused with the total number of 3D
+     grids in the data set.
+</para>
+<para>     
+     filename is the name of the compressed grid file.  You can choose
+     whatever name you want, but note that comp5d will convert the name to
+     all upper case characters.
+</para>
+<para>     
+     If your data set contains wind vector components you can use the 
+     <option>-wind</option>
+     keyword to select a subset of wind components or calculate horizontal
+     wind speed, named 'SPD ', for the compressed file.  The longitude,
+     latitude, and vertical components of the wind vector must be named 'U
+     ', 'V   ' and 'W   ' respectively.  If you use the 
+     <option>-wind</option> keyword, then
+     only those wind-relevant variables (i.e. U, V, W & SPD) whose names
+     are listed after 
+     <option>-wind</option>
+     will be included in the compressed file.  For
+     example, to include SPD and W in the compressed file, from a 3D grid
+     file containing U, V and W components, use the command:
+</para>
+<para>
+     comp5d N M F -wind SPD W
+</para>
+</listitem>     
+<listitem>
+<para>
+<command>help</command>
+     Usage:  help utilityname
+</para>
+<para>     
+     Description:  The help command will list a quick reference to the parameter
+     formats for the named utility such as igg3d, igu3d, gg3d, and comp5d
+     utilities.  Example:  help igg3d
+</para>
+</listitem>
+<listitem>
+<para>
+<filename>maketopo.c</filename>
+</para>
+<para>
+     This program, found in the util directory, is a template program for
+     generating your own new topography (*.TOPO) files.  Read the information at
+     the top of the file for instructions.  To compile maketopo see the makefile
+     named <filename>maketopo.m</filename>.
+</para>
+</listitem>     
+<listitem>
+<para>
+makemap.c
+</para>
+<para>
+     This program, found in the util directory, is a template program for
+     generating your own new McIDAS map outline (OUTL*) files.  Read the
+     information at the top of the file for instructions.  To compile makemap
+     see the makefile named makemap.m.  If you create a map with lots too many
+     line segments, it will be displayed with some line segments missing and
+     some extra crazy line segments.  You can fix this by increasing MAXMAPVERT
+     and MAXMAPSEG in <filename>src/globals.h</filename>, then re-making vis5d.
+</para>
+</listitem>     
+<listitem>
+<para>
+<filename>newmap.c</filename>
+</para>
+<para>
+     This program and <filename>mapfunc.f</filename>, 
+     found in the util directory, is used to
+     transform the vertices of an existing map outline file to make a new map
+     outline file.  This might be useful if you need to transform a map to a new
+     coordinate system.  Read the newmap.c and newmap.m files for more
+     information.
+</para>
+</listitem>
+</itemizedlist>
+</para>
+</sect1>

@@ -1,0 +1,770 @@
+<sect1>
+<title>McIDAS 3D GRID DATA FILES</title>
+<para>
+     In previous versions of Vis5D, it was standard practice to put
+one's data into a McIDAS GR3D file, then compress it with comp5d prior
+to using vis5d.
+</para>
+<para>
+     While directly converting to the v5d format is prefered, we still
+include this information on the McIDAS format.  If you don't want to
+put your data into McIDAS files, you may skip to section 5 now.
+</para>
+<para>
+<warning>
+<para>
+     WE RECOMMEND AGAINST THIS WAY OF GETTING YOUR DATA INTO VIS5D -
+INSTEAD USE THE TECHNIQUES DESCRIBED IN SECTION 3 OF THIS DOCUMENT.
+</para>
+</warning>
+</para>
+<para>
+     A McIDAS GR3D file contains a sequence of 3-D grids of data.  The
+three- dimensional grids are organized into short sequences to
+enumerate the values of multiple physical variables at a single time.
+The short sequences of physical variables are repeated into a longer
+sequence which steps through many time steps.  These files have a
+names of the form GR3Dnnnn where nnnn is a 4-digit number between 0001
+and 9999.  The McIDAS utility programs then refer to files only by a
+number (1 through 9999).
+</para>
+<para>
+     A 3D grid file contains a directory entry for each 3D grid, which
+describes the size and geographic location of the grid, and the date,
+time and name of physical variable of the data in the grid array.  A
+five-dimensional data set consists of a sequence of 3D grids in a 3D
+grid file, all with the same size and geographic locations.  The grid
+sequence repeats the same short sequence of physical variables
+stepping forward through time.  For example, the grid sequence from a
+weather model could be:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=4 align=center>
+<thead>
+<row>
+<entry> GRID NUMBER </entry>
+<entry> DATE </entry>
+<entry> TIME </entry>
+<entry> PHYSICAL VARIABLE NAME </entry>
+</row>
+</thead>
+<tbody>
+<row>
+     <entry> 1 </entry>
+     <entry> 88035 </entry>
+     <entry> 000000 </entry>
+     <entry>   U </entry>
+</row>
+<row>
+	      <entry> 2 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 000000 </entry>
+	      <entry> V </entry>
+</row>
+<row>
+	      <entry> 3 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 000000 </entry>
+	      <entry> W </entry>
+</row>
+<row>
+	      <entry> 4 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 000000 </entry>
+	      <entry> T </entry>
+</row>
+<row>
+	      <entry> 5 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 000000 </entry>
+	      <entry> P </entry>
+</row>
+<row>
+	      <entry> 6 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 010000 </entry>
+	      <entry> U </entry>
+</row>
+<row>
+	      <entry> 7 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 010000 </entry>
+	      <entry> V </entry>
+</row>
+<row>
+	      <entry> 8 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 010000  </entry>
+	      <entry> W </entry>
+</row>
+<row>
+	      <entry> 9 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 010000 </entry>
+	      <entry> T </entry>
+</row>
+<row>
+	      <entry> 10 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 010000 </entry>
+	      <entry> P </entry>
+</row>
+<row>
+	      <entry> 11 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 020000 </entry>
+	      <entry> U </entry>
+</row>
+<row>
+	      <entry> 12 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 020000 </entry>
+	      <entry> V </entry>
+</row>
+<row>
+	      <entry> 13 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 020000 </entry>
+	      <entry> W </entry>
+</row>
+<row>
+	      <entry> 14 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 020000 </entry>
+	      <entry> T </entry>
+</row>
+<row>
+	      <entry> 15 </entry>
+	      <entry> 88035 </entry>
+	      <entry> 020000 </entry>
+	      <entry> P </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+     This data set consists of 3 time steps of 5 physical variables.
+The physical variables are the U, V and W components of the wind
+vector, the temperature T and the pressure P.   The date is February
+4, 1988 and the time steps are midnight,  1 AM and 2 AM.   Dates are
+in YYDDD format and times are in HHMMSS format as described earlier.
+</para>
+<sect2>
+<title>Putting Your Data Into a McIDAS 3D Grid File</title>
+<para>
+     The following sample program creates a 3D grid file and fills its
+3D grids with data for a five-dimensional data set.  This program can
+be found in the file <filename>sample.F</filename>, 
+it's makefile is <filename>sample.m</filename>.  The easiest
+way to read your data into a 3D grid file is to alter the 
+<filename>sample.F</filename> program.  
+The subroutines it calls are all in the libmain.a library,
+and their source is in the src subdirectory. Here is a listing of
+<filename>sample.F</filename>:
+</para>
+<para>
+<programlisting> 
+  1 C THE MAIN PROGRAM OF YOUR CONVERSION PROGRAM MUST
+  2 C BE NAMED SUBROUTINE MAIN0
+  3 C
+  4       SUBROUTINE MAIN0
+  5 C
+  6 C THE NEXT TWO COMMENTS ARE PRINTED BY THE 'help sample' COMMAND
+  7 C ? SAMPLE program to convert data to 3D grid files
+  8 C ? sample gridf#
+  9 C
+ 10 C DIMENSIONS OF 3D GRID
+ 11 C NOTE NLATS AND NLONS MUST BOTH BE LESS THAN OR EQUAL TO 150
+ 12 C NLATS, NLONS AND NHGTS MUST ALL BE AT LEAST 2
+ 13       PARAMETER (NLATS=31,NLONS=51,NHGTS=16)
+ 14 C
+ 15 C NUMBER OF PHYSICAL VARIABLES AND NUMBER OF TIME STEPS
+ 16 C NOTE EITHER OR BOTH MAY BE EQUAL TO 1.  THAT IS, Vis5D DOES
+ 17 C NOT FORCE YOU TO HAVE MULTIPLE VARIABLES OR TIME DYNAMICS.
+ 18       PARAMETER (NVARS=5,NTIMES=100)
+ 19 C
+ 20 C ARRAY FOR 3D GRID DATA
+ 21       REAL*4 G(NLATS, NLONS, NHGTS)
+ 22 C ARRAYS FOR GRID FILE ID AND GRID DIRECTORY
+ 23       INTEGER ID(8), IDIR(64)
+ 24 C ARRAY FOR VARIABLE NAMES
+ 25       CHARACTER*4 CNAME(5)
+ 26 C
+ 27 C LATITUDE, LONGITUDE AND HEIGHT BOUNDS FOR SPATIAL GRID
+ 28       DATA XLATS/20.0/,XLATN/50.0/
+ 29       DATA XLONE/70.0/,XLONW/120.0/
+ 30       DATA XHGTB/0.0/,XHGTT/15.0/
+ 31 C
+ 32 C STARTING DATE IN YYDDD AND TIME IN HHMMSS
+ 33       DATA JDAY/88035/,JTIME/020000/
+ 34 C TIME STEP IN HHMMSS
+ 35       DATA JSTEP/000100/
+ 36 C
+ 37 C NAMES OF THE FIVE PHYSICAL VARIABLES
+ 38       DATA CNAME/'U   ', 'V   ', 'W   ', 'T   ', 'P   '/
+ 39 C INITIALIZE GRID DIRECTORY TO ZEROS
+ 40       DATA IDIR/64*0/
+ 41 C
+ 42 C READ GRID FILE NUMBER FROM COMMAND LINE.  IPP WILL
+ 43 C CONVERT THE PARAMETER # 1 TO AN INTEGER, WITH A DEFAULT
+ 44 C VALUE OF 0.
+ 45       IGRIDF=IPP(1,0)
+ 46 C IF ILLEGAL GRID FILE NUMBER, PRINT ERROR MESSAGE AND RETURN
+ 47       IF(IGRIDF .LT. 1 .OR. IGRIDF .GT. 9999) THEN
+ 48         CALL EDEST('BAD GRID FILE NUMBER ',IGRIDF)
+ 49         CALL EDEST('MUST BE BETWEEN 1 AND 9999 ',0)
+ 50         RETURN
+ 51       ENDIF
+ 52 C
+ 53 C CALCULATE GRID INTERVALS
+ 54       XLATIN=(XLATN-XLATS)/(NLATS-1)
+ 55       XLONIN=(XLONW-XLONE)/(NLONS-1)
+ 56       XHGTIN=(XHGTT-XHGTB)/(NHGTS-1)
+ 57 C
+ 58 C DATE AND TIME FOR FIRST TIME STEP
+ 59 C IDAYS CONVERTS YYDDD FORMAT TO DAYS SINCE JAN. 1, 1900
+ 60       IDAY=IDAYS(JDAY)
+ 61 C ISECS CONVERTS HHMMSS FORMAT TO SECONDS SINCE MIDNIGHT
+ 62       ISEC=ISECS(JTIME)
+ 63 C
+ 64 C INITIALIZE GRID IDENTIFIER TEXT TO BLANKS
+ 65 C NOTE LIT CONVERTS A CHARACTER*4 TO AN INTEGER*4
+ 66       DO 10 I=1,8
+ 67 10    ID(I)=LIT('    ')
+ 68 C
+ 69 C SET UP DIRECTORY ENTRY
+ 70 C
+ 71 C DIMENSIONS OF GRID
+ 72       IDIR(1)=NLATS*NLONS*NHGTS
+ 73       IDIR(2)=NLATS
+ 74       IDIR(3)=NLONS
+ 75       IDIR(4)=NHGTS
+ 76 C
+ 77 C LATITUDES AND LONGITUDES IN DEGREES * 10000
+ 78       IDIR(22)=4
+ 79       IDIR(23)=NINT(XLATN*10000.)
+ 80       IDIR(24)=NINT(XLONW*10000.)
+ 81       IDIR(25)=NINT(XLATIN*10000.0)
+ 82       IDIR(26)=NINT(XLONIN*10000.0)
+ 83 C
+ 84 C HEIGHTS IN METERS
+ 85       IDIR(31)=1
+ 86       IDIR(32)=NINT(XHGTT*1000.)
+ 87       IDIR(33)=NINT(XHGTIN*1000.)
+ 88 C
+ 89 C CREATE THE GRID FILE
+ 90       CALL IGMK3D(IGRIDF, ID, NLATS*NLONS*NHGTS)
+ 91 C
+ 92 C LOOP FOR TIME STEPS
+ 93       DO 200 IT=1,NTIMES
+ 94 C
+ 95 C SET DATE AND TIME IN DIRECTORY ENTRY
+ 96 C IYYDDD CONVERTS DAYS SINCE JAN. 1, 1900 TO OUR YYDDD FORMAT
+ 97       IDIR(6)=IYYDDD(IDAY)
+ 98 C IHMS CONVERTS SECONDS SINCE MIDNIGHT TO OUR HHMMSS FORMAT
+ 99       IDIR(7)=IHMS(ISEC)
+100 C
+101 C LOOP FOR PHYSICAL VARIABLES
+102       DO 190 IV=1,NVARS
+103 C
+104 C SET VARIABLE NAME IN DIRECTORY ENTRY
+105       IDIR(9)=LIT(CNAME(IV))
+106 C
+107 C *************************************************************
+108 C READ YOUR DATA FOR TIME STEP NUMBER IT AND VARIABLE NUMBER IV
+109 C INTO THE ARRAY G HERE.
+110 C NOTE THAT G(1,1,1) IS THE NORTH WEST BOTTOM CORNER AND
+111 C G(NLATS,NLONS,NHGTS) IS THE SOUTH EAST TOP CORNER.
+112 C MARK A GRID POINT AS 'MISSING DATA' BY SETTING IT = 1.0E35
+113 C *************************************************************
+114 C
+115 C CALCULATE 3D GRID NUMBER
+116       IGRID=IV+NVARS*(IT-1)
+117 C WRITE DATA IN G AND DIRECTORY IN IDIR TO 3D GRID
+118 C NOTE WE PASS THE NEGATIVE OF THE GRID NUMBER (I.E. -IGRID)
+119       CALL IGPT3D(IGRIDF,-IGRID,G,NLATS,NLONS,NHGTS,IDIR,IGNO)
+120 C
+121 C END OF PHYSICAL VARIABLE LOOP
+122 190   CONTINUE
+123 C
+124 C INCREMENT DATE AND TIME, CONVERT JSTEP FROM HHMMSS TO SECONDS
+125       ISEC=ISEC+ISECS(JSTEP)
+126 C IF SECONDS CARRY PAST ONE DAY, ADJUST SECONDS AND DAYS
+127       IDAY=IDAY+ISEC/(24*3600)
+128       ISEC=MOD(ISEC,24*3600)
+129 C
+130 C END OF TIME STEP LOOP
+131 200   CONTINUE
+132 C
+133       RETURN
+134       END
+</programlisting> 
+</para>
+<para>
+     The routines IGMK3D and IGPT3D are the interface to the 3D grid
+structures. The call to IGMK3D at line 90 creates a 3D grid file. Its
+parameters are:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry> 1 </entry> 
+		<entry> INTEGER*4 - number of 3D grid file to create </entry> 
+</row>
+<row>
+		<entry> 2 </entry> 
+		<entry> array of 8 INTEGER*4 - a 32 byte text ID for the file </entry> 
+</row>
+<row>
+		<entry> 3 </entry> 
+		<entry> INTEGER*4 - maximum number of grid points in any 3D grid.</entry> 
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+    After the 3D grid file is created, IGPT3D is called in line 119
+once for each combination of time step and physical variable to put 3D
+grids into the file. Its parameters are:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry> 1 </entry>
+		<entry> INTEGER*4 - number of 3D grid file to write to </entry>
+</row>
+<row>
+		<entry> 2 </entry>
+<entry> INTEGER*4 - minus the number of the 3D grid to write.  This is 0 or
+          positive to indicate write to next empty grid.</entry>
+</row>
+<row>
+		<entry> 3 </entry>
+		<entry> array of REAL*4 - array of grid points to write</entry>
+</row>
+<row>
+		<entry> 4 </entry>
+		<entry> INTEGER*4 - first dimension of grid array, # of latitudes</entry>
+</row>
+<row>
+		<entry> 5 </entry>
+	<entry> INTEGER*4 - second dimension of grid array, # of longitudes</entry>
+</row>
+<row>
+		<entry> 6 </entry>
+		<entry> INTEGER*4 - third dimension of grid array, # of heights</entry>
+</row>
+<row>
+		<entry> 7 </entry> 
+		<entry> array of 64 INTEGER*4 - directory for 3D grid</entry>
+</row>
+<row>
+		<entry> 8 </entry>
+<entry> INTEGER*4 - number of 3D grid actually written, returned by IGPT3D.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+     Vis5D allows data sets which span more than one 3D grid file.  In
+this case the grid sequence of repeating variables and repeating time
+steps continues across grid file boundaries.  A single 3D grid file is
+limited to 100,000,000 grid points (400 megabytes).  If your data set
+contains more than this number of grid points, then you should alter
+<filename>sample.F</filename> to create a new 3D grid file (by incrementing IGRIDF and
+calling IGMK3D) on every Nth time step, where N time steps will fit in
+one 3D grid file.  Note that the comp5d command described in section 4
+references data sets as sequences of 3D grid files.
+</para>
+<para>
+     The Vis5D system processes the gridded data based on the
+information in the grid directories, which is contained in the IDIR
+array in the sample.F program. It is a good idea to initialize IDIR to
+all zeros, as in line 40.  The size of the 3D grid is set in entries 1
+to 4 of IDIR (lines 72 to 75).  Note the restrictions on data set size
+described in section 4 of this document.
+</para>
+<para>
+     The date and time of the 3D grid are set in entries 6 and 7 of
+IDIR, as in lines 97 and 99.  Note that they are represented in our
+YYDDD and HHMMSS formats described above.  Four functions are
+available in libmain.a for converting between these formats and a
+format which makes date and time calculations easy. The IDAYS function
+converts YYDDD format to days since January 1, 1900, as in line 60.
+The ISECS function converts HHMMSS format to seconds since midnight,
+as in lines 62 and 125.  This makes it easy to do calculations with
+dates and times, as in lines 125, 127 and 128.  Then the IYYDDD
+function converts days back to YYDDD and the IHMS function converts
+back to HHMMSS, as in lines 97 amd 99.
+</para>
+<para>
+     The physical variable name is 4 ASCII characters packed into entry 9 of
+IDIR, as in line 105.  The LIT function in libmain.a converts a CHARACTER*4 to
+an INTEGER*4.
+</para>
+<para>
+     The spatial location of the grid is described in terms of latitude and
+longitude in ten-thousandths of a degree, and in terms of height (altitude) in
+meters.  The grid element G(1,1,1) is in the north west bottom corner of the
+grid, and the grid element G(NLATS,NLONS,NHGTS) is in the south east top corner.
+The grid latitude and longitude are described in entries 21 to 25 of IDIR, as in
+lines 78 to 82.  The grid heights are described in entries 31 to 33, as in lines
+85 to 87.  The NINT function is a FORTRAN intrinsic for converting a REAL to the
+nearest INTEGER.  The latitude, longitude and height spacings are simply the
+distances between between successive grid points.  Latitudes are positive in the
+northern hemisphere, longitudes are positive in the western hemispere, and of
+course heights are positive above sea level.
+</para>
+<para>
+     The real work in modifying the <filename>sample.F</filename>
+ program is writing code for getting your data into the G array, in lines 107 to 113.  
+For some data you may want to fake the latitude, longitude and height coordinates.  
+However, if your data is geographical and large scale, then you may want to describe 
+its location accurately, and it may be necessary to resample your data to a regularly 
+spaced grid in latitude, longitude and height from some other map projection.  It may
+also be necessary to transpose your data array to get the index order to be LAT,
+LON and HGT, and to invert your data array in some index to make sure G(1,1,1)
+is the north west bottom corner.  Even in faked coordinates, you may need to
+transpose or invert your data array to get the right 'handedness' in the
+display.  The Vis5D system allows grid points marked as missing, indicated by
+array values greater than 1.0E30.  If you do fake the latitude, longitude and
+height coordinates, then the topography and map display of the vis5d program
+will be meaningless.  If you calculate trajectories for your data set, either
+use accurate coordinates, or take great care to get relative time, distance and
+velocity scales consistent in the faked coordinates.  Otherwaise trajectory
+paths will not be realistic.
+</para>
+<para>
+     The IPP function in libmain.a returns the value of a command parameter as
+INTEGER*4, as in line 45.  There are similar functions CPP and DPP in libmain.a
+which return CHARACTER*12 (converted to upper case) and REAL*8 values for
+command parameters.  They get command parameters based on their sequential
+position in the command line.  They all have similar function parameters:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry> 1 </entry>
+		<entry> INTEGER*4 - sequence number of command parameter</entry>
+</row>
+<row>
+		<entry> 2 </entry>
+		<entry> (IPP) INTEGER*4 - default value of command parameter</entry>
+</row>
+<row>
+<entry></entry>
+		<entry> or </entry>
+</row>
+<row>
+		<entry> 2 </entry>
+		<entry> (CPP) CHARACTER*12 - default value of command parameter</entry>
+</row>
+<row>
+<entry></entry>
+		<entry> or </entry>
+</row>
+<row>
+		<entry> 2 </entry>
+		<entry> (DPP) REAL*8 - default value of command parameter.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+There is also a mechanism for picking up command parameters based on keywords.
+This is done with the functions IKWP, CKWP and DKWP in libmain.a.  They get
+command parameters based on position after a keyword of the form -keyword.
+IKWP returns an INTEGER*4, CKWP returns a CHARACTER*12 (converted to upper case)
+and DKWP returns a REAL*8.  They all have similar function parameters:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry> 1 </entry>
+		<entry> CHARACTER*12 - keyword string in command line</entry>
+</row>
+<row>
+		<entry> 2 </entry>
+	<entry> INTEGER*4 - sequence number of command parameter after keyword</entry>
+</row>
+<row>
+		<entry> 3 </entry>
+		<entry> (IKWP) INTEGER*4 - default value of command parameter</entry>
+</row>
+<row>
+<entry></entry>
+		<entry> or </entry>
+</row>
+<row>
+		<entry> 3 </entry>
+		<entry>(CKWP) CHARACTER*12 - default value of command parameter</entry>
+</row>
+<row>
+<entry></entry>
+		<entry> or </entry>
+</row>
+<row>
+		<entry> 3 </entry>
+		<entry>(DKWP) REAL*8 - default value of command parameter.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+The NKWP function in libmain.a returns the number of sequential parameters after
+a keyword.  Its function parameter is:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry> 1 </entry>
+		<entry> CHARACTER*12 - keyword string in command line.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+     On the most machines the REAL*4 format is not a subset of the REAL*8
+format, so make sure to declare DPP and DKWP as REAL*8, as well as their third
+function parameters (for default values of command parameters).
+</para>
+<para>
+     If you would rather write your grid conversion program in C
+instead of FORTRAN, look at the file <filename>sample.c</filename>.
+It contains examples of how to easily read and write grid files using
+C structures and routines in stdio.
+</para>
+</sect2>
+<sect2>
+<title>Using the McIDAS Utilities</title>
+<para>
+     Once your data set is in a 3D grid file, you can list directory information
+about the grids using the command:
+</para>
+<para>
+<command>
+     igg3d list I J -gr3df N
+</command>
+</para>
+<para>
+where N is the 3D grid file number, and I and J give the range of grid numbers
+to list.  You can get a quick idea of the data values using the command:
+</para>
+<para>
+<command>
+     igg3d info I J -gr3df N
+</command>
+</para>
+<para>
+which will list the minimum and maximum values, the mean, the standard deviation
+and the number of grid points marked for missing data, for grid numbers I to J
+in 3D grid file number N.
+</para>
+<para>
+     There are restrictions on the dimensions of data sets which can be
+visualized using the vis5d program.  Currently, you are limited to a maximum of
+30 physical variables and 400 times steps.  The vis5d program will also fail if
+there is a trivial spatial dimension:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=1>
+<tbody>
+<row>
+		<entry>NLATS < 2</entry>
+</row>
+<row>
+		<entry>NLONS < 2</entry>
+</row>
+<row>
+		<entry>NHGTS < 2</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+The vis5d program will perform badly, possibly making errors, if the total 5-D
+size:
+</para>
+<para>
+     NLATS * NLONS * NHGTS * NTIMES * NVARS
+</para>
+<para>
+is too large.  The limit depends on the amount of memory in your system.  For a
+64MB system, the limit is around 25,000,000, with performance degrading as the
+data set size exceedes the limit.
+</para>
+<para>
+     Vis5D provides the gg3d and igg3d programs which can be used to reduce the
+resolution and scale of a data set to meet these limits.  The gg3d program
+resamples a 3D grid to new array dimensions and new extents in latitude,
+longitude and height, using the command:
+</para>
+<para>
+<command>
+     gg3d samp N I M J
+</command>
+</para>
+<para>
+<command>
+     gg3d ave  N I M J
+</command>
+</para>
+<para>     
+where N and I are the numbers of the source 3D grid file and grid, and M and J
+are the numbers of the destination 3D grid file and grid.  The 'samp' version
+calculates destination grid point values by linearly interpolating between
+source grid point values, and is appropriate for increasing resolution.  The
+'ave' version calculates destination grid points by averaging multiple source
+grid point values, and is appropriate for decreasing resolution.  Without any
+keywords gg3d will do a straight copy operation.  Invoke the gg3d command with
+the keyword:
+</para>
+<para>
+     <option>-size NLATS NLONS NHGTS</option>
+</para>
+<para>
+to set the grid dimensions for the destination grid as different from the
+dimensions for the source grid.  Invoke gg3d with the keywords:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=1>
+<tbody>
+<row>
+     <entry><option>-lat XLATS XLATN</option></entry>
+</row>
+<row>
+     <entry><option>-lon XLONE XLONW</option></entry>
+</row>
+<row>
+     <entry><option>-hgt XHGTB XHGTT</option></entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+to set extents (range bounds) for the latitude, longitude and height for the
+destination grid as different from the extents for the source grid.  The -lat, -
+lon and -hgt keywords take real arguments.
+</para>
+<para>
+     The igg3d program provides options for copying and deleting 3D grids and
+for interpolating between 3D grids in time.  Sequences of 3D grids are copied
+using the command:
+</para>
+<para>
+<command>
+     igg3d get N I J M K
+</command>
+</para>
+<para>
+where N is the source 3D grid file number, I and J are the range of source grid
+numbers, M is the destination grid file number, and K is the starting
+destination grid number.  A single grid may be copied within a 3D grid file
+using the command:
+</para>
+<para>
+<command>
+     igg3d copy I J -gr3df N
+</command>
+</para>
+<para>
+where N is the 3D grid file number, I is the number of the source grid and J is
+the number of the destination grid.  A range of grids may be deleted with the
+command:
+</para>
+<para>
+  <command> igg3d del I J -gr3df N</command>
+</para>
+<para>
+where N is the 3D grid file number and grid numbers between I and J are to be
+deleted.
+</para>
+<para>
+The igg3d command provides two different options for time interpolation.  The
+first is:
+</para>
+<para>
+<command> igg3d ave K I J D T -gr3df N</command>
+</para>
+<para>
+where grid number K is produced by interpolating between grid numbers I and J,
+all in 3D grid file number N.  Grid number K will be assigned day D (in YYDDD
+format) and time T (in HHMMSS format).  The relative weighting of grids I and J
+is calculated from this date and time, assuming linear time interpolation.  If
+grid K is not between grids I and J in date and time, igg3d prints an error
+message.  The igg3d command also provides a more complex time interpolation
+option:
+</para>
+<para>
+    <command>igg3d int I D T -setdel S M -lag U V -gr3df N</command>
+</para>
+<para>
+     This will put a grid in the next empty slot of 3D grid file number N,
+assigned to day D (in YYDDD format) and time T (in HHMMSS format).  This grid
+will be interpolated from a sequence of grids, all in file number N, at grid
+numbers I, I+S, I+2S, ... , I+(M-1)S.  This sequence of grids should be
+ascending in date and time.  igg3d will search the sequence and linearly
+interpolate between the two consectutive grids from the sequence which bracket
+day D and time T.  Furthermore, the interpolation will be done in a coordinate
+system moving at constant velocity (U, V), where U and V are in meters per
+second, with V positive for motion from south to north and U positive for motion
+from west to east.  The two bracketing grids from the sequence will be shifted
+in latitude and longitude to their positions at day D and time T, and the result
+interpolated between these two spatially shifted grids.  Furthermore, if the
+grids in the sequence are identified in their directory entries with variable
+name 'U   ' or 'V   ', then the corresponding component of the velocity (U, V)
+will be subtracted from the grid values.
+</para>
+<para>
+     The 'int' option of igg3d may seem complex, but it is just what you need if
+you want to write a script to re-interpolate a five-dimensional data set to a
+new sequence of time steps.  It is particularly useful if the source sequence
+does not have uniform time steps, or if the physics are moving through the
+spatial grid and you want to avoid blurring in the time re-interpolation.  You
+would set M equal to the number of time steps and S equal to the number of
+physical variables in the source five-dimensional data set.  The I parameter
+would be set equal to the grid number in the first time step of the variable
+being interpolated.  Note that this igg3d option will put the new grid at the
+end of the grid file containing the source data set, but you can use 'igg3d get'
+to move it to another grid.
+</para>
+<para>
+You can use the command:
+</para>
+<para>
+<command>igu3d make N M</command>
+</para>
+<para>
+to create 3D grid file number N, which allows 3D grids of up to M points each.
+The names of 3D grid files have the form:
+</para>
+<para>
+     GR3Dnnnn
+</para>
+<para>
+where nnnn is the four digit decimal grid file number, padded with leading zeros
+if needed to make four digits.
+</para>
+</sect2>
+</sect1>

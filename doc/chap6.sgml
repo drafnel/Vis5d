@@ -1,0 +1,2261 @@
+<sect1>
+<title>USING Vis5D TO VISUALIZE YOUR DATA</title>
+<para>
+     This section describes how to use the Vis5D visualization program, vis5d.
+It is almost completely controlled using the mouse with a graphical user
+interface.  The best way to learn to use it is to experiment.  There is no way
+to harm your data from within the program.
+</para>
+<sect2>
+<title>Starting vis5d</title>
+<para>
+<note>
+<title>** IMPORTANT NOTE FOR OSF USERS **</title>
+<para>
+          you need to run 'limit stacksize 32m' before you run vis5d
+</para>
+</note>
+</para>
+<para>
+<note>
+<title>** IMPORTANT NOTE FOR SunOS 5 USERS **</title>
+<para>
+          SunOS 5.x users:  The X shared memory extension may not work
+          correctly.  If Vis5D prints an error message to the effect of "Shared
+          memory error" then you'll have to append the following three lines to
+          the end of your <filename>/etc/system</filename> file then reboot:
+          <informaltable frame=none>
+          <tgroup cols=1>
+          <tbody>
+		  <row>
+		    <entry>set shmsys:shminfo_shmmax = 0x2000000</entry>
+		  </row>
+		  <row>
+		    <entry>set shmsys:shminfo_shmmni = 0x1000</entry>
+		  </row>
+		  <row>
+		    <entry>set shmsys:shminfo_shmseg = 0x100</entry>
+		  </row>
+          </tbody>
+          </tgroup>
+          </informaltable>
+</para>
+</note>
+</para>
+<para>
+After you have made a v5d file, you can interactively visualize one or more file
+with the command:
+</para>
+<para>
+<command>
+     vis5d file1.v5d [options] file2.v5d [options]...
+</command>
+</para>
+<para>
+[options] may be any combination of the following (though none are usually
+needed):
+</para>
+<variablelist>
+<title></title>
+<varlistentry>
+<term><option>-alpha</option></term>
+<listitem><para>
+          Use alpha blending instead of "screen door" transparency.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-area N</option></term>
+<listitem><para>
+          [SGI only]  Specifies the first of a sequence of McIDAS area files to
+          read and then display inside the 3-D box.  See section 6.15 for more
+          information.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-box x y z</option></term>
+<listitem><para>
+          This lets you specify the aspect ratio or proportions of the 3-D box.
+          Default values are 2 2 1.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-circle</option></term>
+<listitem><para>
+          Display a circular clock
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-cpgeom WIDTHxHEIGHT+X+Y (or WIDTHxHEIGHT or +X+Y)</option></term>
+<listitem><para>
+          Specify the geometry (position only) of the control panel.  Since the
+     control panel  must be a fixed width, any WIDTH specification will be
+     ignored.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-barbs</option></term>
+<listitem><para>
+          Use wind barbs in place of wind vectors.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-date</option></term>
+<listitem><para>
+          Use 'dd month yy' in place of 'yyddd' on the clock.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-dwell</option></term>
+<listitem><para>
+          Set the animation dwelling time when stepping from time=NumTimes to
+     time=0
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-font xfontname</option></term>
+<listitem><para></para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-font PEXfontname height</option></term>
+<listitem><para>
+          Set the X or PEX font and its height used in the 3D window.  Since 3D
+          fonts have explicit heights, size controls the line spacing.  A size
+          of 0 will restore the line spacing to the font's height.  PEX fonts
+          (those having "PEX" in their names) are scalable.  To restore the
+          default PEX font, use " " for the name.  A PEX font's default size may
+          be resotred by specifying a size of 0.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -font helvb24 20</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-full</option></term>
+<listitem><para>
+          Open the 3-D window as a borderless, full-screen size window.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-funcpath pathname</option></term>
+<listitem><para>
+          Specify the directory to search for user Fortran functions.
+          </para>
+          <para>
+          Example:
+          <command>vis5d LAMPS.v5d -funcpath /usr/local/vis5d/userfuncs</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-geometry WxH+X+Y  (or WxH or +X+Y)</option></term>
+<listitem><para>
+          Specify the geometry of the 3-D window.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -geometry 640x480-10+10</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-hirestopo</option></term>
+<listitem><para>
+          Display a high-resolution topography.  This is only recommended on
+          systems with fast graphics hardware.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-legend position size x y</option></term>
+<listitem><para>
+          Set color legend position and size.  Position values are 1 (bottom,
+          the default), 2 (top), 3 (left) and 4 (right).  Size is the height of
+          the legend bar and is between 10 and 1000 (default=128). Position is
+          controlled by adding an offset value in the X and Y direction from the
+          default position.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-log [a] [b]</option></term>
+<listitem><para>
+          Display height on a logarithmic axis instead of linear.  This is
+          discussed in section 3.2.  The optional arguments a and b are the
+          scale and exponent factors in the height/pressure equation.  The
+          defaults are 1012.5 and -7.2, respectively.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-map file</option></term>
+<listitem><para>
+          Use a map file other than the default of OUTLSUPW.  See section 2.4 to
+          setup a different default.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -map OUTLUSAL</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-top_margin size</option></term>
+<listitem><para>
+          Specify the size in points for the top margin of the 3d windows
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-bottom_margin size</option></term>
+<listitem><para>
+          Specify the size in points for the bottom margin of the 3d windows
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-left_margin size</option></term>
+<listitem><para>
+          specify the size in points for the left margin of the 3d windows
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-right_margin size</option></term>
+<listitem><para>
+          Specify the size in points for the right margin of the 3d windows
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-mbs n</option></term>
+<listitem><para>
+          Override the assumed system memory size of 32 megabytes.  See section
+          2.4 to setup a different default value.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-nofile</option></term>
+<listitem><para>
+          Run vis5d with out loading a vis5d data set.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-offscreen</option></term>
+<listitem><para>
+          Do off screen rendering.  This is used in conjunction with the -script
+                    command
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-path pathname</option></term>
+<listitem><para>
+          Use a different path for map and topo files instead of the current.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -path /usr3/data</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-projection p</option></term>
+<listitem><para>
+          Set the display map projection, default is to display data in its
+          natural projection (obtained from the data file).
+          p may be one of:
+          </para>
+          <para>
+               <simplelist type=vert columns=1>
+               <member>cylindrical - display data on a cylindrical Earth</member>
+               <member>spherical - display data on a spherical Earth</member>
+               </simplelist>
+          </para>
+          <para>
+          Only the first 3 characters are significant/needed.  You will be
+          promted for additional parameters.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -projection spherical</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-quickstart</option></term>
+<listitem><para>
+          Don't load any grids when starting vis5d, even if the whole file will
+          fit into memory.  The grids will be read as needed.  This option is
+          useful when reading a file via NFS.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-rate ms</option></term>
+<listitem><para>
+          Change the default animation rate.  ms is the minimum delay in
+          milliseconds between frames.  Default is 100 ms.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-samescale</option></term>
+<listitem><para>
+          Set the scale for the vertical plot variables to be the same for all
+     three variables
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-script script.tcl</option></term>
+<listitem><para>
+          Specifies a Vis5D/Tcl script to execute automatically.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-sequence filename</option></term>
+<listitem><para>
+          [not available on all systems]  Specifies a file containing a sequence
+          of images to texture map over the topography.  See section 6.15 for
+          more information.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-soundfont fontname</option></term>
+<listitem><para>
+          Set the X font used in the sounding window.  Use xlsfonts to list your
+          system's fonts
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-title x y font "string"</option></term>
+<listitem><para>
+          This is used in conjunction with the 
+          <option>-_margin</option> option.  This will print
+          the string at location (x,y) in the BigWindow.  Any number of titles
+          can be created.  The strings will not show up if they are not in a
+          margin
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-texture rgbfile</option></term>
+<listitem><para>
+          [not available on all systems]  Specify an SGI .rgb file to texture
+          map over the topography.  See section 6.15 for more information.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-topo file</option></term>
+<listitem><para>
+          Use a topography file other than the default of EARTH.TOPO.  See
+          section 2.4 to setup a different default.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-topobase [lev_value]</option></term>
+<listitem><para>
+          Display a base below the topography. lev_value is the vertical grid
+          level value to which the base will extend.  Typically, this is a
+          negative value so that the base is below the lowest level (0.0).  If
+          lev_value is omitted, 0.0 will be used
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -topobase -3.0</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-trajvars uvar vvar [wvar]</option></term>
+<listitem><para>
+          Specify which variables are to be used for trajectory tracing.
+          Defaults are U, V, and W.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -trajvars U2 V2 W2</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-userdata flags</option></term>
+<listitem><para>
+          Use user-provided functions to read data, maps, or topography .  flags
+          is a string that may contain any combination of:
+          </para>
+          <para>
+          <simplelist type=vert columns=1>
+               <member>
+               g or G - use the function for reading grid data</member>
+               <member>
+               m or M - use the function for reading map data</member>
+               <member>
+               t or T - use the function for reading topography data</member>
+          </simplelist>
+          </para>
+          <para>
+          Example: <command>vis5d dataset -userdata g</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-vertical v</option></term>
+<listitem><para>
+          Set the vertical coordinate system, default is obtained from datafile.
+          v may be one of:
+          </para>
+          <para>
+          <simplelist type=vert columns=1>
+               <member>
+               generic   - linear, equally spaced levels in generic units</member>
+               <member>
+               equal     - linear, equally spaced levels in km</member>
+               <member>
+               nonequal  - linear, unequally spaced levels in km</member>
+          </simplelist>
+          </para>
+          <para>
+          Only the first 3 characters of v are significant/needed.  You will be
+          prompted for additional parameters.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -vertical nonequal</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-wdpy xdisplay</option></term>
+<listitem><para>
+          Put the widgets on a different X display.  Useful in combination with
+          <option>-full</option> for making slides and videos. 
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -full -wdpy pluto:0</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-wide w</option></term>
+<listitem><para>
+          Set width of line segments in pixels (default is 1.0).  Again, useful
+          for making videos.
+          </para>
+          <para>
+          Example: <command>vis5d LAMPS.v5d -wide 3.0</command>
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-wind2 uvar vvar [wvar]</option></term>
+<listitem><para>
+          Specify the names of a secondary set of U, V, and (optionally) W wind
+          component variables to use when drawing the Hwind2, Vwind2 and Strm2
+          vector slices.  Useful when you have two sets of wind vector
+          components that you want to visualize simultaneously.
+          </para>
+          <para>
+          Example: <command>vis5d MYDATA -wind2 U2 V2 W2</command>
+</para></listitem>
+</varlistentry>
+</variablelist>
+<para>          
+     Most of the above arguments can also be changed by entering the 'Options'
+menu after pressing the 'DISPLAY' button found on the main control panel.
+</para>          
+<para>          
+     If you start vis5d without arguments you will get a list of all the command
+line options and keyboard functions.  Otherwise, vis5d will begin by reading the
+data file.
+</para>          
+<para>          
+     Previous versions of vis5d required that the entire file be read into main
+memory; if you didn't have sufficient memory you couldn't visualize the file.
+In version 4.0 and higher, this restriction is lifted; you may visualize files
+which are larger than main memory.  This is implemented with a grid cache: vis5d
+reads data only when needed and discards it on a least-recently-used basis.
+Small files will be read in their entirety as in previous versions.
+</para>          
+<para>          
+     For the user, this means vis5d will allow you to visualize large files even
+with only 32MB of main memory.  However, performance will degrade as the ratio
+of file size to main memory size increases.  If you observe sluggish performance
+and a lot of disk activity while running vis5d you should get more memory.
+</para>          
+</sect2>
+<sect2>
+<title>The Control Panel</title>
+<para>
+     After vis5d has opened/read your file/s, two windows will appear:  a large
+window on the right containing one or more 3-D display windows and the current
+control panel on the left of the screen.  The 3-D window/s are used to view and
+interact with the data.  When there are multiple 3-D display windows a control
+panel is assigned to each.  The current control panel will appear when ever a
+mouse event occurs in the associated 3-D display.  In the upper-left corner of
+the 3-D display is a combination analog/digital clock which indicates the
+current time step.  The control panel contains several groups of buttons.
+</para>
+<para>
+     Starting at the top, the first button group contains the following buttons:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=4>
+<tbody>
+<row>
+		<entry>[ANIMATE] </entry><entry>[STEP] </entry>
+		<entry>NEW VAR </entry><entry>EXIT </entry>
+</row>
+<row>
+		<entry>[TEXTURE] </entry><entry>TOP </entry>
+		<entry>SOUTH </entry><entry>WEST </entry>
+</row>
+<row>
+		<entry>[TOPO] </entry><entry>[MAP] </entry>
+		<entry>BOX </entry><entry>CLOCK </entry>
+</row>
+<row>
+		<entry>SAVE </entry><entry>RESTORE </entry>
+		<entry>GRID #'s </entry><entry>CONT #'s </entry>
+</row>
+<row>
+		<entry>[ANIM-REC] </entry><entry>REVERSE </entry>
+		<entry>[SAVE PIC] </entry><entry>[PERSPEC] </entry>
+</row>
+<row>
+		<entry>SCRIPT </entry><entry>INTERP </entry>
+		<entry>UVW VARS </entry><entry>LEGENDS </entry>
+</row>
+<row>
+		<entry>IMPORT </entry><entry>DISPLAY </entry>
+		<entry> </entry><entry> </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+     These buttons are used to control the primary functions of vis5d.  Some of
+the above buttons are enclosed in brackets [] to indicates that they may be
+blank upon starting vis5d.  This will happen when the button does not apply to
+the current data set, because the button would conflict with a command line
+option, or because the feature is not available on your hardware.
+</para>
+<para>
+     The next group of radio buttons control the viewing mode which determines
+how the mouse is used in the 3-D window:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry>Normal </entry>
+		<entry>Normal mouse mode is used to rotate, zoom, and pan the
+               graphics in the 3-D window.  See section 6.4. </entry>
+</row>
+<row>     
+		<entry>Trajectory </entry>
+		<entry>This mode is used for creating and displaying wind
+               trajectories.  See section 6.8. </entry>
+</row>
+<row>     
+		<entry>Slice </entry>
+		<entry>This mode is used to reposition horizontal and vertical
+               slices.  See section 6.6. </entry>
+</row>
+<row>     
+		<entry>Label </entry>
+		<entry>This mode is used to create and edit text labels in the 3-D
+               window.  See section 6.10. </entry>
+</row>
+<row>     
+		<entry>Probe </entry>
+		<entry>This mode is used to inspect individual grid values by
+               moving a 3-D cursor through the 3-D grid.  Using the right
+               mouse button when clicking on this button will cause the
+               probe to attach to the head of a trajectory.  See section
+               6.11. </entry>
+</row>
+<row>     
+		<entry>Sounding </entry>
+		<entry>This mode is used to display a vertical sounding and SkewT
+               at the location of a moveable vertical cursor.  See section
+               6.12. </entry>
+</row>
+<row>     
+		<entry>Clipping </entry>
+		<entry>This mode is used to reposition the six clipping planes.
+               See section 6.18. </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+     These modes are mutually exclusive; only one may be selected at a time.  To
+the immediate right of these buttons is the mouse button legend.  It is there to
+remind you of the use of each mouse button in the 3-D window for the currently
+selected mode.
+</para>
+<para>
+Next are buttons labeled:
+</para>
+<para>
+      Hwind1   Vwind1   HStrm   Hwind2   Vwind2   VStrm
+</para>
+<para>
+     A wind vector slice (Hwind or Vwind) depicts wind values by drawing small
+arrows which point in the direction of the wind.  The length of each line
+segment indicates its magnitude.  The tails of the line segments are all
+anchored within a horizontal or vertical plane through the 3-D box.  The
+horizontal wind streamline slice (HStrm) depicts wind values by drawing
+streamlines on a horizontal plane.  The vertical wind streamline slice (VStrm)
+depicts wind values by drawing streamlines on a vertical plane.  The location of
+slice planes can be changed with the mouse while in "Slice" mode.  See section
+6.5 for more details.
+</para>
+<para>
+     The bottom part of the control panel window may contain a 2-D matrix of
+buttons when a regular v5d file is loaded. Each row corresponds to a physical
+variable in your dataset.  Each column corresponds to one type of graphical
+representation.  By selecting the correct row and column you can view any
+variable as a 3-D isosurface, horizontal contour slice, vertical contour slice,
+horizontal colored slice, vertical colored slice, or volume rendering.  This
+matrix of button is scrollable if there are more rows of buttons than will fit
+in the window.  You can use the mouse to drag the scrollbar or press the up/down
+arrow keys on your keyboard to scroll the button matrix.  If an irregular data
+set is loaded, another button matrix will be available.  The buttons will
+contain the name of the irregular v5d data set.  Only the Text Plot option is
+currently available.  See section 6.22 on viewing text plots.
+</para>
+<para>
+     When multiple data sets are viewed in the same display a period and an
+index number will be appended to the end of each variable name.  This will be a
+common notation seen in several display widgets when ever multiple data sets are
+loaded.
+</para>
+<para>
+     The display of any graphic is controlled by clicking on its widget button
+with the left mouse button.  Each type of graphic also has a small pop-up
+control window which appears when turned on.  The control windows are different
+for each type of graphic and are explained below.  To bring up a graphic's
+control window without toggling its display, use the middle mouse button.  When
+the graphic is displayed it will be the same color as the widget button, making
+it easy to distinguish and identify different variables in the display.  To
+change the color of the graphic, click on its widget button with the right mouse
+button and a small window with four slider widgets will appear.  By changing the
+levels of red, green, and blue you can make any color.
+</para>
+<para>
+     If the control panel window becomes obscured by other windows, you can
+bring it to the top by pressing the "F1" key while the mouse pointer is in the 3-
+D window.  This is especially useful when using the '-full' option.
+</para>
+<para>
+     When mutliple data sets are displayed in different displays there is the
+option of grouping these them together.  This synchronizes the control of one
+display with the others.  See section 6.19 for more information.
+</para>
+</sect2>
+<sect2>
+<title>Controlling vis5d</title>
+<para>
+     The topmost group of buttons in the control panel operate the main
+functions of vis5d.  Some will be discussed in more detail later.
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry>ANIMATE </entry>
+		<entry>This toggle button turns animation on or off. Use the left or
+               middle mouse buttons for forward animation and the right mouse
+               button for reverse animation.  Does not appear when viewing data
+               sets with one time step.  To make the animation slower or faster,
+               hit the S and F key on the keyboard while the mouse cursor is
+               inside the 3-D viewing window. </entry>
+</row>
+<row>
+		<entry>STEP </entry>
+		<entry>This button has three possible uses depending on which 
+                mouse button is pressed:
+                Left Button - Step ahead one time step
+                Middle Button - Go to first time step.
+                Right Button - Backward one time step.
+                This button does not appear when viewing data sets with one time
+                step. </entry>
+</row>
+<row>     
+		<entry>NEW VAR </entry>
+		<entry>Used to duplicate physical variables or invoke external 
+analysis functions. This is explained further in section 6.13. </entry>
+</row>
+<row>     
+		<entry>EXIT </entry>
+		<entry>Exit the program.  A window will appear to ask you to 
+                verify your decision. </entry>
+</row>
+<row>     
+		<entry>TEXTURE </entry>
+		<entry>Toggles display of texture maps on/off if they are loaded.
+                 See section 6.15 for more information. </entry>
+</row>
+<row>     
+		<entry>TOP </entry>
+		<entry>Depending on which mouse button is pressed:                
+                 Left or Middle:  Reset the 3-D window to the default top-view.
+                 Right:  Set the 3-D window to a bottom-view. </entry>
+</row>     
+<row>
+		<entry>SOUTH </entry>
+		<entry>Depending on which mouse button is pressed:
+                 Left or Middle: Set 3-D window to a south-view.
+                 Right:  Set 3-D window to a north-view. </entry>
+</row>     
+<row>
+		<entry>WEST </entry>
+		<entry>Depending on which mouse button is pressed:
+                 Left or Middle:  Set 3-D window to a west-view.
+                 Right:  Set 3-D window to an east-view. </entry>
+</row>     
+<row>
+		<entry>TOPO </entry>
+		<entry>Toggle the display of topography.  This button will not appear if
+               the topography file was not found.  Click on TOPO with the right
+               mouse button to edit the topography color. </entry>
+</row>     
+<row>
+		<entry>MAP </entry>
+		<entry>Toggle the display of map lines.  This button will not appear if
+               the map file was not found.  Click on MAP with the right mouse
+               button to edit the color of the map lines. </entry>
+</row>     
+<row>
+		<entry>BOX </entry>
+		<entry>Toggle the display of the 3-D box. </entry>
+</row>
+<row>
+		<entry>CLOCK </entry>
+		<entry>Toggle the display of the clock. </entry>
+</row>     
+<row>
+		<entry>SAVE </entry>
+		<entry>Save current graphics and colors.  After you've setup a variety
+               of isosurfaces, slice, wind trajectories and colors it is useful
+               to be able to save them and restore them the next time the data
+               set is visualized.  You'll be prompted for a filename.  The file
+               format, as of Vis5D 4.2 is a Tcl script.  See section 6.16 for
+               more information.  Using the right mouse button when clicking on
+               this button will allow the current vis5d data set to be saved to
+               a file in the v5d format.  See section 6.21. </entry>
+</row>     
+<row>
+		<entry>RESTORE </entry>
+		<entry>Restore the information save with the SAVE button.  See section
+               6.16 for more information. </entry>
+</row>     
+<row>
+		<entry>GRID #s </entry>
+		<entry>Normally the bounds of the data set in latitude, longitude and
+               kilometers are displayed along the edges of the box.  Use this
+               button to display the numbers in grid coordinates instead. </entry>
+</row>     
+<row>
+		<entry>CONT #s </entry>
+		<entry>The numbers which are drawn on contour line slices can be toggled
+               on or off with this button. </entry>
+</row>     
+<row>
+		<entry>[ANIM-REC] </entry>
+		<entry>This button works just like ANIMATE but allows fast
+               animations on system with slow 3-D rendering.  After each time
+               step is rendered the image is saved in memory.  When the
+               animation loop repeats the images are quickly copied from memory
+               to the 3-D window resulting in a faster animation. </entry>
+</row>     
+<row>
+		<entry>REVERSE </entry>
+		<entry>Normally, the 3-D box and clock are drawn in white on a black
+               background.  This option reverses that and draws a black box and
+               clock on a white background.  This is useful for making paper
+               print outs. </entry>
+</row>
+<row>     
+		<entry>SAVE PIC </entry>
+		<entry>Used to save the image in the 3-D or sounding window to a file.
+               When the 'Sounding' mode is chosen from the radio widgets the
+               sounding window  will be saved.  If any other mode such as
+               'Normal' or 'Slice' is chosen the 3-D window (including all
+               displays if multiple displays exist) will be saved.  Depending on
+               what system you're using a number of different picture file
+               formats are supported.  On SGI systems be sure you have the
+               'tops', 'frombin', and 'togif' program installed from your IRIX
+               CD-ROM.  When using OpenGL on SGIs the 'fromxwd' program is also
+               needed.  Unfortunately there is a bug in this program which often
+               causes it to fail.  Included with vis5d however is a patched
+               version of fromxwd.  An alternate way of insuring more save
+               formats is to download ImageMagick's 'convert' program. See
+               section 6.14. </entry>
+</row>
+<row>     
+		<entry>PERSPEC </entry>
+		<entry>Toggle between perspective and orthogonal viewing projections.
+		 </entry>
+</row>     
+<row>
+		<entry>SCRIPT </entry>
+		<entry>Used to run Vis5D Tcl scripts.  When you click on this button a
+               file request will appear in which you can select the Tcl script
+               to run.  For more information see section 6.16. </entry>
+</row>
+<row>     
+		<entry>INTERP </entry>
+		<entry>Starts the Vis5D interactive interpreter.  In your shell window
+               you may then enter Tcl commands.  Vis5D will be suspended while
+               the interpreter is active.  Type 'exit' to exit the interpreter.
+               For more information see section 6.16. </entry>
+</row>     
+<row>
+		<entry>UVW VARS </entry>
+		<entry>Opens a window in which you can specify the names of the
+               variables to use for computing trajectories and wind slices. </entry>
+</row>     
+<row>
+		<entry>LEGENDS </entry>
+		<entry>Toggles the display of colorbar legends in the 3-D window. </entry>
+</row>     
+<row>
+		<entry>IMPORT </entry>
+		<entry>Invokes the import utility program for bringing new data sets
+               into a Vis5D session.  For more information see sections 7.1 and
+               7.2. </entry>
+</row>
+<row>
+		<entry>DISPLAY </entry>
+		<entry>Opens a window which allows you manipulate the assignment of data
+               sets to display windows and change various values associated with
+               display windows.  For more information see section 6.20 </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>     
+</sect2>
+<sect2>
+<title>Viewing Modes</title>
+<para>
+     In 'Normal' mouse mode the mouse is used to view the data in the 3-D
+window.  By pressing the left mouse button and moving the mouse while the cursor
+is in the 3-D window, the 3-D image can be rotated.  At any instant you can only
+control two of the three degrees of freedom of box rotations.  However, by
+releasing and re-pressing the left mouse button you can change your "grip" on
+the box.  With practice you will learn to control the box through a series of
+mouse moves, releasing and re-pressing the left button between moves.
+</para>
+<para>
+     The center button controls two very different things depending on how the
+mouse is moved.  Holding the center button down and sliding the mouse away from
+yourself zooms in, making the box get bigger.  Sliding the mouse towards
+yourself zooms out and makes the box get smaller.  Holding the center button
+down and sliding the mouse right moves a plane of invisibility (i.e. a clipping
+plane) into the box, creating a cut away view of the box contents.  Sliding the
+mouse left brings the clipping plane toward yourself, eventually out of the box
+altogether.
+</para>
+<para>
+     The right mouse button is pressed to translate the box in the window.  This
+is useful if you want to zoom in to something that is not in the center of the
+box.  Note that the center of rotation for box rotations stays at the center of
+the screen rather than in the center of the box.
+</para>
+<para>
+     The other five viewing modes will be discussed in detail in following
+sections.
+</para>
+</sect2>
+<sect2>
+<title>Isosurfaces</title>
+<para>
+     An isosurface (3-D contour surface) shows the 3-D volume bounded by a
+particular isovalue.  The isosurface has the specified iso-level, the volume
+inside contains values greater (or less) than the isovalue.  The volume outside
+contains values less (or greater) than the isovalue.
+</para>
+<para>
+     The first column of buttons in the control panel's button matrix controls
+isosurfaces.  Clicking on one of these buttons with the left mouse button causes
+a pop-up window with a slider and OK button to appear below.  Select an isovalue
+on the slider and click on the OK button to generate an isosurface for all time
+steps.
+</para>
+<para>
+     Toggling ANIMATE on will let you watch the time dynamics of the iso-level
+contour surfaces.  Note that the surfaces are generated asynchronously with the
+animation, so you may not see the surfaces for all the time steps as the clock
+hand makes it revolution.  The new surfaces will appear on successive clock
+revolutions.
+</para>
+<para>
+     Clicking on an isosurface button with the middle mouse button will summon
+the pop-up window without toggling the surface on or off.
+</para>
+<sect3>
+<title>Isosurface Color</title>
+<para>
+     An isosurface may either be drawn entirely in one color or colored
+according to the values of another physical variable.
+</para>
+<para>
+     To change the color of an isosurface, click on the appropriate isosurface
+button with the right mouse button.  A window will appear with a column of
+variable names (first button labeled "monocolor") and four sliders labeled red,
+green, blue, and transparency.
+</para>
+<para>
+     By default, monocoloring is used.  To change the isosurfaces's color just
+move the red, green, and blue sliders.
+</para>
+<para>
+     If you click on a button other than "monocolor" you will tell vis5d to draw
+the isosurface according to another physical variable.  The red,green,blue
+sliders will be replaced with a color table editor.  You can change the color
+table (which maps data values to colors) by drawing new curves with the mouse or
+by pressing the up, down, left, and right cursor keys on your keyboard.
+</para>
+<para>
+     As an example, suppose you're viewing the LAMPS.v5d data set.
+Make an isosurface of wind speed at 40 m/s.  The isosurface should be
+blue.  Click on the SPD isosurface button with your right mouse
+button.  The color window appears.  Click on the T button in that
+window and the isosurface will now be colored according to
+temperature.  You can modify the mapping from temperature values to
+colors by "drawing" the red, green, and blue curves in the color table
+window with the mouse buttons or by pressing the cursor keys. Changing
+the color table is explained more below in the section about colored
+slices.
+</para>
+</sect3>
+</sect2>
+<sect2>
+<title>Slices</title>
+<para>
+     Slices allow you to look at planar cross sections of data in the 3-D box.
+These slices can be oriented either horizontally or vertically and may depict
+either contour lines, colored slices, wind vectors, or wind stream lines.
+</para>
+<para>
+     As described in section 6.1, the last group of buttons on the control panel
+is a matrix of buttons, the second through fifth columns of which control
+slices.  There is a column of buttons for horizontal contour slices, vertical
+contour slices, horizontal colored slices and vertical colored slices,
+respectively.  If your data set contains U, V, and W variables, there will also
+be a row of wind vector slice buttons as described in 6.2.  There are two
+buttons for horizontal wind slices and two buttons for vertical wind slices.
+</para>
+<para>
+     To activate/turn on a slice, click on the appropriate widget button with
+the left mouse button.  The initial position for slices is the middle of the
+box.  The exact slice location in terms of latitude, longitude or elevation is
+given by a small numeric labels near the one corner of each slice.  To print the
+numbers as grid coordinates instead of geographic coordinates, toggle the "GRID
+#s" widget button on the control panel.
+</para>
+<para>
+     The position of slices can be changed interactively using the mouse.  To do
+so you must first be in SLICE mode by selecting the SLICE radio button.  To move
+any slice, simply point at the slice's corner with the mouse, press the right
+mouse button and drag it to a new position.  Vertical slices may also be moved
+in a perpendicular motion by "grabbing" the middle of the top or bottom edge and
+dragging it.  A slice may be moved while in animation mode, however, some
+jumpiness may occur because new slices are computed asynchronously.
+</para>
+<para>
+     Slices may also be linked in a chain.  When slices are linked, the state
+and movement of all the linked slices are synchronized.  Horizontal and vertical
+slices can not be linked.  Slices can be linked by using the API function call
+'vis5d_link_slices' and 'vis5d_unlink_slice' from a script or via the 'INTERP'
+button in the control panel.
+</para>
+<sect3>
+<title>Contour Line Slices</title>
+<para>
+     When viewing a horizontal or vertical contour line slice (button columns
+two and three) a small control window will appear as well.  In this pop-up
+window you can enter the interval to
+use between contour lines.  Just type in a new number to change the interval.
+Decreasing the interval will cause denser contour lines to be generated,
+increasing the interval will result in sparser lines.
+</para>
+<para>
+     If you enter a negative interval then all contour lines with a negative
+value will be drawn with dashed lines while positive values will be drawn with
+solid lines.
+</para>
+<para>
+     Optionally, after the interval value you may specify a range of values
+(a,b) which will cause only contour values between a and b to be drawn.  For
+example, suppose you enter
+</para>
+<para>
+     -10 (-30,20)
+</para>
+<para>
+This will result in contour lines for values between -30 and 20 at intervals of
+10 with negative lines drawn as dashed lines.
+</para>
+<para>
+     The "CONT #s" button on the control panel toggles the display of the
+contour numbers within the slice.
+</para>
+<para>
+     The SFC button will cause the horizontal slice data to be sampled from the
+topography surface then displayed on top of the topograhpy.
+</para>
+</sect3>
+<sect3>
+<title>Colored Slices</title>
+<para>
+     When a viewing a horizontal or vertical colored slice (button columns four
+and five) a color table window will appear.  In this pop-up window you can
+change the mapping from data values to colors.  If the LEGENDS control panel
+button is selected the color table will also be displayed in the 3-D viewing
+window.
+</para>
+<para>
+     The window shows graphs of red, green, and blue over the range of data
+values.  To change the red, green, or blue function press the left, middle, or
+right mouse button, respectively, and drag the mouse to draw a new function.  By
+default, low data values are mapped to blue and high data values are mapped to
+red.
+</para>
+<para>
+     Instead of using the mouse you can use the keyboard cursor (arrow) keys to
+modify the shape and position of the default function curves.  Press the
+left/right keys to move the curves left or right.  Press the up/down keys to
+change the shape of the curves.
+</para>
+<para>
+     You may also change the transparency of the slice as a function of the data
+values.  Press and hold the SHIFT key while using the mouse or up/down keys to
+change the transparency.
+</para>
+<para>
+There are a number of other keyboard controls for the color table window:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		  <entry><keycap>r</keycap></entry>
+		  <entry>reset red, green and blue values </entry>
+</row>
+<row>
+		  <entry><keycap>R</keycap></entry>
+		  <entry>reset transparency values </entry>
+</row>
+<row>
+		  <entry><keycap>c</keycap></entry>
+		  <entry>copy color to an off-screen clipboard </entry>
+</row>
+<row>
+		  <entry><keycap>p</keycap></entry>
+		  <entry>paste colors from the off-screen clipboard </entry>
+</row>
+<row>
+		  <entry><keycap>s</keycap></entry>
+		  <entry>save color values to a file, enter filename 
+                  in your shell window
+		   </entry>
+</row>
+<row>
+		  <entry><keycap>l</keycap></entry>
+		  <entry>load color values from a file, enter filename
+                  in your shell window </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</sect3>
+<sect3>
+<title>Wind Vector Slices</title>
+<para>
+     Wind vector slices are displayed with the buttons near the center
+of the control panel labeled HWIND-1, VWIND-1, HWIND-2 and VWIND-2.
+The pop-up window for these graphics contains two type-in fields to
+control the density and scaling of the wind vectors.  The scale
+parameter is used to multiply the length of vectors drawn.  If you
+want to double the length of all vectors, enter 2.0.  If you want to
+halve the lengths, enter 0.5.  The density parameter controls how many
+wind vectors are displayed.  This value can only be between zero and
+one.  To make one-half the number of vectors, enter 0.5, for
+one-fourth enter 0.25, etc.  The default values for both parameters is
+1.0.
+</para>
+<para>
+     The SFC button for horizontal wind slices will cause the slice data to be
+sampled from the topography surface then displayed on top of the topograhpy.
+</para>
+</sect3>
+<sect3>
+<title>Wind Stream Slices</title>
+<para>
+     Wind stream slices show the path of wind as connected line segments.  The
+pop-up control window contains a type-in widget to control the density of
+streamlines (note that the scale parameter is not used).  The density parameter
+controls how many streamlines are displayed.  This value can only be between 0.5
+and 2.0.  To make one-half the number of streamlines, enter 0.5, to make twice
+the number of streamlines, enter 2.0, etc.  The default density is 1.0.
+</para>
+<para>
+     The SFC button will cause the horizontal slice data to be sampled from the
+topography surface then displayed on top of the topograhpy.
+</para>
+</sect3>
+<sect3>
+<title>Slice colors</title>
+<para>
+     The color of a slice's control button matches that of the slice
+itself (except for colored slices for which the slice's tick mark
+matches the slice's button.)  To change the color of a slice click on
+the slice's button with the right mouse button.  A window with red,
+green, and blue sliders will appear.  Move the sliders to change the
+color.
+</para>
+</sect3>
+</sect2>
+<sect2>
+<title>Volume Rendering</title>
+<para>
+     Volume rendering is a technique for displaying a 3-dimensional field as a
+semi-transparent colored fog.  Though volume renderings of some physical
+variables don't look, others can be displayed very effectively with the right
+color mapping.
+</para>
+<para>
+     The volume rendering feature is available in Vis5D on almost all systems.
+Be warned that systems without 3-D graphics hardware (i.e. those using Mesa)
+will render volumes very slowly.
+</para>
+<para>
+     The sixth column of buttons on the control panel are the volume buttons.
+Only one may be displayed at a time.  When a volume rendering is activated a pop-
+up window with a color table appears.  This color table is used in exactly the
+same way as described for colored slices above.  That is, using the mouse or
+keyboard you can change the function which maps data values to color and
+transparency.  Again, the transparency can be changed while holding down the
+SHIFT key and drawing a curve with the mouse or pressing the up/down keys.
+</para>
+<para>
+For those who are curious about the implementation of this feature, the volume
+rendering is made as follows:
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>
+       Examine the current viewing transformation to determine which axis of
+       the 3-D box is most nearly parallel to the view direction.
+</para>
+</listitem>
+<listitem>
+<para>
+       Create a number of colored slices perpindicular to that axis which map
+       data values to colors and opacity.
+</para>
+</listitem>
+<listitem>
+<para>
+       Render the colored slices in back to front order.  The alpha values at
+       vertices are interpolated and blended to make smooth transitions between
+       and within slices.
+</para>
+</listitem>
+</orderedlist>
+</para>
+<para>
+     Despite the simplicity of the algorithm, most fields are rendered
+acceptably.  Those that aren't can be improved by adjusting the color and
+opacity mappings.  While more attractive volume rendering techniques are known,
+this technique can be implemented quickly on many systems.
+</para>
+</sect2>
+<sect2>
+<title>Wind Trajectories</title>
+<para>
+     Wind trajectories trace the motion of air through the 3-D volume much line
+smoke trails in a wind tunnel.  To enter trajectory mode select the TRAJECTORY
+radio button on the control panel.  A pop-up window will appear near the bottom
+of the screen and a 3-D cursor will appear inside the 3-D view box.  This 3-D
+cursor is used to specify where a new wind trajectory should be made.  The STEP
+button on the main control panel is also important because it is used to select
+the time step at which to create the trajectory.
+</para>
+<para>
+     Wind trajectories are dealt with in sets.  Currently, eight sets are
+available.  Each set is represented in the trajectory window with a button
+labeled Set1, Set2, ..., Set8.  Each set can be individually displayed, colored,
+or deleted.  As you create new trajectories you may want to group them in sets
+corresponding to location, time, etc.
+</para>
+<para>
+     The first step in creating a trajectory is to select a position with the 3-
+D cursor.  Use the right mouse button to drag the 3-D cursor around inside the 3-
+D box.  The 3-D cursor will move in 2-D in a plane parallel to the plane of
+projection.  That is, the cursor will stay at a constant distance of depth.  By
+alternately rotating the view box with the left mouse button and placing the
+cursor with the right mouse button, the 3-D cursor can be placed anywhere inside
+the view box.  The TOP, SOUTH, and WEST buttons as explained in section 6.2 can
+also be useful when making trajectories.
+</para>
+<para>
+     Second you should select a time step with the STEP button on the control
+panel.  When the trajectory is made, it will be traced forward from the current
+time step to the last time step and will be traced backward through time to the
+first time step.
+</para>
+<para>
+     Finally, to make a trajectory at the current cursor location and current
+time step, press the middle mouse button when pointing inside the 3-D window.
+The trajectory will appear as a line segment.  By turning on the ANIMATE button,
+you can observe how the trajectory travels through time and space.  Typically,
+you will repeat the process of positioning the 3-D cursor and clicking the
+middle mouse button to create a set of trajectories.
+</para>
+<para>
+     Interesting results can be seen by making a trajectory when the ANIMATE
+button is turned on:  a trajectory will be created for every time step instead
+of just one.  This will show you the path of every air parcel which passes
+through a single point in space.
+</para>
+<para>
+Here is a summary of the various trajectory functions:
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>  
+        To position the 3-D cursor, use a combination of rotating the view box
+        with the left mouse button and dragging the 3-D cursor with the right
+        mouse button.
+</para>
+</listitem>     
+<listitem>
+<para>  
+        Use the STEP button or ANIMATE option to select a time step.
+</para>
+</listitem>     
+<listitem>
+<para>  
+        Press the middle mouse button to create a trajectory at the current
+        cursor location and time step.
+</para>
+</listitem>     
+<listitem>
+<para>  
+        To toggle the display of a trajectory set on or off, click on the set
+        button with the left mouse button.
+</para>
+</listitem>     
+<listitem>
+<para>  
+        Select the current trajectory set by clicking on the set button with
+        the middle mouse button.
+</para>
+</listitem>     
+<listitem>
+<para>  
+        A trajectory set may be deleted with the 'Delete Set' button in the
+        trajectories window.  You will asked to verify your decision.
+</para>
+</listitem>
+<listitem>
+<para>     
+        You can delete the last trajectory made by clicking on the 'Delete
+        Last' button in the trajectories window.
+</para>
+</listitem>
+</orderedlist>
+</para>
+<para>
+     Wind trajectories can be depicted in two ways:  as line segments or as
+ribbons.  You can select ribbons by clicking on the RIBBON button in the
+trajectory window.  Toggling the RIBBON button will not effect trajectories you
+have already made; it only controls how new trajectories will be displayed.
+</para>
+<para>
+     The trajectory window also contains two type-in widgets labeled STEP and
+LENGTH.  The STEP value is used to control the step size used in the trajectory
+tracing algorithm.  The LENGTH value is used to control the length of
+trajectories.  1.0 is the default value for each.  Each acts as a multiplier.
+If you want the trajectory tracer to integrate in steps 1/2 the default size,
+enter a step value of 0.5.  If you want trajectories to be twice as long as the
+default length, enter a length value of 2.0
+</para>
+<para>
+     The color of trajectories is controlled in the same way as for isosurfaces.
+That is, a trajectory set may either be mono-colored or colored according to
+another physical variable.  Click on the trajectory set button with the right
+mouse button to bring up its color window.  See section 6.5.1 for details on
+using the color window.
+</para>
+<para>
+     When viewing color-mapped trajectores be aware that the color of a
+trajectory is time dependent.  Only the head of the trajectory is colored
+according to the value of another variable for the current time step.  The tail
+of the trajectory is colored according to the color of the other variable when
+the head was at that location.
+</para>
+</sect2>
+<sect2>
+<title>Wind Variables</title>
+<para>
+     By default, wind trajectories and the first set of wind slices are computed
+from the variables named U, V, and W while the second set of wind slices are
+computed from the variables named U2, V2, and W2.  Other variables can be
+specified through the "UVW VARS" button on the control panel.  When you click on
+this button a pop-up window appears in which you can
+specify the names of the variables to use for computing trajectories, the first
+set of wind slices, and the second set of wind slices.  Just type in the new
+variables names.  Be aware that uppercase and lowercase are significant.  Be
+sure you enter valid names otherwise vis5d may not compute the graphic you
+select.
+</para>
+<para>
+     When multiple data sets are being viewed in one display a period and data
+context index number must be appended to the end of each variable to specify a
+data set index number.  For example the first set of UVW's might be " U.0 V.0
+W.0" while the second set might be "U.2 V.2 W.2".  The wind variables belonging
+to a set MUST be from the same data set other wise they will be considered
+invalid.
+</para>
+<para>
+     After you've entered new wind component variable names click on APPLY to
+use the new values but keep the window visible.  Click on OK to use the new
+values and close the window.  Click on CANCEL to discard your changes and close
+the window.
+</para>
+<para>
+     You can also specify the wind component variables on the command line when
+you start vis5d.  See section 6.1.
+</para>
+</sect2>
+<sect2>
+<title>Text Labels</title>
+<para>
+     Text labels are used to annotate the image in the 3-D viewing window.
+Typically this is used for making presentation graphics.  You could add a title,
+your name, the date, highlight a particular feature of the data, or document the
+meaning of the data seen in the window.
+</para>
+<para>
+     To enter text labeling mode select the LABEL radio button on the control
+panel.
+</para>
+<para>
+     To create a text label position the mouse pointer somewhere in the 3-D
+window and press the left mouse button.  A vertical bar cursor will appear at
+that location and you can now type in the text.  The < Backspace > key can be used
+to correct errors.  When you are finished, press < Return >.
+</para>
+<para>
+     To move a text label to a new position, point at it with the mouse, hold
+down the middle mouse button and drag the mouse.  As you move the mouse an
+outline of the text will be dragged with the pointer until you release the mouse
+button.
+</para>
+<para>
+     To delete a text label, pointing at it with the mouse and pressing the
+right mouse button.  Be careful, you will not be asked for verification before
+deleting a label.  Once it's deleted you can only restore it by retyping it.
+</para>
+<para>
+     The SAVE button on the control panel will save any text labels you have
+made.
+</para>
+<para>
+Use the <option>-font</option> command option to select a different font 
+or change the 'fontname' field in the 'Options' menu.
+</para>
+</sect2>
+<sect2>
+<title>Data Probe</title>
+<para>
+     Sometimes it's useful to be able to inspect individual data values at
+various locations in the 3-D volume.  You can do this with the data probe.
+Click on the PROBE radio button on the control panel.  A 3-D cursor appears in
+the 3-D box which you can move around using the right mouse button.  For each
+physical variable the value for the current time step is printed along the left
+edge of the 3-D window.  If physical units are specified for the variable they
+will be printed next to the value.  Units can be assigned with the v5dSetUnits()
+function in your data conversion program as described in section 3.1.
+</para>
+<para>
+     If you turn on the GRID #'s button, the probe will be constrained to
+integral grid coordinates.  That is, the cursor will 'snap' to the nearest
+discrete grid coordinate.
+</para>
+<para>
+     When the PROBE radio button is clicked on with the right mouse button is
+will be attached to the head of a trajectory.  The probe will search for the
+first set of trajectories being displayed, then attach to the head of the first
+trajectory made in that set.  The probe will also follow the movement of the
+trajectory during animation.  This feature is useful for identifying the values
+at the location of a trajectory as is moves along its path.
+</para>
+<para>
+     One may also select which variables to display while in the PROBE mode.
+The API function 'vis5d_set_probe_vars' can be used in a script or via the
+'INTERP' button.
+</para>
+</sect2>
+<sect2>
+<title>Vertical Sounding and SkewT</title>
+<para>
+     When you select Sounding mode, Vis5D displays a vertical line cursor that
+runs from the bottom to the top of the 3-D box, and displays a vertical sounding
+window.  The sounding window includes a SkewT diagram generated for grid data at
+the location of the vertical cursor (unless your data set uses generic vertical
+coordinates), and vertical plots of up to three variables.  The user can
+interactively select and change which variables are used for temperature, dew
+point and wind fields in the SkewT diagram.  Variables named T, TD, U and V are
+used as defaults if they exist.  The user can also interactively select and
+change which variables are used for the vertical plots.  Users can interactively
+control the background of the SkewT diagram and vertical plots, including dry
+adiabats, moist adiabats, constant mixing ratio lines, temperature lines and
+height tick marks.  They can also interactively resize and reposition the
+sounding window.
+</para>
+<para>
+     When multiple data sets are being viewed in one display a period and data
+context index number must be appended to the end of each vertical plot variable
+(e.g., "T.1" or "TD.2").
+</para>
+<para>
+     The scale for the vertical plot variables can be forced to be the same for
+all three variables.  This can be achieved by using the command line option '-
+samescale' or by entering the display widget (press 'DISPLAY') then pressing the
+'OPTIONS' button and selecting 'samescale'.
+</para>
+</sect2>
+<sect2>
+<title>Making New Variables</title>
+<para>
+     The NEW VAR button on the control panel is used to add new physical
+variables to the button matrix.  There are three kinds of new variables you can
+add:
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>
+     Cloned variables:  these are copies of existing variables.  You can use
+a cloned variable to make two different isosurfaces of the same variable
+simultaneously, for example.
+</para>
+</listitem>
+<listitem>
+<para>
+     External function variables:  you can invoke an external function (which
+you write) to compute a new variable as a function of existing variables.
+</para>
+</listitem>
+<listitem>
+<para>
+     Computed variables:  you can compute a new variable by typing in a
+formula involving values of existing variables.
+</para>
+</listitem>
+</orderedlist>
+</para>
+<para>
+     When you click on the NEW VAR button a window appears which lists the
+variables that you can clone, lists the external functions that you can invoke,
+and lets you type in a formula for computing a new variable.  After a new
+variable has been created a new row of buttons will be added to the control
+panel for the new variable.  You can then make isosurfaces, contour slices, etc.
+of the that variable like any other.
+</para>
+<sect3>
+<title>Cloned Variables</title>
+<para>
+     Suppose you want to clone the U wind component variable so that you can
+make both +20 and -20 isosurfaces of it.  First, click on NEW VAR and then
+select U from the pop-up window.  The cloned variable will be named U'.  You can
+then treat U' as any other variable and make an isosurface of it.
+</para>
+</sect3>
+<sect3>
+<title>Type-in Formulas</title>
+<para>
+     Type-in formulas let you type in mathematical expressions to compute new
+variables as a function of existing variables.  For example, to compute wind
+speed from U, V, and W you would enter the formula:
+</para>
+<para>
+     SPD3D = SQRT( U*U + V*V + W*W )
+</para>
+<para>
+To compute the ration of the dew point (TD) to the temperature you would enter
+the formula:
+</para>
+<para>
+     RATIO = TD / T
+</para>
+<para>
+     Formulas may use the names of existing variables, numbers, the arithmetic
+operations +, -, *, / and ** (exponentiation), and the functions SQRT, EXP, LOG,
+SIN, COS, TAN, ATAN (arc tangent), ABS (absolute value), MIN and MAX.  MIN and
+MAX take two arguments, while the other functions all take one argument.
+</para>
+<para>
+     There is a special operator 'time'.  This will allow one to choose the grid
+values for a certain time step relative to the current time step.  The format is
+'time(var, time_step_change).  If the var is subsituted with the word 'time'
+then the grid will be a constant value, the number of second since the first
+time step.  For example in order to create a time derivative of U of the type:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=1 align=center>
+<tbody>
+<row>
+		  <entry> U(t+1) - U(t-1) </entry>
+</row>
+<row>
+		  <entry> ---------------- </entry>
+</row>
+<row>
+		  <entry> Time(t+1) - Time(t-1) </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+you would enter the formula:
+</para>
+<para>
+     dUdt = ( time(U,1) - time(U,-1) ) / ( time(time,1) - time(time,-1) )
+</para>
+<para>
+     Click on the OK button to compute the new variable or CANCEL to discard the
+formula.  You can edit the formula later by selecting it again from the NEW VAR
+pop-up window.
+</para>
+<para>
+     When multiple data sets are being viewed in one display a period and data
+context index number must be appended to the end of each variable in the
+formula.  For example the above formula might instead look like:
+</para>
+<para>
+     SPD3D.2 = SQRT(U.0*U.0 + V.2*V.2 + W.2*W.2)
+</para>
+<para>
+To compute the difference of two seperate variables you would enter the formula:
+</para>
+<para>
+     DIFFT.0 = T.0 - T.1
+</para>
+<para>
+If there are multiple data sets but no index number appended then it will be
+assumed that the variable belongs to the first data set (i.e., index 0)
+deposited into the display.  In some cases the time steps for two different
+variables will not coincide.  When this happens the variable is computed
+according to the time steps of the data set which the new variable belongs to.
+Time steps will be matched as close as possible and time steps out of range from
+one other will be void of data.  For example, in the formula "DIFFT.0 = T.0 -
+T.1", if the time steps were such:
+</para>
+<para>
+<table frame=none>
+<title>Data Context 0</title>
+<tgroup cols=3 align=center>
+<thead>
+<row>
+		  <entry> </entry>
+		  <entry>Date(YYDDD) </entry>
+		  <entry>Time(HH:MM:SS) </entry>
+</row>
+</thead>
+<tbody>
+<row>
+		<entry>Time 0 </entry>
+		  <entry>82091 </entry>
+		  <entry>0:00:00 </entry>
+</row>
+<row>
+		  <entry>Time 1 </entry>
+		  <entry>82091 </entry>
+		  <entry>2:00:00 </entry>
+</row>
+<row>
+		  <entry>Time 2 </entry>
+		  <entry>82091 </entry>
+		  <entry>4:00:00 </entry>
+</row>
+<row>
+		  <entry>Time 3 </entry>
+		  <entry>82091 </entry>
+		  <entry>6:00:00 </entry>
+</row>
+<row>
+		  <entry>Time 4 </entry>
+		  <entry>82091 </entry>
+		  <entry>8:00:00 </entry>
+</row>
+<row>
+		  <entry>Time 5 </entry>
+		  <entry>82091 </entry>
+		  <entry>10:00:00 </entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+</para>
+<para>
+<table frame=none>
+<title>Data Context 1</title>
+<tgroup cols=3 align=center>
+<thead>
+<row>
+		  <entry></entry>
+		  <entry> Date(YYDDD) </entry>
+		  <entry> Time(HH:MM:SS) </entry>
+</row>
+</thead>
+<tbody>
+<row>
+		  <entry>Time 0 </entry>
+		  <entry>82091 </entry>
+		  <entry>2:30:00 </entry>
+</row>
+<row>
+		  <entry>Time 1 </entry>
+		  <entry>82091 </entry>
+		  <entry>4:30:00 </entry>
+</row>
+<row>
+		  <entry>Time 2 </entry>
+		  <entry>82091 </entry>
+		  <entry>6:30:00 </entry>
+</row>
+<row>
+		  <entry>Time 3 </entry>
+		  <entry>82091 </entry>
+		  <entry>8:30:00 </entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+</para>
+<para>
+The resulting variable "DIFFT.0" would contain the data:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		  <entry>Time 0 </entry>
+		  <entry>No Data </entry>
+</row>
+<row>
+		  <entry>Time 1 </entry>
+		  <entry>No Data </entry>
+</row>
+<row>
+		  <entry>Time 2 </entry>
+		  <entry>T.0(time=2) - T.1(time=1) </entry>
+</row>
+<row>
+		  <entry>Time 3 </entry>
+		  <entry>T.0(time=3) - T.1(time=2) </entry>
+</row>
+<row>
+		  <entry>Time 4 </entry>
+		  <entry>T.0(time=4) - T.1(time=3) </entry>
+</row>
+<row>
+		  <entry>Time 5 </entry>
+		  <entry>No Data </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</sect3>
+<sect3>
+<title>External Analysis Functions</title>
+<para>
+     External analysis functions are an advanced feature, so new Vis5D users may
+want to skip this section for now.
+</para>
+<para>
+     An external analysis function is a function written by you in FORTRAN which
+is called by Vis5D to produce a new variable as a function of the existing
+variables.  As an example, there is included a function SPD3D which computes
+wind velocity as:  SPD3D = SQRT( U*U + V*V + W*W ).  Be aware that the external
+function feature is intended for experienced Vis5D users who are also proficient
+FORTRAN programmers.
+</para>
+<para>
+     All external functions must be placed in a directory named "userfuncs"
+(this may be changed in the vis5d.h file).  This is relative to the current
+directory when you run vis5d.  For example, suppose you always run vis5d while
+in "/usr/jones/data", then your analysis functions must be in
+"/usr/jones/data/userfuncs".  Also, this directory contains a script "externf"
+which is used to compile your function.
+</para>
+<para>
+     To write an external function it's best to copy one of the supplied
+examples and then modify it.  The included "userfuncs/example.f" is fully
+commented for this purpose.  Later, when you call your function from within
+vis5d, the function will be invoked once for each time step.  The arguments
+passed to the function include (the data set is the first data set in the
+display associated with the current control panel):
+</para>
+<para>
+<orderedlist>
+<listitem>
+<para>
+     the number of physical variables in the data set
+</para>
+</listitem>
+<listitem>
+<para>
+     the name of each variable
+</para>
+</listitem>
+<listitem>
+<para>
+     the size of the 3-D grid
+</para>
+</listitem>
+<listitem>
+<para>
+     the date and time of the time step
+</para>
+</listitem>
+<listitem>
+<para>
+     map projection and vertical coordinate system information
+</para>
+</listitem>
+<listitem>
+<para>
+     the actual 3-D grids of data for each physical variable
+</para>
+</listitem>
+</orderedlist>
+</para>
+<para>
+     Your function will have to scan the list of variable names to find the ones
+it needs for the computation.  Then it must do the actual computation,
+generating a new grid of data to return to vis5d.  The examples we've included
+demonstrate how to do this.  Specifically, you should look at example.f which
+has detailed documentation of the function arguments.  The map projection and
+vertical coordinate system arguments work in exactly the same way as the
+v5dCreate library call discussed insection 3.1
+</para>
+<para>
+     Suppose you want your function to be named "delta".  Then the name of the
+FORTRAN program must be "delta.f".  You would compile the function by typing
+"externf delta".  If there are no errors, an executable file "delta" will be
+written.  Then in vis5d when you select NEW VAR, "delta" should appear in the
+list of functions in the pop-up window.
+</para>
+<para>
+     There are two places for vis5d to get the grid data which it passes to your
+external function:  from the original, uncompressed McIDAS file or the
+compressed v5d/comp5d file.  The uncompressed McIDAS data is better because it
+has more precision.  If the McIDAS file can't be found, then the compressed data
+which vis5d has in memory will be passed to your external function.  Note that
+this has no bearing whatsoever on the construction of your external function.
+</para>
+<para>
+     You can retrieve the position and values of the data probe from within your
+function.  To get the position of the probe use:
+</para>
+<para>
+     CALL PROBEPOS( ROW, COL, LEV, LAT, LON, HGT )
+</para>
+<para>
+The position in grid coordinates will be returned in ROW, COLumn, and LEVel.
+The position in geographic coordinates will be returned in LATitude, LONgitude,
+and HeiGhT.
+</para>
+<para>
+To get the value of any physical variable at the current probe position and
+current time step use:
+</para>
+<para>
+     VALUE = PROBEVAL( VAR )
+</para>
+<para>
+where VAR specifies which physical variable you want.
+</para>
+</sect3>
+</sect2>
+<sect2>
+<title>Saving Image Files and Printing</title>
+<para>
+     The SAVE PIC button on the control panel can be used to save the image in
+the 3-D or sounding window to a file.  If you are in 'Sounding' mode the
+sounding window will be saved, any other mode will save the 3-D window
+(including all displays if multiple displays exist).  When you click on SAVE PIC
+a pop-up window appears in which you can select the file format and filename.
+The choices of file formats depends on the computer you're using or whether or
+not you have the 'convert' program installed.  The formats supported by Vis5D
+are:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<tbody>
+<row>
+		<entry>XWD </entry>
+		<entry>X Window Dump, displayable with xwud or xv. </entry>
+</row>
+<row>
+		<entry>RGB </entry>
+		<entry>SGI image file format, displayable with ipaste or xv. </entry>
+</row>
+<row>
+		<entry>GIF </entry>
+		<entry>Standard GIF format, displayable with xv and many other programs.
+		 </entry>
+</row>
+<row>
+		<entry>PostScript </entry>
+		<entry>may be printed or viewed on-screen with a program like ghostview.
+		 </entry>
+</row>
+<row>
+		<entry>Color PostScript </entry>
+		<entry>may be printed or viewed with a ghostview-like program. </entry>
+</row>
+<row>
+		<entry>PPM </entry>
+		<entry>standard unix file format. </entry>
+</row>
+<row>
+		<entry>TGA </entry>
+		<entry>only available with the 'convert' program </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+     It is recomended that the 'convert' program be downloaded.  This ensures
+more save file formats and in some cases produces higher quality save pictures.
+ImageMagick's 'convert' program can be downloaded at:
+   ftp://ftp.wizards.dupont.com/pub/Imagemagick
+and the www page is
+   http://www.wizards.dupont.com/cristy/ImageMagick.html
+Once the 'convert' binary has been downloaded or compiled it has to be placed in
+a directory 'util' where vis5d is being run.  For example if you are running
+vis5d from '/usr/home/jane' then the convert program must be placed in
+'/usr/home/jane/util'.
+</para>
+<para>
+     Configurations of Vis5D  using OpenGL directly write XWD files.  The
+following methods are used if no 'convert' program is present.  To make an RGB
+file the fromxwd program is used.  Unfortunately, the fromxwd program shipped by
+SGI has a bug which causes it to fail.  Since source code for fromxwd is shipped
+with IRIX we include a patched version which works correctly.  To make a gif
+file requires both fromxwd and togif (only available on SGI systems).  To make a
+grayscale PostScript file requires the xpr utility (standard with X11).  To make
+a color PostScript file the tops program is needed (only available on SGI
+systems).
+</para>
+<para>
+     If you don't have any of the utilities mentioned above you should try using
+xv to convert your image files.  xv is available by ftp from export.lcs.mit.edu
+in contrib/ and from ftp.cis.upenn.edu in the pub/ directory.
+</para>
+<para>
+     To print a Vis5D image, position the mouse pointer over the 3-D window and
+press the P key.  If you are in 'Sounding' mode the sounding window will be
+printed, any other mode and the 3-D window will be printed.  You'll be asked to
+verify your action.  Vis5D uses lpr to send a PostScript image file to the
+default printer or the printer specified by the PRINTER environment variable.
+To generate the PostScript file Vis5D uses the utilities described above.  If
+you have problems printing you should try to first save your image as a
+PostScript file then try to print it manually using lpr or lp.  Another option
+is to save your image as an XWD file then use xpr (a standard X11 utility) to
+convert it to PostScript and print it.
+</para>
+<para>
+     To learn more about the xwud, xpr, fromxwd, tops and togif program read the
+man pages.  Many of these programs have options which you may find useful.
+</para>
+</sect2>
+<sect2>
+<title>Texture mapping</title>
+<para>
+     Texture mapping is a term from computer graphics which means to display a 2-
+D image over a surface in 3-D.  In Vis5D you can display images over the
+topography (or bottom of the 3-D box when topography is turned off) such as
+satellite or map images.  Texture mapping is only available on SGI systems and
+those using the Mesa library.  Hardware support for texture mapping is highly
+recommended.
+</para>
+<para>
+There are three types of texture/image mapping in Vis5D which can specified on
+the command line or in the 'Options' menu:
+</para>
+<para>
+<variablelist>
+<title></title>
+<varlistentry>
+<term><option>-area N</option></term>
+<listitem><para>
+               N is the number of the first of a sequence of McIDAS area files.
+               The number of files read equals the number of timesteps in your
+               datafile.  Images should all be of the same size.  You must use
+               McIDAS to do remapping if necessary.
+               </para>
+               <para>
+               Example:  Suppose your datafile has 4 time steps and you specify
+               -area 100, then AREA0100, AREA0101, AREA0102 and AREA0103 will be
+               loaded and displayed.
+               </para>
+               <para>                
+               This option needs the McIDAS library which is only available on
+               SGI systems.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-sequence file</option></term>
+<listitem><para>
+               This works like the -area option, except that the data come
+               from a very simple file format rather than from McIDAS area
+               files.  The file starts with 3 int's that contain the number of
+               images in the sequence, the number of lines per image, and the
+               number of pixels per line.  The rest of the file contains the
+               images, one byte per pixel.  The function read_texture_sequence
+               in the image.c file of the src directory reads this file and
+               serves as a file format reference for those wishing to create
+               such image sequence files.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><option>-texture file</option></term>
+<listitem><para>
+               This options specifies a single image to display over the
+               topography for all time steps.  The file format is the SGI RGB
+               format.  The free XV program can be used to convert your image to
+               RGB format.
+</para></listitem>
+</varlistentry>
+</variablelist>
+</para>
+<para>
+When a texture map is available the TEXTURE button on the control panel is used
+to toggle the display of the imagery on or off.
+</para>
+<para>
+     Note these command line options can be used with each data set named on the
+command line, and can be entered under Options for each display in the display
+widget window described in Section 6.20.
+</para>
+</sect2>
+<sect2>
+<title>Tcl scripting</title>
+<para>
+     Vis5D 5.2 features a scripting facility.  That is, you can control Vis5D
+with a text file of commands using the Tcl language.  Scripting is an advanced
+subject and documented separately in the Vis5D scripting document at
+http://www.ssec.wisc.edu/~billh/script.html.
+</para>
+<para>
+     Note that the SAVE and RESTORE buttons on the control panel write and read
+Tcl files.  You may want to use bits of these files as a basis a new Tcl
+scripts.
+</para>
+</sect2>
+<sect2>
+<title>Keyboard Functions</title>
+<para>
+</para>
+<para>
+     The following keyboard functions can be invoked while the mouse pointer is
+inside the 3-D viewing window:
+</para>
+<para>
+<informaltable frame=none>
+<tgroup cols=2>
+<thead>
+<row>
+		<entry>	Key   </entry>
+		<entry> Function </entry>
+</row>
+</thead>
+<tbody>
+<row>
+		<entry><keycap>F1 </keycap></entry>
+		<entry> Raise or lower the control panel window.  This
+                is useful with the <option>-full</option> option. </entry>
+</row>
+<row>
+		<entry><keycap>F2 </keycap></entry>
+		<entry> Toggle display of system information including
+                memory used and number of graphics to be computed. </entry>
+</row>
+<row>
+		<entry><keycap>P </keycap></entry>
+		<entry> Print the current window image.  A PostScript printer must be
+                available.  Set the PRINTER environment variable from your shell to
+                specify which printer to use. </entry>
+</row>
+<row>
+		<entry><keycap>S </keycap></entry>
+		<entry> Slower animation - increases the minimum time
+                between frames by 10 msec. </entry>
+</row>
+<row>
+		<entry><keycap>F </keycap></entry>
+		<entry> Faster animation - decreases the minimum time
+                between frames by 10 msec. </entry>
+</row>
+<row>
+		<entry><keycap>R </keycap></entry>
+		<entry> Reset the clipping planes to there default positions </entry>
+</row>
+<row>
+		<entry><keycap>B </keycap></entry>
+		<entry>    Turn of the window borders.( This is useful
+                when using Sun workstations, an    unsolved bug causes the borders to
+                flash in a very annoying manner!) </entry>
+</row>
+<row>
+		<entry><keycap>l </keycap></entry>
+		<entry> Reduce the size fo the Vis5D logo</entry>
+</row>
+<row>
+		<entry><keycap>L </keycap></entry>
+		<entry>Increase the size of the Vis5D logo </entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>     
+     If you want to program your own keyboard functions look the in the file
+src/gui.c for the
+func1(), func2(), func3(), etc functions.  They are called when the
+corresponding function key is pressed.
+</para>
+</sect2>
+<sect2>
+<title>The Clipping Planes</title>
+<para>
+     Six new clipping planes has been added in Vis5D version 5.2.  This allows
+you to manipulate the viewing volume in a more precise manner.  Press the
+'Clipping' radio button in order to enter the clipping mode.
+</para>
+<para>
+     There are two horizontal clipping planes the top and bottom.  There are
+also four vertical clipping planes, the north, south, east and west.  Only one
+clipping plane may be moved at a time.  The middle mouse button, when clicked in
+the 3-D display window, will cycle through and highlight the six planes.  The
+clipping planes are then moved in the same manner as the vertical and horizontal
+slices.  Simply click on a corner or midpoint of the clipping slice with the
+right mouse button and drag it.  The clipping planes may set back to there
+default positions by pressing the 'R' key.
+</para>
+</sect2>
+<sect2>
+<title>Grouping</title>
+<para>
+     When there are multiple displays you can group them together in up to 9
+groups.  To group a display press the desired group number 1..9 on the keypad.
+This puts you in group toggling mode.  No other mouse or GUI event will be
+accepted while in this mode.  Then click with the left mouse button in a 3-D
+display window to add it to or delete it from the group.  If the display
+selected is not already in the group it will be added, and 'Group #' will show
+up in the upper right hand corner of the display window.  If the display
+selected is in a different group it will be switched to the current group.  If
+the selected display is already in the group you are toggling for then it will
+be ungrouped and the 'Group #' message will dissapear.  Any 3-D display will be
+toggled in this manner until you exit group toggling mode by simply pressing a
+number 1..9 on the keypad.
+</para>
+<para>
+     If two or more displays are grouped together than the following will
+happen:
+</para>
+<para>
+<itemizedlist>
+<listitem>
+<para>
+       If one display is rotated, zoomed or translated, all displays will change
+       in the same manner.
+</para>
+</listitem>
+<listitem>
+<para>
+       If a graphic for a certain variable is toggled in one display, the same
+       variable name is searched for in the other displays.  If the variable
+       exists, the same graphic will be toggled.
+</para>
+</listitem>
+<listitem>
+<para>
+       Isosurfaces are set to the same value.
+</para>
+</listitem>
+<listitem>
+<para>
+       Slices will move in sync.  They will move to the same geographical
+       position.
+</para>
+</listitem>
+<listitem>
+<para>
+       Many buttons on the control panel will be in sync.
+</para>
+</listitem>
+<listitem>
+<para>
+       The time steps for all grouped displays will be merged for animation.
+</para>
+</listitem>
+<listitem>
+<para>
+       The probe and sounding cursor will move in the same geographic position.
+</para>
+</listitem>
+<listitem>
+<para>
+       All of the radio buttons will be in sync.  If sounding mode is chosen,
+       the sounding window for all displays will be mapped.
+</para>
+</listitem>
+<listitem>
+<para>
+       Slices will be linked from all displays, sometimes creating a large
+       chain of linked slices
+</para>
+</listitem>
+</itemizedlist>
+</para>
+<para>
+When a display is grouped or ungrouped the buttons on its control panel are set
+to their default settings.  The graphics for every variable are also turned off.
+If more than one data set is attached to a grouped display and they contain
+similar named variables, only the first data set can display graphics for that
+variable.
+</para>
+</sect2>
+<sect2>
+<title>The Display Widget Window</title>
+<para>
+     The display widget window is the control center when multiple data sets are
+loaded and is invoked by pressing the 'DISPLAY' button on the main control
+panel.  A data set is always assigned to exactly one display, but a display may
+contain zero, one or more data sets.  A display includes a 3-D graphics window
+and defines a virtual grid space where all the graphics from its data sets are
+mapped.  If the data grid is different from the virtual grid the appropriate
+resampling is applied.  In some cases this resampling will cause graphics
+generation to be slow.
+</para>
+<para>
+     The display widget window allows you to: change the number of displays and
+how they are arranged, change the assignment of data sets to displays, change
+the parameters of a display which define the virtual grid, and change most of
+the command line options.
+</para>
+<para>
+     Each display's user interface includes a set of buttons and type-in fields
+and a data set browser.  At the top of the user interface is the 'Display #'
+which gives the index of the display.  Below that is a browser showing a list of
+data sets attached to that display.  Each entry in the browser contains the
+context index of the data set and the context name. There is a scroll bar to the
+right of the browser which can scroll though the list if it gets larger than the
+browser window.  Above the browser is the 'Options' button which is described in
+section 6.20.4.  Below  the browser is the 'SET DISPLAY PARAMETERS' which is
+described in section it 6.20.3.  Currently there can be a total of 16 displays.
+Watch out though, opening many displays can eat up a lot of memory.
+</para>
+<sect3>
+<title>Changing the Number of Displays</title>
+<para>
+     In the upper left hand corner is the 'Display Matrix' with 9 buttons,
+'1x1', '1x2', '1x3', '2x2', '3x2', '2x3', '3x3', '3x4', '4x3', and '4x4'.  These
+buttons control the number and layout of displays.  Underneath this is the
+'Return to Vis5D' button.  This will exit from the display widget window and map
+the 3-D graphics window of each display according to the chosen button matrix.
+If a display is created but has no data set attached to it then the 3-D window
+is left blank.
+</para>
+</sect3>
+<sect3>
+<title>Changing the Display Assignment of a Data Set</title>
+<para>
+     In order to change the aassignment a data set to a different display you
+have to highlight the desired data set. This is done by simply clicking on the
+appropriate entry in the display browser.  You then click inside the data set
+browser of another display and the data set transfered.  If a data set is
+transfered to an empty display it may take several seconds while the display is
+initialized.
+</para>
+</sect3>
+<sect3>
+<title>Changing the Parameters of a Display</title>
+<para>
+      The parameters of a display define the virtual grid.  These parameters
+include: the number of rows, columns and levels of the grid, the map projection,
+and the vertical coordinate system.  There are three ways of changing these
+parameters.  When an index number is typed into the 'FROM Context #' field, the
+parameters are copied from the specified data context over to the current
+display.  When an index number is typed into the 'FROM Display #' field, the
+parameters are copied from the specified display over to the current display.
+The third option is to manually edit one or all of the parameters by pressing
+the 'User Input' button.  A set of fields associated with each parameter will
+then appear on the left hand side.  When you are finished changing the
+parameters press the 'Done' button found at the bottom.
+</para>
+</sect3>
+<sect3>
+<title>Changing the 'Options' for a Display</title>
+<para>
+     In Vis5D version 5.2 the command line options (refer to section 6.1) can
+now be changed at any time instead of just once while first running vis5d.  When
+the 'Options' button is pressed at the top of the display browser a set of
+fields will appear on the left hand side.  These fields correlate to the command
+line options.
+</para>
+</sect3>
+</sect2>
+<sect2>
+<title>Saving the current v5d file</title>
+<para>
+     When the user clicks on the SAVE button with the right mouse button a
+window will show up prompting for a file name.  The current vis5d data set in
+the display will then be saved to a file in v5d format.  This is only useful
+when new variables have been created via the NEW VAR button or thru the use of
+external functions.
+</para>
+</sect2>
+<sect2>
+<title>Viewing Text Plots</title>
+<para>
+     When a button is clicked under the heading 'Text Plot', the text plot
+widget window will appear.  This will allow you to select which variable you
+want to plot.  Only one variable per data set can be selected.
+</para>
+<para>
+     The density of the text plots can be controlled by changing the number in
+the 'Spacing' field.  The higher this number, the more distance there is between
+the plots.  To view all the data points, which may look jumbled in some cases,
+set the 'Spacing' field to zero.
+</para>
+<para>
+     The font size and spacing between characters can be controlled by entering
+a number into the font fields, or by clicking on the + or -.
+</para>
+<para>
+     By clicking on the selected variable with the right mouse button, a color
+widget appears, allowing the user to alter the color of the text.  If the chosen
+variable contains numerical data, the option for 'Multicolor' apperas.  When
+this is clicked on the text characers will be mapped to their color value.
+</para>
+</sect2>
+<sect2>
+<title>Final Notes</title>
+<para>
+     The SGI version of vis5d uses multiple CPUs if available to compute
+graphics in the background thereby increasing vis5d's speed.  On other systems,
+vis5d tries to interleave the computation of graphics with user interaction.
+This results in the user interface being a bit sluggish until all pending
+graphics computations are completed.
+</para>
+<para>
+     The vis5d user interface may be complex to describe in words, but we have
+tried hard to make it simple in reality.  After a little practice using the
+sample data sets we hope it feels natural.
+</para>
+<para>
+     Since version 3.2 of Vis5D there is a user-contributed software directory:
+contrib/.  See the README file in that directory for a description of current
+contributions.
+</para>
+</sect2>
+</sect1>

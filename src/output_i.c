@@ -44,7 +44,7 @@
 #include "analyze_i.h"
 #include "file_i.h"
 #include "grid_i.h"
-#include "memory_i.h"
+#include "memory.h"
 #include "misc_i.h"
 #include "proj_i.h"
 #include "projlist_i.h"

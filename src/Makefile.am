@@ -19,7 +19,7 @@ API_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
 IMPORT_SRC = analyze_i.c file_i.c grid_i.c \
          misc_i.c output_i.c proj_i.c projlist_i.c read_epa_i.c \
         read_gr3d_i.c read_grid_i.c read_grads_i.c read_uwvis_i.c read_v5d_i.c\
-        resample_i.c select_i.c tokenize_i.c  memory_i.c \
+        resample_i.c select_i.c tokenize_i.c \
          iapi.c file.c irregular_v5d.c
 
 GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
@@ -29,7 +29,7 @@ GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
 # when are these not used?
 AUX_SRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
 
-HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour.h cursor.h displaywidget.h etableP.h file.h file_i.h fsl.h gl_to_ppm.h globals.h graphics.h grid.h grid_i.h groupchrono.h gui.h gui_i.h iapi.h igui.h image.h imain.h imemory.h irregular_api.h irregular_v5d.h isocolor.h labels.h linterp.h main_i.h map.h matrix.h memory.h memory_i.h misc.h misc_i.h model_i.h mwmborder.h netcdf.h netcdf_i.h output_i.h pipe.h proj.h proj_i.h projlist_i.h queue.h read_epa_i.h read_gr3d_i.h read_grads_i.h read_grid_i.h read_uwvis_i.h read_v5d_i.h record.h render.h resample_i.h rgb.h rgbsliders.h save.h script.h select_i.h slice.h socketio.h sounding.h soundingGUI.h stream.h sync.h tclsave.h textplot.h tokenize_i.h topo.h traj.h ui_i.h user_data.h uvwwidget.h vertplot.h vis5d.h volume.h vtmcP.h work.h xdump.h
+HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour.h cursor.h displaywidget.h etableP.h file.h file_i.h fsl.h gl_to_ppm.h globals.h graphics.h grid.h grid_i.h groupchrono.h gui.h gui_i.h iapi.h igui.h image.h imain.h imemory.h irregular_api.h irregular_v5d.h isocolor.h labels.h linterp.h main_i.h map.h matrix.h memory.h misc.h misc_i.h model_i.h mwmborder.h netcdf.h netcdf_i.h output_i.h pipe.h proj.h proj_i.h projlist_i.h queue.h read_epa_i.h read_gr3d_i.h read_grads_i.h read_grid_i.h read_uwvis_i.h read_v5d_i.h record.h render.h resample_i.h rgb.h rgbsliders.h save.h script.h select_i.h slice.h socketio.h sounding.h soundingGUI.h stream.h sync.h tclsave.h textplot.h tokenize_i.h topo.h traj.h ui_i.h user_data.h uvwwidget.h vertplot.h vis5d.h volume.h vtmcP.h work.h xdump.h
 
 libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
 libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@

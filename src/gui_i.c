@@ -44,7 +44,7 @@
 #include "file_i.h"
 #include "gui_i.h"
 #include "grid_i.h"
-#include "memory_i.h"
+#include "memory.h"
 #include "output_i.h"
 #include "proj_i.h"
 #include "projlist_i.h"

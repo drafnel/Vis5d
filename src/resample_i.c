@@ -78,7 +78,7 @@ resampler.
 #include <stdlib.h>
 #include <string.h>
 #include "grid_i.h"
-#include "memory_i.h"
+#include "memory.h"
 #include "proj_i.h"
 #include "resample_i.h"
 #include "topo.h"

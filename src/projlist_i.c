@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "grid_i.h"
-#include "memory_i.h"
+#include "memory.h"
 #include "projlist_i.h"
 #include "v5d.h"
 

@@ -122,6 +122,9 @@ extern int mem_available( Context ctx );
 
 extern int mem_used( Display_Context dtx );
 
+extern void *MALLOC( size_t  size );
+
+extern void FREE( void *ptr, int id );
 
 
 #endif

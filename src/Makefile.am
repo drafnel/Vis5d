@@ -4,7 +4,8 @@
 bin_PROGRAMS = vis5d v5dimport
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
-lib_LTLIBRARIES = libvis5d.la libvis5dgui.la
+lib_LTLIBRARIES = libvis5d.la libv5d.la
+noinst_LIBRARIES = libvis5dgui.a
 
 CPPFLAGS = @CPPFLAGS@ # -I flags
 
@@ -30,26 +31,23 @@ AUX_SRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
 
 HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour.h cursor.h displaywidget.h etableP.h file.h file_i.h fsl.h gl_to_ppm.h globals.h graphics.h grid.h grid_i.h groupchrono.h gui.h gui_i.h iapi.h igui.h image.h imain.h imemory.h irregular_api.h irregular_v5d.h isocolor.h labels.h linterp.h main_i.h map.h matrix.h memory.h memory_i.h misc.h misc_i.h model_i.h mwmborder.h netcdf.h netcdf_i.h output_i.h pipe.h proj.h proj_i.h projlist_i.h queue.h read_epa_i.h read_gr3d_i.h read_grads_i.h read_grid_i.h read_uwvis_i.h read_v5d_i.h record.h render.h resample_i.h rgb.h rgbsliders.h save.h script.h select_i.h slice.h socketio.h sounding.h soundingGUI.h stream.h sync.h tclsave.h textplot.h tokenize_i.h topo.h topo_i.h traj.h ui_i.h user_data.h uvwwidget.h vertplot.h vis5d.h volume.h vtmcP.h work.h xdump.h
 
+libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
+libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-libvis5d_la_SOURCES =  v5d.c binio.c v5d.h binio.h v5df.h $(API_SRC) $(IMPORT_SRC) $(AUX_SRC) api.h
+libvis5d_la_SOURCES = $(API_SRC) $(IMPORT_SRC) $(AUX_SRC) api.h
 
 libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-libvis5dgui_la_SOURCES = $(GUI_SRC) 
-libvis5dgui_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+libvis5dgui_a_SOURCES = $(GUI_SRC) 
 
 vis5d_SOURCES = main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files
-vis5d_LDADD = libvis5dgui.la ../lui5/liblui.a libvis5d.la\
+vis5d_LDADD = libvis5dgui.a ../lui5/liblui.a libvis5d.la libv5d.la \
               @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
               @GLLIBS@ @XLIBS@ @THREADLIBS@
 
-# Note: v5dimport executable is now huge because it includes all of vis5d.
-# Can make it smaller by eliminating v5dimport dependence on
-# regenerate_window_after_import_add() and vis5d_load_v5dfile() functions
-# and then properly grouping files here in the makefile
-v5dimport_SOURCES = $(GUI_SRC) v5dimport.c $(HEADER_SRC)
-v5dimport_LDADD = libvis5d.la ../lui5/liblui.a  \
+v5dimport_SOURCES = v5dimport.c
+v5dimport_LDADD = libvis5dgui.a libvis5d.la ../lui5/liblui.a libv5d.la \
                   @MCIDAS_LIBS@ @V5D_LIBS_AUX@ \
                   @GLLIBS@ @XLIBS@ @THREADLIBS@
 

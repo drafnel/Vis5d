@@ -32,7 +32,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
-AC_PROG_LIBTOOL
+AM_PROG_LIBTOOL
 
 AC_CHECK_PROG(DB2HTML, db2html, db2html, ../missing db2html)
 AC_CHECK_PROG(DB2DVI, db2dvi, db2dvi, ../missing db2dvi)

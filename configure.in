@@ -1,7 +1,7 @@
 AC_INIT
 AC_PREREQ(2.50)
 AC_CONFIG_SRCDIR([src/v5d.c])
-AM_INIT_AUTOMAKE(vis5d+, 1.0.2)
+AM_INIT_AUTOMAKE(vis5d+, 1.1)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
 

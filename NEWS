@@ -1,4 +1,6 @@
-Summary of changes for new releases of Vis5d+:
+Summary of changes for each release of Vis5d+:
+
+Vis5d+ 1.1
 
   * Fixed non-working --with-memory configure option, thanks to Andrew Woolf.
 

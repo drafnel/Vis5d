@@ -258,11 +258,16 @@ void
 on_animate_toggled                     (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+  GtkToolbar *toolbar;
+  GList *item;
+  GtkWidget *widget;
 
   v5d_info *info = (v5d_info*)gtk_object_get_data(GTK_OBJECT(
 			  lookup_widget(GTK_WIDGET(togglebutton),"window3D")),"v5d_info");
 
   if(info==NULL) return;
+
+  toolbar = GTK_TOOLBAR(lookup_widget(GTK_WIDGET(togglebutton),"toolbar1"));
 
   if(gtk_toggle_button_get_active(togglebutton)&&info->numtimes>0){
 	 if(user_data){
@@ -270,10 +275,25 @@ on_animate_toggled                     (GtkToggleButton *togglebutton,
 	 }else{
 		info->animate=1;
 	 }
-	 printf("animate on\n");
+	 /* set all other toolbar items to inactive */
+	 item = g_list_first(toolbar->children);
+	 while(item!=NULL){
+		if((widget=((GtkToolbarChild *) item->data)->widget) != GTK_WIDGET(togglebutton)){
+		  gtk_widget_set_sensitive(widget,FALSE);
+		}
+		item=g_list_next(item);
+	 }
   }else{
 	 info->animate=0;
-	 printf("animate off\n");
+
+	 /* set all other toolbar items to active */
+	 item = g_list_first(toolbar->children);
+	 while(item!=NULL){
+		if((widget=((GtkToolbarChild *) item->data)->widget) != GTK_WIDGET(togglebutton)){
+		  gtk_widget_set_sensitive(widget,TRUE);
+		}
+		item=g_list_next(item);
+	 }
   }
 
 }

@@ -39,7 +39,7 @@ void on_level_vscale_value_changed(GtkAdjustment *adj, gpointer user_data)
 	 vis5d_gridlevel_to_height(vinfo->v5d_data_context,0,
 										vinfo->varid,vinfo->hc->level,&value);
 	 sprintf(val,"%6g Km",value);
-  }else{
+  }else {
 	 vinfo->hc->level = adj->upper + adj->lower - adj->value;
 	 sprintf(val,"%8g",vinfo->hc->level);
   }
@@ -51,10 +51,27 @@ void hs_label(v5d_var_info *vinfo)
 {
   gchar text[300];
 
-  sprintf(text,"HS: %s from %g to %g by %g at level %g",
-			 vinfo->vname,vinfo->hc->min,vinfo->hc->max, vinfo->hc->interval,
-			 vinfo->hc->pressure);
-  
+
+  if(vinfo->info->vcs==VERT_NONEQUAL_MB){
+	 sprintf(text,"HS: %s from %g to %g by %g at level %g MB",
+				vinfo->vname,vinfo->hc->min,vinfo->hc->max, vinfo->hc->interval,
+				vinfo->hc->pressure);
+  }else  if(vinfo->info->vcs== VERT_EQUAL_KM || 
+			  vinfo->info->vcs==VERT_NONEQUAL_KM){  
+	 float value;
+	 vis5d_gridlevel_to_height(vinfo->v5d_data_context,0,
+										vinfo->varid,vinfo->hc->level,&value);
+	 sprintf(text,"HS: %s from %g to %g by %g at level %g Km",
+				vinfo->vname,vinfo->hc->min,vinfo->hc->max, vinfo->hc->interval,
+				value);
+
+  }else{
+	 sprintf(text,"HS: %s from %g to %g by %g at level %g",
+				vinfo->vname,vinfo->hc->min,vinfo->hc->max, vinfo->hc->interval,
+				vinfo->hc->level);
+
+  }
+
   if(vinfo->hc->label){
 	 update_label(vinfo->info, vinfo->hc->label, text);
   }else{
@@ -101,11 +118,14 @@ update_hslice_controls(v5d_var_info *vinfo)
 	 vinfo->hc = (hslicecontrols *) g_malloc(sizeof(hslicecontrols));
 	 vinfo->hc->onscreen = TRUE;
 	 vinfo->hc->label = NULL;
-	 vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,0,0,vinfo->hc->level);
+	 vis5d_set_hslice(vinfo->v5d_data_context,vinfo->varid,0,0,0,
+							vinfo->hc->level);
 
 	 vis5d_get_hslice(vinfo->v5d_data_context,vinfo->varid,
 							&(vinfo->hc->interval),&(vinfo->hc->min),
 							&(vinfo->hc->max), &(vinfo->hc->level));
+
+	 
 
 	 /* TODO: Need to deal with other vertical grids */  
 
@@ -131,10 +151,23 @@ update_hslice_controls(v5d_var_info *vinfo)
 	 gtk_widget_set_sensitive(HSliceControls,TRUE);
  
   sbutton = lookup_widget(HSliceControls,"hsmin");
+  adj = gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(sbutton));
+  if(adj->lower > vinfo->hc->min)
+	 adj->lower = vinfo->hc->min ;
+  if(adj->upper < vinfo->hc->max)
+	 adj->upper = vinfo->hc->max ;
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(sbutton),vinfo->hc->min);
+  gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
+
 
   sbutton = lookup_widget(HSliceControls,"hsmax");
+  adj = gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(sbutton));
+  if(adj->lower > vinfo->hc->min)
+	 adj->lower = vinfo->hc->min ;
+  if(adj->upper < vinfo->hc->max)
+	 adj->upper = vinfo->hc->max ;
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(sbutton),vinfo->hc->max);
+  gtk_signal_emit_by_name (GTK_OBJECT (adj), "changed");
 
   /* interval slider */
 

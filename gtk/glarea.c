@@ -292,7 +292,7 @@ gint _glarea_draw(gpointer infoptr)
   if(info->animate){
 	 info->timestep += (info->animate*info->stepsize);
 	 if(info->timestep<0){
-		info->timestep = info->numtimes-info->timestep;
+		info->timestep = info->numtimes+info->timestep;
 	 }else if(info->timestep>=info->numtimes){
 		info->timestep = info->timestep-info->numtimes;
 	 }

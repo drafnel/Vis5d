@@ -1,4 +1,4 @@
-<chapter><title>Overview of Vis5D</title>
+<chapter id="ch01"><title>Overview of Vis5D</title>
 <para>
       Vis5D is a software system that can be used to visualize both
 gridded data and irregularly located data.  Sources for this data can
@@ -77,7 +77,7 @@ You can also send questions to Bill Hibbard
       </address>
       This document is the complete guide for using Vis5D..
 </para>
-<sect1>
+<sect1 id="ch01sec1">
 <title>Vis5D Documentation on the World Wide Web</title>
 <para>
 The 

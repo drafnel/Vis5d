@@ -1,7 +1,8 @@
-<chapter><title>Vis5D Utilities</title>
+<chapter id="ch05"><title>Vis5D Utilities</title>
 <para>
 Vis5D includes a number of utility programs.  This section describes each one.
-The v5dimport program is described separately in section 7.
+The v5dimport program is described separately in 
+<link linkend="ch07">chapter 7</link>.
 </para>
 <para>
 <itemizedlist>
@@ -117,7 +118,8 @@ The v5dimport program is described separately in section 7.
 </para>
 <para>     
      Description:  igg3d is used to perform a variety of manipulations on
-     McIDAS GR3D files.  See section 4.2 for more details.
+     McIDAS GR3D files.  See 
+     <link linkend="ch04sec2">section 4.2</link> for more details.
 </para>
 </listitem>     
 <listitem>     
@@ -126,8 +128,10 @@ The v5dimport program is described separately in section 7.
      Usage:  igu3d  ...
 </para>
 <para>     
-     Description:  igu3d is a utility to perform a variety of manipulations
-     on McIDAS GR3D files.  See section 4.2 for more details.
+     Description:  
+     igu3d is a utility to perform a variety of manipulations
+     on McIDAS GR3D files.  See 
+     <link linkend="ch04sec2">section 4.2</link> for more details.
 </para>
 </listitem>     
 <listitem>
@@ -136,8 +140,9 @@ The v5dimport program is described separately in section 7.
      Usage:  gg3d ...
 </para>
 <para>     
-     Description:  gg3d is a utility for resampling McIDAS GR3D files.  See
-     section 4.2 for more details.
+     Description:  
+     gg3d is a utility for resampling McIDAS GR3D files.  See
+     <link linkend="ch04sec2">section 4.2</link> for more details.
 </para>
 </listitem>
 <listitem>

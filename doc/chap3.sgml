@@ -1,4 +1,4 @@
-<chapter><title>Putting Your Data Into Vis5D </title>
+<chapter id="ch03"><title>Putting Your Data Into Vis5D </title>
 <para>
 	Vis5D can work with data organized as a 5-D rectangle.  The
 first 3 dimensions are spatial:  rows, columns, and levels (or
@@ -27,15 +27,16 @@ extended in the future.
 <para>
       Vis5d can also accept a user defined file format. A user can
 create a new file format and the functions to read this format. See
-section 3.4 below. 
+<link linkend="ch03sec4">section 3.4</link> below. 
 </para>
 <para>
       To view your data with vis5d you will typically write a
 conversion program to convert your data files to v5d format.  To help
 you do this we've included four sample conversion programs to guide
 you. Basically, you just add the instructions to read your file
-format, we provide the instructions to write the v5d file. See section
-3.1 below.  You then link your program with 
+format, we provide the instructions to write the v5d file. See 
+<link linkend="ch03sec1">section 3.1</link> below.  
+You then link your program with 
 <parameter>-lv5d</parameter> (the installed <filename>libv5d</filename>
  library). 
 </para>
@@ -49,7 +50,8 @@ a new conversion program to make v5d files.
       Another option for getting your data into Vis5D is the v5dimport
 utility. v5dimport is a new program for file conversion, combining,
 and resampling.  It reads a number of different file formats and can
-be extended to read new formats. See section 7 for more details. 
+be extended to read new formats. See 
+<link linkend="ch07">chapter 7</link> for more details. 
 </para>
 <para>
       Vis5D can also work with non-gridded data.  This type of data is
@@ -59,10 +61,10 @@ it's own file format for this irregular data.  The two methods for
 getting irregular data into Vis5D are using the current irregular
 import program to read certain NetCDF files, or creating a new import
 process using calls from the 
-<filename>irregular_v5d</filename> library.  See section 3.5
-for more details.
+<filename>irregular_v5d</filename> library.  See 
+<link linkend="ch03sec5">section 3.5</link> for more details.
 </para>
-<sect1>
+<sect1 id="ch03sec1">
 <title>Converting Your Data to v5d Format</title>
 <para>
 	Files in the v5d format are created with functions from the
@@ -907,7 +909,7 @@ v5dClose functions.  Look at the sample data conversion programs for
 ideas.
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch03sec2">
 <title>Map Projections and Vertical Coordinate Systems</title>
 <para>
 	Version 4.0 of Vis5D added support for new map projections and
@@ -1413,7 +1415,7 @@ relationship between height (H) and pressure (P) is:
 <para>
 	The constants 1012.5 and -7.2 are just defaults which can be
 overriden when you specify the <parameter>-log</parameter> option. 
-See section 6.1 for details. 
+See <link linkend="ch06sec1">section 6.1</link> for details. 
 </para>
 <para>
 <emphasis>(3) Unequally spaced, millibars:</emphasis>
@@ -1482,7 +1484,7 @@ options using the LAMPS dataset for example.
 See the section on Vis5d's command line options for more information.
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch03sec3">
 <title>Special Variables and Data Values</title>
 <para>
        Analysis and visualization of wind information is an important part
@@ -1525,7 +1527,7 @@ and contour slices and as black regions in colored slices.  The data
 probe will report missing values as 'Missing'.
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch03sec4">
 <title>User Defined File Formats</title>
 <para>
      This section is intended for experienced programmers.  In order
@@ -1562,7 +1564,7 @@ vis5d user_data/ETA.dat -user_data GT -topo user_data/ETA_TOPO.dat
 </command>
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch03sec5">
 <title>Getting Irregular Data into Vis5D</title>
 <para>
      One method for getting irregular data into vis5d is to use the

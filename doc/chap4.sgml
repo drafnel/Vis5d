@@ -1,4 +1,4 @@
-<chapter><title>McIDAS 3D Grid Data Files</title>
+<chapter id="ch04"><title>McIDAS 3D Grid Data Files</title>
 <para>
      In previous versions of Vis5D, it was standard practice to put
 one's data into a McIDAS GR3D file, then compress it with comp5d prior
@@ -7,13 +7,15 @@ to using vis5d.
 <para>
      While directly converting to the v5d format is prefered, we still
 include this information on the McIDAS format.  If you don't want to
-put your data into McIDAS files, you may skip to section 5 now.
+put your data into McIDAS files, you may skip to 
+<link linkend="ch05">chapter 5</link> now.
 </para>
 <para>
 <warning>
 <para>
      WE RECOMMEND AGAINST THIS WAY OF GETTING YOUR DATA INTO VIS5D -
-INSTEAD USE THE TECHNIQUES DESCRIBED IN SECTION 3 OF THIS DOCUMENT.
+INSTEAD USE THE TECHNIQUES DESCRIBED IN 
+<link linkend="ch03">CHAPTER 3</link> OF THIS DOCUMENT.
 </para>
 </warning>
 </para>
@@ -150,7 +152,7 @@ vector, the temperature T and the pressure P.   The date is February
 4, 1988 and the time steps are midnight,  1 AM and 2 AM.   Dates are
 in YYDDD format and times are in HHMMSS format as described earlier.
 </para>
-<sect1>
+<sect1 id="ch04sec1">
 <title>Putting Your Data Into a McIDAS 3D Grid File</title>
 <para>
      The following sample program creates a 3D grid file and fills its
@@ -380,7 +382,8 @@ limited to 100,000,000 grid points (400 megabytes).  If your data set
 contains more than this number of grid points, then you should alter
 <filename>sample.F</filename> to create a new 3D grid file (by incrementing IGRIDF and
 calling IGMK3D) on every Nth time step, where N time steps will fit in
-one 3D grid file.  Note that the comp5d command described in section 4
+one 3D grid file.  Note that the comp5d command described in 
+<link linkend="ch05">chapter 5</link>
 references data sets as sequences of 3D grid files.
 </para>
 <para>
@@ -389,7 +392,7 @@ information in the grid directories, which is contained in the IDIR
 array in the sample.F program. It is a good idea to initialize IDIR to
 all zeros, as in line 40.  The size of the 3D grid is set in entries 1
 to 4 of IDIR (lines 72 to 75).  Note the restrictions on data set size
-described in section 4 of this document.
+described in <link linkend="ch04sec2">section 4.2</link> of this document.
 </para>
 <para>
      The date and time of the 3D grid are set in entries 6 and 7 of
@@ -565,7 +568,7 @@ It contains examples of how to easily read and write grid files using
 C structures and routines in stdio.
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch04sec2">
 <title>Using the McIDAS Utilities</title>
 <para>
      Once your data set is in a 3D grid file, you can list directory information

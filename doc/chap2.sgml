@@ -1,10 +1,10 @@
-<chapter><title>System Requirements and Installation</title>
+<chapter id="ch02"><title>System Requirements and Installation</title>
 <para>
       In the following sections we describe the hardware and software
       required to run Vis5D and detail how to install Vis5D on your
       system.
 </para>
-<sect1>
+<sect1 id="ch02sec1">
 <title>System Requirements</title>
 <para>
 Vis5D currently is known to run with the following systems (although
@@ -92,20 +92,22 @@ porting to new machines should be considerably easier than before (and
 may often work with no modifications at all).
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch02sec2">
 <title>Installing Vis5D</title>
 <para>
 	Before installing Vis5D, you may want to download the
 following:
 </para>
-<sect2>
+<sect2 id="ch02sec2.1">
 <title>Mesa</title>
 <para>
 	  Mesa is a free OpenGL replacement, and is *required* if your
 system does not already have OpenGL, IrisGL, or PEX (an old 3d library
 for X).  If you don't know whether you have Mesa or one of these other
 libraries, you can skip this step for now; when you try to configure
-Vis5D (in section 2.2.3), the configure script will stop and complain
+Vis5D 
+(in <link linkend="ch02sec2.3">section 2.2.3</link>)
+, the configure script will stop and complain
 if it can't find one of the libraries.  Then you can go back to this
 step.
 </para>
@@ -157,7 +159,7 @@ directory to some environment variable.  On Linux systems, you
 may need to run /sbin/ldconfig, etcetera.
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch02sec2.2">
 <title>NetCDF (optional)</title>
 <para>
 	  NetCDF is a free library for reading scientific data that
@@ -199,7 +201,7 @@ you can copy this file to the Vis5D directory now; otherwise, just
 leave it there and remember where it is.
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch02sec2.3">
 <title>Vis5D</title>
 <para>
 	  Since you are reading this file, you have probably already
@@ -436,7 +438,7 @@ Vis5D web/ftp site
 	  which removes the files installed by 'make install'.
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch02sec2.4">
 <title>Manifest</title>
 <para>
 The files installed by Vis5D include:
@@ -648,7 +650,7 @@ sample code  </ulink> for user supplied data formats, including:
          Bob Schlesinger's thunderstorm model
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch02sec2.5">
 <title>Customizing</title>
 <para>
 	  After installation and testing you may want to customize the

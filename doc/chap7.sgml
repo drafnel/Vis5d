@@ -1,4 +1,4 @@
-<chapter><title>The v5dimport Utility</title>
+<chapter id="ch07"><title>The v5dimport Utility</title>
 <para>
 The v5dimport utility is a program for converting grid files to v5d 
 format, combining multiple source files, resampling to new coordinate 
@@ -57,7 +57,7 @@ Currently, v5dimport can read the following file formats:
 </tgroup>
 </informaltable>
 </para>
-<sect1>
+<sect1 id="ch07sec1">
 <title>Using v5dimport's graphical interface</title>
 <para>
 Start v5dimport from your shell with
@@ -90,7 +90,7 @@ Start v5dimport from your shell with
 </para></listitem>
 </orderedlist>
 </para>
-<sect2>
+<sect2 id="ch07sec1.1">
 <title>Reading input grids</title>
 <para>
  You may read additional grid files into v5dimport at any time by clicking
@@ -149,7 +149,7 @@ The columns in this list are:
 </informaltable>
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch07sec1.2">
 <title>Selecting grids for output</title>
 <para>
  It's often the case that one wants to discard some physical variables or
@@ -183,7 +183,7 @@ The columns in this list are:
  The "Select All" and "Select None" buttons do just what they imply.
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch07sec1.3">
 <title>Defining the output file</title>
 <para>
  The default parameters for the output file (grid size, projection, etc) 
@@ -217,7 +217,7 @@ The columns in this list are:
  on-screen to compare the output VCS to the input VCSs.
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch07sec1.4">
 <title>Making the output file</title>
 <para>
  Enter a filename for the output file in the type-in field at the 
@@ -237,7 +237,7 @@ on the Vis5D command, put them in a file named
 <filename>vis5d_options</filename>.  For example, <parameter>-mbs 64</parameter>.
 </para>
 </sect2>
-<sect2>
+<sect2 id="ch07sec1.5">
 <title>Miscellaneous</title>
 <para>
 An options window is available by clicking on the "Options..." button.
@@ -258,7 +258,7 @@ respresents a tradeoff in file size and precision.
 </para>
 </sect2>
 </sect1>
-<sect1>
+<sect1 id="ch07sec2">
 <title>The v5dimport User Interface Embedded in Vis5D</title>
 <para>
      In Vis5d version 5.2 v5dimport has been incorporated into the main control
@@ -272,7 +272,7 @@ field to specify the amout of memory to allocate for the data set.  A filename
 must always be entered to use for disk backup for caching grids.
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch07sec3">
 <title>Using v5dimport's text interface</title>
 <para>
      The text/type-in interface to v5dimport is useful when X is not availableor
@@ -392,7 +392,7 @@ As v5dimport executes a script it prints each command and its result.  Lines
 which start with a # are considered comments and ignored.
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch07sec4">
 <title>Adding support for new file format</title>
 <para>
      v5dimport was written so that adding code to read new file formats should
@@ -417,7 +417,7 @@ where foo is the name of your file format.  Then, update the
 Use the existing <filename>read_*.c</filename> files as a guide.
 </para>
 </sect1>
-<sect1>
+<sect1 id="ch07sec5">
 <title>Notes on specific file formats</title>
 <para>
      The symbol EPA is defined on the cc command line with 

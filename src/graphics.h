@@ -248,6 +248,7 @@ extern int use_glx_window( Context ctx, Display *dpy,
 #ifdef HAVE_OPENGL
 extern int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
                               GLXContext glctx, XFontStruct *xfont );
+extern int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int height);
 #endif
 
 

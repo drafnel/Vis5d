@@ -158,7 +158,7 @@ static void color_isosurface( Context ctx, int time, int isovar, int cvowner, in
             float x, y, z;
             float row, col, lev;
             float val;
-            int index;
+
 
             x = ctx->SurfTable[isovar][time].verts[i*3+0] * vscale;
             y = ctx->SurfTable[isovar][time].verts[i*3+1] * vscale;
@@ -306,7 +306,7 @@ static void calc_isosurface( Context ctx, int time, int var,
       /*************************** Compress data ***************************/
 
       if (numverts>0 && numindexes>0) {
-         int vbytes, nbytes, bytes, i;
+         int vbytes, nbytes, bytes;
 
          /* allocate memory to store compressed vertices */
          vbytes = 3*numverts*sizeof(int_2);
@@ -411,7 +411,7 @@ static int fit_vecs_to_topo (Context ctx, int num, int max,
 {
 
     int         i, j, k, n_bytes, n_out, n_new;
-    float       *vr_out, *vc_out, *vl_out, *vr_new, *vc_new, *vl_new;
+    float       *vr_out, *vc_out, *vl_out;
     float       xyz[2][3], *xyz_new;
     float       xmin, ymin, xmax, ymax, xfac, yfac, xtmp, ytmp;
     Display_Context     dtx = ctx->dpy_ctx;
@@ -759,7 +759,7 @@ static float* extract_hslicePRIME( Context ctx, float *grid, int time, int var,
       /*
        * Special case:  the 3-D grid is really 2-D
        */
-      float g1;
+
       int i, j;
 
       if (colmajor) {
@@ -868,7 +868,7 @@ static float* extract_hslicePRIME( Context ctx, float *grid, int time, int var,
       /*
        * extract (and interpolate) 2-D slice from 3-D grid
        */
-      int upper, lower, above, below;
+      int upper, lower;
       float a, b, g1, g2;
       int i, j;
 
@@ -899,9 +899,6 @@ static float* extract_hslicePRIME( Context ctx, float *grid, int time, int var,
       CalcLinLogFrac(lower, a, b);
       printf("logfrac=%f\n", a);
 #endif
-
-      below = lower * nr * nc;
-      above = upper * nr * nc;
 
       /* interpolate between layers */
       if (colmajor) {
@@ -1345,14 +1342,14 @@ static float *extract_vslicePRIME( Context ctx, float *grid, int time, int var,
                               int colmajor )
 {
    float gx,gy, stepx, stepy;
-   int ic, ir, i, j, iii;
+   int ic, ir, i, j;
    float g1,g2,g3,g4, ei,ej;
    float *slice;
    float row, col, lev;
-   float s1,s2,s3,s4,s5,s6,s7,s8;
+
    float grow, gcol, glev;
-   int gr0,gr1,gc0,gc1,gl0,gl1;
-   float ger, gec, gel;
+
+
    int cont = 1;
    Display_Context dtx;
 
@@ -1385,7 +1382,6 @@ static float *extract_vslicePRIME( Context ctx, float *grid, int time, int var,
          ei = gx - (float) i;   /* in [0,1) */
          ej = gy - (float) j;   /* in [0,1) */
          for (ir=0; ir<rows; ir++) {
-            iii = ir * dtx->Nr * dtx->Nc;
             row = j;
             col = i;
             lev = ir;
@@ -1448,8 +1444,6 @@ static float *extract_vslicePRIME( Context ctx, float *grid, int time, int var,
          ei = gx - (float) i;   /* in [0,1) */
          ej = gy - (float) j;   /* in [0,1) */
          for (ir=0; ir<rows; ir++) {
-            iii = ir * dtx->Nr * dtx->Nc;
-
             row = j;
             col = i;
             lev = ir;
@@ -1710,9 +1704,9 @@ static void calc_textplot( Irregular_Context itx, int time, int threadnum )
 {
    Display_Context dtx;
    struct textplot *tp = &itx->TextPlotTable[time];
-   int_2 verts;
-   int numverts;
-   int bytes, i, j, k;
+
+
+   int bytes;
    int_2 *cverts;
    float *lat, *lon, *alt;
    float *xs, *ys, *zs;
@@ -2209,7 +2203,7 @@ static void calc_vslice( Context ctx, int time, int var,
    float *grid;
    float *slice;
    int cols, rows;
-   int yo;
+
    int i;
    int num1, num2, num3, bytes;
    float dr, dc, r, base;
@@ -2217,7 +2211,6 @@ static void calc_vslice( Context ctx, int time, int var,
    float *boxverts;
    int numboxverts;
    Display_Context dtx;
-   int ctxnl, ctxll;
    int contour_ok;
    int max_cont_verts;
 
@@ -2325,8 +2318,6 @@ static void calc_vslice( Context ctx, int time, int var,
 
    dr = r2-r1;
    dc = c2-c1;
-   ctxnl = gridlevel_to_gridlevelPRIME( ctx, ctx->Nl[var]);
-   ctxll = gridlevel_to_gridlevelPRIME( ctx, ctx->LowLev[var]);
 
    /* WLH 15 Oct 98 */
    if (ctx->GridSameAsGridPRIME){
@@ -2701,7 +2692,7 @@ static void calc_cvslice( Context ctx, int time, int var,
    float scale, r, c, dr, dc;
    float mr, mc, ml;
    float x, y, z;
-   int yo, vbytes, ibytes;
+   int  vbytes, ibytes;
    Display_Context dtx;
 
    /* WLH 15 Oct 8 */
@@ -3134,15 +3125,13 @@ static void calc_hwindslice( Display_Context dtx, int displaytime, int ws,
 {
    Context ctx;
    float *grid, *ugrid, *vgrid, *wgrid;
-   float mpcol, mprow, mplev;   /* mp = meters per */
-   float midlat, midlon;
    int row, col, drow, dcol, vcount;
    float *vr, *vc, *vl;
    int_2 *cverts;
    int uvar, vvar, wvar;
    float *boxverts;
    int numboxverts;
-   int  sameUVW;
+
    float ctxlevel;
    int time;
    float arrowr[4], arrowc[4], arrowl[4];
@@ -3262,8 +3251,8 @@ static void calc_hwindslice( Display_Context dtx, int displaytime, int ws,
       for (col=0; col<ctx->Nc && vcount+40<MAX_WIND_VERTS; col+=dcol) {
          float u, v, w;
          float a[3], dir[3], up[3], len, alen;
-         float pr, pc, pl;
-         float tr, tc, tl;
+
+
 
          /* get <U,V,W> vector */
          u = ugrid[row*ctx->Nc+col];
@@ -3515,15 +3504,14 @@ static void calc_hwindslicePRIME( Display_Context dtx, int displaytime, int ws,
 {
    Context ctx;
    float *grid, *ugrid, *vgrid, *wgrid;
-   float mpcol, mprow, mplev;   /* mp = meters per */
-   float midlat, midlon;
+
    int row, col, drow, dcol, vcount;
    float *vr, *vc, *vl;   
    int_2 *cverts;
    int uvar, vvar, wvar;
    float *boxverts;
    int numboxverts;
-   int  sameUVW;
+
    float ctxlevel;
    int time;
    float jlat[2], jlon[2], jhgt[2];
@@ -3637,10 +3625,10 @@ static void calc_hwindslicePRIME( Display_Context dtx, int displaytime, int ws,
       for (col=0; col<ctx->Nc && vcount+40<MAX_WIND_VERTS; col+=dcol) {
          float u, v, w;
          float a[3], dir[3], up[3], len, alen;
-         float pr, pc, pl;
-         float tr, tc, tl;
-         float br[2], bc[2], bl[2], cr[2], cc[2], cl[2];
-         float dr[2], dc[2], dl[2], zr[2], zc[2], zl[2], aa[3];
+
+
+
+
 
          /* get <U,V,W> vector */
          u = ugrid[row*ctx->Nc+col];
@@ -4098,17 +4086,17 @@ static void calc_vwindslice( Display_Context dtx, int displaytime, int ws,
    float *grid,  *ugrid, *vgrid, *wgrid;
    int row, col, rows, cols, drow;
    float *vr, *vc, *vl;
-   float midlat, midlon, mprow, mpcol, mplev;
+
    int vcount;
    int_2 *cverts;
-   int uvar, vvar, wvar, uvarowner, vvarowner, wvarowner;
+   int uvar, vvar, wvar;
    float dr, dc;
    int numboxverts;
    float *boxverts;
    float up[3];
-   int  sameUVW;
+
    int time;
-   float level, leveljunk;
+
    float arrowr[4], arrowc[4], arrowl[4];
    float arrowx[4], arrowy[4], arrowz[4];
    float boxy, px, py, pz;
@@ -4215,8 +4203,8 @@ static void calc_vwindslice( Display_Context dtx, int displaytime, int ws,
          float u, v, w;
          float dir[3];  /* wind vector direction */
          float a[3];  /* up & across vectors */
-         float pr, pc, pl, len, alen;
-         float tr, tc, tl;
+         float    len, alen;
+
 
          u = ugrid[row*cols+col];
          v = vgrid[row*cols+col];
@@ -4441,15 +4429,15 @@ static void calc_vwindslicePRIME( Display_Context dtx, int displaytime, int ws,
    float *grid,  *ugrid, *vgrid, *wgrid;
    int row, col, rows, cols, drow;
    float *vr, *vc, *vl;
-   float midlat, midlon, mprow, mpcol, mplev;
+
    int vcount;
    int_2 *cverts;
-   int uvar, vvar, wvar, uvarowner, vvarowner, wvarowner;
+   int uvar, vvar, wvar;
    float dr, dc;
    int numboxverts;
    float *boxverts;
    float up[3];
-   int  sameUVW;
+
    int time;
    float jlat[2], jlon[2], jhgt[2];
    float jx[2], jy[2], jz[2];
@@ -4557,10 +4545,10 @@ static void calc_vwindslicePRIME( Display_Context dtx, int displaytime, int ws,
          float u, v, w;
          float dir[3];  /* wind vector direction */
          float a[3];  /* up & across vectors */
-         float pr, pc, pl, len, alen;
-         float tr, tc, tl;
-         float br[2], bc[2], bl[2], cr[2], cc[2], cl[2];
-         float qr[2], qc[2], ql[2], zr[2], zc[2], zl[2], aa[3];
+         float    len, alen;
+
+
+
 
          u = ugrid[row*cols+col];
          v = vgrid[row*cols+col];
@@ -4825,13 +4813,12 @@ static void calc_hstreamslice(Display_Context dtx, int displaytime, int ws,
 {
    Context ctx;
    float *grid, *ugrid, *vgrid;
-   float mpcol, mprow, mplev;   /* mp = meters per */
-   float colscale, rowscale, levscale;
-   float midlat, midlon;
+
+
    int time;
-   int i, row, col, drow, dcol, num;
-   int nr, nc, nl, ir, ic, il;
-   float deltatime;
+   int i, num;
+   int nr, nc, ir, ic;
+
    float *vr, *vc, *vl;   
    int_2 *cverts;
    int uvar, vvar;
@@ -5009,13 +4996,12 @@ static void calc_hstreamslicePRIME(Display_Context dtx, int displaytime, int ws,
 {
    Context ctx;
    float *grid, *ugrid, *vgrid;
-   float mpcol, mprow, mplev;   /* mp = meters per */
-   float colscale, rowscale, levscale;
-   float midlat, midlon;
+
+
    int time;
-   int i, row, col, drow, dcol, num;
-   int nr, nc, nl, ir, ic, il;
-   float deltatime;
+   int i, num;
+   int nr, nc, ir, ic;
+
    float *vr, *vc, *vl;         
    float *vr2, *vc2, *vl2;
    int_2 *cverts;
@@ -5226,19 +5212,17 @@ static void calc_vstreamslice( Display_Context dtx, int displaytime, int ws,
    Context ctx;
    int  time;
    float *grid, *ugrid, *vgrid, *wgrid;
-   float mpcol, mprow, mplev;   /* mp = meters per */
-   float colscale, rowscale, levscale;
-   float midlat, midlon;
-   int i, row, col, drow, dcol, num;
+
+   int i, num;
    int ir, ic, rows, cols;
-   float deltatime;
+
    float *vr, *vc, *vl;
    int_2 *cverts;
    int uvar, vvar, wvar;
    float *boxverts;
    int numboxverts;
    float c, r, cc, rr, lensq;
-   float level, leveljunk;
+
 
 
    /* Determine which variables to use for U,V,W */
@@ -5445,12 +5429,11 @@ static void calc_vstreamslicePRIME( Display_Context dtx, int displaytime, int ws
    Context ctx;
    int  time;
    float *grid, *ugrid, *vgrid, *wgrid;
-   float mpcol, mprow, mplev;   /* mp = meters per */
-   float colscale, rowscale, levscale;
-   float midlat, midlon;
-   int i, row, col, drow, dcol, num;
+
+
+   int i, num;
    int ir, ic, rows, cols;
-   float deltatime;
+
    float *vr, *vc, *vl;      
    int_2 *cverts;
    int uvar, vvar, wvar;
@@ -5779,7 +5762,7 @@ static void color_traj( Context ctx, struct traj *t, int cvowner, int colorvar )
          float x, y, z;
          float row, col, lev;
          float val;
-         int index;
+
 
          x = t->verts[i*3+0] * vscale;
          y = t->verts[i*3+1] * vscale;
@@ -6181,7 +6164,7 @@ static void recolor_topography( Context ctx, int time )
       /* Compute color table indexes for each topography vertex */
       /* for this time step. */
       uint_1 *indexes;
-      int bytes;
+
       int trows, tcols, trow, tcol;
       float bias, scale;
       float *grid;
@@ -6317,11 +6300,11 @@ int do_one_task( int threadnum )
    int type;
    int i1, i2, i3;
    float f1, f2, f3, f4, f5;
-   float r1, r2, c1, c2, l;
-   int time, var, colorvar;
+
+   int time, var;
    Context ctx;
    Irregular_Context itx;
-   float level2;
+
 
    get_qentry( &ctx, &itx, &type, &i1, &i2, &i3, &f1, &f2, &f3, &f4, &f5 );
    if (Debug) printf("got entry: %d\n", type );
@@ -6331,7 +6314,6 @@ int do_one_task( int threadnum )
    switch (type) {
       case TASK_ISOSURFACE:
          /* compute an isosurface. */
-         colorvar = i3;
          if (ctx->SameIsoColorVarOwner[var]){ 
             /* time = ctx time */
             calc_isosurface( ctx, time, var, ctx->IsoLevel[var],
@@ -6339,7 +6321,7 @@ int do_one_task( int threadnum )
          }
          else{
             Display_Context dtx;
-            int dtime, ctime, t;
+            int  ctime, t;
             dtx = ctx->dpy_ctx;
             for(t=0; t < dtx->NumTimes; t++){
                ctime = dtx->TimeStep[t].ownerstimestep[return_ctx_index_pos(dtx, 

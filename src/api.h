@@ -296,8 +296,6 @@ extern int vis5d_get_ctx_values( int index, v5dstruct *v5d);
 extern int vis5d_get_dtx_values( int index, v5dstruct *v5d);
 
 
-extern int vis5d_assign_window_to_display( int display, Window win, int width,
-                                           int height);
 extern int vis5d_check_dtx_same_as_ctx( int dindex, int vindex );
 
 extern int vis5d_set_dtx_values( int index, v5dstruct *v5d);
@@ -423,8 +421,6 @@ extern int vis5d_get_ctx_timestep( int index, int *curtime );
 
 extern int vis5d_get_itx_timestep( int index, int *curtime );
 
-extern int vis5d_set_ctx_timestep( int index, int curtime );
-
 extern int vis5d_get_ctx_display_index(int index, int *display_index);
 
 extern int vis5d_get_itx_display_index(int index, int *display_index);
@@ -452,8 +448,6 @@ extern int vis5d_get_clip_mode( int index, int clip, int *mode);
 extern int vis5d_get_ctx_numvars( int index, int *numvars );
 
 extern int vis5d_get_itx_numvars( int index, int *numvars );
-
-extern int vis5d_get_display_numvars( int index, int *numvars );
 
 extern int vis5d_find_var( int index, char *name );
 
@@ -580,10 +574,6 @@ extern int vis5d_make_clone_variable( int index, int var_to_clone,
 extern int vis5d_compute_ext_func( int index, char *funcname,
                                           int *newvar );
 
-extern int vis5d_compute_expression( int index, char *expression,
-                                            char *newname, int *newvar,
-                                            int *recompute, char *mess );
-
 extern int vis5d_make_expr_var( int index, char *expression, char *newname,
                          char *mess, int *newvarowner, int *newvar, int *recompute );
 
@@ -612,10 +602,6 @@ extern int vis5d_invalidate_grp_frames( int index );
 extern int vis5d_invalidate_dtx_frames( int index );
 
 extern int vis5d_set_pointer( int index, int x, int y );
-
-extern int vis5d_set_sounding_graphics_mode( int index, int smode, int onoroff);
-
-extern int vis5d_get_sounding_graphics_mode( int index, int smode, int *onoroff);
 
 extern int vis5d_graphics_mode( int index, int type, int mode );
 
@@ -740,8 +726,6 @@ extern int vis5d_get_isosurface_color_var( int index, int iso_var,
 
 extern int vis5d_make_hslice( int index, int time, int var,
                                      int urgent );
-
-extern int vis5d_ok_to_go_forward(int dindex);
 
 extern int vis5d_set_hslice( int index, int var, float interval,
                                     float low, float high, float level );
@@ -890,13 +874,6 @@ extern int vis5d_set_legends( int index, int position, int size, int marginx, in
 
 extern int vis5d_get_legends( int index, int *position, int *size, int *marginx, int *marginy );
 
-/*  Sounding  Functions */
-
-extern int vis5d_get_sounding_window( int index, Window *window, int *width, int *height);
-
-extern int vis5d_set_sounding_window( int index, Window window, int width, int height );
-
-
 /* 3-D viewing window functions */
 
 extern int vis5d_get_window( int index, Window *window,
@@ -941,8 +918,6 @@ extern int vis5d_project( int index, float p[3],
 
 extern int vis5d_unproject( int index, float winx, float winy,
                                    float point[3], float dir[3] );
-
-extern int vis5d_grid_level_to_height( int index, int level, float *height);
 
 extern int vis5d_xyzPRIME_to_gridPRIME( int index, int time, int var,
                                     float x, float y, float z,
@@ -1060,23 +1035,13 @@ extern int vis5d_get_display_timer( int index, long *start_sec, long *start_usec
 
 extern int vis5d_get_context_name( int index, char *name);
 
-extern int vis5d_add_ctx_to_dtx( int index, int index_of_ctx);
-
 extern int vis5d_set_grp_var_values( int index );
 
 extern int vis5d_set_display_group( int index, int index_of_grp );
 
 extern int vis5d_get_display_group( int index, int *gindex );
 
-extern int vis5d_toggle_display_group( int index, int index_of_grp);
-
-extern int vis5d_set_display_border_color( int index, unsigned long cnumber);
-
-extern int vis5d_remove_ctx_index_from_dtx( int index, int index_of_ctx);
-
 extern int vis5d_assign_display_to_data( int index, int display_index);
-
-extern int vis5d_assign_display_to_context( int index, int display_index);
 
 extern int vis5d_load_v5dfile( int dindex, int mbs, char *filename, char *ctxname );
 
@@ -1158,8 +1123,6 @@ extern int vis5d_init_irregular_data_end( int index );
 
 extern int vis5d_get_num_of_itxs_in_display( int index, int *number, int numarray[]);
 
-extern int vis5d_get_num_of_ctxs_in_display( int index, int *number, int numarray[]);
-
 extern int vis5d_get_num_of_data_sets_in_display( int index, int *number);
 
 extern int vis5d_init_irregular_memory( int index, int mbs );
@@ -1191,6 +1154,8 @@ extern int vis5d_set_textplot_color_status( int index, int var, int status);
 extern int vis5d_enable_irregular_graphics( int index, int type, int mode );
 
 extern int vis5d_destroy_irregular_data_context( int index );
+
+extern int vis5d_set_BigWindow(Display *display, Window bw, GLXContext Context);
 
 #ifdef __cplusplus
 }                               /* extern "C" */

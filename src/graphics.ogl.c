@@ -65,14 +65,16 @@ static int pretty_flag = 0;
 #define TMP_XWD "tmp.xwd"
 #define TMP_RGB "tmp.rgb"
 
+#define GLBEGINNOTE  printf("calling glbegin at line %d\n",__LINE__);
 
 /* Accumulation buffer antialiasing */
+/* JPE: Not used anywhere - tell me if I am wrong: jedwards@inmet.gov.br
 #define AA_INC  1.0
 static float  xoffsets[AA_PASSES] =
     { -AA_INC, 0.0, AA_INC,  -AA_INC, 0.0, AA_INC,  -AA_INC, 0.0, AA_INC };
 static float  yoffsets[AA_PASSES] =
     { -AA_INC, -AA_INC, -AA_INC,  0.0, 0.0, 0.0,  AA_INC, AA_INC, AA_INC };
-
+*/
 
 /* "Screen door" transparency */
 static GLuint stipple[3][32];
@@ -95,6 +97,7 @@ static void check_error( char *where )
 {
    GLenum error;
 
+	/*printf("OpenGL near %s\n",where);  */
    while (1) {
       error = glGetError();
       if (error==GL_NO_ERROR) {
@@ -341,7 +344,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
 int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
                     int width, int height )
 {
-   int mapit;
+
    static int attrib_list[] = {
       GLX_RGBA,
       GLX_RED_SIZE, 1,
@@ -357,22 +360,15 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       GLX_ACCUM_ALPHA_SIZE, 1,
 */
       None };
-   Window root;
    XSetWindowAttributes win_attrib;
    XSizeHints sizehints;
    XVisualInfo *visualinfo;
    unsigned long mask;
-   Screen *screen = DefaultScreenOfDisplay( GfxDpy );
-   int cur;
-   GLXContext prevctx;
-   GLXDrawable prevdraw;
 
    if (!BigWindow){
       printf("no BigWindow \n");
       exit(0);
    }
-   root = BigWindow;
-
 
    /* MJK 11.19.98 */
    if (off_screen_rendering){
@@ -381,19 +377,22 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
    }
 
    visualinfo = glXChooseVisual( GfxDpy, GfxScr, attrib_list );
+
    if (!visualinfo) {
       printf("Error: couldn't get RGB, Double-Buffered, Depth-Buffered GLX");
       printf(" visual!\n");
       exit(0);
    }
 
+
    /* Create the GL/X context. */
+
    if (dtx->gfx.gl_ctx){
       glXDestroyContext( GfxDpy, dtx->gfx.gl_ctx);
    }
    dtx->gfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, True );
    if (!dtx->gfx.gl_ctx) {
-      /* try (indirect context) */
+      /* try (indirect context) */ 
       dtx->gfx.gl_ctx = glXCreateContext( GfxDpy, visualinfo, NULL, False );
       if (!dtx->gfx.gl_ctx) {
         printf("Error: glXCreateContext failed!\n");
@@ -404,7 +403,6 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       }
    }
    current_dtx = dtx;
-
 
    if (!dtx->GfxWindow){
       /* Make the window */
@@ -459,8 +457,14 @@ int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
       /* This is a hack for borderless windows! */
       no_border( GfxDpy, dtx->GfxWindow );
    }
+	return finish_3d_window_setup(dtx,xpos,ypos,width,height);
+}
 
+int finish_3d_window_setup(Display_Context dtx,int xpos,int ypos,int width,int height)
+{
 
+   GLXContext prevctx;
+   GLXDrawable prevdraw;
 
    prevctx = glXGetCurrentContext();
    prevdraw= glXGetCurrentDrawable();
@@ -566,7 +570,9 @@ int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
 
 
    /* Bind the GLX context to the window (make this window the current one) */
-   glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx );
+	/*   glXMakeCurrent( GfxDpy, dtx->GfxWindow, dtx->gfx.gl_ctx ); 
+	 JPE replaced with: */
+   set_current_window( dtx );
 
    /* Setup the font */
    if (xfont) {
@@ -613,6 +619,7 @@ int use_opengl_window( Display_Context dtx, Display *dpy, Window window,
  */
 void set_current_window( Display_Context dtx )
 {
+   check_error("b set_current_window");
    if (dtx!=current_dtx) {
       /* MJK 11.19.98 */
       if (dtx->GfxPixmap){
@@ -625,6 +632,7 @@ void set_current_window( Display_Context dtx )
        }
       current_dtx = dtx;
    }
+   check_error("set_current_window");
 }
 
 void finish_rendering( void )
@@ -681,6 +689,8 @@ void clear_color( unsigned int bgcolor )
    g = UNPACK_GREEN( bgcolor ) / 255.0;
    b = UNPACK_BLUE( bgcolor ) / 255.0;
    a = UNPACK_ALPHA( bgcolor ) / 255.0;
+   check_error("b clear_color");
+
    glClearColor( r, g, b, a );
 }
 
@@ -692,6 +702,7 @@ void clear_color( unsigned int bgcolor )
 void clear_3d_window( void )
 {
    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+   check_error("clear_3d");
 }
 
 
@@ -716,7 +727,7 @@ void resize_BIG_window( int width, int height )
 
 void swap_3d_window( void )
 {
-   check_error("swap");
+   check_error("xSwapBuffer");
    /* MJK 11.19.98 */
    if (!off_screen_rendering){
       glXSwapBuffers( GfxDpy, current_dtx->GfxWindow );
@@ -793,6 +804,8 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
    GLdouble eqnback[4];
    GLdouble eqnfront[4];
 
+   printf("%d %d %f %f\n",width,height,frontclip,zoom);
+
    eqntop[0] = -1 * current_dtx->VClipTable[0].eqn[0];
    eqntop[1] = -1 * current_dtx->VClipTable[0].eqn[1];
    eqntop[2] = -1 * current_dtx->VClipTable[0].eqn[2];
@@ -821,6 +834,7 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
 
 
    check_error("set_3d");
+
    if (frontclip<0.0F) {
       frontclip = 0.0F;
    }
@@ -882,7 +896,12 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
 
       glMatrixMode( GL_PROJECTION );
       glLoadIdentity();
+   check_error("1end set_3d");
+
+	printf("%f %f %f %f\n",x,y,near,far);
+
       glOrtho( -x, x, -y, y, near, far );
+   check_error("2end set_3d");
 
       glMatrixMode( GL_MODELVIEW );
       glTranslatef( 0.0, 0.0, -ZMAGIC );
@@ -898,10 +917,18 @@ void set_3d( int perspective, float frontclip, float zoom, float *modelmat)
       glFogf( GL_FOG_END, far );
    }
    glEnable( GL_DEPTH_TEST );
+
+   check_error("3 set_3d");
+
+
    glGetDoublev( GL_MODELVIEW_MATRIX, current_dtx->ModelMat );
+
    glGetDoublev( GL_PROJECTION_MATRIX, current_dtx->ProjMat );
+
    current_dtx->Perspective = perspective;
+
    check_error("end set_3d");
+
    glViewport(0, 0,width,height);
 }
 
@@ -909,8 +936,8 @@ void project( float p[3], float *x, float *y )
 {
    GLint viewport[4];
    GLdouble winx, winy, winz;
-   float *m;
-   int i;
+
+
 
    /*glGetIntegerv( GL_VIEWPORT, viewport );*/
    viewport[0] = 0;
@@ -934,8 +961,8 @@ void unproject( float x, float y, float p[3], float d[3] )
    GLdouble x0, y0, z0;
    GLdouble x1, y1, z1;
    GLdouble len;
-   float *m;
-   int i;
+
+
 
    /*glGetIntegerv( GL_VIEWPORT, viewport );*/
    viewport[0] = 0;
@@ -1012,6 +1039,7 @@ void set_depthcue( int onoff )
 void set_line_width( double w )
 {
    glLineWidth( (GLfloat) w );
+   check_error("set_line_width");
 }
 
 
@@ -1156,7 +1184,7 @@ int save_formats( void )
    int formats;
    char s[1000];
    struct stat buf;
-   FILE *f;
+
 
    formats = VIS5D_XWD;
 
@@ -2007,6 +2035,8 @@ void draw_multi_lines( int n, float verts[][3], unsigned int color )
       }
    }
    glEnd();
+
+
 }
 
  

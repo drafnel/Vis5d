@@ -441,7 +441,7 @@ int init_grid_cache( Context ctx, int maxbytes, float *ratio )
 
    ctx->NumCachedGrids = 0;
 
-   printf("Cache size: %d grids\n", ctx->MaxCachedGrids );
+   printf("Cache size: %d grids %d %d\n", ctx->MaxCachedGrids, ctx->NumTimes,ctx->NumVars);
   
    if (ctx->MaxCachedGrids != ctx->NumTimes*ctx->NumVars){
       int needed;

@@ -4,11 +4,11 @@
 bin_PROGRAMS = vis5d
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
-lib_LTLIBRARIES = libv5d.la libvis5d.la
+lib_LTLIBRARIES = libv5d.la libvis5d.la libvis5dapi.la
 
 CPPFLAGS = @CPPFLAGS@ # -I flags
 
-API_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
+VIS_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
           groupchrono.c globals.c graphics.all.c grid.c image.c imemory.c \
           map.c matrix.c linterp.c memory.c misc.c mwmborder.c pipe.c proj.c \
           queue.c render.c rgb.c record.c save.c socketio.c stream.c \
@@ -24,6 +24,13 @@ SRC_I = analyze_i.c file_i.c grid_i.c \
 GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
           soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c
 
+API_SRC = api.c box.c map.c topo.c contour.c v5d.c  graphics.all.c \
+	graphics.ogl.c graphics.gl.c graphics.pex.c globals.c misc.c grid.c sync.c \
+	queue.c work.c groupchrono.c chrono.c volume.c anim.c proj.c traj.c sounding.c \
+   image.c memory.c analysis.c compute.c render.c matrix.c gl_to_ppm.c save.c \
+   imemory.c record.c linterp.c user_data.c binio.c mwmborder.c xdump.c vtmcP.c \
+   stream.c textplot.c rgb.c socketio.c irregular_v5d.c file.c iapi.c
+
 # when are these not used?
 AUXSRC = gl_to_ppm.c graphics.ogl.c graphics.gl.c graphics.pex.c xdump.c
 
@@ -32,8 +39,12 @@ HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour
 libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
 libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
 
-libvis5d_la_SOURCES = $(API_SRC) $(SRC_I) $(AUXSRC) api.h
+libvis5d_la_SOURCES = $(VIS_SRC) $(SRC_I) $(AUXSRC) api.h
 libvis5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+
+libvis5dapi_la_SOURCES = $(API_SRC)
+libvis5dapi_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+
 
 vis5d_SOURCES = $(GUI_SRC) main.c $(HEADER_SRC)
 EXTRA_vis5d_SOURCES = kltwin.f   # conditionally-included source files
@@ -57,3 +68,10 @@ MISC_SRC = alpha_i.c areal_i.c julian2std_i.c model_i.c mm4_i.c mm4date2std_i.c 
 # Files which aren't involved in the compilation, but we need to make sure
 # they are included in the distribution for completeness:
 EXTRA_DIST = $(MISC_SRC) g.pex.c extmain.c libmcidas5.a EARTH.TOPO OUTLSUPW OUTLUSAM
+
+am_libvis5dapi_la_OBJECTS = $(addsuffix .API.lo,$(basename $(API_SRC)))
+
+API: libvis5dapi.la 
+
+%.API.lo: %.c 
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -DAPIONLY $< -o $@

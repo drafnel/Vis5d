@@ -1702,6 +1702,8 @@ static int read_v5d_header( v5dstruct *v )
          case TAG_NUMVARS:
             assert( length==4 );
             read_int4( f, &v->NumVars );
+
+				printf("v5d numvars = %d\n",v->NumVars);
             break;
          case TAG_VARNAME:
             assert( length==14 );   /* 1 int + 10 char */

@@ -370,7 +370,6 @@ int setup_ctx_dtx_projection(Context ctx )
       ctx->Projection = ctx->G.Projection;
       ctx->dpy_ctx->Projection = ctx->G.Projection;
    }
-
    switch (ctx->Projection) {
       case PROJ_GENERIC:
          /* FALL-THROUGH */

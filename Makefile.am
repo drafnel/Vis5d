@@ -1,6 +1,13 @@
 SUBDIRS = lui5 src util import doc
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts userfuncs
 
+#
+# This target creates lib vis5dapi which contains only those functions 
+# nessasary to access vis5d via the api 
+#
+API: 
+	cd src; $(MAKE) API
+
 # add a target to completely get rid of all the files produced by
 # autoheader, automake, autoconf, and aclocal:
 super-clean: maintainer-clean

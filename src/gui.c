@@ -2786,6 +2786,9 @@ int show_colorbar_window( int dindex, int vindex, int graphic, int var )
    XWindowAttributes winatts;
    XWindowAttributes winatts2;
 
+   if (vindex < 0 || var < 0)
+	return 0;
+	
    vvar = get_button_ctx_row (dindex, var);
 
    switch (graphic)

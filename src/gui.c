@@ -3089,9 +3089,15 @@ static void make_savepic_window( int index )
 
    /* make labels for radio button and update SaveFormats array */
    n = 0;
+	/* The default format is the first available */
    if (formats & VIS5D_RGB) {
       labels[n] = strdup("SGI .rgb");
       gtx->SaveFormats[n] = VIS5D_RGB;
+      n++;
+   }
+   if (formats & VIS5D_XWD) {
+      labels[n] = strdup("xwd (X Window Dump)");
+      gtx->SaveFormats[n] = VIS5D_XWD;
       n++;
    }
    if (formats & VIS5D_GIF) {
@@ -3107,11 +3113,6 @@ static void make_savepic_window( int index )
    if (formats & VIS5D_COLOR_PS) {
       labels[n] = strdup("Color PostScript");
       gtx->SaveFormats[n] = VIS5D_COLOR_PS;
-      n++;
-   }
-   if (formats & VIS5D_XWD) {
-      labels[n] = strdup("xwd (X Window Dump)");
-      gtx->SaveFormats[n] = VIS5D_XWD;
       n++;
    }
    /* MJK 11.19.98 */      

@@ -9640,18 +9640,12 @@ int vis5d_save_window( char *filename, int format )
 {
    Display_Context dtx;
    int i;
-   char s[1000];
    struct stat buf;
-
-   int use_convert;
-
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
-      use_convert = 1;
-   }
-   else{
-      use_convert = 0;
-   }
+#ifdef IMCONVERT
+   int use_convert=1;
+#else
+   int use_convert=0;
+#endif
 
 
    if (filename[0]==0) {
@@ -11366,19 +11360,13 @@ int vis5d_save_right_window( char *filename, int format )
 {
    Display_Context dtx;
    int i;
-   char s[1000];
    struct stat buf;
    FILE *f;
-   int use_convert;
-
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
-      use_convert = 1;
-   }
-   else{
-      use_convert = 0;
-   }
-
+#ifdef IMCONVERT
+   int use_convert=1;
+#else
+   int use_convert=0;
+#endif
 
    if (filename[0]==0) {
       /* no filename! */

@@ -1552,7 +1552,7 @@ main( int argc, char *argv[] )
 			  vis5d_destroy_data_context(index);
 			  index = -1;
 
-			  if(iindex = vis5d_load_irregular_v5dfile(dindex, mbs, v5dfile[dindex], v5dfile[dindex])<0){
+			  if(iindex = vis5d_load_irregular_v5dfile(dindex, mbs[dindex], v5dfile[dindex], v5dfile[dindex])<0){
 				 vis5d_terminate(1);
 				 exit(0);
 			  }

@@ -1320,9 +1320,7 @@ void end_aa_pass( int n )
  * boote@ncar.ucar.edu
  */
 
-static	int	VIS5DUseImageMagicConvert = 0;
 static  int	VIS5DInitializedFormats = 0;
-
 int save_formats( void )
 {
    int formats;
@@ -1330,28 +1328,27 @@ int save_formats( void )
    struct stat buf;
    FILE *f;
 
+#ifdef WORDS_BIGENDIAN
    formats = VIS5D_RGB;
+#endif
 
    VIS5DInitializedFormats = 1;
-
-   if (installed("convert")){
-	VIS5DUseImageMagicConvert = 1;
-      /* found ImageMagick convert program so use it!! */
-      formats |= VIS5D_PPM;
-      formats |= VIS5D_GIF;
-      formats |= VIS5D_PS;
-      formats |= VIS5D_COLOR_PS;
-      formats |= VIS5D_XWD;
-      formats |= VIS5D_TGA;
-   }
-   else{
-      if (installed("toppm"))  formats |= VIS5D_PPM;
-      if (installed("togif"))  formats |= VIS5D_GIF;
-      if (installed("tops")){
+#ifdef IMCONVERT
+	/* found ImageMagick convert program so use it!! */
+	formats |= VIS5D_PPM;
+	formats |= VIS5D_GIF;
+	formats |= VIS5D_PS;
+	formats |= VIS5D_COLOR_PS;
+	formats |= VIS5D_XWD;
+	formats |= VIS5D_TGA;
+#else
+	if (installed("toppm"))  formats |= VIS5D_PPM;
+	if (installed("togif"))  formats |= VIS5D_GIF;
+	if (installed("tops")){
 	  formats |= VIS5D_COLOR_PS;
 	  formats |= VIS5D_PS;
-      }
-   }
+	}
+#endif
 
    return formats;
 }
@@ -1385,43 +1382,49 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
       set_pointer(0);
       return 0;
    }
-
+#ifdef WORDS_BIGENDIAN
+	/* TODO: the SGI_Dump code currently only works on BIGENDIAN hardware */
    SGI_Dump( GfxDpy, GfxScr, BigWindow, f, oglbuf);
-   fclose(f);
+#else
+	Window_Dump( GfxDpy, GfxScr, BigWindow, f );
+#endif
 
-   if (VIS5DUseImageMagicConvert && format != VIS5D_RGB){
+   fclose(f);
+#ifdef IMCONVERT
+   if (format != VIS5D_RGB){
       if (format==VIS5D_XWD){
-         sprintf( cmd, "./util/convert %s xwd:%s", rgbname, filename );
+         sprintf( cmd, "%s %s xwd:%s",IMCONVERT, rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_GIF){
-         sprintf( cmd, "./util/convert %s gif:%s", rgbname, filename );
+         sprintf( cmd, "%s %s gif:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
-         sprintf( cmd, "./util/convert %s ps:%s", rgbname, filename );
+         sprintf( cmd, "%s %s ps:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_PPM){
-         sprintf( cmd, "./util/convert %s ppm:%s", rgbname, filename );
+         sprintf( cmd, "%s %s ppm:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
       if (format==VIS5D_TGA){
-         sprintf( cmd, "./util/convert %s tga:%s", rgbname, filename );
+         sprintf( cmd, "%s %s tga:%s", IMCONVERT,rgbname, filename );
          printf("Executing: %s\n", cmd );
          system (cmd);
          unlink( rgbname );
       }
-   }
-   else{
+   }else
+#endif
+	  {
       if (format==VIS5D_GIF) {
          /* convert rgb to gif */
          sprintf( cmd, "togif %s %s", rgbname, filename );
@@ -1455,6 +1458,7 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
    return 1;
 }
 
+
 int save_3d_window( char *filename, int format )
 {
    if(current_dtx->StereoOn)
@@ -1477,130 +1481,121 @@ int save_3d_right_window( char *filename, int format )
 
 int save_snd_window(Display_Context dtx, char *filename, int format )
 {
-   char xwdname[100];
-   char cmd[1000];
-   char s[1000];
-   struct stat buf;
-   FILE *f;
-   int use_convert;
+  char xwdname[100];
+  char cmd[1000];
+  char s[1000];
+  struct stat buf;
+  FILE *f;
 
-   set_pointer(1);
+  set_pointer(1);
 
-   XRaiseWindow(GfxDpy, dtx->Sound.SoundCtrlWindow);
-   XSync( GfxDpy, 0 );
-   vis5d_draw_frame(dtx->dpy_context_index, 0);
-   vis5d_swap_frame(dtx->dpy_context_index);
-   XSync( GfxDpy, 0 );
-   vis5d_draw_frame(dtx->dpy_context_index, 0);
-   vis5d_swap_frame(dtx->dpy_context_index);
-   XSync( GfxDpy, 0 );
+  XRaiseWindow(GfxDpy, dtx->Sound.SoundCtrlWindow);
+  XSync( GfxDpy, 0 );
+  vis5d_draw_frame(dtx->dpy_context_index, 0);
+  vis5d_swap_frame(dtx->dpy_context_index);
+  XSync( GfxDpy, 0 );
+  vis5d_draw_frame(dtx->dpy_context_index, 0);
+  vis5d_swap_frame(dtx->dpy_context_index);
+  XSync( GfxDpy, 0 );
 
-   strcpy( s, "./util/convert");
-   if (stat(s, &buf)==0 && (buf.st_mode & S_IEXEC)) {
-      /* found convert, use it! */
-      printf("Using ImageMagick convert program\n");
-      use_convert = 1;
-   }
-   else{
-      use_convert = 0;
-   }
-
-   if (format==VIS5D_XWD) {
-      strcpy( xwdname, filename );
-   }
-   else {
-      strcpy( xwdname, TMP_XWD );
-   }
-
-   /* Make an X window dump file (.xwd) */
-   f = fopen(xwdname,"w");
-   if (!f) {
-      printf("Error unable to open %s for writing\n", filename);
-      set_pointer(0);
-      return 0;
-   }
-   if (dtx->Sound.soundwin){
-      Window_Dump( GfxDpy, GfxScr,  dtx->Sound.soundwin, f );
-      fclose(f);
-   }
-   else{
-      return 0;
-   }
-
-   if (use_convert && format != VIS5D_XWD){
-      if (format==VIS5D_RGB){
-         sprintf( cmd, "./util/convert %s sgi:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_GIF){
-         sprintf( cmd, "./util/convert %s gif:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
-         sprintf( cmd, "./util/convert %s ps:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_PPM){
-         sprintf( cmd, "./util/convert %s ppm:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-      if (format==VIS5D_TGA){
-         sprintf( cmd, "./util/convert %s tga:%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system (cmd);
-         unlink( xwdname );
-      }
-   }
-   else{
+  if (format==VIS5D_XWD) {
+	 strcpy( xwdname, filename );
+  }
+  else {
+	 strcpy( xwdname, TMP_XWD );
+  }
+  
+  /* Make an X window dump file (.xwd) */
+  f = fopen(xwdname,"w");
+  if (!f) {
+	 printf("Error unable to open %s for writing\n", filename);
+	 set_pointer(0);
+	 return 0;
+  }
+  if (dtx->Sound.soundwin){
+	 Window_Dump( GfxDpy, GfxScr,  dtx->Sound.soundwin, f );
+	 fclose(f);
+  }
+  else{
+	 return 0;
+  }
+#ifdef IMCONVERT
+  if (format != VIS5D_XWD){
+	 if (format==VIS5D_RGB){
+		sprintf( cmd, "%s %s sgi:%s", IMCONVERT,xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_GIF){
+		sprintf( cmd, "%s %s gif:%s", IMCONVERT,xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_PS || format == VIS5D_COLOR_PS){
+		sprintf( cmd, "%s %s ps:%s", IMCONVERT,xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_PPM){
+		sprintf( cmd, "%s %s ppm:%s",IMCONVERT, xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+	 if (format==VIS5D_TGA){
+		sprintf( cmd, "%s %s tga:%s",IMCONVERT, xwdname, filename );
+		printf("Executing: %s\n", cmd );
+		system (cmd);
+		unlink( xwdname );
+	 }
+  }
+  else
+#endif
+	 {
       if (format==VIS5D_RGB) {
-         sprintf( cmd, "fromxwd %s %s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
+		  sprintf( cmd, "fromxwd %s %s", xwdname, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
       }
       else if (format==VIS5D_GIF) {
-         /* convert xwd to rgb */
-         sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         /* convert rgb to gif */
-         sprintf( cmd, "togif %s %s", TMP_RGB, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
-         unlink( TMP_RGB );
+		  /* convert xwd to rgb */
+		  sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  /* convert rgb to gif */
+		  sprintf( cmd, "togif %s %s", TMP_RGB, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
+		  unlink( TMP_RGB );
       }
       else if (format==VIS5D_PS) {
-         sprintf( cmd, "xpr -device ps -gray 4 %s >%s", xwdname, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
+		  sprintf( cmd, "xpr -device ps -gray 4 %s >%s", xwdname, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
       }
       else if (format==VIS5D_COLOR_PS) {
-         /* convert xwd to rgb */
-         sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         /* convert rgb to color PS */
-         sprintf(cmd,"tops %s -rgb > %s", TMP_RGB, filename );
-         printf("Executing: %s\n", cmd );
-         system( cmd );
-         unlink( xwdname );
-         unlink( TMP_RGB );
+		  /* convert xwd to rgb */
+		  sprintf( cmd, "fromxwd %s %s", xwdname, TMP_RGB );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  /* convert rgb to color PS */
+		  sprintf(cmd,"tops %s -rgb > %s", TMP_RGB, filename );
+		  printf("Executing: %s\n", cmd );
+		  system( cmd );
+		  unlink( xwdname );
+		  unlink( TMP_RGB );
       }
-   }
-
-   printf("Done writing image file.\n");
-   set_pointer(0);
-   return 1;
+	 }
+  
+  printf("Done writing image file.\n");
+  set_pointer(0);
+  return 1;
 }
 
 

@@ -1,5 +1,5 @@
 /*
- *      $Id: sgidump.c,v 1.1 2001/10/09 19:22:21 jedwards Exp $
+ *      $Id: sgidump.c,v 1.1.2.1 2001/10/30 13:38:59 jedwards Exp $
  */
 /*
  *	File:		sgidump.c
@@ -32,6 +32,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
+#include "../config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -269,7 +270,8 @@ int	SGIWrite(
 	header.max        = 255;
 	header.wastebytes = 0;
 	header.colormap   = SGI_CM_NORMAL;
-	strcpy(header.name,"no name");
+	sprintf(header.name,"Created by Vis5d+ version %s",VERSION);
+	/*	strcpy(header.name,"no name"); */
 
 	/* Write the header. */
 

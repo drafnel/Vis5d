@@ -775,7 +775,11 @@ int get_grads_info( char *name, struct grid_db *db )
                vartok = tokenize( line, &ntok );
                strcpy( varname[i], vartok[0] );   /* var name */
                nl[i] = atoi( vartok[1] );         /* number of levels */
-               if (nl[i]==0)  nl[i] = 1;
+
+               /* JPE nl=0 has a special meaning and will create a 
+						different vcs below 
+					  if (nl[i]==0)  nl[i] = 1; */
+					
                /* vartok[2] = units */
                /* vartok[3] = text description */
                free_tokens( vartok );
@@ -818,9 +822,14 @@ int get_grads_info( char *name, struct grid_db *db )
       }
       else {
          int i;
-         for (i=0;i<maxnl;i++) {
-            args[i] = height[i];
-         }
+         if(nl[var]==0){
+			  nl[var]=1;
+			  args[0] = 0.0;
+			}else{
+			  for (i=0;i<maxnl;i++) {
+				 args[i] = height[i];
+			  }
+			}
       }
       vcs[var] = new_vcs( db, vertical, nl[var], 0, args );
    }

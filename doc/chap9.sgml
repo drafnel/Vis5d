@@ -1,5 +1,10 @@
-<sect1>
-<title>VERSION HISTORY</title>
+<chapter><title>Version History</title>
+<para>
+Latest news regarding Vis5D / Vis5D+ can be found 
+<ulink url="http://vis5d.sourceforge.net/NEWS.html">
+online
+</ulink>.
+</para>
 <para>
 <variablelist>
 <title>This is a summary of the versions of Vis5D</title>
@@ -88,7 +93,7 @@
      <itemizedlist>
      <listitem>
      <para> 
-          The <option>-box</option> option for changing the proportions 
+          The <parameter>-box</parameter> option for changing the proportions 
           of the 3-D box (SGI and Stardent only).
      </para></listitem>
      <listitem><para>
@@ -132,7 +137,7 @@
           Simultaneous colored and contour line slices.
      </para></listitem>
      <listitem><para>
-          Improved transparency, <option>PRETTY</option> option on SGI.
+          Improved transparency, <parameter>PRETTY</parameter> option on SGI.
      </para></listitem>
      <listitem><para>
           Same source code for SGI, Stardent, and IBM.
@@ -223,7 +228,7 @@
      <itemizedlist>
      <listitem>
      <para>
-          <option>wdpy</option> 
+          <parameter>wdpy</parameter> 
           option now creates a window on the widget display which can be
           used to move and interact with the 3-D view using the widget
           display's mouse.
@@ -233,12 +238,12 @@
           or color PostScript formats (SGI only).
      </para></listitem>
      <listitem><para>
-         <option>wind2</option> 
+         <parameter>wind2</parameter> 
          option added to specify a second set of U,V,W variables for the
          second set of wind vector slices.
      </para></listitem>
      <listitem><para>
-         <option>texture</option> 
+         <parameter>texture</parameter> 
          option added for a texture mapping an image onto the
          topography (SGI only).
      </para></listitem>
@@ -286,12 +291,12 @@
      </para></listitem>
      <listitem><para>
           New command line options:  
-          <option>-geometry</option>, 
-          <option>-trajvars</option>,
-          <option>-projection</option>,
-          <option>-vertical</option>,
-          <option>-area</option>,
-          <option>-sequence</option>
+          <parameter>-geometry</parameter>, 
+          <parameter>-trajvars</parameter>,
+          <parameter>-projection</parameter>,
+          <parameter>-vertical</parameter>,
+          <parameter>-area</parameter>,
+          <parameter>-sequence</parameter>
      </para></listitem>
      <listitem><para>
           External functions can query the probe position and values with
@@ -439,7 +444,8 @@
           flipped as needed so that the contour numbers will never be draw backwards.
           </para></listitem>
           <listitem><para>
-          Circular Clock - using the command line option '-circle' will draw a
+          Circular Clock - using the command line option 
+          <parameter>-circle</parameter> will draw a
           circle around the analog clock.
           </para></listitem>
           <listitem><para>
@@ -513,4 +519,4 @@
 </varlistentry>
 </variablelist>
 </para>
-</sect1>
+</chapter>

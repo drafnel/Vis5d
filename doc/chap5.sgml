@@ -1,8 +1,7 @@
-<sect1>
-<title>Vis5D UTILITIES</title>
+<chapter><title>Vis5D Utilities</title>
 <para>
 Vis5D includes a number of utility programs.  This section describes each one.
-The v5dimport program is described seperately in section 7.
+The v5dimport program is described separately in section 7.
 </para>
 <para>
 <itemizedlist>
@@ -27,9 +26,9 @@ The v5dimport program is described seperately in section 7.
      Usage:  v5dstats file
 </para>
 <para>     
-     Description:  v5dstats prints simple statistical information about the
-     grid data in the named v5d file.  Again, comp5d files are also
-     accepted.
+     Description:  v5dstats prints simple statistical information 
+     about the grid data in the named v5d file.  
+     Again, comp5d files are also accepted.
 </para>
 </listitem>
 <listitem>
@@ -53,7 +52,8 @@ The v5dimport program is described seperately in section 7.
 <para>     
      Description:  v5dappend allows you to append a number of v5d files
      together to make one larger file.  This might be useful if your
-     weather model generates a separate .v5d file for each timestep because
+     weather model generates a separate 
+     <filename>.v5d</filename> file for each timestep because
      you'll want to join those files together to view the data in vis5d.
 </para>
 <para>     
@@ -65,7 +65,8 @@ The v5dimport program is described seperately in section 7.
           <para>
           An optional list of variables to omit from the output file. For
           example, if you want to omit the variables U and THETA you would
-          use the arguments <option>-U</option> and <option>-THETA</option>.
+          use the arguments <parameter>-U</parameter> and 
+          <parameter>-THETA</parameter>.
           </para>
           </listitem>
           <listitem>
@@ -96,11 +97,17 @@ The v5dimport program is described seperately in section 7.
 <para>     
      Description:  gr3d_to_v5d converts (a) McIDAS GR3D file(s) to a v5d
      file.  N is a number which indicates the name of the first grid file,
-     M is the number of grid files to convert, file.v5d is the name of the
+     M is the number of grid files to convert, 
+     <filename>file.v5d</filename> is the name of the
      file to produce, and C is 1, 2 or 4 to indicate how many bytes per
-     grid point to use for compression (the default is 1).  Example:  if
-     N=20 and M=4 then the files GR3D0020, GR3D0021, GR3D0022, and GR3D0023
-     will be read an converted to the named file.v5d.
+     grid point to use for compression (the default is 1).  
+     <informalexample>
+     <para>
+     Example:  if N=20 and M=4 then the files GR3D0020, 
+     GR3D0021, GR3D0022, and GR3D0023
+     will be read an converted to the named <filename>file.v5d</filename>.
+     </para>
+     </informalexample>
 </para>
 </listitem>
 <listitem>
@@ -141,7 +148,7 @@ The v5dimport program is described seperately in section 7.
 <para>     
      Description:  listfonts, used on SGI systems only, lists the IRIS GL
      fonts available for use in vis5d's 3-D window.  After listing the
-     fonts you may use one in vis5d by specifying it with the <option>-font</option>
+     fonts you may use one in vis5d by specifying it with the <parameter>-font</parameter>
      option.
      For non-SGI systems or systems using OpenGL, use the xlsfonts or
      xfontsel program to select a font.
@@ -169,21 +176,21 @@ The v5dimport program is described seperately in section 7.
 </para>
 <para>     
      If your data set contains wind vector components you can use the 
-     <option>-wind</option>
+     <parameter>-wind</parameter>
      keyword to select a subset of wind components or calculate horizontal
      wind speed, named 'SPD ', for the compressed file.  The longitude,
      latitude, and vertical components of the wind vector must be named 'U
      ', 'V   ' and 'W   ' respectively.  If you use the 
-     <option>-wind</option> keyword, then
+     <parameter>-wind</parameter> keyword, then
      only those wind-relevant variables (i.e. U, V, W & SPD) whose names
      are listed after 
-     <option>-wind</option>
+     <parameter>-wind</parameter>
      will be included in the compressed file.  For
      example, to include SPD and W in the compressed file, from a 3D grid
      file containing U, V and W components, use the command:
 </para>
 <para>
-     comp5d N M F -wind SPD W
+     <command>comp5d N M F -wind SPD W</command>
 </para>
 </listitem>     
 <listitem>
@@ -192,9 +199,13 @@ The v5dimport program is described seperately in section 7.
      Usage:  help utilityname
 </para>
 <para>     
-     Description:  The help command will list a quick reference to the parameter
+     Description:  The help command will list a quick reference 
+     to the parameter
      formats for the named utility such as igg3d, igu3d, gg3d, and comp5d
-     utilities.  Example:  help igg3d
+     utilities.  
+     <informalexample>
+     <para>Example:  help igg3d</para>
+     </informalexample>
 </para>
 </listitem>
 <listitem>
@@ -203,23 +214,28 @@ The v5dimport program is described seperately in section 7.
 </para>
 <para>
      This program, found in the util directory, is a template program for
-     generating your own new topography (*.TOPO) files.  Read the information at
-     the top of the file for instructions.  To compile maketopo see the makefile
-     named <filename>maketopo.m</filename>.
+     generating your own new topography (*.TOPO) files.  
+     Read the information at
+     the top of the file for instructions.  To compile maketopo see 
+     the makefile named <filename>maketopo.m</filename>.
 </para>
 </listitem>     
 <listitem>
 <para>
-makemap.c
+<filename>makemap.c</filename>
 </para>
 <para>
      This program, found in the util directory, is a template program for
      generating your own new McIDAS map outline (OUTL*) files.  Read the
-     information at the top of the file for instructions.  To compile makemap
-     see the makefile named makemap.m.  If you create a map with lots too many
-     line segments, it will be displayed with some line segments missing and
-     some extra crazy line segments.  You can fix this by increasing MAXMAPVERT
-     and MAXMAPSEG in <filename>src/globals.h</filename>, then re-making vis5d.
+     information at the top of the file for instructions.  
+     To compile makemap see the makefile named 
+     <filename>makemap.m</filename>.
+     If you create a map with lots too many
+     line segments, it will be displayed with some line segments 
+     missing and some extra crazy line segments.  
+     You can fix this by increasing MAXMAPVERT
+     and MAXMAPSEG in <filename>src/globals.h</filename>, then 
+     re-making vis5d.
 </para>
 </listitem>     
 <listitem>
@@ -228,13 +244,15 @@ makemap.c
 </para>
 <para>
      This program and <filename>mapfunc.f</filename>, 
-     found in the util directory, is used to
-     transform the vertices of an existing map outline file to make a new map
-     outline file.  This might be useful if you need to transform a map to a new
-     coordinate system.  Read the newmap.c and newmap.m files for more
-     information.
+     found in the util directory, is used to transform the vertices 
+     of an existing map outline file to make a new map
+     outline file.  This might be useful if you need to transform 
+     a map to a new
+     coordinate system.  
+     Read the <filename>newmap.c</filename> and 
+     <filename>newmap.m</filename> files for more information.
 </para>
 </listitem>
 </itemizedlist>
 </para>
-</sect1>
+</chapter>

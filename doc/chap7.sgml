@@ -1,16 +1,15 @@
-<sect1>
-<title>THE v5dimport UTILITY</title>
+<chapter><title>The v5dimport Utility</title>
 <para>
-     The v5dimport utility is a program for converting grid files to v5d format,
-combining multiple source files, resampling to new coordinate systems and
-culling variables and timesteps.  It has both a graphical and command line user
-interface.
+The v5dimport utility is a program for converting grid files to v5d 
+format, combining multiple source files, resampling to new coordinate 
+systems and culling variables and timesteps.  It has both a graphical 
+and command line user interface.
 </para>
 <para>
-     For example, you may use v5dimport to read 2 McIDAS GR3D files and a 2-D
-McIDAS GRID file, resample all the data to a Lambert Conformal projection, omit
-the CWAT and VORT variables and then write the data to a Vis5D file called
-<filename>lambert1.v5d</filename>.
+For example, you may use v5dimport to read 2 McIDAS GR3D files and a 2-D
+McIDAS GRID file, resample all the data to a Lambert Conformal 
+projection, omit the CWAT and VORT variables and then write the data to 
+a Vis5D file called <filename>lambert1.v5d</filename>.
 </para>
 <para>
 The basic order of events when using v5dimport is:
@@ -19,18 +18,18 @@ The basic order of events when using v5dimport is:
        Read the input file(s).
 </para></listitem>
 <listitem><para>
-       Select grids for output according to timestep, physical variable, map
-       projection or vertical coordinate system.
+Select grids for output according to timestep, physical variable, map
+projection or vertical coordinate system.
 </para></listitem>
 <listitem><para>
-       Setup a map projection and vertical coordinate system for the output
-       file.
+Setup a map projection and vertical coordinate system for the output
+file.
 </para></listitem>
 <listitem><para>
-       Write the output file.  Resampling is done at this time.
+Write the output file.  Resampling is done at this time.
 </para></listitem>
 <listitem><para>
-       Optionally, start Vis5D on the output file.
+Optionally, start Vis5D on the output file.
 </para></listitem>
 </orderedlist>
 </para>
@@ -58,7 +57,7 @@ Currently, v5dimport can read the following file formats:
 </tgroup>
 </informaltable>
 </para>
-<sect2>
+<sect1>
 <title>Using v5dimport's graphical interface</title>
 <para>
 Start v5dimport from your shell with
@@ -69,41 +68,45 @@ Start v5dimport from your shell with
 </command>
 </para>
 <para>
-where [files] is an optional list of input files and [<option>-path pathname</option>] 
-specifies that the directory named "pathname" is to be used as the default, in place of
-the current directory, for the input file browser and for making output files.
+ where [files] is an optional list of input files and 
+ [<parameter>-path pathname</parameter>] 
+ specifies that the directory named "pathname" is to be used as the 
+ default, in place of the current directory, for the input file browser 
+ and for making output files.
 </para>
 <para>
-When v5dimport has started you'll see its main window appear.  It consists of:
+ When v5dimport has started you'll see its main window appear.  
+ It consists of:
 <orderedlist>
 <listitem><para>
-       a scrollable list of all grids scanned from the input files
+ a scrollable list of all grids scanned from the input files
 </para></listitem>
 <listitem><para>
-       buttons used for selecting/culling grids according to variable name,
-       timestep, projection or vertical coordinate system
+ buttons used for selecting/culling grids according to variable name,
+ timestep, projection or vertical coordinate system
 </para></listitem>
 <listitem><para>
-       buttons and type-in fields for describing and creating the output file.
+ buttons and type-in fields for describing and creating the output file.
 </para></listitem>
 </orderedlist>
 </para>
-<sect3>
+<sect2>
 <title>Reading input grids</title>
 <para>
-     You may read additional grid files into v5dimport at any time by clicking
-on the "Read file..." button.  Use the file selector to locate your file and
-click on OK or CANCEL.  It's best to read all input files right at the beginning
-because whenever a new file is read all grids are selected for output,
-overriding any selections you may have previously made.
+ You may read additional grid files into v5dimport at any time by clicking
+ on the "Read file..." button.  Use the file selector to locate your 
+ file and click on OK or CANCEL.  It's best to read all input files 
+ right at the beginning because whenever a new file is read all grids 
+ are selected for output, overriding any selections you may have 
+ previously made.
 </para>
 <para>
-     The button labeled "Discard all grids" does exactly what it says.  It's
-equivalent to exiting v5dimport and restarting it.
+ The button labeled "Discard all grids" does exactly what it says.  It's
+ equivalent to exiting v5dimport and restarting it.
 </para>
 <para>
-     After reading each input file, the list of grids shown in the top half of
-the window, will be resorted by time then variable name.
+ After reading each input file, the list of grids shown in the top half of
+ the window, will be resorted by time then variable name.
 </para>
 <para>
 The columns in this list are:
@@ -145,80 +148,85 @@ The columns in this list are:
 </tgroup>
 </informaltable>
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Selecting grids for output</title>
 <para>
-     It's often the case that one wants to discard some physical variables or
-timesteps from the input file so they aren't written to the output file.  By
-default, all variables are selected for output.
+ It's often the case that one wants to discard some physical variables or
+ timesteps from the input file so they aren't written to the output file.
+ By default, all variables are selected for output.
 </para>
 <para>
-     To select/cull variables, click on the "Select by variable..." button.  A
-pop-up window will appear which lists all the variables.  The ones that are high
-lighted are selected for ouput.  Click on variables names to select or deselect
-them.
+ To select/cull variables, click on the "Select by variable..." button.  
+ A pop-up window will appear which lists all the variables.  
+ The ones that are highlighted are selected for ouput.  
+ Click on variables names to select or deselect them.
 </para>
 <para>
-     Similarly, you can select timesteps via the "Select by time..." button.  A
-pop-up window listing all time steps will appear.  Use the mouse to select the
-time steps you want and unselect the timesteps you wish to omit.  Note that you
-can select/deselect a number of timsteps by just dragging the mouse while
-holding down the button.
+ Similarly, you can select timesteps via the "Select by time..." button.
+ A pop-up window listing all time steps will appear.  
+ Use the mouse to select the time steps you want and unselect the 
+ timesteps you wish to omit.  Note that you can select/deselect a number 
+ of timsteps by just dragging the mouse while holding down the button.
 </para>
 <para>
-     Finally, grids may be selected or discarded according to their map
-projection or vertical coordinate system (VCS) via the "Select by
-projectiion..." and "Select by VCS... buttons.
+ Finally, grids may be selected or discarded according to their map
+ projection or vertical coordinate system (VCS) via the "Select by
+ projectiion..." and "Select by VCS... buttons.
 </para>
 <para>
-     Note that as you select/deselect timesteps, variables, projections, or VCSs
-the effected grids will be high-lighted/unhigh-lighted in the main grid list.
+ Note that as you select/deselect timesteps, variables, projections, 
+ or VCSs the effected grids will be high-lighted/unhigh-lighted in 
+ the main grid list.
 </para>
 <para>
-     The "Select All" and "Select None" buttons do just what they imply.
+ The "Select All" and "Select None" buttons do just what they imply.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Defining the output file</title>
 <para>
-     The default parameters for the output file (grid size, projection, etc) are
-taken from the first file read in.  You should always review these parameters
-before making your output file.  It will often be necessary to change these
-values.
+ The default parameters for the output file (grid size, projection, etc) 
+ are taken from the first file read in.  
+ You should always review these parameters before making your output 
+ file. It will often be necessary to change these values.
 </para>
 <para>
-     The number of rows, columns, and levels for the output file is specified by
-the type-in fields on the main window labeld "Rows", "Columns" and "Max Levels".
-Type in new values if the defaults are incorrect.
+ The number of rows, columns, and levels for the output file is 
+ specified by the type-in fields on the main window labeld "Rows", 
+ "Columns" and "Max Levels". Type in new values if the defaults are 
+ incorrect.
 </para>
 <para>
-     The map projection for the output file can be viewed and changed by
-clicking on the "Map projection..." button.  In this pop-up window you'll be
-able to choose a map projection type then enter the specific projection
-parameters.  There is also a "Guess" button which will attempt to find a
-reasonable output projection given the currently selected grid list.  It's often
-helpful to have the "Select by Projection" pop-up window on-screen to compare
-the output projection to the input projections.
+ The map projection for the output file can be viewed and changed by
+ clicking on the "Map projection..." button.  In this pop-up window 
+ you'll be able to choose a map projection type then enter the 
+ specific projection parameters.  There is also a "Guess" button 
+ which will attempt to find a reasonable output projection given the 
+ currently selected grid list.  It's often helpful to have the 
+ "Select by Projection" pop-up window on-screen to compare the output 
+ projection to the input projections.
 </para>
 <para>
-     The vertical coordinate system for the output file can be viewed and
-changed by clicking on the "Vertical Coord System..." button.  In this pop-up
-window you'll be able to choose a vertical coordinate system type and enter the
-specific parameters.  This window also has a "Guess" button to try to find a
-reasonable default.  Similarly, it's often helpful to have the "Select by VCS"
-pop-up window on-screen to compare the output VCS to the input VCSs.
+ The vertical coordinate system for the output file can be viewed and
+ changed by clicking on the "Vertical Coord System..." button.  
+ In this pop-up window you'll be able to choose a vertical coordinate 
+ system type and enter the specific parameters.  This window also has 
+ a "Guess" button to try to find a reasonable default.  
+ Similarly, it's often helpful to have the "Select by VCS" pop-up window 
+ on-screen to compare the output VCS to the input VCSs.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Making the output file</title>
 <para>
-     Enter a filename for the output file in the type-in field at the bottom of
-the main window then click on "Make".  Messages will be printed as the file
-conversion takes place.  If there are any errors the process will halt.  Note
-that generating the output file can be time-consuming if data must be resampled
-from the input grid's coordinate system to a new coordinate system for the
-output file.
+ Enter a filename for the output file in the type-in field at the 
+ bottom of the main window then click on "Make".  
+ Messages will be printed as the file conversion takes place.  
+ If there are any errors the process will halt.  Note that generating 
+ the output file can be time-consuming if data must be resampled
+ from the input grid's coordinate system to a new coordinate system 
+ for the output file.
 </para>
 <para>
      If you click on "Visualize" this will make the file and then automatically
@@ -226,10 +234,10 @@ start up Vis5D on that file (i.e., you don't need to click on "Make" first).  If
 you type a filename in the type-in field, it wil use that name.  Otherwise, it
 will use your login name followed by ".v5d".  If you want command line options
 on the Vis5D command, put them in a file named 
-<filename>vis5d_options</filename>.  For example, <option>-mbs 64</option>.
+<filename>vis5d_options</filename>.  For example, <parameter>-mbs 64</parameter>.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Miscellaneous</title>
 <para>
 An options window is available by clicking on the "Options..." button.
@@ -248,9 +256,9 @@ can scale down to 2-byte integers for better resolution, or perform no
 compression/scaling by selecting 4-byte floating point values.  This option
 respresents a tradeoff in file size and precision.
 </para>
-</sect3>
 </sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>The v5dimport User Interface Embedded in Vis5D</title>
 <para>
      In Vis5d version 5.2 v5dimport has been incorporated into the main control
@@ -263,8 +271,8 @@ and attached to the first display.  A number must also be entered into the 'MBS'
 field to specify the amout of memory to allocate for the data set.  A filename
 must always be entered to use for disk backup for caching grids.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Using v5dimport's text interface</title>
 <para>
      The text/type-in interface to v5dimport is useful when X is not availableor
@@ -277,8 +285,8 @@ enter:
 </command>
 </para>
 <para>
-where [<option>files</option>] is an optional list of input files and 
-[<option>-path pathname</option>] specifies
+where [<parameter>files</parameter>] is an optional list of input files and 
+[<parameter>-path pathname</parameter>] specifies
 that the directory named "pathname" is to be used as the default, in place of
 the current directory, for the input file browser and for making output files.
 Through the text interface it's possible to run v5dimport with a script by using
@@ -383,8 +391,8 @@ arguments.  In the simplest case it may contain only a few commands such as:
 As v5dimport executes a script it prints each command and its result.  Lines
 which start with a # are considered comments and ignored.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Adding support for new file format</title>
 <para>
      v5dimport was written so that adding code to read new file formats should
@@ -408,20 +416,20 @@ where foo is the name of your file format.  Then, update the
 <filename>file.c</filename> file to use your functions.  
 Use the existing <filename>read_*.c</filename> files as a guide.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Notes on specific file formats</title>
 <para>
      The symbol EPA is defined on the cc command line with 
-<option>-DEPA</option> only on systems
+<parameter>-DEPA</parameter> only on systems
 which can read EPA files.  Currently, only Cray systems can read EPA files
 because the EPA-provided file reading functions only work on Cray computers.
 </para>
 <para>
      The symbol MCIDAS is defined on the cc command line with 
-<option>-DMCIDAS</option> only on
+<parameter>-DMCIDAS</parameter> only on
 systems which can use the <filename>libmcidas.a</filename> file.  
 Only SGI's in 32-bit mode are supported now.
 </para>
-</sect2>
 </sect1>
+</chapter>

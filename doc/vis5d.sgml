@@ -1,4 +1,4 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
 <!ENTITY chap1 SYSTEM "chap1.sgml">
 <!ENTITY chap2 SYSTEM "chap2.sgml">
 <!ENTITY chap3 SYSTEM "chap3.sgml">
@@ -9,10 +9,10 @@
 <!ENTITY chap8 SYSTEM "chap8.sgml">
 <!ENTITY chap9 SYSTEM "chap9.sgml">
 ]>
-<article>
-<artheader>
-  <title>Vis5D Documentation</title>
-</artheader>
+<book>
+<bookinfo>
+<title>Vis5D Documentation</title>
+</bookinfo>
 &chap1;
 &chap2;
 &chap3;
@@ -22,6 +22,6 @@
 &chap7;
 &chap8;
 &chap9;
-</article>
+</book>
 
 

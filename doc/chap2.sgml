@@ -1,11 +1,10 @@
-<sect1>
-<title>SYSTEM REQUIREMENTS AND INSTALLATION</title>
+<chapter><title>System Requirements and Installation</title>
 <para>
       In the following sections we describe the hardware and software
       required to run Vis5D and detail how to install Vis5D on your
       system.
 </para>
-<sect2>
+<sect1>
 <title>System Requirements</title>
 <para>
 Vis5D currently is known to run with the following systems (although
@@ -16,72 +15,73 @@ required:
 <para>
 <orderedlist>
 <listitem>
-<para>Silicon Graphics workstations:</para>
-	    <para>
+<para><emphasis>Silicon Graphics workstations:</emphasis>
 	      IRIX version 4.0.1 or higher;
 	      Multiple processors are used when present; IrisGL is not
 	      supported
 	    </para>
 </listitem>
 <listitem>
-<para>IBM RS/6000 workstations:</para>
-<para>
+<para><emphasis>IBM RS/6000 workstations:</emphasis>
 	      Model 320H or higher;
 	      AIX version 3 or later;
 	      3-D graphics hardware is supported through OpenGL    
 </para>
 </listitem>
 <listitem>
-<para>HP series 7000 or 9000 workstations:</para>
-<para>
+<para><emphasis>HP series 7000 or 9000 workstations:</emphasis>
 	      HP-UX A.09.01 or later;
 	      PEX optional
 </para>
 </listitem>
-<listitem><para>Sun Sparc workstations:</para>
-<para>
+<listitem>
+<para><emphasis>Sun Sparc workstations:</emphasis>
 SunOS 5.x or later
-</para>
+<important>
+<title>IMPORTANT NOTE FOR SunOS 5 USERS</title>
 <para>
-<emphasis>** IMPORTANT NOTE FOR SunOS 5 USERS **</emphasis>
+The X shared memory extension may not work
+correctly.  If Vis5D prints an error message to the effect of "Shared
+memory error" then you'll have to append the following three lines to
+	      the end of your 
+              <filename>/etc/system</filename> file then reboot:
+              <simplelist type=vert columns=1>
+	      <member>set shmsys:shminfo_shmmax = 0x2000000</member>
+	      <member>set shmsys:shminfo_shmmni = 0x1000</member>
+	      <member>set shmsys:shminfo_shmseg = 0x100</member>
+              </simplelist>
 </para>
-<para>
-	      SunOS 5.x users:  The X shared memory extension may not work
-	      correctly.  If Vis5D prints an error message to the effect of "Shared
-	      memory error" then you'll have to append the following three lines to
-	      the end of your /etc/system file then reboot:</para>
-	      <para>set shmsys:shminfo_shmmax = 0x2000000</para>
-	      <para>set shmsys:shminfo_shmmni = 0x1000</para>
-	      <para>set shmsys:shminfo_shmseg = 0x100
+</important>
 </para>
 </listitem>
-<listitem><para>DEC Alpha workstations:</para>
-<para>
+<listitem><para><emphasis>DEC Alpha workstations:</emphasis>
 	      OSF/1 V1.3 or later;
 	      Kubota Denali Graphics hardware supported with KWS V1.3.3 or
 	      later and NPGL Run-time license
-</para>
-<para><emphasis>** IMPORTANT NOTE FOR OSF USERS **</emphasis></para>
+<important>
+<title>IMPORTANT NOTE FOR OSF USERS</title>
 <para>
-	      you need to run 'limit stacksize 32m' before you run Vis5D    
+      you need to run 'limit stacksize 32m' before you run Vis5D    
+</para>
+</important>
 </para>
 </listitem>
-<listitem><para>IBM PC compatibles with Linux:</para>
-<para>
+<listitem><para><emphasis>IBM PC compatibles with Linux:</emphasis>
 	      75MHz Pentium CPU or faster recommended;
 	      Linux 1.0 or later;
 	      XFree86 (X window system) must be installed
 </para>
 </listitem>
 </orderedlist>
-</para>
-<para>
+</para><para>
+<note><para>
 	Note that on systems which don't have 3-D graphics hardware or
 OpenGL, all 3-D rendering is done in software using Mesa (an OpenGL
 work-alike).  Be aware that software rendering is rather slow
 (although not too bad on a fast machine these days).  3-D graphics
 hardware is recommended.  If you do not have Mesa, you must download
 and install it as described below.
+</para></note>
 </para>
 <para>
 	If you would like to port Vis5D to a new graphics system or
@@ -91,14 +91,14 @@ distribution.  With the new autoconf-based installation procedure,
 porting to new machines should be considerably easier than before (and
 may often work with no modifications at all).
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Installing Vis5D</title>
 <para>
 	Before installing Vis5D, you may want to download the
 following:
 </para>
-<sect3>
+<sect2>
 <title>Mesa</title>
 <para>
 	  Mesa is a free OpenGL replacement, and is *required* if your
@@ -119,60 +119,45 @@ step.
 <para>
 	  You'll get a file something like 
 <filename>MesaLib-3.1.tar.gz</filename> Unpack it:
-</para>
-<para>
-	<command><prompt>%</prompt> gunzip MesaLib-3.1.tar.gz</command>
-</para>
-<para>
-	<command><prompt>%</prompt> tar -xf MesaLib-3.1.tar</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> gunzip MesaLib-3.1.tar.gz</command>
+<command><prompt>%</prompt> tar -xf MesaLib-3.1.tar</command>
+</programlisting>
 	  Then, cd to the MesaLib-3.1 directory and type:
-</para>
-<para>
-	<command><prompt>%</prompt> ./configure</command>
-</para>
-<para>
-	<command><prompt>%</prompt> make</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> ./configure</command>
+<command><prompt>%</prompt> make</command>
+</programlisting>
 	This should configure and compile Mesa.  Finally, switch to root
 	(superuser) and type:
-</para>
-<para>
-	<command><prompt>%</prompt> make install</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> make install</command>
+</programlisting>
 	  If you don't have access to the root account on your
 machine, and your system administrator is unwilling to install Mesa
 for you (unlikely, since Mesa is very standard and widely-used), you
 can instead install it to a location in your home directory, e.g.
-~/Mesa.  To do this, you would use the following steps instead of the
-above:
-</para>
-<para>
-	<command><prompt>%</prompt> ./configure
---prefix=$HOME/Mesa</command>
-</para>
-<para>
-	<command><prompt>%</prompt> make</command>
-</para>
-<para>
-	<command><prompt>%</prompt> make install</command>
-</para>
-<para>
+<filename>~/Mesa</filename>.
+To do this, you would use the following steps instead of the above:
+<programlisting>
+<command><prompt>%</prompt>./configure --prefix=$HOME/Mesa</command>
+<command><prompt>%</prompt> make</command>
+<command><prompt>%</prompt> make install</command>
+</programlisting>
 	  The last step will copy the Mesa libraries and headers to
-~/Mesa/lib, ~/Mesa/include, etcetera.
+<filename>~/Mesa/lib</filename>, <filename>~/Mesa/include</filename>, 
+etcetera.
 </para>
 <para>
 	  When you run 'make install', it may print out some important
 directions regarding shared libraries.  If you install in a
-non-standard location, it will typically tell you add the < prefix
->/lib directory to some environment variable.  On Linux systems, you
+non-standard location, it will typically tell you add the 
+<filename>prefix/lib</filename> 
+directory to some environment variable.  On Linux systems, you
 may need to run /sbin/ldconfig, etcetera.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>NetCDF (optional)</title>
 <para>
 	  NetCDF is a free library for reading scientific data that
@@ -192,40 +177,29 @@ current version is
 </ulink>
 </para>
 <para>
-	  Once you have downloaded it, unpack and compile the package with:
-</para>
-<para>
-	<command><prompt>%</prompt> uncompress netcdf-3.4.tar.Z</command>
-</para>
-<para>
-	<command><prompt>%</prompt> tar xf netcdf-3.4.tar</command>
-</para>
-<para>
-	<command><prompt>%</prompt> cd netcdf-3.4/src</command>
-</para>
-<para>
-	<command><prompt>%</prompt> ./configure</command>
-</para>
-<para>
-	<command><prompt>%</prompt> make</command>
-</para>
-<para>
+  Once you have downloaded it, unpack and compile the package with:
+<programlisting>
+<command><prompt>%</prompt> uncompress netcdf-3.4.tar.Z</command>
+<command><prompt>%</prompt> tar xf netcdf-3.4.tar</command>
+<command><prompt>%</prompt> cd netcdf-3.4/src</command>
+<command><prompt>%</prompt> ./configure</command>
+<command><prompt>%</prompt> make</command>
+</programlisting>
 	  On Linux systems, you may instead have to use:
-</para>
-<para>
-	<command><prompt>%</prompt> make CC="gcc -Df2cFortran"</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> make CC="gcc -Df2cFortran"</command>
+</programlisting>
 	  because NetCDF doesn't know how to deal with GNU g77.
 </para>
 <para>
-	  Vis5D only needs the libnetcdf.a file, located in
-libsrc/libnetcdf.a. If you have downloaded and unpacked Vis5D already,
+Vis5D only needs the <filename>libnetcdf.a</filename> file, located in
+<filename>libsrc/libnetcdf.a</filename>. 
+If you have downloaded and unpacked Vis5D already,
 you can copy this file to the Vis5D directory now; otherwise, just
 leave it there and remember where it is.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Vis5D</title>
 <para>
 	  Since you are reading this file, you have probably already
@@ -235,28 +209,22 @@ downloaded and unpacked Vis5D.  Otherwise, go to the
 </ulink>
          and download the latest version.  It will be something like
 <filename>vis5d-5.2a.tar.gz</filename>.  Unpack it with:
-</para>
-<para>
-	<command><prompt>%</prompt> gunzip vis5d-5.2a.tar.gz</command>
-</para>
-<para>
-	<command><prompt>%</prompt> tar xf vis5d-5.2a.tar</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> gunzip vis5d-5.2a.tar.gz</command>
+<command><prompt>%</prompt> tar xf vis5d-5.2a.tar</command>
+</programlisting>
 	  Now, cd to the Vis5D directory (cd vis5d-5.2a if you were
 following the steps above).  At this point, you will run a "configure"
 script to automatically configure Vis5D for your machine. The most
 basic way to run configure is by:
-</para>
-<para>
-	<command><prompt>%</prompt> ./configure</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> ./configure</command>
+</programlisting>
 	  but there are several optional arguments that you may want
 to pass it:
 </para>
 <para>
-<option>--prefix=< dir ></option>
+<parameter>--prefix=<option>dir</option></parameter>
 </para>
 <para>
 	  By default, Vis5D will be set up to install (when you run
@@ -267,47 +235,50 @@ have root access you may want to install to your home directory by
 using: 
 </para>
 <para>
-<option>--prefix=$HOME/Vis5D</option>
+<parameter>--prefix=<option>$HOME/Vis5D</option></parameter>
 </para>
 <para>
-<option>--with-netcdf=< lib ></option>
+<parameter>--with-netcdf=<option>lib</option></parameter>
 </para>
 <para>
 	  This allows you to specify the location (< lib >) of the
 libnetcdf.a file.  You don't need to do this if you copied libnetcdf.a
 to the Vis5D directory or if you installed it to a standard system
 location.  Contrariwise, 
-<option>--without-netcdf</option> forces Vis5D to 
+<parameter>--without-netcdf</parameter> forces Vis5D to 
 <emphasis>not</emphasis> use NetCDF even if it could find the library.
 </para>
 <para>
-<option>--enable-threads</option>
+<parameter>--enable-threads</parameter>
 </para>
 <para>
 	  Turn on multi-threading mode in Vis5d (if a threads library
 is found); should enhance responsiveness, even on single-CPU systems.
 </para>
 <para>
-<option>--with-memory=< MB ></option>
+<parameter>--with-memory=<option>MB</option></parameter>
 </para>
 <para>
-	  Set the maximum amount of memory to use to < MB > megabytes
+	  Set the maximum amount of memory to use 
+<option> MB </option> megabytes
 (defaults to 32).  Vis5d normally uses a bounded amount of memory to
 avoid swapping.  When the limit is reached, the least-recently viewed
-graphics will be deallocated.  If < MB > is set to 0, there will be no
+graphics will be deallocated.  If <option> MB </option> 
+is set to 0, there will be no
 memory limit and Vis5d will never deallocate graphics.
 </para>
 <para>
-<option>--with-mesa</option>
+<parameter>--with-mesa</parameter>
 </para>
 <para>
 	  Force the use of Mesa even if a "real" OpenGL library is
 available. This just means it looks for libMesaGL libraries, etcetera,
 before libGL instead of afterwards.  This option isn't useful with
-recent versions of Mesa, which install as libGL, etcetera.
+recent versions of Mesa, which install as 
+<filename>libGL</filename>, etcetera.
 </para>
 <para>
-<option>--with-mcidas=< lib ></option>
+<parameter>--with-mcidas=<option>lib</option></parameter>
 </para>
 <para>
 	  Specify the location of a McIDAS library file, an optional
@@ -316,7 +287,7 @@ McIDAS library binary for IRIX, which will be used if it works with
 your system.)
 </para>
 <para>
-<option>--disable-fortran</option>
+<parameter>--disable-fortran</parameter>
 </para>
 <para>
 	  Don't compile any of the Fortran utility programs, etcetera,
@@ -325,10 +296,10 @@ be used automatically).  You can use this if your Fortran compiler
 gives you troubles when compiling Vis5D.
 </para>
 <para>
-<option>--disable-shared</option>
+<parameter>--disable-shared</parameter>
 </para>
 <para>
-<option>--disable-static</option>
+<parameter>--disable-static</parameter>
 </para>
 <para>
 	  Disable creation of the shared (.so) and static (.a)
@@ -375,32 +346,23 @@ use the CPPFLAGS and LDFLAGS environment variables.  For example,
 consider the case in 2.2.1 where you installed the Mesa library in
 ~/Mesa.  You would then tell configure where to find the Mesa
 libraries and header files with:
-</para>
-<para>
-	<command><prompt>%</prompt> setenv CPPFLAGS
-	    "-I$HOME/Mesa/include"</command>
-</para>
-<para>
-	<command><prompt>%</prompt> setenv LDFLAGS
-	    "-L$HOME/Mesa/lib"</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> setenv CPPFLAGS "-I$HOME/Mesa/include"</command>
+<command><prompt>%</prompt> setenv LDFLAGS "-L$HOME/Mesa/lib"</command>
+</programlisting>
 	  Be sure to scan the configure output for important warning
 messages, which will be surrounded by asterisks (*******).  Once you
 have run configure successfully, you can compile Vis5D by typing:
-</para>
-<para>
-	<command><prompt>%</prompt> make</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> make</command>
+</programlisting>
 	  If you want, you can run the program right away by typing:
-</para>
-<para>
-	<command>src/vis5d hole.v5d -path src</command>
-</para>
-<para>
-	  hole.v5d is a sample data file included with Vis5D.  The
--path src argument is necessary to tell it where the map data files
+<programlisting>
+<command><prompt>%</prompt> src/vis5d hole.v5d -path src</command>
+</programlisting>
+<filename>hole.v5d</filename> is a sample data file included with Vis5D.
+The <parameter>-path</parameter><option> src </option>
+argument is necessary to tell it where the map data files
 are located; it will no longer be need after you do a 'make install'
 (see below).  Click and drag in the display window to rotate it, and
 click on buttons in the lower portion of the control window to plot
@@ -409,11 +371,9 @@ the data.
 <para>
 	  If this completes succesfully, you will then want to install
 Vis5D:
-</para>
-<para>
-	<command><prompt>%</prompt> make install</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> make install</command>
+</programlisting>
 	  (You may need to switch to root first, or do 'su -c "make
 install"', if you are installing in system locations.)
 </para>
@@ -421,33 +381,36 @@ install"', if you are installing in system locations.)
 	  Note that the 'make install' output may contain important
 instructions regarding shared libraries (if you want to link to the
 Vis5D libraries in your programs).  e.g. on Linux you'll need to run
-/etc/ldconfig and possibly edit /etc/ld.so.conf.
+/etc/ldconfig and possibly edit <filename>/etc/ld.so.conf</filename>.
 </para>
 <para>
 	  Once this is done, the vis5d program, utilities, data, and
 libraries are installed under /usr/local, or wherever you specified
-with the <option>--prefix</option> argument to configure (as described
+with the <parameter>--prefix</parameter> argument to configure (as described
 above).  You should now be able to run it by simply typing "vis5d" (if
-you installed in a system directory) or by typing < prefix >/bin/vis5d
-(otherwise, where < prefix > was the argument to
-<option>--prefix</option>), in either case followed by the name of a
+you installed in a system directory) or by typing 
+<option>prefix</option><filename>/bin/vis5d</filename>
+(otherwise, where <option>prefix</option> was the argument to
+<parameter>--prefix</parameter>), in either case followed by the name of a
 data file.
 </para>
 <para>
-	  One sample data file, hole.v5d, is included with Vis5D, and
-more may be downloaded from the Vis5D web/ftp site.
+	  One sample data file, 
+<filename>hole.v5d</filename>, is included with Vis5D, and
+more may be downloaded from the 
+<ulink url="ftp://www.ssec.wisc.edu/pub/">
+Vis5D web/ftp site
+</ulink>.
 </para>
 <para>
 	  If you want to uninstall Vis5d at any time, you can do:
-</para>
-<para>
-	<command><prompt>%</prompt> make uninstall</command>
-</para>
-<para>
+<programlisting>
+<command><prompt>%</prompt> make uninstall</command>
+</programlisting>
 	  which removes the files installed by 'make install'.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Manifest</title>
 <para>
 The files installed by Vis5D include:
@@ -520,18 +483,22 @@ The files installed by Vis5D include:
 <tgroup cols="2">
 <tbody>
 <row>
-     <entry>libv5d</entry><entry>.v5d file I/O API</entry>
+     <entry><filename>libv5d</filename></entry>
+     <entry>.v5d file I/O API</entry>
 </row>
 <row>
-     <entry>libvis5d </entry><entry>the rest of the Vis5D API</entry>
+     <entry><filename>libvis5d</filename></entry>
+     <entry>the rest of the Vis5D API</entry>
 </row>
 </tbody>
 </tgroup>
 </table>
 </para>
 <para>
-(Programs using the full Vis5D API should link with -lvis5d
- -lv5d, while programs just doing file I/O can link with just -lv5d.)
+(Programs using the full Vis5D API should link with 
+<parameter>-lvis5d -lv5d</parameter>, 
+while programs just doing file I/O can link with just 
+<parameter>-lv5d</parameter>.)
 </para>
 <para>
 <table>
@@ -539,14 +506,16 @@ The files installed by Vis5D include:
 <tgroup cols="2">
 <tbody>
 <row>
-     <entry>v5d.h,binio.h </entry><entry>the file I/O API
-		    definitions</entry>
+     <entry><filename>v5d.h,binio.h</filename> </entry>
+     <entry>the file I/O API definitions</entry>
 </row>
 <row>
-     <entry>v5df.h</entry><entry>file I/O API for Fortran</entry>
+     <entry><filename>v5df.h</filename></entry>
+     <entry>file I/O API for Fortran</entry>
 </row>
 <row>
-     <entry>api.h</entry><entry>rest of the Vis5D API</entry>
+     <entry><filename>api.h</filename></entry>
+     <entry>rest of the Vis5D API</entry>
 </row>
 </tbody>
 </tgroup>
@@ -558,14 +527,16 @@ The files installed by Vis5D include:
 <tgroup cols=2>
 <tbody>
 <row>
-     <entry>OUTLSUPW</entry><entry>World continental map lines file</entry>
+     <entry><filename>OUTLSUPW</filename></entry>
+     <entry>World continental map lines file</entry>
 </row>
 <row>
-     <entry>OUTLUSAM</entry><entry>Medium resolution map of US with
-		    state boundaries</entry>
+     <entry><filename>OUTLUSAM</filename></entry>
+     <entry>Medium resolution map of US with state boundaries</entry>
 </row>
 <row>
-     <entry>EARTH.TOPO </entry><entry>Earth topography file</entry>
+     <entry><filename>EARTH.TOPO</filename></entry>
+     <entry>Earth topography file</entry>
 </row>
 </tbody>
 </tgroup>
@@ -577,57 +548,58 @@ The files installed by Vis5D include:
 <tgroup cols=2>
 <tbody>
 <row>
-     <entry>README</entry><entry>this documentation file in ASCII</entry>
+     <entry><filename>README</filename></entry>
+     <entry>this documentation file in ASCII</entry>
 </row>
 <row>
-     <entry>README.ps </entry><entry>this documentation file in
-		  PostScript (out of date)</entry>
+     <entry><filename>COPYING</filename></entry>
+     <entry>the GNU general public license</entry>
 </row>
 <row>
-     <entry>COPYING</entry><entry>the GNU general public license</entry>
+     <entry><filename>COPYRIGHT</filename></entry>
+     <entry>copyright notice</entry>
 </row>
 <row>
-     <entry>COPYRIGHT </entry><entry>copyright notice</entry>
+     <entry><filename>PORTING</filename></entry>
+     <entry>an ASCII document with notes on porting Vis5D</entry>
 </row>
 <row>
-     <entry>PORTING</entry><entry>an ASCII document with notes on
-			      porting Vis5D</entry>
+     <entry><filename>hole.v5d</filename></entry>
+     <entry>sample dataset (dielectric function
+            and z-comp. of a magnetic field guided in a 
+            dielectric slab with holes)</entry>
 </row>
 <row>
-     <entry>hole.v5d</entry><entry>sample dataset (dielectric function
-				  and z-comp. of a magnetic field
-				  guided in a dielectric slab with
-				  holes)</entry>
+     <entry>scripts/</entry>
+     <entry>example scripts</entry>
 </row>
 <row>
-     <entry>scripts/</entry><entry>example scripts</entry>
+     <entry>src/</entry>
+     <entry> source code for vis5d</entry>
 </row>
 <row>
-     <entry>src/</entry><entry> source code for vis5d</entry>
+     <entry>util/</entry>
+     <entry>source code for the Vis5D utilities</entry>
 </row>
 <row>
-     <entry>util/</entry><entry>source code for the Vis5D utilities</entry>
+     <entry>lui5/</entry>
+     <entry>source code for LUI user interface library</entry>
 </row>
 <row>
-     <entry>lui5/</entry><entry>source code for LUI user interface
-						  library</entry>
+     <entry>import/</entry>
+     <entry>source code for the v5dimport program</entry>
 </row>
 <row>
-     <entry>import/</entry><entry>source code for the v5dimport
-						      program</entry>
+     <entry>userfuncs/</entry>
+     <entry>directory of user-written analysis functions</entry>
 </row>
 <row>
-     <entry>userfuncs/</entry><entry>directory of user-written
-							  analysis
-							  functions</entry>
+     <entry>contrib/</entry>
+     <entry>software contributed by Vis5D users</entry>
 </row>
 <row>
-     <entry>contrib/</entry><entry>software contributed by Vis5D
-							      users</entry>
-</row>
-<row>
-     <entry>convert/</entry><entry>source code for sample data
-						conversion programs</entry>
+     <entry>convert/</entry>
+     <entry>source code for sample data	conversion programs</entry>
 </row>
 </tbody>
 </tgroup>
@@ -643,17 +615,19 @@ Vis5D web site
 sample code  </ulink> for user supplied data formats, including:
 </para>
 <para>
-         LAMPS.v5d: Sample LAMPS data set
+         <filename>LAMPS.v5d</filename>: Sample LAMPS data set
 </para>
 <para>
-         SCHL.v5d: Sample data set; Bob Schlesinger's thunderstorm model
+         <filename>SCHL.v5d</filename>: Sample data set; 
+         Bob Schlesinger's thunderstorm model
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Customizing</title>
 <para>
 	  After installation and testing you may want to customize the
-	  vis5d program by editing the src/vis5d.h file:
+	  vis5d program by editing the <filename>src/vis5d.h</filename>
+          file:
 </para>
 <para>
 <orderedlist>
@@ -663,8 +637,8 @@ sample code  </ulink> for user supplied data formats, including:
 has 32 megabytes of memory.  Although you can override this when you
 invoke vis5d, it may be convenient to change the default if your
 system has more than 32MB. This value is now controlled by the
-<option>--with-memory=< MB ></option> option to the configure script
-(see above).
+<parameter>--with-memory=<option>MB</option></parameter> 
+option to the configure script (see above).
 </para>
 </listitem>
 <listitem>     
@@ -674,26 +648,27 @@ and/or map file. One way is to edit <filename>src/vis5d.h</filename>
 and change the values for TOPOFILE and/or MAPFILE.  
 For example, if you move the map and
 topography files to /usr/local/data, you would specify
-"/usr/local/data/EARTH.TOPO" and "/usr/local/data/OUTLUSAM"
+<filename>/usr/local/data/EARTH.TOPO</filename> and 
+<filename>/usr/local/data/OUTLUSAM</filename>
 respectively. The other way is press the
-<interface>'DISPLAY'</interface> button on the main contral panel,
-then press the  <interface>'Options'</interface> button found above
-each display menu.  The 'toponame' and/or 'mapname' fields can be
-changed accordingly.
+'DISPLAY' button on the main contral panel,
+then press the  'Options' button found above each display menu.  
+The 'toponame' and/or 'mapname' fields can be changed accordingly.
 </para>
 <para>
-		By default, these files are looked for in
-<filename>/usr/local/share/vis5d</filename>, or whereever Vis5D was installed.  You can
-change this by either the <option>-path</option> argument to Vis5D or
-the VIS5D_PATH environment variable.
+ By default, these files are looked for in
+<filename>/usr/local/share/vis5d</filename>, or whereever 
+Vis5D was installed.  You can change this by either the 
+<option>-path</option> argument to Vis5D or the VIS5D_PATH environment 
+variable.
 </para>
 </listitem>
 </orderedlist>
 </para>
 <para>
-		When you are finished changing the <filename>src/vis5d.h</filename>
+When you are finished changing the <filename>src/vis5d.h</filename>
 file, you must recompile. the programs.
 </para>
-</sect3>
 </sect2>
 </sect1>
+</chapter>

@@ -1,5 +1,4 @@
-<sect1>
-<title>McIDAS 3D GRID DATA FILES</title>
+<chapter><title>McIDAS 3D Grid Data Files</title>
 <para>
      In previous versions of Vis5D, it was standard practice to put
 one's data into a McIDAS GR3D file, then compress it with comp5d prior
@@ -151,7 +150,7 @@ vector, the temperature T and the pressure P.   The date is February
 4, 1988 and the time steps are midnight,  1 AM and 2 AM.   Dates are
 in YYDDD format and times are in HHMMSS format as described earlier.
 </para>
-<sect2>
+<sect1>
 <title>Putting Your Data Into a McIDAS 3D Grid File</title>
 <para>
      The following sample program creates a 3D grid file and fills its
@@ -396,7 +395,9 @@ described in section 4 of this document.
      The date and time of the 3D grid are set in entries 6 and 7 of
 IDIR, as in lines 97 and 99.  Note that they are represented in our
 YYDDD and HHMMSS formats described above.  Four functions are
-available in libmain.a for converting between these formats and a
+available in 
+<filename>libmain.a</filename>
+ for converting between these formats and a
 format which makes date and time calculations easy. The IDAYS function
 converts YYDDD format to days since January 1, 1900, as in line 60.
 The ISECS function converts HHMMSS format to seconds since midnight,
@@ -406,22 +407,27 @@ function converts days back to YYDDD and the IHMS function converts
 back to HHMMSS, as in lines 97 amd 99.
 </para>
 <para>
-     The physical variable name is 4 ASCII characters packed into entry 9 of
-IDIR, as in line 105.  The LIT function in libmain.a converts a CHARACTER*4 to
-an INTEGER*4.
+ The physical variable name is 4 ASCII characters packed into entry 9 of
+IDIR, as in line 105.  The LIT function in 
+<filename>libmain.a</filename> converts a CHARACTER*4 to an INTEGER*4.
 </para>
 <para>
-     The spatial location of the grid is described in terms of latitude and
-longitude in ten-thousandths of a degree, and in terms of height (altitude) in
-meters.  The grid element G(1,1,1) is in the north west bottom corner of the
-grid, and the grid element G(NLATS,NLONS,NHGTS) is in the south east top corner.
-The grid latitude and longitude are described in entries 21 to 25 of IDIR, as in
-lines 78 to 82.  The grid heights are described in entries 31 to 33, as in lines
-85 to 87.  The NINT function is a FORTRAN intrinsic for converting a REAL to the
-nearest INTEGER.  The latitude, longitude and height spacings are simply the
-distances between between successive grid points.  Latitudes are positive in the
-northern hemisphere, longitudes are positive in the western hemispere, and of
-course heights are positive above sea level.
+The spatial location of the grid is described in terms of latitude and
+longitude in ten-thousandths of a degree, and in terms of height 
+(altitude) in meters.  
+The grid element G(1,1,1) is in the north west bottom corner of the
+grid, and the grid element G(NLATS,NLONS,NHGTS) is in the south east 
+top corner.
+The grid latitude and longitude are described in entries 21 to 25 
+of IDIR, as in lines 78 to 82.  
+The grid heights are described in entries 31 to 33, as in lines
+85 to 87.  
+The NINT function is a FORTRAN intrinsic for converting a REAL to the
+nearest INTEGER.  The latitude, longitude and height spacings are 
+simply the distances between between successive grid points.  
+Latitudes are positive in the northern hemisphere, longitudes are 
+positive in the western hemispere, and of course heights are 
+positive above sea level.
 </para>
 <para>
      The real work in modifying the <filename>sample.F</filename>
@@ -443,8 +449,11 @@ velocity scales consistent in the faked coordinates.  Otherwaise trajectory
 paths will not be realistic.
 </para>
 <para>
-     The IPP function in libmain.a returns the value of a command parameter as
-INTEGER*4, as in line 45.  There are similar functions CPP and DPP in libmain.a
+     The IPP function in 
+<filename>libmain.a</filename> 
+returns the value of a command parameter as
+INTEGER*4, as in line 45.  There are similar functions CPP and 
+DPP in libmain.a
 which return CHARACTER*12 (converted to upper case) and REAL*8 values for
 command parameters.  They get command parameters based on their sequential
 position in the command line.  They all have similar function parameters:
@@ -484,8 +493,10 @@ position in the command line.  They all have similar function parameters:
 <para>
 There is also a mechanism for picking up command parameters based on keywords.
 This is done with the functions IKWP, CKWP and DKWP in libmain.a.  They get
-command parameters based on position after a keyword of the form -keyword.
-IKWP returns an INTEGER*4, CKWP returns a CHARACTER*12 (converted to upper case)
+command parameters based on position after a keyword of the form 
+<parameter>-keyword</parameter>.
+IKWP returns an INTEGER*4, CKWP returns a CHARACTER*12 
+(converted to upper case)
 and DKWP returns a REAL*8.  They all have similar function parameters:
 </para>
 <para>
@@ -525,7 +536,9 @@ and DKWP returns a REAL*8.  They all have similar function parameters:
 </informaltable>
 </para>
 <para>
-The NKWP function in libmain.a returns the number of sequential parameters after
+The NKWP function in 
+<filename>libmain.a</filename> 
+returns the number of sequential parameters after
 a keyword.  Its function parameter is:
 </para>
 <para>
@@ -551,8 +564,8 @@ instead of FORTRAN, look at the file <filename>sample.c</filename>.
 It contains examples of how to easily read and write grid files using
 C structures and routines in stdio.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Using the McIDAS Utilities</title>
 <para>
      Once your data set is in a 3D grid file, you can list directory information
@@ -639,7 +652,7 @@ keywords gg3d will do a straight copy operation.  Invoke the gg3d command with
 the keyword:
 </para>
 <para>
-     <option>-size NLATS NLONS NHGTS</option>
+     <parameter>-size NLATS NLONS NHGTS</parameter>
 </para>
 <para>
 to set the grid dimensions for the destination grid as different from the
@@ -650,13 +663,13 @@ dimensions for the source grid.  Invoke gg3d with the keywords:
 <tgroup cols=1>
 <tbody>
 <row>
-     <entry><option>-lat XLATS XLATN</option></entry>
+     <entry><parameter>-lat XLATS XLATN</parameter></entry>
 </row>
 <row>
-     <entry><option>-lon XLONE XLONW</option></entry>
+     <entry><parameter>-lon XLONE XLONW</parameter></entry>
 </row>
 <row>
-     <entry><option>-hgt XHGTB XHGTT</option></entry>
+     <entry><parameter>-hgt XHGTB XHGTT</parameter></entry>
 </row>
 </tbody>
 </tgroup>
@@ -664,8 +677,9 @@ dimensions for the source grid.  Invoke gg3d with the keywords:
 </para>
 <para>
 to set extents (range bounds) for the latitude, longitude and height for the
-destination grid as different from the extents for the source grid.  The -lat, -
-lon and -hgt keywords take real arguments.
+destination grid as different from the extents for the source grid.  
+The <parameter>-lat</parameter>,<parameter>-lon</parameter> and <parameter>-hgt</parameter>
+keywords take real arguments.
 </para>
 <para>
      The igg3d program provides options for copying and deleting 3D grids and
@@ -766,5 +780,5 @@ The names of 3D grid files have the form:
 where nnnn is the four digit decimal grid file number, padded with leading zeros
 if needed to make four digits.
 </para>
-</sect2>
 </sect1>
+</chapter>

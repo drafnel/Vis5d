@@ -1,9 +1,8 @@
-<sect1>
-<title>SAMPLE DATA SETS</title>
+<chapter><title>Sample Data Sets</title>
 <para>
 To demonstrate or experiment with Vis5D we provide two sample datasets.
 </para>
-<sect2>
+<sect1>
 <title>Bob Schlesinger's thunderstorm simulation</title>
 <para>
 To visualize the Schlensinger thunderstorm file enter the command
@@ -59,8 +58,8 @@ To view a vertical contour line slice of QL:
 </listitem>
 </orderedlist>
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title> LAMPS model</title>
 <para>
 To visualize a LAMPS (Limited Area Meso-Scale Prediction System) model
@@ -131,8 +130,8 @@ To make some interactive wind trajectories:
 </listitem>
 </orderedlist>
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Example McIDAS files and utilities</title>
 <para>
      The Schlesinger and LAMPS data sets are also available as the 3D McIDAS
@@ -187,5 +186,5 @@ The LAMPS.v5d file was made from the GR3D0002 file with the command:
 A variety of other sample datasets are available on the ftp site or upon
 request.
 </para>
-</sect2>
 </sect1>
+</chapter>

@@ -1,50 +1,37 @@
-<sect1>
-<title>USING Vis5D TO VISUALIZE YOUR DATA</title>
+<chapter><title>Using Vis5D to Visualize Your Data</title>
 <para>
      This section describes how to use the Vis5D visualization program, vis5d.
 It is almost completely controlled using the mouse with a graphical user
 interface.  The best way to learn to use it is to experiment.  There is no way
 to harm your data from within the program.
 </para>
-<sect2>
+<sect1>
 <title>Starting vis5d</title>
 <para>
-<note>
-<title>** IMPORTANT NOTE FOR OSF USERS **</title>
+<important>
+<title>IMPORTANT NOTE FOR OSF USERS</title>
 <para>
           you need to run 'limit stacksize 32m' before you run vis5d
 </para>
-</note>
+</important>
+<important>
+<title>IMPORTANT NOTE FOR SunOS 5 USERS</title>
+<para>
+          The X shared memory extension may not work
+          correctly.  If Vis5D prints an error message to the effect 
+          of "Shared memory error" then you'll have to append the 
+          following three lines to the end of your 
+          <filename>/etc/system</filename> file then reboot:
+         <simplelist type=vert columns=1>
+	 <member>set shmsys:shminfo_shmmax = 0x2000000</member>
+	 <member>set shmsys:shminfo_shmmni = 0x1000</member>
+	 <member>set shmsys:shminfo_shmseg = 0x100</member>
+         </simplelist>
+</para>
+</important>
 </para>
 <para>
-<note>
-<title>** IMPORTANT NOTE FOR SunOS 5 USERS **</title>
-<para>
-          SunOS 5.x users:  The X shared memory extension may not work
-          correctly.  If Vis5D prints an error message to the effect of "Shared
-          memory error" then you'll have to append the following three lines to
-          the end of your <filename>/etc/system</filename> file then reboot:
-          <informaltable frame=none>
-          <tgroup cols=1>
-          <tbody>
-		  <row>
-		    <entry>set shmsys:shminfo_shmmax = 0x2000000</entry>
-		  </row>
-		  <row>
-		    <entry>set shmsys:shminfo_shmmni = 0x1000</entry>
-		  </row>
-		  <row>
-		    <entry>set shmsys:shminfo_shmseg = 0x100</entry>
-		  </row>
-          </tbody>
-          </tgroup>
-          </informaltable>
-</para>
-</note>
-</para>
-<para>
-After you have made a v5d file, you can interactively visualize one or more file
-with the command:
+After you have made a v5d file, you can interactively visualize one or more file with the command:
 </para>
 <para>
 <command>
@@ -124,9 +111,10 @@ needed):
           (those having "PEX" in their names) are scalable.  To restore the
           default PEX font, use " " for the name.  A PEX font's default size may
           be resotred by specifying a size of 0.
-          </para>
+          <informalexample>          
           <para>
           Example: <command>vis5d LAMPS.v5d -font helvb24 20</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -139,43 +127,54 @@ needed):
 <term><option>-funcpath pathname</option></term>
 <listitem><para>
           Specify the directory to search for user Fortran functions.
-          </para>
+          <informalexample>
           <para>
           Example:
-          <command>vis5d LAMPS.v5d -funcpath /usr/local/vis5d/userfuncs</command>
+          <command>
+          vis5d LAMPS.v5d -funcpath /usr/local/vis5d/userfuncs
+          </command></para>
+          </informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-geometry WxH+X+Y  (or WxH or +X+Y)</option></term>
 <listitem><para>
           Specify the geometry of the 3-D window.
-          </para>
+          <informalexample>
           <para>
-          Example: <command>vis5d LAMPS.v5d -geometry 640x480-10+10</command>
+          Example: 
+          <command>vis5d LAMPS.v5d -geometry 640x480-10+10
+          </command></para>
+          </informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-hirestopo</option></term>
 <listitem><para>
-          Display a high-resolution topography.  This is only recommended on
+          Display a high-resolution topography.  
+          This is only recommended on
           systems with fast graphics hardware.
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-legend position size x y</option></term>
 <listitem><para>
-          Set color legend position and size.  Position values are 1 (bottom,
-          the default), 2 (top), 3 (left) and 4 (right).  Size is the height of
-          the legend bar and is between 10 and 1000 (default=128). Position is
-          controlled by adding an offset value in the X and Y direction from the
-          default position.
+          Set color legend position and size.  
+          Position values are 1 (bottom,
+          the default), 2 (top), 3 (left) and 4 (right).  
+          Size is the height of
+          the legend bar and is between 10 and 1000 (default=128). 
+          Position is
+          controlled by adding an offset value in the X and Y 
+          direction from the default position.
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-log [a] [b]</option></term>
 <listitem><para>
           Display height on a logarithmic axis instead of linear.  This is
-          discussed in section 3.2.  The optional arguments a and b are the
+          discussed in section 3.2.  
+          The optional arguments a and b are the
           scale and exponent factors in the height/pressure equation.  The
           defaults are 1012.5 and -7.2, respectively.
 </para></listitem>
@@ -183,11 +182,14 @@ needed):
 <varlistentry>
 <term><option>-map file</option></term>
 <listitem><para>
-          Use a map file other than the default of OUTLSUPW.  See section 2.4 to
+          Use a map file other than the default of 
+          <filename>OUTLSUPW</filename>.  
+          See section 2.4 to
           setup a different default.
-          </para>
+          <informalexample>
           <para>
           Example: <command>vis5d LAMPS.v5d -map OUTLUSAL</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -199,7 +201,8 @@ needed):
 <varlistentry>
 <term><option>-bottom_margin size</option></term>
 <listitem><para>
-          Specify the size in points for the bottom margin of the 3d windows
+          Specify the size in points for the bottom margin 
+          of the 3d windows
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -211,13 +214,15 @@ needed):
 <varlistentry>
 <term><option>-right_margin size</option></term>
 <listitem><para>
-          Specify the size in points for the right margin of the 3d windows
+          Specify the size in points for the right margin of 
+          the 3d windows
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-mbs n</option></term>
 <listitem><para>
-          Override the assumed system memory size of 32 megabytes.  See section
+          Override the assumed system memory size of 32 megabytes.  
+          See section
           2.4 to setup a different default value.
 </para></listitem>
 </varlistentry>
@@ -230,38 +235,43 @@ needed):
 <varlistentry>
 <term><option>-offscreen</option></term>
 <listitem><para>
-          Do off screen rendering.  This is used in conjunction with the -script
-                    command
+          Do off screen rendering.  This is used in 
+          conjunction with the <option>-script</option> option.
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-path pathname</option></term>
 <listitem><para>
-          Use a different path for map and topo files instead of the current.
-          </para>
+          Use a different path for map and topo files 
+          instead of the current.
+          <informalexample>
           <para>
           Example: <command>vis5d LAMPS.v5d -path /usr3/data</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-projection p</option></term>
 <listitem><para>
-          Set the display map projection, default is to display data in its
+          Set the display map projection, default is to display 
+          data in its
           natural projection (obtained from the data file).
           p may be one of:
-          </para>
-          <para>
-               <simplelist type=vert columns=1>
-               <member>cylindrical - display data on a cylindrical Earth</member>
-               <member>spherical - display data on a spherical Earth</member>
-               </simplelist>
-          </para>
-          <para>
+        </para>
+        <para>
+        <simplelist>
+        <member>cylindrical - display data on a cylindrical Earth</member>
+        <member>spherical - display data on a spherical Earth</member>
+        </simplelist>
+         </para>
+         <para>
           Only the first 3 characters are significant/needed.  You will be
           promted for additional parameters.
-          </para>
-          <para>
-          Example: <command>vis5d LAMPS.v5d -projection spherical</command>
+  <informalexample>
+  <para>
+  Example: <command>vis5d LAMPS.v5d -projection spherical</command>
+  </para>
+  </informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -327,7 +337,8 @@ needed):
 <varlistentry>
 <term><option>-topo file</option></term>
 <listitem><para>
-          Use a topography file other than the default of EARTH.TOPO.  See
+          Use a topography file other than the default of 
+          <filename>EARTH.TOPO</filename>.  See
           section 2.4 to setup a different default.
 </para></listitem>
 </varlistentry>
@@ -338,9 +349,10 @@ needed):
           level value to which the base will extend.  Typically, this is a
           negative value so that the base is below the lowest level (0.0).  If
           lev_value is omitted, 0.0 will be used
-          </para>
+          <informalexample>
           <para>
           Example: <command>vis5d LAMPS.v5d -topobase -3.0</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -348,9 +360,10 @@ needed):
 <listitem><para>
           Specify which variables are to be used for trajectory tracing.
           Defaults are U, V, and W.
-          </para>
+          <informalexample>
           <para>
           Example: <command>vis5d LAMPS.v5d -trajvars U2 V2 W2</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -360,7 +373,7 @@ needed):
           is a string that may contain any combination of:
           </para>
           <para>
-          <simplelist type=vert columns=1>
+          <simplelist>
                <member>
                g or G - use the function for reading grid data</member>
                <member>
@@ -368,9 +381,10 @@ needed):
                <member>
                t or T - use the function for reading topography data</member>
           </simplelist>
-          </para>
+          <informalexample>
           <para>
           Example: <command>vis5d dataset -userdata g</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -380,7 +394,7 @@ needed):
           v may be one of:
           </para>
           <para>
-          <simplelist type=vert columns=1>
+          <simplelist>
                <member>
                generic   - linear, equally spaced levels in generic units</member>
                <member>
@@ -392,9 +406,10 @@ needed):
           <para>
           Only the first 3 characters of v are significant/needed.  You will be
           prompted for additional parameters.
-          </para>
+          <informalexample>
           <para>
           Example: <command>vis5d LAMPS.v5d -vertical nonequal</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -402,19 +417,21 @@ needed):
 <listitem><para>
           Put the widgets on a different X display.  Useful in combination with
           <option>-full</option> for making slides and videos. 
-          </para>
+          <informalexample>
           <para>
           Example: <command>vis5d LAMPS.v5d -full -wdpy pluto:0</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
 <term><option>-wide w</option></term>
 <listitem><para>
-          Set width of line segments in pixels (default is 1.0).  Again, useful
-          for making videos.
-          </para>
+          Set width of line segments in pixels (default is 1.0).  
+          Again, useful for making videos.
+          <informalexample>
           <para>
           Example: <command>vis5d LAMPS.v5d -wide 3.0</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -424,9 +441,10 @@ needed):
           component variables to use when drawing the Hwind2, Vwind2 and Strm2
           vector slices.  Useful when you have two sets of wind vector
           components that you want to visualize simultaneously.
-          </para>
+          <informalexample>
           <para>
           Example: <command>vis5d MYDATA -wind2 U2 V2 W2</command>
+          </para></informalexample>
 </para></listitem>
 </varlistentry>
 </variablelist>
@@ -453,8 +471,8 @@ with only 32MB of main memory.  However, performance will degrade as the ratio
 of file size to main memory size increases.  If you observe sluggish performance
 and a lot of disk activity while running vis5d you should get more memory.
 </para>          
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>The Control Panel</title>
 <para>
      After vis5d has opened/read your file/s, two windows will appear:  a large
@@ -471,35 +489,53 @@ current time step.  The control panel contains several groups of buttons.
 </para>
 <para>
 <informaltable frame=none>
-<tgroup cols=4>
+<tgroup cols=2>
+<colspec colwidth=1.25in>
+<colspec colwidth=1.25in>
+<colspec colwidth=1.25in>
+<colspec colwidth=1.25in>
 <tbody>
 <row>
-		<entry>[ANIMATE] </entry><entry>[STEP] </entry>
-		<entry>NEW VAR </entry><entry>EXIT </entry>
+<entry> [ANIMATE] </entry>
+<entry> [STEP] </entry>
+<entry> NEW VAR </entry>
+<entry> EXIT </entry>
 </row>
 <row>
-		<entry>[TEXTURE] </entry><entry>TOP </entry>
-		<entry>SOUTH </entry><entry>WEST </entry>
+<entry> [TEXTURE] </entry>
+<entry> TOP </entry>
+<entry> SOUTH </entry>
+<entry> WEST </entry>
 </row>
 <row>
-		<entry>[TOPO] </entry><entry>[MAP] </entry>
-		<entry>BOX </entry><entry>CLOCK </entry>
+<entry> [TOPO] </entry>
+<entry> [MAP] </entry>
+<entry> BOX </entry>
+<entry> CLOCK </entry>
 </row>
 <row>
-		<entry>SAVE </entry><entry>RESTORE </entry>
-		<entry>GRID #'s </entry><entry>CONT #'s </entry>
+<entry> SAVE </entry>
+<entry> RESTORE </entry>
+<entry> GRID #'s </entry>
+<entry> CONT #'s </entry>
 </row>
 <row>
-		<entry>[ANIM-REC] </entry><entry>REVERSE </entry>
-		<entry>[SAVE PIC] </entry><entry>[PERSPEC] </entry>
+<entry> [ANIM-REC] </entry>
+<entry> REVERSE </entry>
+<entry> [SAVE PIC] </entry>
+<entry> [PERSPEC] </entry>
 </row>
 <row>
-		<entry>SCRIPT </entry><entry>INTERP </entry>
-		<entry>UVW VARS </entry><entry>LEGENDS </entry>
+<entry> SCRIPT </entry>
+<entry> INTERP </entry>
+<entry> UVW VARS </entry>
+<entry> LEGENDS </entry>
 </row>
 <row>
-		<entry>IMPORT </entry><entry>DISPLAY </entry>
-		<entry> </entry><entry> </entry>
+<entry>IMPORT </entry>
+<entry>DISPLAY </entry>
+<entry> </entry>
+<entry> </entry>
 </row>
 </tbody>
 </tgroup>
@@ -620,16 +656,18 @@ levels of red, green, and blue you can make any color.
 </para>
 <para>
      If the control panel window becomes obscured by other windows, you can
-bring it to the top by pressing the "F1" key while the mouse pointer is in the 3-
-D window.  This is especially useful when using the '-full' option.
+bring it to the top by pressing the 
+<keycap>F1</keycap> key while the mouse pointer is in the 3-
+D window.  This is especially useful when using the 
+<option>-full</option> option.
 </para>
 <para>
      When mutliple data sets are displayed in different displays there is the
 option of grouping these them together.  This synchronizes the control of one
 display with the others.  See section 6.19 for more information.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Controlling vis5d</title>
 <para>
      The topmost group of buttons in the control panel operate the main
@@ -813,8 +851,8 @@ analysis functions. This is explained further in section 6.13. </entry>
 </tgroup>
 </informaltable>
 </para>     
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Viewing Modes</title>
 <para>
      In 'Normal' mouse mode the mouse is used to view the data in the 3-D
@@ -845,8 +883,8 @@ the screen rather than in the center of the box.
      The other five viewing modes will be discussed in detail in following
 sections.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Isosurfaces</title>
 <para>
      An isosurface (3-D contour surface) shows the 3-D volume bounded by a
@@ -872,7 +910,7 @@ revolutions.
      Clicking on an isosurface button with the middle mouse button will summon
 the pop-up window without toggling the surface on or off.
 </para>
-<sect3>
+<sect2>
 <title>Isosurface Color</title>
 <para>
      An isosurface may either be drawn entirely in one color or colored
@@ -907,9 +945,9 @@ window with the mouse buttons or by pressing the cursor keys. Changing
 the color table is explained more below in the section about colored
 slices.
 </para>
-</sect3>
 </sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Slices</title>
 <para>
      Slices allow you to look at planar cross sections of data in the 3-D box.
@@ -949,7 +987,7 @@ slices can not be linked.  Slices can be linked by using the API function call
 'vis5d_link_slices' and 'vis5d_unlink_slice' from a script or via the 'INTERP'
 button in the control panel.
 </para>
-<sect3>
+<sect2>
 <title>Contour Line Slices</title>
 <para>
      When viewing a horizontal or vertical contour line slice (button columns
@@ -966,8 +1004,8 @@ solid lines.
 </para>
 <para>
      Optionally, after the interval value you may specify a range of values
-(a,b) which will cause only contour values between a and b to be drawn.  For
-example, suppose you enter
+(a,b) which will cause only contour values between a and b to be drawn.  
+For example, suppose you enter
 </para>
 <para>
      -10 (-30,20)
@@ -984,8 +1022,8 @@ contour numbers within the slice.
      The SFC button will cause the horizontal slice data to be sampled from the
 topography surface then displayed on top of the topograhpy.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Colored Slices</title>
 <para>
      When a viewing a horizontal or vertical colored slice (button columns four
@@ -1050,8 +1088,8 @@ There are a number of other keyboard controls for the color table window:
 </tgroup>
 </informaltable>
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Wind Vector Slices</title>
 <para>
      Wind vector slices are displayed with the buttons near the center
@@ -1070,8 +1108,8 @@ one-fourth enter 0.25, etc.  The default values for both parameters is
      The SFC button for horizontal wind slices will cause the slice data to be
 sampled from the topography surface then displayed on top of the topograhpy.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Wind Stream Slices</title>
 <para>
      Wind stream slices show the path of wind as connected line segments.  The
@@ -1085,8 +1123,8 @@ the number of streamlines, enter 2.0, etc.  The default density is 1.0.
      The SFC button will cause the horizontal slice data to be sampled from the
 topography surface then displayed on top of the topograhpy.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Slice colors</title>
 <para>
      The color of a slice's control button matches that of the slice
@@ -1096,9 +1134,9 @@ the slice's button with the right mouse button.  A window with red,
 green, and blue sliders will appear.  Move the sliders to change the
 color.
 </para>
-</sect3>
 </sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Volume Rendering</title>
 <para>
      Volume rendering is a technique for displaying a 3-dimensional field as a
@@ -1153,8 +1191,8 @@ acceptably.  Those that aren't can be improved by adjusting the color and
 opacity mappings.  While more attractive volume rendering techniques are known,
 this technique can be implemented quickly on many systems.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Wind Trajectories</title>
 <para>
      Wind trajectories trace the motion of air through the 3-D volume much line
@@ -1280,8 +1318,8 @@ according to the value of another variable for the current time step.  The tail
 of the trajectory is colored according to the color of the other variable when
 the head was at that location.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Wind Variables</title>
 <para>
      By default, wind trajectories and the first set of wind slices are computed
@@ -1313,8 +1351,8 @@ the window.
      You can also specify the wind component variables on the command line when
 you start vis5d.  See section 6.1.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Text Labels</title>
 <para>
      Text labels are used to annotate the image in the 3-D viewing window.
@@ -1351,8 +1389,8 @@ made.
 Use the <option>-font</option> command option to select a different font 
 or change the 'fontname' field in the 'Options' menu.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Data Probe</title>
 <para>
      Sometimes it's useful to be able to inspect individual data values at
@@ -1382,8 +1420,8 @@ at the location of a trajectory as is moves along its path.
 The API function 'vis5d_set_probe_vars' can be used in a script or via the
 'INTERP' button.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Vertical Sounding and SkewT</title>
 <para>
      When you select Sounding mode, Vis5D displays a vertical line cursor that
@@ -1406,13 +1444,11 @@ context index number must be appended to the end of each vertical plot variable
 (e.g., "T.1" or "TD.2").
 </para>
 <para>
-     The scale for the vertical plot variables can be forced to be the same for
-all three variables.  This can be achieved by using the command line option '-
-samescale' or by entering the display widget (press 'DISPLAY') then pressing the
+     The scale for the vertical plot variables can be forced to be the same for all three variables.  This can be achieved by using the command line option <parameter>-samescale</parameter> or by entering the display widget (press 'DISPLAY') then pressing the
 'OPTIONS' button and selecting 'samescale'.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Making New Variables</title>
 <para>
      The NEW VAR button on the control panel is used to add new physical
@@ -1450,7 +1486,7 @@ variable has been created a new row of buttons will be added to the control
 panel for the new variable.  You can then make isosurfaces, contour slices, etc.
 of the that variable like any other.
 </para>
-<sect3>
+<sect2>
 <title>Cloned Variables</title>
 <para>
      Suppose you want to clone the U wind component variable so that you can
@@ -1458,8 +1494,8 @@ make both +20 and -20 isosurfaces of it.  First, click on NEW VAR and then
 select U from the pop-up window.  The cloned variable will be named U'.  You can
 then treat U' as any other variable and make an isosurface of it.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Type-in Formulas</title>
 <para>
      Type-in formulas let you type in mathematical expressions to compute new
@@ -1497,7 +1533,7 @@ time step.  For example in order to create a time derivative of U of the type:
 		  <entry> U(t+1) - U(t-1) </entry>
 </row>
 <row>
-		  <entry> ---------------- </entry>
+		  <entry> ------------------- </entry>
 </row>
 <row>
 		  <entry> Time(t+1) - Time(t-1) </entry>
@@ -1542,7 +1578,7 @@ one other will be void of data.  For example, in the formula "DIFFT.0 = T.0 -
 T.1", if the time steps were such:
 </para>
 <para>
-<table frame=none>
+<table>
 <title>Data Context 0</title>
 <tgroup cols=3 align=center>
 <thead>
@@ -1588,7 +1624,7 @@ T.1", if the time steps were such:
 </table>
 </para>
 <para>
-<table frame=none>
+<table>
 <title>Data Context 1</title>
 <tgroup cols=3 align=center>
 <thead>
@@ -1658,8 +1694,8 @@ The resulting variable "DIFFT.0" would contain the data:
 </tgroup>
 </informaltable>
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>External Analysis Functions</title>
 <para>
      External analysis functions are an advanced feature, so new Vis5D users may
@@ -1675,7 +1711,8 @@ FORTRAN programmers.
 </para>
 <para>
      All external functions must be placed in a directory named "userfuncs"
-(this may be changed in the vis5d.h file).  This is relative to the current
+(this may be changed in the 
+<filename>vis5d.h</filename> file).  This is relative to the current
 directory when you run vis5d.  For example, suppose you always run vis5d while
 in "/usr/jones/data", then your analysis functions must be in
 "/usr/jones/data/userfuncs".  Also, this directory contains a script "externf"
@@ -1769,9 +1806,9 @@ current time step use:
 <para>
 where VAR specifies which physical variable you want.
 </para>
-</sect3>
 </sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Saving Image Files and Printing</title>
 <para>
      The SAVE PIC button on the control panel can be used to save the image in
@@ -1845,13 +1882,16 @@ a color PostScript file the tops program is needed (only available on SGI
 systems).
 </para>
 <para>
-     If you don't have any of the utilities mentioned above you should try using
-xv to convert your image files.  xv is available by ftp from export.lcs.mit.edu
-in contrib/ and from ftp.cis.upenn.edu in the pub/ directory.
+     If you don't have any of the utilities mentioned above you should try using 
+<ulink url="http://www.trilon.com/xv/">
+xv 
+</ulink>
+to convert your image files.
 </para>
 <para>
      To print a Vis5D image, position the mouse pointer over the 3-D window and
-press the P key.  If you are in 'Sounding' mode the sounding window will be
+press the 
+<keycap>P</keycap> key.  If you are in 'Sounding' mode the sounding window will be
 printed, any other mode and the 3-D window will be printed.  You'll be asked to
 verify your action.  Vis5D uses lpr to send a PostScript image file to the
 default printer or the printer specified by the PRINTER environment variable.
@@ -1865,8 +1905,8 @@ convert it to PostScript and print it.
      To learn more about the xwud, xpr, fromxwd, tops and togif program read the
 man pages.  Many of these programs have options which you may find useful.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Texture mapping</title>
 <para>
      Texture mapping is a term from computer graphics which means to display a 2-
@@ -1886,19 +1926,19 @@ the command line or in the 'Options' menu:
 <varlistentry>
 <term><option>-area N</option></term>
 <listitem><para>
-               N is the number of the first of a sequence of McIDAS area files.
-               The number of files read equals the number of timesteps in your
-               datafile.  Images should all be of the same size.  You must use
-               McIDAS to do remapping if necessary.
-               </para>
-               <para>
-               Example:  Suppose your datafile has 4 time steps and you specify
-               -area 100, then AREA0100, AREA0101, AREA0102 and AREA0103 will be
-               loaded and displayed.
-               </para>
-               <para>                
-               This option needs the McIDAS library which is only available on
-               SGI systems.
+ N is the number of the first of a sequence of McIDAS area files.
+ The number of files read equals the number of timesteps in your
+ datafile.  Images should all be of the same size.  You must use
+ McIDAS to do remapping if necessary.
+ <informalexample>
+ <para>
+ Example:  Suppose your datafile has 4 time steps and you specify
+ <option>-area 100</option>, 
+ then AREA0100, AREA0101, AREA0102 and AREA0103 will be
+ loaded and displayed.
+ </para></informalexample>
+ This option needs the McIDAS library which is only 
+ available on SGI systems.
 </para></listitem>
 </varlistentry>
 <varlistentry>
@@ -1910,7 +1950,9 @@ the command line or in the 'Options' menu:
                images in the sequence, the number of lines per image, and the
                number of pixels per line.  The rest of the file contains the
                images, one byte per pixel.  The function read_texture_sequence
-               in the image.c file of the src directory reads this file and
+               in the 
+               <filename>image.c</filename> 
+               file of the src directory reads this file and
                serves as a file format reference for those wishing to create
                such image sequence files.
 </para></listitem>
@@ -1919,8 +1961,13 @@ the command line or in the 'Options' menu:
 <term><option>-texture file</option></term>
 <listitem><para>
                This options specifies a single image to display over the
-               topography for all time steps.  The file format is the SGI RGB
-               format.  The free XV program can be used to convert your image to
+               topography for all time steps.  
+               The file format is the SGI RGB
+               format.  The free 
+               <ulink url="http://www.trilon.com/xv/">
+               XV program 
+               </ulink>
+               can be used to convert your image to
                RGB format.
 </para></listitem>
 </varlistentry>
@@ -1935,22 +1982,26 @@ to toggle the display of the imagery on or off.
 command line, and can be entered under Options for each display in the display
 widget window described in Section 6.20.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Tcl scripting</title>
 <para>
-     Vis5D 5.2 features a scripting facility.  That is, you can control Vis5D
-with a text file of commands using the Tcl language.  Scripting is an advanced
-subject and documented separately in the Vis5D scripting document at
-http://www.ssec.wisc.edu/~billh/script.html.
+     Vis5D 5.2 features a scripting facility.  That is, you can 
+control Vis5D
+with a text file of commands using the Tcl language.  
+Scripting is an advanced subject and documented separately 
+in the 
+<ulink url="http://www.ssec.wisc.edu/~billh/script52.html">
+Vis5D scripting document
+</ulink>.
 </para>
 <para>
      Note that the SAVE and RESTORE buttons on the control panel write and read
 Tcl files.  You may want to use bits of these files as a basis a new Tcl
 scripts.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Keyboard Functions</title>
 <para>
 </para>
@@ -1971,7 +2022,7 @@ inside the 3-D viewing window:
 <row>
 		<entry><keycap>F1 </keycap></entry>
 		<entry> Raise or lower the control panel window.  This
-                is useful with the <option>-full</option> option. </entry>
+                is useful with the <parameter>-full</parameter> option. </entry>
 </row>
 <row>
 		<entry><keycap>F2 </keycap></entry>
@@ -2022,8 +2073,8 @@ src/gui.c for the
 func1(), func2(), func3(), etc functions.  They are called when the
 corresponding function key is pressed.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>The Clipping Planes</title>
 <para>
      Six new clipping planes has been added in Vis5D version 5.2.  This allows
@@ -2038,10 +2089,10 @@ the 3-D display window, will cycle through and highlight the six planes.  The
 clipping planes are then moved in the same manner as the vertical and horizontal
 slices.  Simply click on a corner or midpoint of the clipping slice with the
 right mouse button and drag it.  The clipping planes may set back to there
-default positions by pressing the 'R' key.
+default positions by pressing the <keycap>R</keycap> key.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Grouping</title>
 <para>
      When there are multiple displays you can group them together in up to 9
@@ -2123,8 +2174,8 @@ If more than one data set is attached to a grouped display and they contain
 similar named variables, only the first data set can display graphics for that
 variable.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>The Display Widget Window</title>
 <para>
      The display widget window is the control center when multiple data sets are
@@ -2154,7 +2205,7 @@ section 6.20.4.  Below  the browser is the 'SET DISPLAY PARAMETERS' which is
 described in section it 6.20.3.  Currently there can be a total of 16 displays.
 Watch out though, opening many displays can eat up a lot of memory.
 </para>
-<sect3>
+<sect2>
 <title>Changing the Number of Displays</title>
 <para>
      In the upper left hand corner is the 'Display Matrix' with 9 buttons,
@@ -2165,8 +2216,8 @@ the 3-D graphics window of each display according to the chosen button matrix.
 If a display is created but has no data set attached to it then the 3-D window
 is left blank.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Changing the Display Assignment of a Data Set</title>
 <para>
      In order to change the aassignment a data set to a different display you
@@ -2176,8 +2227,8 @@ browser of another display and the data set transfered.  If a data set is
 transfered to an empty display it may take several seconds while the display is
 initialized.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Changing the Parameters of a Display</title>
 <para>
       The parameters of a display define the virtual grid.  These parameters
@@ -2192,8 +2243,8 @@ the 'User Input' button.  A set of fields associated with each parameter will
 then appear on the left hand side.  When you are finished changing the
 parameters press the 'Done' button found at the bottom.
 </para>
-</sect3>
-<sect3>
+</sect2>
+<sect2>
 <title>Changing the 'Options' for a Display</title>
 <para>
      In Vis5D version 5.2 the command line options (refer to section 6.1) can
@@ -2202,9 +2253,9 @@ the 'Options' button is pressed at the top of the display browser a set of
 fields will appear on the left hand side.  These fields correlate to the command
 line options.
 </para>
-</sect3>
 </sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Saving the current v5d file</title>
 <para>
      When the user clicks on the SAVE button with the right mouse button a
@@ -2213,8 +2264,8 @@ the display will then be saved to a file in v5d format.  This is only useful
 when new variables have been created via the NEW VAR button or thru the use of
 external functions.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Viewing Text Plots</title>
 <para>
      When a button is clicked under the heading 'Text Plot', the text plot
@@ -2237,8 +2288,8 @@ widget appears, allowing the user to alter the color of the text.  If the chosen
 variable contains numerical data, the option for 'Multicolor' apperas.  When
 this is clicked on the text characers will be mapped to their color value.
 </para>
-</sect2>
-<sect2>
+</sect1>
+<sect1>
 <title>Final Notes</title>
 <para>
      The SGI version of vis5d uses multiple CPUs if available to compute
@@ -2257,5 +2308,5 @@ sample data sets we hope it feels natural.
 contrib/.  See the README file in that directory for a description of current
 contributions.
 </para>
-</sect2>
 </sect1>
+</chapter>

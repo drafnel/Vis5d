@@ -1,5 +1,4 @@
-<sect1>
-<title>OVERVIEW OF Vis5D</title>
+<chapter><title>Overview of Vis5D</title>
 <para>
       Vis5D is a software system that can be used to visualize both
 gridded data and irregularly located data.  Sources for this data can
@@ -18,7 +17,8 @@ set of variables which can contain either character or numerical data.
 <para>
       A major feature of Vis5D is support for comparing multiple data
 sets.  This extra data can be incorporated at run-time as a list of
-*.v5d files or imported at anytime after Vis5D is running. Data can be
+<filename>*.v5d</filename>
+files or imported at anytime after Vis5D is running. Data can be
 overlaid in the same 3-D display and/or viewed side-by-side spread
 sheet style.  Data sets that are overlaid are aligned in space and
 time.  In the spread sheet style, multiple displays can be linked.
@@ -33,8 +33,8 @@ data into its file format.  We have included the Vis5D source code so
 you can modify it or write new programs. You can download the sample
 data sets from the LAMPS model and from Bob Schlesinger's thunderstorm
 model, so you can work through our examples.  (We have also included a
-small dataset, hole.v5d, so you can verify that Vis5D works and try a
-couple of simple plots.)
+small dataset, <filename>hole.v5d</filename>, 
+so you can verify that Vis5D works and try a couple of simple plots.)
 </para>
 <para>
       Vis5D version 1.0 was written by Bill Hibbard and Dave Santek of
@@ -77,7 +77,7 @@ You can also send questions to Bill Hibbard
       </address>
       This document is the complete guide for using Vis5D..
 </para>
-<sect2>
+<sect1>
 <title>Vis5D Documentation on the World Wide Web</title>
 <para>
 The 
@@ -96,21 +96,23 @@ is available on the World Wide Web.
 </para>
 <para>
       There is a Web document describing the 
-<ulink url="http://www.ssec.wisc.edu/~billh/api.html">
+<ulink url="http://www.ssec.wisc.edu/~billh/api52.html">
       Vis5D API 
 </ulink>
-      (Application Programmer Interface), intented to help 
-system developers use Vis5D as a visualization subsystem of other systems.
+      (Application Programmer Interface), intented to help
+       system developers use Vis5D as a visualization subsystem 
+       of other systems.
 </para>
 <para>
-      There is also a Web document describing the Vis5D 
-<ulink url="http://www.ssec.wisc.edu/~billh/script.html">
+      There is a Web document describing the Vis5D 
+<ulink url="http://www.ssec.wisc.edu/~billh/script52.html">
       Tcl scripting interface.
 </ulink>
 </para>
 <para>
-      Copies of the <filename>api.html</filename> and <filename>script.html
+      Copies of the <filename>api.html</filename> and 
+      <filename>script.html
 </filename> files are included with the Vis5D ftp distribution.
 </para>
-</sect2>
 </sect1>
+</chapter>

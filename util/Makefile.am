@@ -5,9 +5,9 @@ bin_PROGRAMS = $(CPROGS) @OPT_UTILS@
 noinst_PROGRAMS = maketopo makemap
 EXTRA_PROGRAMS = $(FPROGS) listfonts fromxwd help newmap outlgrid
 
-CPPFLAGS = @CPPFLAGS@ -I$(srcdir)/../src
+AM_CPPFLAGS = -I$(top_srcdir)/src
 
-V5D_LIB = ../src/libv5d.la
+V5D_LIB = $(top_builddir)/src/libv5d.la
 
 # note that if we don't specify prog_SOURCES, automake assumes prog.c
 

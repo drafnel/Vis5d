@@ -1,20 +1,13 @@
 #
 # gettext support requires that subdir intl be first
 #
-SUBDIRS = po intl lui5 src util doc @GTK_DIRS@
+SUBDIRS = lui5 src util doc
 
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts \
-             userfuncs pixmaps vis5d+.pc.in
+             userfuncs pixmaps vis5d+.pc.in # gtk po intl
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = vis5d+.pc
-
-#
-# This target creates lib vis5dapi which contains only those functions 
-# nessasary to access vis5d via the api 
-#
-API: 
-	cd src; $(MAKE) API
 
 # add a target to completely get rid of all the files produced by
 # autoheader, automake, autoconf, and aclocal:

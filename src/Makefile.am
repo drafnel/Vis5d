@@ -11,8 +11,6 @@ pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
 lib_LTLIBRARIES = libvis5d.la libv5d.la
 
-CPPFLAGS = @CPPFLAGS@ # -I flags
-
 API_SRC = api.c analysis.c anim.c box.c chrono.c compute.c contour.c \
           groupchrono.c globals.c graphics.all.c grid.c image.c imemory.c \
           map.c matrix.c linterp.c memory.c misc.c mwmborder.c proj.c \
@@ -53,7 +51,7 @@ GUI_SRC = cursor.c displaywidget.c gui.c gui_i.c labels.c script.c slice.c \
           soundingGUI.c rgbsliders.c isocolor.c uvwwidget.c  igui.c pipe.c \
           imain.c main_i.c ui_i.c
 libvis5dgui_a_SOURCES = $(GUI_SRC) 
-LIBLUI5 = ../lui5/liblui.a
+LIBLUI5 = $(top_builddir)/lui5/liblui.a
 LIBGUI  = libvis5dgui.a
 
 vis5d_SOURCES = main.c $(HEADER_SRC)

@@ -597,8 +597,6 @@ static int make_snd_window(int index, char *title, Window scw,
                                  xpos, ypos, width, height, scw, wdpy_name);
 }
 
-
-
 /*
  * Create the 3-D rendering window.
  */
@@ -623,12 +621,7 @@ static int make_gfx_window(  char *title, char *geom_str)
 
 
    /* compute best pos and size */
-#if defined(VOGL) || defined(MESA)
-   /* use smaller screen w/ VOGL and Mesa for faster rendering */
-   height = width = (scrwidth - 420) * 2 / 3;
-#else
-   height = width = scrwidth - 420;
-#endif
+   height = width = scrheight < 500 ? scrheight : 500;
    xpos = 410;
    ypos = 10;
 

@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.46 $)
+AC_REVISION($Revision: 1.47 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -434,10 +434,10 @@ AC_SUBST(THREADLIBS)
 
 # define a preprocessor symbol for where the Vis5d data files
 # (e.g. EARTH.TOPO) go:
-if test "$datadir" != '${prefix}/share'; then
+if test "x$datadir" != 'x${prefix}/share' -a "x$datadir" != 'x${datarootdir}'; then
 	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$datadir/$PACKAGE/",
                            [Define to installed location of Vis5d data files.])
-elif test "$prefix" = "NONE"; then
+elif test "x$prefix" = "xNONE"; then
 	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$ac_default_prefix/share/$PACKAGE/")
 else
 	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$prefix/share/$PACKAGE/")

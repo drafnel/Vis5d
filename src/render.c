@@ -2787,7 +2787,16 @@ void render_sounding_only( Display_Context dtx, int pixmapflag )
    }
 }
 
-
+/* SGJ, 2006: */
+static void clear_background(Display_Context dtx)
+{
+     if (dtx->Reversed){
+	  clear_color( PACK_COLOR(255,255,255,255) );
+     }
+     else{
+	  clear_color( dtx->BgColor );
+     }
+}
 
 /*
  * Redraw everything in the 3-D window but don't display it yet.  Call
@@ -2816,7 +2825,7 @@ void render_everything( Display_Context dtx, int animflag )
       /* left eye */
       stereo_set_3d_perspective(VIS5D_STEREO_LEFT,dtx->FrntClip);
       stereo_set_buff(VIS5D_STEREO_LEFT);
-      clear_color (dtx->BgColor);
+      clear_background(dtx);
       clear_3d_window();
 
       if (dtx->DisplayBox){
@@ -2841,7 +2850,7 @@ void render_everything( Display_Context dtx, int animflag )
       /* right eye */
       stereo_set_3d_perspective(VIS5D_STEREO_RIGHT,dtx->FrntClip);
       stereo_set_buff(VIS5D_STEREO_RIGHT);
-      clear_color (dtx->BgColor);
+      clear_background(dtx);
       clear_3d_window();
 
       if (dtx->DisplayBox){
@@ -2872,8 +2881,8 @@ void render_everything( Display_Context dtx, int animflag )
 		  * down into this function so stereo and mono rendering loops can both
 		  * work with the same higher level api function.
 		  */
+		 clear_background(dtx);
 		 clear_3d_window();
-		 clear_color (dtx->BgColor);
 		 
 		 if (dtx->DisplayBox){
 			int i, listflag=0;

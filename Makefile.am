@@ -1,10 +1,10 @@
 #
 # gettext support requires that subdir intl be first
 #
-SUBDIRS = lui5 src util doc
+SUBDIRS = lui5 src util doc gtk
 
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts \
-             userfuncs pixmaps vis5d+.pc.in m4 # gtk po intl
+             userfuncs pixmaps vis5d+.pc.in m4 # po intl
 
 ACLOCAL_AMFLAGS=-I ./m4
 

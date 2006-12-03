@@ -4,7 +4,9 @@ INCLUDES = -I$(top_srcdir)/gtk/gradients -I$(top_srcdir)/gtk \
            -I$(top_srcdir) -I$(top_srcdir)/intl \
 	        @GTK_CFLAGS@
 
+if ENABLE_GTK
 lib_LTLIBRARIES = libgradients.la
+endif
 
 EXTRA_DIST = gradients.glade
 

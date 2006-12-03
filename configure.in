@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.49 $)
+AC_REVISION($Revision: 1.50 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -11,6 +11,7 @@ AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(vis5d+, 1.3.1)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
+AM_MAINTAINER_MODE
 
 ##########################################################################
 AC_ARG_ENABLE(debug, [  --enable-debug          compile for debugging], ok=$enableval, ok=no)
@@ -460,21 +461,34 @@ AC_SUBST(THREADLIBS)
 
 ##########################################################################
 
-# define a preprocessor symbol for where the Vis5d data files
-# (e.g. EARTH.TOPO) go:
-if test "x$datadir" != 'x${prefix}/share' -a "x$datadir" != 'x${datarootdir}'; then
-	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$datadir/$PACKAGE/",
-                           [Define to installed location of Vis5d data files.])
-elif test "x$prefix" = "xNONE"; then
-	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$ac_default_prefix/share/$PACKAGE/")
+dnl Set PACKAGE_DATA_DIR in config.h.
+if test "x${datadir}" = 'x${prefix}/share' -o "x${datadir}" = '${datarootdir}'; then
+  if test "x${prefix}" = "xNONE"; then
+    AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${ac_default_prefix}/share/${PACKAGE}", [Location of package data files])
+  else
+    AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${prefix}/share/${PACKAGE}")
+  fi
 else
-	AC_DEFINE_UNQUOTED(DATA_PREFIX, "$prefix/share/$PACKAGE/")
+  AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${datadir}/${PACKAGE}")
 fi
+
+# Set PACKAGE_SOURCE_DIR in config.h.
+packagesrcdir=`cd $srcdir && pwd`
+AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}",[where the source was built])
 
 ##########################################################################
 # experimental GTK stuff (commented out)
 
-dnl AC_ARG_ENABLE(gtk, [  --enable-gtk            compile gtk user interface (NEW)], usegtk=$enableval, usegtk=no)
+AC_ARG_ENABLE(gtk, [  --enable-gtk            compile gtk user interface (NEW)], enable_gtk=$enableval, enable_gtk=no)
+
+AC_CHECK_PROG(GLADE, glade, glade, $srcdir/missing glade)
+
+if test "x$enable_gtk" = xyes; then
+  AM_PATH_GTK(1.2.0, ,
+              AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
+  AM_PATH_GTKGL
+fi
+AM_CONDITIONAL(ENABLE_GTK, test "x$enable_gtk" = xyes)
 
 dnl ALL_LINGUAS="pt_BR es"
 #
@@ -499,14 +513,10 @@ dnl fi
 
 ##########################################################################
 
-# Set VIS5D_SOURCE_DIR in config.h.
-packagesrcdir=`cd $srcdir && pwd`
-AC_DEFINE_UNQUOTED(VIS5D_SOURCE_DIR, "${packagesrcdir}",[where the source was built])
-
 AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
 # additional files for GTK: gtk/vis5dgtk.pc gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in 
-AC_CONFIG_FILES([vis5d+.pc Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile src/tclheader.h])
+AC_CONFIG_FILES([vis5d+.pc Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile src/tclheader.h gtk/Makefile gtk/vis5dgtk.pc gtk/gradients/Makefile])
 AC_OUTPUT
 

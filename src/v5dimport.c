@@ -66,9 +66,9 @@ int main( int argc, char *argv[] )
   if (getenv("VIS5D_PATH") ){
 	 strcpy( Vis5dDataPath, getenv("VIS5D_PATH") );
   }
-#ifdef DATA_PREFIX
+#ifdef PACKAGE_DATA_DIR
   if (Vis5dDataPath[0] == 0) { /* SGJ 1/11/00 */
-	 strcpy(Vis5dDataPath, DATA_PREFIX);
+	 strcpy(Vis5dDataPath, PACKAGE_DATA_DIR "/");
   }
 #endif
 

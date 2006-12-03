@@ -55,8 +55,8 @@ GtkWidget *new_window3D(GtkWidget *oldwindow3D)
   bindtextdomain (PACKAGE, VIS5D_LOCALE_DIR);
   textdomain (PACKAGE);
 #endif
-  add_pixmap_directory (DATA_PREFIX "/pixmaps");
-  add_pixmap_directory (VIS5D_SOURCE_DIR "/pixmaps");
+  add_pixmap_directory (PACKAGE_DATA_DIR "/pixmaps");
+  add_pixmap_directory (PACKAGE_SOURCE_DIR "/pixmaps");
 
   window3D = create_window3D();
   /*
@@ -407,7 +407,7 @@ on_topography1_activate                (GtkMenuItem     *menuitem,
   if(v5dstr[0]=='/'){
 	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),v5dstr);
   }else{
-	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),DATA_PREFIX );
+	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),PACKAGE_DATA_DIR );
   }
   gtk_widget_show (FileSelectionDialog);
   gtk_grab_add(FileSelectionDialog);
@@ -439,7 +439,7 @@ on_map2_activate                       (GtkMenuItem     *menuitem,
   if(v5dstr[0]=='/'){
 	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),v5dstr);
   }else{
-	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),DATA_PREFIX );
+	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(FileSelectionDialog),PACKAGE_DATA_DIR );
   }  
  
   gtk_widget_show (FileSelectionDialog);
@@ -911,7 +911,7 @@ void glarea_init (GtkWidget* widget, gpointer user_data) {
 		
 		vis5d_init_opengl_window(info->v5d_display_context,Xdisplay, Xwindow, glcontext);
 
-		vis5d_init_path(DATA_PREFIX);
+		vis5d_init_path(PACKAGE_DATA_DIR "/");
 
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_BOX,VIS5D_ON);
 		vis5d_graphics_mode(info->v5d_display_context,VIS5D_CLOCK,VIS5D_ON);

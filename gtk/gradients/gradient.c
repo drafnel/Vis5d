@@ -669,7 +669,7 @@ static guint n_gradient_targets = (sizeof (gradient_target_table) /
 
 gchar *gradient_path_init(void)
 {  
-  return g_strdup(DATA_PREFIX "/colortables" G_SEARCHPATH_SEPARATOR_S VIS5D_SOURCE_DIR "/gtk/gradients/data"  );
+  return g_strdup(PACKAGE_DATA_DIR "/colortables" G_SEARCHPATH_SEPARATOR_S PACKAGE_SOURCE_DIR "/gtk/gradients/data"  );
 }
 
 void

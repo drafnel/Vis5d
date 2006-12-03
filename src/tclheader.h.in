@@ -1,0 +1,5 @@
+/* this file is used so that the name of the tcl header file
+ * (e.g. tcl8.4/tcl.h) can be substituted from the autoconf script,
+ * which is needed since it may depend on the tcl version. */
+
+#include <@TCL_HEADER@>

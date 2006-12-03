@@ -106,7 +106,7 @@ static int get_colorbar_params( int index, int graphic, int vindex, int var,
  *          VIS5D_BAD_VALUE if unable to open file
  *          VIS5D_FAIL if error while writing file.
  */
-int tcl_save( int index, char *savefile )
+int tcl_save( int index, const char *savefile )
 {
    FILE *f;
    int cyo, chowmany, cwhichones[VIS5D_MAX_CONTEXTS];

@@ -183,7 +183,7 @@ context_init(
 }
 
 
-int make_big_window( char *title, int xpos, int ypos, int width, int height)
+int make_big_window( const char *title, int xpos, int ypos, int width, int height)
 {
    int attrib_list[] = {
       GLX_RGBA,
@@ -308,7 +308,7 @@ int make_big_window( char *title, int xpos, int ypos, int width, int height)
 
 
 
-int make_3d_window( Display_Context dtx, char *title, int xpos, int ypos,
+int make_3d_window( Display_Context dtx, const char *title, int xpos, int ypos,
                     int width, int height )
 {
   /* TODO: should query GL for best options available */
@@ -634,7 +634,7 @@ void finish_rendering( void )
 
 /* Specify a font to use in an OpenGL window */
 
-int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx)
+int set_opengl_font(const char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx)
 {
   GLXContext prevctx;
   prevctx = glXGetCurrentContext();
@@ -677,7 +677,7 @@ int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx)
  * Specify the font to use in the 3-D window.  Must be called before
  * the window is created.
  */
-int set_3d_font(  Display_Context dtx, char *name, int size )
+int set_3d_font(  Display_Context dtx, const char *name, int size )
 {
 
   set_opengl_font(name, dtx->GfxWindow, dtx->gl_ctx, dtx->gfx[WINDOW_3D_FONT]);
@@ -1329,7 +1329,7 @@ int save_formats( void )
 
 extern Display_Context vis5d_get_dtx( int index );
   
-int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
+int save_3d_window_from_oglbuf( const char *filename, int format , GLenum oglbuf)
 {
    char rgbname[100];
    char cmd[1000];
@@ -1464,14 +1464,14 @@ int save_3d_window_from_oglbuf( char *filename, int format , GLenum oglbuf)
    return 1;
 }
 
-int save_3d_window( char *filename, int format )
+int save_3d_window( const char *filename, int format )
 {
    if(current_dtx->StereoOn)
    	return save_3d_window_from_oglbuf(filename,format,GL_BACK_LEFT);
    return save_3d_window_from_oglbuf(filename,format,GL_BACK);
 }
 
-int save_3d_right_window( char *filename, int format )
+int save_3d_right_window( const char *filename, int format )
 {
    if(current_dtx->StereoOn)
        return save_3d_window_from_oglbuf(filename,format,GL_BACK_RIGHT);
@@ -1484,7 +1484,7 @@ int save_3d_right_window( char *filename, int format )
    return 0;
 }
 
-int save_snd_window(Display_Context dtx, char *filename, int format )
+int save_snd_window(Display_Context dtx, const char *filename, int format )
 {
   char xwdname[100];
   char cmd[1000];

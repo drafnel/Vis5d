@@ -36,7 +36,7 @@
 #include "globals.h"
 
 
-extern int compute_var( Display_Context dtx, char *expression, int *expressionowner,
+extern int compute_var( Display_Context dtx, const char *expression, int *expressionowner,
                         char name[100], char mess[100], int *recompute );
 
 

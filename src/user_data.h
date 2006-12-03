@@ -32,7 +32,7 @@
 #include "globals.h"
 #include "map.h"
 
-extern int user_data_get_header (char file_name[], v5dstruct *v);
+extern int user_data_get_header (const char file_name[], v5dstruct *v);
 
 extern int user_data_get_grid (v5dstruct *v, int itime, int ivar,
                             float *grid_data);

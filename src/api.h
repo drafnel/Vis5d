@@ -341,7 +341,7 @@ extern int vis5d_unmap_3d_window( int index );
 
 extern int vis5d_get_display_window( int index, Window *win);
 
-extern int vis5d_init_window( char *title,
+extern int vis5d_init_window( const char *title,
                                      int x, int y, int width, int height );
 
 extern int vis5d_get_ctx_values( int index, v5dstruct *v5d);
@@ -368,9 +368,9 @@ extern int vis5d_set_ctx_values( int index,  int numtimes, int numvars,
 /* New 5.2 */
 extern int vis5d_init_display_values( int index, int iindex, int display );
 
-extern int vis5d_init_sndwindow( int index, char *title,
+extern int vis5d_init_sndwindow( int index, const char *title,
                                      int x, int y, int width, int height,
-                                     Window scw, char *wdpy_name );
+                                     Window scw, const char *wdpy_name );
 extern int vis5d_map_sndwindow( int index);
 
 extern int vis5d_unmap_sndwindow( int index );
@@ -390,20 +390,20 @@ extern int vis5d_init_opengl_window( int index, Display *dpy,
 #endif
 
 
-extern int vis5d_init_map( int index, char *mapname );
+extern int vis5d_init_map( int index, const char *mapname );
 
 extern int vis5d_get_map( int index, char *mapname );
 
-extern int vis5d_init_topo_and_map_ctx( int index, char *toponame, int highres_flag );
+extern int vis5d_init_topo_and_map_ctx( int index, const char *toponame, int highres_flag );
 
-extern int vis5d_init_topo( int index, char *toponame,
+extern int vis5d_init_topo( int index, const char *toponame,
                                    int highres_flag );
 
 extern int vis5d_get_topo( int index, char *toponame);
 
 extern int vis5d_init_clock( int index, int clock);
 
-extern int vis5d_init_texture( int index, char *texturename );
+extern int vis5d_init_texture( int index, const char *texturename );
 
 extern int vis5d_get_texture( int index, char *texturename );
 
@@ -411,7 +411,7 @@ extern int vis5d_init_firstarea( int index, int area );
 
 extern int vis5d_get_firstarea( int index );
 
-extern int vis5d_init_sequence( int index, char *sequencename );
+extern int vis5d_init_sequence( int index, const char *sequencename );
 
 extern int vis5d_get_sequence( int index, char *sequencename );
 
@@ -437,13 +437,13 @@ extern int vis5d_init_memory( int index, int mbs );
 extern int vis5d_init_samescale( int index );
 
 /* MJK 4.27.99 */
-extern int vis5d_init_path( char *pathname );
+extern int vis5d_init_path( const char *pathname );
 
 extern int vis5d_get_v5dfilename( int index, char *name );
 
-extern int vis5d_query_gridfile( char *name, v5dstruct *v);
+extern int vis5d_query_gridfile( const char *name, v5dstruct *v);
 
-extern int vis5d_open_gridfile( int index, char *name, int read_flag );
+extern int vis5d_open_gridfile( int index, const char *name, int read_flag );
 
 
 
@@ -516,7 +516,7 @@ extern int vis5d_get_ctx_numvars( int index, int *numvars );
 
 extern int vis5d_get_itx_numvars( int index, int *numvars );
 
-extern int vis5d_find_var( int index, char *name );
+extern int vis5d_find_var( int index, const char *name );
 
 extern int vis5d_get_ctx_var_name( int index, int var, char *name );
 
@@ -636,15 +636,15 @@ extern int vis5d_get_topo_color_var( int index, int *colorvarctx, int *colorvar 
 /* Cloning, Ext funcs, and expression functions */
 
 extern int vis5d_make_clone_variable( int index, int var_to_clone,
-                                             char *newname, int *newvar );
+                                             const char *newname, int *newvar );
 
 extern int vis5d_compute_ext_func( int index, char *funcname,
                                           int *newvar );
 
-extern int vis5d_make_expr_var( int index, char *expression, char *newname,
+extern int vis5d_make_expr_var( int index, const char *expression, char *newname,
                          char *mess, int *newvarowner, int *newvar, int *recompute );
 
-extern int vis5d_make_new_var( int index, char *newname, int nl,
+extern int vis5d_make_new_var( int index, const char *newname, int nl,
                                        int lowlev, int *newvar );
 
 
@@ -708,7 +708,7 @@ extern int vis5d_get_color_table_params( int index, int graphic, int varowner, i
                                          float **params );
 
 extern int vis5d_load_color_table( int index, int graphic, int varowner, int var,
-                            int table_size, char *filename);
+                            int table_size, const char *filename);
 
 extern int vis5d_set_color_table_params( int index, int graphic, int vowner, int var,
                                          float params[] );
@@ -729,11 +729,11 @@ extern int vis5d_color_table_set_alpha( float params[], float alpha );
 
 extern int vis5d_alpha_mode( int index, int mode );
 #ifdef HAVE_OPENGL
-extern int vis5d_set_font(int index, char *fontname, int size, Fontlist which);
+extern int vis5d_set_font(int index, const char *fontname, int size, Fontlist which);
 #endif
-extern int vis5d_font(  int index, char *fontname, int size );
+extern int vis5d_font(  int index, const char *fontname, int size );
 
-extern int vis5d_soundfont( int index, char *fontname );
+extern int vis5d_soundfont( int index, const char *fontname );
 
 
 #ifdef USE_SYSTEM_FONTS
@@ -932,7 +932,7 @@ extern int vis5d_free_graphics( int index );
 
 /* Text label functions */
 
-extern int vis5d_make_label( int index, int x, int y, char *text );
+extern int vis5d_make_label( int index, int x, int y, const char *text );
 
 extern int vis5d_new_label( int index, int x, int y, int *label_id );
 
@@ -982,11 +982,11 @@ extern int vis5d_moveresize_3d_window( int index, int x, int y,
 extern int vis5d_resize_sounding_window( int index, int width, int height, 
                                          int x, int y );
 
-extern int vis5d_save_window(  char *filename, int format );
+extern int vis5d_save_window(  const char *filename, int format );
 
-extern int vis5d_save_snd_window( int index, char *filename, int format );
+extern int vis5d_save_snd_window( int index, const char *filename, int format );
 
-extern int vis5d_save_to_v5dfile( int index, char *filename);
+extern int vis5d_save_to_v5dfile( int index, const char *filename);
 
 extern int vis5d_print_window( void );
 
@@ -998,7 +998,7 @@ extern int vis5d_print_snd_window( int index );
 /* WLH 15 Oct 98 */
 extern int vis5d_locate_dtx(Window w, int x, int y, int *display_index);
 
-extern int vis5d_name_ctx(char *name, int *context_index);
+extern int vis5d_name_ctx(const char *name, int *context_index);
 
 
 /* Coordinate conversion functions */
@@ -1102,7 +1102,7 @@ extern int vis5d_geo_to_xyz( int index, int time, int var,
 
 /* Save and restore functions */
 
-extern int vis5d_restore( int index, char *filename );
+extern int vis5d_restore( int index, const char *filename );
 
 
 
@@ -1136,7 +1136,7 @@ extern int vis5d_get_display_group( int index, int *gindex );
 
 extern int vis5d_assign_display_to_data( int index, int display_index);
 
-extern int vis5d_load_v5dfile( int dindex, int mbs, char *filename, char *ctxname );
+extern int vis5d_load_v5dfile( int dindex, int mbs, const char *filename, const char *ctxname );
 
 /* WLH 23 Oct 98 */
 extern int vis5d_initialize_stuff( int index );
@@ -1220,7 +1220,7 @@ extern int vis5d_get_num_of_data_sets_in_display( int index, int *number);
 
 extern int vis5d_init_irregular_memory( int index, int mbs );
 
-extern int vis5d_open_recordfile( int index, char *name, char *itxname, int read_flag );
+extern int vis5d_open_recordfile( int index, const char *name, char *itxname, int read_flag );
 
 extern int vis5d_get_itx_numtimes( int index, int *numtimes );
 
@@ -1228,7 +1228,7 @@ extern int vis5d_get_itx_time_stamp( int index, int timestep,
                                         int *day, int *time );
 extern int vis5d_assign_display_to_irregular_data( int index, int display_index);
 
-extern int vis5d_load_irregular_v5dfile( int dindex, int mbs, char *filename, char *ctxname );
+extern int vis5d_load_irregular_v5dfile( int dindex, int mbs, const char *filename, const char *ctxname );
 
 extern int vis5d_set_text_plot( int index, int var, float spacing,
                                 float fontx, float fonty, float fontspace);
@@ -1261,10 +1261,10 @@ extern int vis5d_get_current_grajset( int index, int *trajset);
 extern int vis5d_stereo_enabled(int index, int *enabled);
 extern int vis5d_stereo_set(int index, int stereo);
 extern int vis5d_stereo_get(int index, int *stereo);
-extern int vis5d_save_right_window(char *filename, int format);
+extern int vis5d_save_right_window(const char *filename, int format);
 
 extern int vis5d_get_scene_formats(int *formats);
-extern int vis5d_save_scene(int index, char *filename, int format);
+extern int vis5d_save_scene(int index, const char *filename, int format);
 
 int vis5d_set_maxtmesh(int index, int maxtmesh);
 int vis5d_get_maxtmesh(int index, int *maxtmesh);

@@ -1,5 +1,5 @@
 /*
- *      $Id: graphics.scenes.h,v 1.1 2001/10/09 19:22:20 jedwards Exp $
+ *      $Id: graphics.scenes.h,v 1.2 2006/12/03 06:42:28 stevengj Exp $
  */
 /*
  *	File:		graphics.scenes.h
@@ -39,6 +39,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "globals.h"
 
-extern int save_3d_scene(Display_Context dtx, char *filename, int format);
+extern int save_3d_scene(Display_Context dtx, const char *filename, int format);
 
 #endif

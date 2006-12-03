@@ -36,8 +36,8 @@ extern int reload_sounding_data( Display_Context dtx );
 
 extern int draw_sounding( Display_Context dtx, int time);
 
-extern int  make_soundGFX_window( Display_Context dtx, char *title, int xpos, int ypos,
-                           int width, int height, Window ctrlwindow, char *wdpy_name);
+extern int  make_soundGFX_window( Display_Context dtx, const char *title, int xpos, int ypos,
+                           int width, int height, Window ctrlwindow, const char *wdpy_name);
 
 extern void do_pixmap_art( Display_Context dtx );
 

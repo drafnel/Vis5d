@@ -1,5 +1,5 @@
 /*
- *      $Id: graphics.vrml.h,v 1.1 2001/10/09 19:22:20 jedwards Exp $
+ *      $Id: graphics.vrml.h,v 1.2 2006/12/03 06:42:28 stevengj Exp $
  */
 /*
  *	File:		graphics.vrml.h
@@ -39,6 +39,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "globals.h"
 
-extern void vrml_save(Display_Context dtx, char *filename);
+extern void vrml_save(Display_Context dtx, const char *filename);
 
 #endif	/* VRML_H */

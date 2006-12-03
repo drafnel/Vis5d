@@ -1,5 +1,5 @@
 /*
- *      $Id: graphics.scenes.c,v 1.1 2001/10/09 19:22:20 jedwards Exp $
+ *      $Id: graphics.scenes.c,v 1.2 2006/12/03 06:42:28 stevengj Exp $
  */
 /*
  *	File:		graphics.scenes.c
@@ -57,7 +57,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * Returns:	
  * Side Effect:	
  */
-int save_3d_scene(Display_Context dtx, char *filename, int format)
+int save_3d_scene(Display_Context dtx, const char *filename, int format)
 {
 	int	status;
 

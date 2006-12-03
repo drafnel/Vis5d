@@ -1,5 +1,5 @@
 /*
- *      $Id: graphics.vrml.c,v 1.2 2001/10/10 13:15:30 jedwards Exp $
+ *      $Id: graphics.vrml.c,v 1.3 2006/12/03 06:42:28 stevengj Exp $
  */
 /*
  *	File:		graphics.vrml.c
@@ -3000,7 +3000,7 @@ void vrml_clock(
 	bl();fprintf(fp, "} #End of Draw Clock.\n");
 }
 
-void vrml_save(Display_Context dtx, char *filename)
+void vrml_save(Display_Context dtx, const char *filename)
 {
 	Context	ctx;
 	int yo, spandex;

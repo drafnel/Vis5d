@@ -32,9 +32,9 @@
 
 
 
-extern int save( Context ctx, char savefile[], int save_gfx, int save_traj );
+extern int save( Context ctx, const char savefile[], int save_gfx, int save_traj );
 
-extern int restore( Context ctx, char savefile[] );
+extern int restore( Context ctx, const char savefile[] );
 
 
 #endif

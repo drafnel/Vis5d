@@ -684,7 +684,7 @@ void set_current_window( Context ctx )
  * be called after a window has been created.  The default font will be
  * used otherwise.
  */
-int set_3d_font( Context ctx, char *name, int size )
+int set_3d_font( Context ctx, const char *name, int size )
 {
    strcpy( ctx->FontName, name );
    ctx->FontHeight = size;

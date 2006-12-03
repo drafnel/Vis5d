@@ -273,7 +273,7 @@ extern void free_graphics( Display_Context dtx );
  * Must be called before make_3d_window to take effect.
  */
 /* MJK 12.10.98 */
-extern int set_3d_font(  Display_Context dtx, char *name, int size );
+extern int set_3d_font(  Display_Context dtx, const char *name, int size );
 
 extern int get_3d_font(  Display_Context dtx, char *name, int *size);
 
@@ -294,11 +294,11 @@ extern void context_init( Context ctx, long win_id, int width, int height );
  * Return:  1 = success, 0 = error
  */
 extern int make_3d_window( Display_Context dtx,
-                           char *title,
+                           const char *title,
                            int xpos, int ypos,
                            int width, int height );
 
-extern int make_big_window( char *title, int xpos, int ypos,
+extern int make_big_window( const char *title, int xpos, int ypos,
                             int width, int height);
 
 
@@ -327,9 +327,9 @@ extern void set_current_window( Display_Context dtx );
  *                  VIS5D_COLOR_PS = color PostScript
  * Return:  1 = ok, 0 = error
  */
-extern int save_3d_window( char filename[], int format );
+extern int save_3d_window( const char filename[], int format );
 
-extern int save_snd_window( Display_Context dtx, char filename[], int format );
+extern int save_snd_window( Display_Context dtx, const char *filename, int format );
 
 extern void finish_rendering( void );
 

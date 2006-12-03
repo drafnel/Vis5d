@@ -258,12 +258,12 @@ static int find_variable_owner( Display_Context dtx, char *name)
  *          name - variable name string for NAME_TOKEN type
  * Return:  token type
  */
-int get_token( char **s, int *index, float *fval, char *name )
+int get_token( const char **s, int *index, float *fval, char *name )
 {
-  char *ss;
+  const char *ss;
   char *endp;
   int i;
-  double strtod (const char *nptr, char **endptr);
+  /* in stdlib.h by ANSI: double strtod (const char *nptr, char **endptr); */
 
   ss = *s;
 
@@ -351,13 +351,13 @@ int get_token( char **s, int *index, float *fval, char *name )
 
 
 static int get_exp0( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] );
+                     const char **s, char mess[100] );
 static int get_exp1( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] );
+                     const char **s, char mess[100] );
 static int get_exp2( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] );
+                     const char **s, char mess[100] );
 static int get_exp3( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] );
+                     const char **s, char mess[100] );
 
 
 /*
@@ -394,13 +394,13 @@ static int get_exp3( Context ctx, struct compute_state *state,
  * exp3 terminated by , ) or END_TOKEN
  */
 static int get_exp3( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] )
+                     const char **s, char mess[100] )
 {
   int type;
   int index;
   float fval;
   char name[100];
-  char *ssave;
+  const char *ssave;
   int negate_flag;
 
   ssave = *s;
@@ -459,13 +459,13 @@ static int get_exp3( Context ctx, struct compute_state *state,
  * exp2 terminated by + - , ) or END_TOKEN
  */
 static int get_exp2( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] )
+                     const char **s, char mess[100] )
 {
   int type;
   int index;
   float fval;
   char name[100];
-  char *ssave;
+  const char *ssave;
 
   if (get_exp1(ctx, state, s, mess) < 0) return -1;
 
@@ -502,13 +502,13 @@ static int get_exp2( Context ctx, struct compute_state *state,
  *
  */
 static int get_exp1( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] )
+                     const char **s, char mess[100] )
 {
   int type;
   int index;
   float fval;
   char name[100];
-  char *ssave;
+  const char *ssave;
 
   if (get_exp0(ctx, state, s, mess) < 0) return -1;
 
@@ -544,7 +544,7 @@ static int get_exp1( Context ctx, struct compute_state *state,
  *      = name ( exp3 , ... , exp3 )
  */
 static int get_exp0( Context ctx, struct compute_state *state,
-                     char **s, char mess[100] )
+                     const char **s, char mess[100] )
 {
   int type1, type2;
   int index1, index2;
@@ -552,7 +552,7 @@ static int get_exp0( Context ctx, struct compute_state *state,
   char name1[100], name2[100];
   Display_Context dtx;
 
-  char *ssave1, *ssave2;
+  const char *ssave1, *ssave2;
   int var, arg_count, func_index, i, flag;
 
   dtx = ctx->dpy_ctx;
@@ -717,11 +717,11 @@ static int get_exp0( Context ctx, struct compute_state *state,
  * Return:  0 if OK or -1 if error
  */
 static int parse( Display_Context dtx, struct compute_state *state,
-                  char *expression, char *namevar,
+                  const char *expression, char *namevar,
                   int *varowner, int *var, int *recompute,
                   char mess[100] )
 {
-  char *string;
+  const char *string;
   int type;
   int index;
   float fval;
@@ -862,7 +862,7 @@ static int return_closes_timestep( Context ctx, int tothisday, int tothissec)
  *                      the user.   Ex: "SPD = SQRT( U*U + V*V + W*W )"
  * Return:  number of variable computed or -1 if error
  */
-int compute_var( Display_Context dtx, char *expression, int *expressionowner,
+int compute_var( Display_Context dtx, const char *expression, int *expressionowner,
                  char name[100], char mess[100], int *recompute )
 {
   int time, var, nl, lowlev, toplev, length, layer, offset, i;

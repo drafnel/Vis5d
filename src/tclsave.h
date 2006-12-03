@@ -29,7 +29,7 @@
 
 #ifndef TCLSAVE_H
 
-extern int tcl_save( int index, char *savefile );
+extern int tcl_save( int index, const char *savefile );
 
 
 #endif

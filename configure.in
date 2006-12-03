@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.47 $)
+AC_REVISION($Revision: 1.48 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -46,11 +46,11 @@ if test "x$GCC" = "xyes"; then
   CFLAGS="$CFLAGS -Wall"
 fi
 
-AC_CHECK_PROG(DB2HTML, db2html, db2html, ../missing db2html)
-AC_CHECK_PROG(DB2DVI, db2dvi, db2dvi, ../missing db2dvi)
-AC_CHECK_PROG(DB2PS, db2ps, db2ps, ../missing db2ps)
-AC_CHECK_PROG(DB2PDF, db2pdf, db2pdf, ../missing db2pdf)
-AC_CHECK_PROG(DB2RTF, db2rtf, db2rtf, ../missing db2rtf)
+AC_CHECK_PROG(DB2HTML, db2html, db2html, $srcdir/missing db2html)
+AC_CHECK_PROG(DB2DVI, db2dvi, db2dvi, $srcdir/missing db2dvi)
+AC_CHECK_PROG(DB2PS, db2ps, db2ps, $srcdir/missing db2ps)
+AC_CHECK_PROG(DB2PDF, db2pdf, db2pdf, $srcdir/missing db2pdf)
+AC_CHECK_PROG(DB2RTF, db2rtf, db2rtf, $srcdir/missing db2rtf)
 
 # check for ImageMagick convert program
 AC_PATH_PROG(IMCONVERT, convert)
@@ -210,11 +210,34 @@ LIBS="$save_LIBS"
 
 V5D_LIBS_AUX="" # any extra libs we need to link Vis5d
 
+
+AC_CHECK_PROGS(TCLSH, tclsh, cat)
+if test "x$TCLSH" = xcat; then
+   TCL_VERSION=""
+else
+   TCL_VERSION=`echo 'puts $tcl_version' | $TCLSH -`
+fi
+
 # Find Tcl (Linux systems need -ldl as well):
 AC_CHECK_LIB(dl, dlopen, V5D_LIBS_AUX="-ldl $V5D_LIBS_AUX")
-AC_CHECK_LIB(tcl, Tcl_Eval, [V5D_LIBS_AUX="-ltcl $V5D_LIBS_AUX"
-	                     AC_DEFINE(HAVE_LIBTCL,1,[Have Tcl library?])],
-                                       [:],$V5D_LIBS_AUX)
+have_libtcl=no
+AC_CHECK_LIB(tcl$TCL_VERSION, Tcl_Eval, 
+             [V5D_LIBS_AUX="-ltcl$TCL_VERSION $V5D_LIBS_AUX"; have_libtcl=yes],
+             [AC_CHECK_LIB(tcl, Tcl_Eval, [V5D_LIBS_AUX="-ltcl $V5D_LIBS_AUX"
+	                                   have_libtcl=yes],
+			   [:], $V5D_LIBS_AUX)],
+	     $V5D_LIBS_AUX)
+if test $have_libtcl = yes; then
+   AC_DEFINE(HAVE_LIBTCL,1,[Have Tcl library?])
+   TCL_HEADER=no
+   for header in tcl$TCL_VERSION/tcl.h tcl.h tcl/tcl.h; do
+      AC_CHECK_HEADER($header, [TCL_HEADER=$header; break])
+   done
+   if test "x$TCL_HEADER" != xno; then
+      AC_DEFINE(HAVE_TCL_H,1,[Have tcl.h header file?])
+      AC_SUBST(TCL_HEADER)
+   fi
+fi
 
 # check if we have setrlimit function:
 AC_CHECK_FUNCS(setrlimit)
@@ -479,6 +502,6 @@ AC_SUBST(V5D_LIBS_AUX)
 AC_SUBST(OPT_UTILS)
 
 # additional files for GTK: gtk/vis5dgtk.pc gtk/gradients/Makefile gtk/Makefile intl/Makefile po/Makefile.in 
-AC_CONFIG_FILES([vis5d+.pc Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile])
+AC_CONFIG_FILES([vis5d+.pc Makefile src/Makefile doc/Makefile lui5/Makefile util/Makefile src/tclheader.h])
 AC_OUTPUT
 

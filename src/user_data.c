@@ -89,7 +89,7 @@ static char*	user_data_check_name (Display_Context dtx, char *name,
 
 
 
-int	user_data_get_header (char file_name[], v5dstruct *v)
+int	user_data_get_header (const char file_name[], v5dstruct *v)
 
 {
 

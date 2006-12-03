@@ -62,7 +62,7 @@
 
 
 /* MJK 12.02.98 begin */
-static int read_user_header( char filename[], v5dstruct *v )
+static int read_user_header( const char filename[], v5dstruct *v )
 {
    int iret = 0;
 
@@ -106,7 +106,7 @@ static int read_user_grid( v5dstruct *v, int time, int var, void *griddata )
  * Input:  filename - name of user grid file.
  * Return:  1 = success, 0 = error, -1 = try Vis5D.
  */
-int open_userfile( char filename[], v5dstruct *v )
+int open_userfile( const char filename[], v5dstruct *v )
 {
    int iret, var;
 
@@ -158,7 +158,7 @@ int read_userfile( v5dstruct *v, int time, int var, void *griddata )
 static void *get_compressed_grid( Context ctx, int time, int var,
                                   float **ga, float **gb );
 
-int write_gridfile( Context ctx, char filename[] )
+int write_gridfile( Context ctx, const char filename[] )
 {
    int i, time, var;
    void *compdata;
@@ -281,7 +281,7 @@ int write_gridfile( Context ctx, char filename[] )
  * Input:  filename - name of compressed grid file.
  * Return:  1 = success, 0 = error.
  */
-int open_gridfile( Context ctx, char filename[] )
+int open_gridfile( Context ctx, const char filename[] )
 {
    int ok;
 
@@ -506,7 +506,7 @@ int init_grid_cache( Context ctx, int maxbytes, float *ratio )
  *        v - pointer to struct to hold return values
  * Return: 1 = success, 0 = error
  */
-int initially_open_gridfile( char filename[], v5dstruct *v )
+int initially_open_gridfile( const char filename[], v5dstruct *v )
 {
    char name[1000];
    int i;
@@ -526,10 +526,15 @@ int initially_open_gridfile( char filename[], v5dstruct *v )
          printf("Error: datafile %s not found \n", filename);
          return 0;
       }
+#if 0 /* SGJ 2006: changing filename here breaks const-correctness
+	 for callers, e.g. in script.c where Tcl does not allow
+	 the argument strings to be modified.  The subsequent filename
+	 does not seem to be used by any of the callers, anyway. */
       else {
          /* success, change filename to uppercase */
          strcpy (filename, name);
       }
+#endif
    }
    return 1;
 }
@@ -541,7 +546,7 @@ int initially_open_gridfile( char filename[], v5dstruct *v )
  *        v - pointer to struct to hold return values
  * Return: 1 = success, 0 = error.
  */
-int query_gridfile( char filename[], v5dstruct *v )
+int query_gridfile( const char filename[], v5dstruct *v )
 {
    if (!initially_open_gridfile( filename, v)) {
       return 0;
@@ -1060,7 +1065,7 @@ float interpolate_grid_value( Context ctx, int time, int var,
    Return: -1 = error
            otherwise, return the number of the new variable.
 **********************************************************************/
-int allocate_clone_variable( Context ctx, char name[], int var_to_clone )
+int allocate_clone_variable( Context ctx, const char name[], int var_to_clone )
 {
    int newvar;
 
@@ -1146,7 +1151,7 @@ int allocate_extfunc_variable( Context ctx, char name[] )
  * Return:  -1 = error (MAXVARS exceeded)
  *          otherwise, return the number of the new variable.
  */
-int allocate_computed_variable( Context ctx, char *name )
+int allocate_computed_variable( Context ctx, const char *name )
 {
    int newvar;
 
@@ -1180,7 +1185,7 @@ int allocate_computed_variable( Context ctx, char *name )
  * Return:  -1 = error (MAXVARS exceeded)
  *          otherwise, return the number of the new variable.
  */
-int allocate_new_variable( Context ctx, char *name, int nl, int lowlev )
+int allocate_new_variable( Context ctx, const char *name, int nl, int lowlev )
 {
    int newvar, time, gridsize, i;
    float *griddata;

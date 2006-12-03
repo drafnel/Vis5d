@@ -1821,7 +1821,8 @@ int vis5d_check_dtx_same_as_ctx( int dindex, int vindex )
 
 /* this will load a v5d file named 'filename' and do */
 /* the needed initializations */
-int vis5d_load_v5dfile( int dindex, int mbs, char *filename, char *ctxname )
+int vis5d_load_v5dfile( int dindex, int mbs, 
+			const char *filename, const char *ctxname )
 {
    Context ctx;
    int yo, index;
@@ -2275,7 +2276,7 @@ int vis5d_get_display_window( int index, Window *win)
  *         x, y - position of window relative to upper-left corner of screen
  *         width, height - size of window
  */
-int vis5d_init_window( char *title, int x, int y,
+int vis5d_init_window( const char *title, int x, int y,
                        int width, int height )
 {
    if (make_big_window( title, x, y, width, height )) {
@@ -3363,8 +3364,9 @@ int vis5d_set_probe_vars (int index, int numvars, int *varlist)
  *         width, height - size of window
  *         scw - parent (sound control window) or null
  */
-int vis5d_init_sndwindow( int index, char *title, int x, int y,
-                          int width, int height, Window scw, char *wdpy_name )
+int vis5d_init_sndwindow( int index, const char *title, int x, int y,
+                          int width, int height, Window scw, 
+			  const char *wdpy_name )
 {
    DPY_CONTEXT("vis5d_make_sndwindow");
 
@@ -3576,7 +3578,7 @@ int vis5d_get_log( int index, int *flag, float *scale, float *exponent)
 /****************************************/
 /******* index => DISPLAY CONTEXT *******/
 /****************************************/
-int vis5d_init_map( int index, char *mapname )
+int vis5d_init_map( int index, const char *mapname )
 {
    Display_Context dtx;      
    if (index < 0 || index >=VIS5D_MAX_DPY_CONTEXTS){   
@@ -3617,7 +3619,7 @@ int vis5d_get_map( int index, char *mapname )
 /******* index => DISPLAY CONTEXT *******/
 /****************************************/
 /* JPE - I think this function is obsolete - remove from api? */
-int vis5d_init_topo_and_map_ctx( int index, char *toponame, int highres_flag )
+int vis5d_init_topo_and_map_ctx( int index, const char *toponame, int highres_flag )
 {
    DPY_CONTEXT("vis5d_init_topo_and_map_ctx");
 
@@ -3629,7 +3631,7 @@ int vis5d_init_topo_and_map_ctx( int index, char *toponame, int highres_flag )
 /****************************************/
 /******* index => DISPLAY CONTEXT *******/
 /****************************************/
-int vis5d_init_topo( int index, char *toponame, int highres_flag )
+int vis5d_init_topo( int index, const char *toponame, int highres_flag )
 {
    Display_Context dtx;   
    if (index < 0 || index >=VIS5D_MAX_DPY_CONTEXTS){
@@ -3680,7 +3682,7 @@ int vis5d_get_topo( int index, char *toponame)
 /******* index => DISPLAY CONTEXT *******/
 /****************************************/
 /* MJK 4.27.99
-int vis5d_init_path( int index, char *pathname )
+int vis5d_init_path( int index, const char *pathname )
 {
    int len;
    DPY_CONTEXT("vis5d_init_path");
@@ -3694,7 +3696,7 @@ int vis5d_init_path( int index, char *pathname )
    return 0;
 }
 */
-int vis5d_init_path( char *pathname )
+int vis5d_init_path( const char *pathname )
 {
    int len;
    strcpy( Vis5dDataPath, pathname );
@@ -3720,7 +3722,7 @@ int vis5d_init_clock( int index, int clock)
 /****************************************/
 /******* index => DISPLAY CONTEXT *******/
 /****************************************/
-int vis5d_init_texture( int index, char *texturename )
+int vis5d_init_texture( int index, const char *texturename )
 {
    DPY_CONTEXT("vis5d_init_texture");
    strcpy( dtx->TextureName, texturename );
@@ -3759,7 +3761,7 @@ int vis5d_get_firstarea( int index )
 /****************************************/
 /******* index => DISPLAY CONTEXT *******/
 /****************************************/
-int vis5d_init_sequence( int index, char *sequencename )
+int vis5d_init_sequence( int index, const char *sequencename )
 {
    DPY_CONTEXT("vis5d_init_sequence");
    strcpy( dtx->SequenceName, sequencename );
@@ -4212,7 +4214,7 @@ int vis5d_get_v5dfilename( int index, char *name )
  * Open the named v5d file, read its header info, and then close the file.
  * Does not consume a vis5d context in doing so.
  */
-int vis5d_query_gridfile( char *name, v5dstruct *v )
+int vis5d_query_gridfile( const char *name, v5dstruct *v )
 {
    if (query_gridfile( name, v )) {
       return 0;
@@ -4228,7 +4230,7 @@ int vis5d_query_gridfile( char *name, v5dstruct *v )
  * before v5d_init_end().  If it's called after vis5d_init_end() the
  * current dataset will be replace by the named one.
  */
-int vis5d_open_gridfile( int index, char *name, int read_flag )
+int vis5d_open_gridfile( int index, const char *name, int read_flag )
 {
    float ratio;
    int yo, dindex, dnumber, na[VIS5D_MAX_CONTEXTS];
@@ -4843,7 +4845,7 @@ int vis5d_get_ctx_numvars( int index, int *numvars )
 /****************************************/
 /******** index => DATA CONTEXT *********/
 /****************************************/
-int vis5d_find_var( int index, char *name )
+int vis5d_find_var( int index, const char *name )
 {
    int i;
    CONTEXT("vis5d_find_var");
@@ -6018,7 +6020,7 @@ int vis5d_get_topo_color_var( int index, int *colorvarctx, int *colorvar )
  * Return:  VIS5D_FAIL if newname already used or the limit on number of
  *              variables has been hit.
  */
-int vis5d_make_clone_variable( int index, int var_to_clone, char *newname,
+int vis5d_make_clone_variable( int index, int var_to_clone, const char *newname,
                                int *newvar )
 {
    int  n;
@@ -6172,7 +6174,7 @@ int vis5d_compute_ext_func( int index, char *funcpathname, int *newvar )
 
 
 
-int vis5d_make_expr_var( int index, char *expression, char *newname,
+int vis5d_make_expr_var( int index, const char *expression, char *newname,
                          char *mess, int *newvarowner, int *newvar, int *recompute )
 {
    int result;
@@ -6207,7 +6209,7 @@ int vis5d_make_expr_var( int index, char *expression, char *newname,
 
 
 
-int vis5d_make_new_var( int index, char *newname, int nl, int lowlev,
+int vis5d_make_new_var( int index, const char *newname, int nl, int lowlev,
                         int *newvar )
 {
    int result;
@@ -7123,7 +7125,7 @@ int vis5d_get_color_table_params( int index, int graphic, int varowner, int var,
 }
 
 int vis5d_load_color_table( int index, int graphic, int varowner, int var,
-                            int table_size, char *filename)
+                            int table_size, const char *filename)
 {
    FILE *f;
    float min, max, val;
@@ -7360,10 +7362,10 @@ int vis5d_alpha_mode( int index, int mode )
    return 0;
 }
 #ifdef HAVE_OPENGL
-int vis5d_set_font(int index, char *fontname, int size, Fontlist which)
+int vis5d_set_font(int index, const char *fontname, int size, Fontlist which)
 {
   Xgfx *gfx;
-  int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx);
+  int set_opengl_font(const char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx);
   DPY_CONTEXT("vis5d_set_font");
   
   gfx = dtx->gfx[which];
@@ -7381,7 +7383,7 @@ int vis5d_set_font(int index, char *fontname, int size, Fontlist which)
  * Input:  index - the context number
  *         fontname - the name of the font
  */
-int vis5d_font(  int index, char *fontname, int size )
+int vis5d_font(  int index, const char *fontname, int size )
 {
    DPY_CONTEXT("vis5d_font");
    set_current_window( dtx );
@@ -7389,7 +7391,7 @@ int vis5d_font(  int index, char *fontname, int size )
    return 0;
 }
 
-int vis5d_soundfont( int index, char *fontname )
+int vis5d_soundfont( int index, const char *fontname )
 {
    DPY_CONTEXT("vis5d_soundfont");
 	
@@ -9366,7 +9368,7 @@ static void compute_label_bounds( Display_Context dtx, Fontlist which, struct la
 /*
  * Make a complete text label at position (x,y).
  */
-int vis5d_make_label( int index, int x, int y, char *text )
+int vis5d_make_label( int index, int x, int y, const char *text )
 {
    struct label *l;
    DPY_CONTEXT("vis5d_make_label");
@@ -9743,7 +9745,7 @@ int vis5d_resize_sounding_window( int index, int width, int height , int x, int 
  *         format:  1 = VIS5D_SGI, 2 = VIS5D_GIF, 4 = VIS5D_XWD,
  *                   8 = VIS5D_PS, 16 = VIS5D_COLOR_PS
  */
-int vis5d_save_window( char *filename, int format )
+int vis5d_save_window( const char *filename, int format )
 {
    Display_Context dtx;
    int i;
@@ -9777,7 +9779,7 @@ int vis5d_save_window( char *filename, int format )
 	return save_3d_window( filename, format );
 }
 
-int vis5d_save_to_v5dfile( int index, char *filename)
+int vis5d_save_to_v5dfile( int index, const char *filename)
 {
    CONTEXT("vis5d_save_to_v5dfile")
    if (filename[0]==0) {
@@ -9851,7 +9853,7 @@ int vis5d_locate_dtx(Window w, int x, int y, int *display_index)
 }
 
 /* get context_index by name */
-int vis5d_name_ctx(char *name, int *context_index)
+int vis5d_name_ctx(const char *name, int *context_index)
 {
    int i;
    for (i=0; i<VIS5D_MAX_CONTEXTS; i++) {
@@ -10155,7 +10157,7 @@ int vis5d_geo_to_xyz( int index, int time, int var,
  *          VIS5D_BAD_VALUE = couldn't open output file
  *          VIS5D_FAIL = error while writing file, disk full?
  */
-int vis5d_save( int index, char *filename, int gfx, int traj)
+int vis5d_save( int index, const char *filename, int gfx, int traj)
 {
    CONTEXT("vis5d_save")
    return tclsave( index, filename, gfx, traj );
@@ -10171,7 +10173,7 @@ int vis5d_save( int index, char *filename, int gfx, int traj)
  *          VIS5D_BAD_VALUE = filename not found
  *          VIS5D_FAIL = couldn't restore (bad file??)
  */
-int vis5d_restore( int index, char *filename )
+int vis5d_restore( int index, const char *filename )
 {
    CONTEXT("vis5d_restore")
 
@@ -10824,7 +10826,7 @@ int vis5d_alloc_irregular_data_context( void )
 }
 
 
-int vis5d_load_irregular_v5dfile( int dindex, int mbs, char *filename, char *ctxname ){
+int vis5d_load_irregular_v5dfile( int dindex, int mbs, const char *filename, const char *cxtname ){
 #ifdef HAVE_LIBNETCDF
    Irregular_Context itx;
    int i, index;
@@ -11090,7 +11092,7 @@ int vis5d_init_irregular_data_end( int index )
 #endif
 }
 
-int vis5d_open_recordfile( int index, char *name, char *itxname, int read_flag )
+int vis5d_open_recordfile( int index, const char *name, char *itxname, int read_flag )
 {
 #ifdef HAVE_LIBNETCDF
    IRG_CONTEXT("vis5d_open_recordfile");
@@ -11404,7 +11406,7 @@ vis5d_get_scene_formats(
  *         format - 1 = VIS5D_VRML
  *         format - 2 = VIS5D_POV (* not currently implemented *)
  */
-int vis5d_save_scene(int index, char *filename, int format )
+int vis5d_save_scene(int index, const char *filename, int format )
 {
    DPY_CONTEXT("vis5d_save_scene");
 
@@ -11471,7 +11473,7 @@ int vis5d_stereo_get( int index, int *stereo )
  *         format:  1 = VIS5D_SGI, 2 = VIS5D_GIF, 4 = VIS5D_XWD,
  *                   8 = VIS5D_PS, 16 = VIS5D_COLOR_PS
  */
-int vis5d_save_right_window( char *filename, int format )
+int vis5d_save_right_window( const char *filename, int format )
 {
    Display_Context dtx;
    int i;

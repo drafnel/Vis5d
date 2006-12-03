@@ -429,7 +429,7 @@ void SND_Initialize(  Display_Context dtx, Display *display,
 	}
 	if(dtx->gfx[SOUND_FONT]==NULL ){
 	  Xgfx *new_Xgfx(Xgfx *gfx); /* api.c */
-	  int set_opengl_font(char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx);
+	  int set_opengl_font(const char *name, Window GfxWindow, GLXContext gl_ctx, Xgfx *gfx);
 	  dtx->gfx[SOUND_FONT]=new_Xgfx(NULL);
 	  set_opengl_font(DEFAULT_SOUNDFONTNAME,dtx->Sound.soundwin, dtx->gl_ctx, dtx->gfx[SOUND_FONT]);
 	}
@@ -503,8 +503,8 @@ GC make_gc(Display_Context dtx, int foregroundR, int foregroundG, int foreground
     /* Output: 1 if it works                                              */
     /**********************************************************************/
     
-int make_soundGFX_window( Display_Context dtx, char *title, int xpos, int ypos,
-                           int width, int height, Window ctrlwindow, char *wdpy_name)
+int make_soundGFX_window( Display_Context dtx, const char *title, int xpos, int ypos,
+                           int width, int height, Window ctrlwindow, const char *wdpy_name)
 {
    XSetWindowAttributes attr;
    int attr_flags;

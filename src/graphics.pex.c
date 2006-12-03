@@ -783,7 +783,7 @@ void set_current_window( Display_Context dtx )
 }
 
 
-int set_3d_font( Display_Context dtx, char *name, int size )
+int set_3d_font( Display_Context dtx, const char *name, int size )
 {
 /* MJK 12.10.98 */
 /* 13Mar98  Phil McDonald */

@@ -60,8 +60,8 @@
 #define ABS(X)  ( (X) < 0 ? -(X) : (X) )
 
 
-#ifdef HAVE_LIBTCL
-#  include <tcl.h>
+#if defined(HAVE_LIBTCL) && defined(HAVE_TCL_H)
+#  include "tclheader.h"
 #else
 
 /*
@@ -95,7 +95,7 @@ typedef struct {
 
 typedef int (Tcl_CmdProc) (ClientData clientData,
                            Tcl_Interp *interp,
-                           int argc, char *argv[] );
+                           int argc, const char *argv[] );
 
 typedef int *Tcl_Command;
 
@@ -116,12 +116,12 @@ struct private {
 
 static char TmpResult[TCL_RESULT_SIZE];
 
-static int Tcl_EvalFile( Tcl_Interp *interp, char *filename );
+static int Tcl_EvalFile( Tcl_Interp *interp, const char *filename );
 
 /*
  * Assign a value to a variable.
  */
-static void assign_var( Tcl_Interp *interp, char *varname, char *value )
+static void assign_var( Tcl_Interp *interp, const char *varname, const char *value )
 {
    int i;
 
@@ -145,7 +145,7 @@ static void assign_var( Tcl_Interp *interp, char *varname, char *value )
  * Replace a variable with its value.  Note that varname and result may
  * point to the same dataspace.
  */
-static int eval_var( Tcl_Interp *interp, char *varname, char *result )
+static int eval_var( Tcl_Interp *interp, const char *varname, char *result )
 {
    int i;
 
@@ -165,7 +165,7 @@ static int eval_var( Tcl_Interp *interp, char *varname, char *result )
  * Implements Tcl's set command.
  */
 static int cmd_set( ClientData client_data, Tcl_Interp *interp,
-                    int argc, char *argv[] )
+                    int argc, const char *argv[] )
 {
    if (argc==2) {
       /* print current value */
@@ -196,7 +196,7 @@ static int cmd_set( ClientData client_data, Tcl_Interp *interp,
  * Implements Tcl's source command.
  */
 static int cmd_source( ClientData client_data, Tcl_Interp *interp,
-                       int argc, char *argv[] )
+                       int argc, const char *argv[] )
 {
    if (argc!=2) {
       sprintf( interp->result, "Error: source requires a filename argument" );
@@ -244,7 +244,7 @@ static void Tcl_DeleteInterp( Tcl_Interp *interp )
 static int Tcl_Eval( Tcl_Interp *interp, char *cmd )
 {
    int argc;
-   char *argv[MAX_ARGS];
+   const char *argv[MAX_ARGS];
    char arg[MAX_ARGS][MAX_ARG_LEN];
    char error[1000];
    int i;
@@ -362,7 +362,7 @@ static int Tcl_Eval( Tcl_Interp *interp, char *cmd )
 /*
  * Evaluate Tcl/Vis5D commands from a text file.
  */
-static int Tcl_EvalFile( Tcl_Interp *interp, char *filename )
+static int Tcl_EvalFile( Tcl_Interp *interp, const char *filename )
 {
 #define MAXLINE 1000
    FILE *f;
@@ -469,7 +469,7 @@ static NameValue *NameValueHead = NULL;
  * Output:  x - array of values
  * Return:  number of values found
  */
-static int string_to_float_array( char *str, int max, float x[] )
+static int string_to_float_array( const char *str, int max, float x[] )
 {
    char buffer[100];
    int i, j, n;
@@ -539,7 +539,7 @@ static int string_to_int_array( char *str, int max, int x[] )
  * Return the variable number for s where s is either a variable name
  * or the number itself.  Return -1 if s is an unknown variable name.
  */
-static int varnum( int index, char *s )
+static int varnum( int index, const char *s )
 {
    if (isdigit(s[0])) {
       /* s is a number */
@@ -646,7 +646,7 @@ static int error_check( Tcl_Interp *interp, char *func, int errno )
 
 /* gui functions */
 static int cmd_set_mouse_mode( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_gui_set_mouse_mode", argc, 2, 2)){
@@ -657,7 +657,7 @@ static int cmd_set_mouse_mode( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_animate( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int state, rate, dwell,result;
    if (!arg_check( interp, "vis5d_gui_get_animate", argc, 1, 1)){
@@ -669,7 +669,7 @@ static int cmd_get_animate( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_animate( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_gui_set_animate", argc, 4, 4)){
@@ -680,7 +680,7 @@ static int cmd_set_animate( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_reverse_background( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_gui_set_reverse_background", argc, 2, 2)){
@@ -691,7 +691,7 @@ static int cmd_set_reverse_background( ClientData client_data, Tcl_Interp *inter
 }
 
 static int cmd_set_title(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_gui_set_title", argc, 4, 4)){
@@ -707,7 +707,7 @@ static int cmd_set_title(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_margins(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_gui_set_margins", argc, 4, 4 )){
@@ -729,7 +729,7 @@ static int cmd_set_margins(ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_initialize( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (argc==1) {
@@ -743,7 +743,7 @@ static int cmd_initialize( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_terminate( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int result;
    result = vis5d_terminate( 1 );
@@ -753,7 +753,7 @@ static int cmd_terminate( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_workers( ClientData client_data, Tcl_Interp *interp,
-                        int argc, char *argv[] )
+                        int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_workers", argc, 1, 1 )) {
       return TCL_ERROR;
@@ -766,7 +766,7 @@ static int cmd_workers( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_do_work( ClientData client_data, Tcl_Interp *interp,
-                        int argc, char *argv[] )
+                        int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_do_work", argc, 1, 1 )) {
       return TCL_ERROR;
@@ -781,7 +781,7 @@ static int cmd_do_work( ClientData client_data, Tcl_Interp *interp,
 /*** Context Initialization Functions ***/
 
 static int cmd_alloc_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_alloc_context", argc, 0, 0)){
@@ -794,7 +794,7 @@ static int cmd_alloc_context(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_destroy_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
 
@@ -816,7 +816,7 @@ static int cmd_destroy_context(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_alloc_data_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_alloc_data_context", argc, 0, 0)){
@@ -829,7 +829,7 @@ static int cmd_alloc_data_context(ClientData client_data, Tcl_Interp *interp,
 
 #ifdef HAVE_LIBNETCDF
 static int cmd_alloc_irregular_data_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {                          
    int result;
    if (!arg_check( interp, "vis5d_alloc_irregular_data_context", argc, 0, 0)){
@@ -842,7 +842,7 @@ static int cmd_alloc_irregular_data_context(ClientData client_data, Tcl_Interp *
 #endif /* HAVE_LIBNETCDF */
 
 static int cmd_alloc_display_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_alloc_display_context", argc, 0, 0)){
@@ -854,7 +854,7 @@ static int cmd_alloc_display_context(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_reset_display_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_reset_display_context", argc, 1, 1)){
@@ -865,7 +865,7 @@ static int cmd_reset_display_context(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_destroy_data_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
 
@@ -887,7 +887,7 @@ static int cmd_destroy_data_context(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_destroy_display_context(ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_destroy_display_context", argc, 1,1)){
@@ -898,7 +898,7 @@ static int cmd_destroy_display_context(ClientData client_data, Tcl_Interp *inter
 }
 
 static int cmd_init_begin( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_begin", argc, 1, 2 )) {
@@ -915,7 +915,7 @@ static int cmd_init_begin( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_display_values( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_display_values", argc, 2, 2)){
@@ -926,7 +926,7 @@ static int cmd_init_display_values( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_init_data_end( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_data_end", argc, 1,1 )) {
@@ -938,7 +938,7 @@ static int cmd_init_data_end( ClientData client_data, Tcl_Interp *interp,
 
 #ifdef HAVE_LIBNETCDF
 static int cmd_init_irregular_data_end( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_irregular_data_end", argc, 1,1 )) {
@@ -951,7 +951,7 @@ static int cmd_init_irregular_data_end( ClientData client_data, Tcl_Interp *inte
 
 
 static int cmd_get_v5dfilename( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_get_v5dfilename", argc, 1, 1 )) {
@@ -965,7 +965,7 @@ static int cmd_get_v5dfilename( ClientData client_data, Tcl_Interp *interp,
 
 /* WLH 7 Oct 98 */
 static int cmd_get_context_name( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_get_context_name", argc, 1, 1 )) {
@@ -976,7 +976,7 @@ static int cmd_get_context_name( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_open_gridfile( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result;
 
@@ -1004,7 +1004,7 @@ static int cmd_open_gridfile( ClientData client_data, Tcl_Interp *interp,
 
 #ifdef HAVE_LIBNETCDF
 static int cmd_open_recordfile( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int dindex, result;
 
@@ -1026,7 +1026,7 @@ static int cmd_open_recordfile( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result = 0;
    if (!arg_check( interp, "vis5d_init_window", argc, 5,5 )) {
@@ -1034,7 +1034,7 @@ static int cmd_init_window( ClientData client_data, Tcl_Interp *interp,
    }
    else {
       if (argc>6){
-         char *title = argv[2];
+         const char *title = argv[2];
          int x = atoi(argv[3]);
          int y = atoi(argv[4]);
          int width = atoi(argv[5]);
@@ -1043,7 +1043,7 @@ static int cmd_init_window( ClientData client_data, Tcl_Interp *interp,
          result = vis5d_init_window( title, x, y, width, height );
       }
       else{
-         char *title = argv[1];
+         const char *title = argv[1];
          int x = atoi(argv[2]);
          int y = atoi(argv[3]);
          int width = atoi(argv[4]);
@@ -1056,28 +1056,28 @@ static int cmd_init_window( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_init_sndwindow( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_init_sndwindow", argc, 8, 8 )) {
       return TCL_ERROR;
    }
    else {
       int index = atoi(argv[1]);
-      char *title = argv[2];
+      const char *title = argv[2];
       int x = atoi(argv[3]);
       int y = atoi(argv[4]);
       int width = atoi(argv[5]);
       int height = atoi(argv[6]);
       Window scw = atoi(argv[7]);
       int result;
-      char *dpyname = argv[8];
+      const char *dpyname = argv[8];
 
       result = vis5d_init_sndwindow( index, title, x, y, width, height, scw, dpyname );
       return error_check( interp, "vis5d_init_sndwindow", result );
    }
 }
 static int cmd_map_sndwindow( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_map_sndwindow", argc, 1, 1)){
@@ -1103,7 +1103,7 @@ static int cmd_map_sndwindow( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_unmap_sndwindow( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_unmap_sndwindow", argc, 1, 1)){
       return TCL_ERROR;
@@ -1119,7 +1119,7 @@ static int cmd_unmap_sndwindow( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_init_map( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_map", argc, 2, 2 )) {
@@ -1134,7 +1134,7 @@ static int cmd_init_map( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_samescale( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_samescale", argc, 1,1 )) {
@@ -1145,7 +1145,7 @@ static int cmd_init_samescale( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_init_topo( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int result;
    int highres = 0;
@@ -1165,7 +1165,7 @@ static int cmd_init_topo( ClientData client_data, Tcl_Interp *interp,
 
 /* MJK 12.04.98 begin */
 static int cmd_enable_sfc_graphics (ClientData client_data, Tcl_Interp *interp,
-                                    int argc, char *argv[] )
+                                    int argc, const char *argv[] )
 {
    int index, what, mode, n, result, varflag;
 
@@ -1229,7 +1229,7 @@ static int cmd_enable_sfc_graphics (ClientData client_data, Tcl_Interp *interp,
 
 /* MJK 12.02.98 begin */
 static int cmd_init_clock(ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
 
@@ -1244,7 +1244,7 @@ static int cmd_init_clock(ClientData client_data, Tcl_Interp *interp,
 
 /* MJK 12.02.98 begin */
 static int cmd_set_probe_vars( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int  result, numvars;
    int  i, index, *vars = NULL;
@@ -1278,7 +1278,7 @@ static int cmd_set_probe_vars( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_texture( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
 
@@ -1300,7 +1300,7 @@ static int cmd_init_texture( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_firstarea( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_firstarea", argc, 2, 2 )) {
@@ -1321,7 +1321,7 @@ static int cmd_init_firstarea( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_sequence( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_sequence", argc, 2, 2 )) {
@@ -1342,7 +1342,7 @@ static int cmd_init_sequence( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_log( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_log", argc, 3, 3  )) {
@@ -1354,7 +1354,7 @@ static int cmd_init_log( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_box( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_box", argc, 4, 4 )) {
@@ -1367,7 +1367,7 @@ static int cmd_init_box( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_memory( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_memory", argc, 2, 2 )) {
@@ -1379,7 +1379,7 @@ static int cmd_init_memory( ClientData client_data, Tcl_Interp *interp,
 
 #ifdef HAVE_LIBNETCDF
 static int cmd_init_irregular_memory( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_irregular_memory", argc, 2, 2 )) {
@@ -1393,7 +1393,7 @@ static int cmd_init_irregular_memory( ClientData client_data, Tcl_Interp *interp
 
 /* MJK 4.27.99
 static int cmd_init_path( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_path", argc, 2, 2 )) {
@@ -1405,7 +1405,7 @@ static int cmd_init_path( ClientData client_data, Tcl_Interp *interp,
 */
 
 static int cmd_init_path( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_path", argc, 1, 2 )) {
@@ -1422,7 +1422,7 @@ static int cmd_init_path( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_projection( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_projection", argc, 2, 1000 )) {
@@ -1444,7 +1444,7 @@ static int cmd_init_projection( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_init_vertical( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_init_vertical", argc, 2, 1000 )) {
@@ -1472,7 +1472,7 @@ static int cmd_init_vertical( ClientData client_data, Tcl_Interp *interp,
 /*** Time Functions ***/
 
 static int cmd_get_numtimes( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int numtimes, result;
    if (!arg_check( interp, "vis5d_get_numtimes", argc, 1, 1 )) {
@@ -1484,7 +1484,7 @@ static int cmd_get_numtimes( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_ctx_numtimes( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int numtimes, result;
    if (!arg_check( interp, "vis5d_get_ctx_numtimes", argc, 1, 1 )) {
@@ -1496,7 +1496,7 @@ static int cmd_get_ctx_numtimes( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_itx_numtimes( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int numtimes, result;
    if (!arg_check( interp, "vis5d_get_itx_numtimes", argc, 1, 1 )) {
@@ -1508,7 +1508,7 @@ static int cmd_get_itx_numtimes( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_dtx_numtimes( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int numtimes, result;
    if (!arg_check( interp, "vis5d_get_dtx_numtimes", argc, 1, 1 )) {
@@ -1520,7 +1520,7 @@ static int cmd_get_dtx_numtimes( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_grp_numtimes( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int numtimes, result;
    if (!arg_check( interp, "vis5d_get_grp_numtimes", argc, 1, 1 )) {
@@ -1533,7 +1533,7 @@ static int cmd_get_grp_numtimes( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_time_stamp( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_time_stamp", argc, 2, 2 )) {
@@ -1547,7 +1547,7 @@ static int cmd_get_time_stamp( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_ctx_time_stamp( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_ctx_time_stamp", argc, 2, 2 )) {
@@ -1561,7 +1561,7 @@ static int cmd_get_ctx_time_stamp( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_itx_time_stamp( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_itx_time_stamp", argc, 2, 2 )) {
@@ -1575,7 +1575,7 @@ static int cmd_get_itx_time_stamp( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_time_stamp( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_set_time_stamp", argc, 4, 4 )) {
@@ -1589,7 +1589,7 @@ static int cmd_set_time_stamp( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_dtx_time_stamp( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int date = 0, time = 0, result;
    if (!arg_check( interp, "vis5d_get_dtx_time_stamp", argc, 2, 2 )) {
@@ -1604,7 +1604,7 @@ static int cmd_get_dtx_time_stamp( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_ctx_time_stamp( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int date, time, result;
    if (!arg_check( interp, "vis5d_set_ctx_time_stamp", argc, 4, 4 )) {
@@ -1619,7 +1619,7 @@ static int cmd_set_ctx_time_stamp( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_timestep", argc, 2, 2 )) {
@@ -1630,7 +1630,7 @@ static int cmd_set_timestep( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_dtx_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_dtx_timestep", argc, 2, 2 )) {
@@ -1642,7 +1642,7 @@ static int cmd_set_dtx_timestep( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_grp_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_grp_timestep", argc, 2, 2 )) {
@@ -1653,7 +1653,7 @@ static int cmd_set_grp_timestep( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_ctx_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int time, result;
    if (!arg_check( interp, "vis5d_get_ctx_timestep", argc, 1, 1 )) {
@@ -1665,7 +1665,7 @@ static int cmd_get_ctx_timestep( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_itx_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int time, result;
    if (!arg_check( interp, "vis5d_get_itx_timestep", argc, 1, 1 )) {
@@ -1677,7 +1677,7 @@ static int cmd_get_itx_timestep( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int time, result;
    if (!arg_check( interp, "vis5d_get_timestep", argc, 1, 1 )) {
@@ -1689,7 +1689,7 @@ static int cmd_get_timestep( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_dtx_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int time, result;
    if (!arg_check( interp, "vis5d_get_dtx_timestep", argc, 1, 1 )) {
@@ -1702,7 +1702,7 @@ static int cmd_get_dtx_timestep( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_grp_timestep( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int time, result;
    if (!arg_check( interp, "vis5d_get_grp_timestep", argc, 1, 1 )) {
@@ -1717,7 +1717,7 @@ static int cmd_get_grp_timestep( ClientData client_data, Tcl_Interp *interp,
 /*** Variable functions ***/
 
 static int cmd_get_ctx_numvars( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int numvars, result;
    if (!arg_check( interp, "vis5d_get_ctx_numvars", argc, 1, 1 )) {
@@ -1734,7 +1734,7 @@ static int cmd_get_ctx_numvars( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_itx_numvars( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int numvars, result;
    if (!arg_check( interp, "vis5d_get_itx_numvars", argc, 1, 1 )) {
@@ -1752,7 +1752,7 @@ static int cmd_get_itx_numvars( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_ctx_var_name( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result, index, var;
    if (!arg_check( interp, "vis5d_get_ctx_var_name", argc, 2, 2 )) {
@@ -1765,7 +1765,7 @@ static int cmd_get_ctx_var_name( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_itx_var_name( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result, index, var;
    if (!arg_check( interp, "vis5d_get_itx_var_name", argc, 2, 2 )) {
@@ -1779,7 +1779,7 @@ static int cmd_get_itx_var_name( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_var_units( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result, index, var;
    if (!arg_check( interp, "vis5d_get_var_units", argc, 2, 2 )) {
@@ -1793,7 +1793,7 @@ static int cmd_get_var_units( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_var_type( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int type, result, index, var;
    if (!arg_check( interp, "vis5d_get_var_type", argc, 2, 2 )) {
@@ -1825,7 +1825,7 @@ static int cmd_get_var_type( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_ctx_var_range( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    float min, max;
    int result, var, index;
@@ -1845,7 +1845,7 @@ static int cmd_get_ctx_var_range( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_itx_var_range( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    float min, max;
    int result, var, index;
@@ -1865,7 +1865,7 @@ static int cmd_get_itx_var_range( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_view_scales( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_view_scales", argc, 4, 4)){
@@ -1877,7 +1877,7 @@ static int cmd_set_view_scales( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_var_range( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    float min, max;
    int result, var, index;
@@ -1891,7 +1891,7 @@ static int cmd_set_var_range( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_grp_var_values( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    float min, max;
    int result, var, index;
@@ -1904,7 +1904,7 @@ static int cmd_set_grp_var_values( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_display_group(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_display_group", argc, 2, 2)){
@@ -1915,7 +1915,7 @@ static int cmd_set_display_group(ClientData client_data, Tcl_Interp *interp,
 }
  
 static int cmd_get_display_group(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result, dindex, gindex;
    if (!arg_check( interp, "vis5d_get_display_group", argc, 1, 1)){
@@ -1927,7 +1927,7 @@ static int cmd_get_display_group(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_load_v5dfile(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_load_v5dfile", argc, 4, 4)){
@@ -1947,7 +1947,7 @@ static int cmd_load_v5dfile(ClientData client_data, Tcl_Interp *interp,
 
 #ifdef HAVE_LIBNETCDF
 static int cmd_load_irregular_v5dfile(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_load_irregular_v5dfile", argc, 4, 4)){
@@ -1967,7 +1967,7 @@ static int cmd_load_irregular_v5dfile(ClientData client_data, Tcl_Interp *interp
 #endif /* HAVE_LIBNETCDF */
 
 static int cmd_save_to_v5dfile( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_save_to_v5dfile", argc, 2, 2)){
@@ -1978,7 +1978,7 @@ static int cmd_save_to_v5dfile( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_user_data_flag( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_user_data_flag", argc, 2, 2)){
@@ -1989,7 +1989,7 @@ static int cmd_set_user_data_flag( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_user_flags( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_user_flags", argc, 3, 3)){
@@ -2003,7 +2003,7 @@ static int cmd_set_user_flags( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_assign_display_to_data(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_assign_display_to_data", argc, 2, 2)){
@@ -2015,7 +2015,7 @@ static int cmd_assign_display_to_data(ClientData client_data, Tcl_Interp *interp
 
 #ifdef HAVE_LIBNETCDF
 static int cmd_assign_display_to_irregular_data(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_assign_display_to_irregular_data", argc, 2, 2)){
@@ -2028,7 +2028,7 @@ static int cmd_assign_display_to_irregular_data(ClientData client_data, Tcl_Inte
 
 
 static int cmd_set_legends( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    int what;
@@ -2067,7 +2067,7 @@ static int cmd_set_legends( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_sound_vars( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int temp, dewpt, uwind,
        vwind, var1, var2, var3;
@@ -2089,7 +2089,7 @@ static int cmd_get_sound_vars( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_sound_vars_and_owners( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int temp, dewpt, uwind,
        vwind, var1, var2, var3;
@@ -2111,7 +2111,7 @@ static int cmd_get_sound_vars_and_owners( ClientData client_data, Tcl_Interp *in
 }
 
 static int cmd_set_sound_vars( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int temp, dewpt, uwind,
        vwind, var1, var2, var3;
@@ -2132,7 +2132,7 @@ static int cmd_set_sound_vars( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_sound_vars_and_owners( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int temp, dewpt, uwind,
        vwind, var1, var2, var3;
@@ -2153,7 +2153,7 @@ static int cmd_set_sound_vars_and_owners( ClientData client_data, Tcl_Interp *in
 }
 
 static int cmd_get_wind_vars( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int uvarowner, vvarowner, wvarowner;
    int u2varowner, v2varowner, w2varowner;
@@ -2178,7 +2178,7 @@ static int cmd_get_wind_vars( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_wind_vars_and_owners( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int uvarowner, vvarowner, wvarowner;
    int u2varowner, v2varowner, w2varowner;
@@ -2203,7 +2203,7 @@ static int cmd_get_wind_vars_and_owners( ClientData client_data, Tcl_Interp *int
 }
 
 static int cmd_set_wind_vars( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int uvarowner, vvarowner, wvarowner;
    int u2varowner, v2varowner, w2varowner;
@@ -2226,7 +2226,7 @@ static int cmd_set_wind_vars( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_wind_vars_and_owners( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int uvarowner, vvarowner, wvarowner;
    int u2varowner, v2varowner, w2varowner;
@@ -2258,7 +2258,7 @@ static int cmd_set_wind_vars_and_owners( ClientData client_data, Tcl_Interp *int
 
 /* MJK 6.9.99 */
 static int cmd_get_grid_value( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result;
    float value;
@@ -2273,7 +2273,7 @@ static int cmd_get_grid_value( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_grid_rows( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result, nr;
    if (!arg_check( interp, "vis5d_get_grid_rows", argc, 1, 1 )) {
@@ -2286,7 +2286,7 @@ static int cmd_get_grid_rows( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_ctx_grid_rows( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result, nr;
    if (!arg_check( interp, "vis5d_get_ctx_grid_rows", argc, 1, 1 )) {
@@ -2299,7 +2299,7 @@ static int cmd_get_ctx_grid_rows( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_dtx_grid_rows( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result, nr;
    if (!arg_check( interp, "vis5d_get_dtx_grid_rows", argc, 1, 1 )) {
@@ -2313,7 +2313,7 @@ static int cmd_get_dtx_grid_rows( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_grid_columns( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int result, nc;
    if (!arg_check( interp, "vis5d_get_grid_columns", argc, 1, 1 )) {
@@ -2326,7 +2326,7 @@ static int cmd_get_grid_columns( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_ctx_grid_columns( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int result, nc;
    if (!arg_check( interp, "vis5d_get_ctx_grid_columns", argc, 1, 1 )) {
@@ -2339,7 +2339,7 @@ static int cmd_get_ctx_grid_columns( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_dtx_grid_columns( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int result, nc;
    if (!arg_check( interp, "vis5d_get_dtx_grid_columns", argc, 1, 1 )) {
@@ -2353,7 +2353,7 @@ static int cmd_get_dtx_grid_columns( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_grid_levels( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result, nl[MAXVARS];
    int index, var;
@@ -2369,7 +2369,7 @@ static int cmd_get_grid_levels( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_ctx_grid_levels( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result, nl[MAXVARS];
    int index, var;
@@ -2385,7 +2385,7 @@ static int cmd_get_ctx_grid_levels( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_dtx_grid_levels( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result, nl;
    int index, var;
@@ -2401,7 +2401,7 @@ static int cmd_get_dtx_grid_levels( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_dtx_grid_rows( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_dtx_grid_rows", argc, 2, 2)){
@@ -2418,7 +2418,7 @@ static int cmd_set_dtx_grid_rows( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_dtx_grid_columns( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_dtx_grid_columns", argc, 2, 2)){
@@ -2435,7 +2435,7 @@ static int cmd_set_dtx_grid_columns( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_dtx_grid_levels( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_dtx_grid_levels", argc, 2, 2)){
@@ -2462,7 +2462,7 @@ static int cmd_set_dtx_grid_levels( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_verylarge_mode( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result;
    int index, mode;
@@ -2498,7 +2498,7 @@ static int cmd_verylarge_mode( ClientData client_data, Tcl_Interp *interp,
 
 /*** Map projection and VCS functions ***/
 static int cmd_get_ctx_projection( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, result;
    int proj;
@@ -2564,7 +2564,7 @@ static int cmd_get_ctx_projection( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_projection( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, result;
    int proj;
@@ -2631,7 +2631,7 @@ static int cmd_get_projection( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_dtx_projection( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, result;
    int proj;
@@ -2698,7 +2698,7 @@ static int cmd_get_dtx_projection( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_dtx_projection_and_vertical( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    int what, type;
@@ -2838,7 +2838,7 @@ static int cmd_set_dtx_projection_and_vertical( ClientData client_data, Tcl_Inte
 }
    
 static int cmd_get_ctx_vertical( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, result;
    int vert;
@@ -2892,7 +2892,7 @@ static int cmd_get_ctx_vertical( ClientData client_data, Tcl_Interp *interp,
    return TCL_OK;
 }
 static int cmd_get_vertical( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, result;
    int vert;
@@ -2947,7 +2947,7 @@ static int cmd_get_vertical( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_dtx_vertical( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, result;
    int vert;
@@ -3004,7 +3004,7 @@ static int cmd_get_dtx_vertical( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_curved( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int index, result, curved;
 
@@ -3028,7 +3028,7 @@ static int cmd_get_curved( ClientData client_data, Tcl_Interp *interp,
 /*** Topography, Map and Texture functions ***/
 
 static int cmd_check_topo( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int index, result, flag;
 
@@ -3048,7 +3048,7 @@ static int cmd_check_topo( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_check_map( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int index, result, flag;
 
@@ -3068,7 +3068,7 @@ static int cmd_check_map( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_flatmap_level( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
 
@@ -3080,7 +3080,7 @@ static int cmd_set_flatmap_level( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_flatmap_level( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    float level;
@@ -3095,7 +3095,7 @@ static int cmd_get_flatmap_level( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_check_texture( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int index, result, flag;
 
@@ -3115,7 +3115,7 @@ static int cmd_check_texture( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_topo_base( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
 
@@ -3128,7 +3128,7 @@ static int cmd_set_topo_base( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_topo_range( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, result;
    float min, max;
@@ -3145,7 +3145,7 @@ static int cmd_get_topo_range( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_reset_topo_colors( ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] )
+                                  int argc, const char *argv[] )
 {
    int index, result;
 
@@ -3163,7 +3163,7 @@ static int cmd_reset_topo_colors( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_topo_color_var( ClientData client_data, Tcl_Interp *interp,
-                                   int argc, char *argv[] )
+                                   int argc, const char *argv[] )
 {
    int index, var, result;
 
@@ -3176,7 +3176,7 @@ static int cmd_set_topo_color_var( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_topo_color_var_and_owner( ClientData client_data, Tcl_Interp *interp,
-                                   int argc, char *argv[] )
+                                   int argc, const char *argv[] )
 {
    int index, var, result;
 
@@ -3193,10 +3193,10 @@ static int cmd_set_topo_color_var_and_owner( ClientData client_data, Tcl_Interp 
 /*** Cloning, Ext funcs, and expression functions ***/
 
 static int cmd_make_clone_variable( ClientData client_data, Tcl_Interp *interp,
-                                    int argc, char *argv[] )
+                                    int argc, const char *argv[] )
 {
    int index, var_to_clone, result, newvar;
-   char *newname;
+   const char *newname;
 
    /* WLH 11 Nov 98 */
    int dindex;
@@ -3224,7 +3224,7 @@ static int cmd_make_clone_variable( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_compute_ext_func( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int index, result;
    int newvar;
@@ -3261,11 +3261,11 @@ static int cmd_compute_ext_func( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_expr_var( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int index, result;
    int newvar, recompute, varowner;
-   char newname[20], msg[2000];
+   char newname[100], msg[2000];
 
    if (!arg_check( interp, "vis5d_make_expr_var", argc, 2, 2 )) {
       return TCL_ERROR;
@@ -3289,7 +3289,7 @@ static int cmd_make_expr_var( ClientData client_data, Tcl_Interp *interp,
 
 /* TODO: is this really needed? */
 static int cmd_signal_redraw( ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_signal_redraw", argc, 2, 2 )) {
       return TCL_ERROR;
@@ -3304,7 +3304,7 @@ static int cmd_signal_redraw( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_check_redraw( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int redraw, result;
    if (!arg_check( interp, "vis5d_check_redraw", argc, 1, 1 )) {
@@ -3322,7 +3322,7 @@ static int cmd_check_redraw( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_draw_frame( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int dtx;
    if (!arg_check( interp, "vis5d_draw_frame", argc, 1, 1 )) {
@@ -3337,7 +3337,7 @@ static int cmd_draw_frame( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_draw_3d_only( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_draw_3d_only", argc, 2, 2 )) {
       return TCL_ERROR;
@@ -3351,7 +3351,7 @@ static int cmd_draw_3d_only( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_draw_sounding_only( ClientData client_data, Tcl_Interp *interp,
-                                   int argc, char *argv[] )
+                                   int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_draw_3d_only", argc, 2, 2 )) {
       return TCL_ERROR;
@@ -3369,7 +3369,7 @@ static int cmd_draw_sounding_only( ClientData client_data, Tcl_Interp *interp,
 
 /* TODO: IS THIS REALLY NEEDED? */
 static int cmd_swap_frame( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_swap_frame", argc, 1, 1 )) {
       return TCL_ERROR;
@@ -3385,7 +3385,7 @@ static int cmd_swap_frame( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_invalidate_dtx_frames( ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] )
+                                  int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_invalidate_dtx_frames", argc, 1, 1 )) {
@@ -3397,7 +3397,7 @@ static int cmd_invalidate_dtx_frames( ClientData client_data, Tcl_Interp *interp
 
 
 static int cmd_set_pointer( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_pointer", argc, 3, 3 )) {
@@ -3409,7 +3409,7 @@ static int cmd_set_pointer( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_graphics_mode( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int what, mode, n;
 
@@ -3533,7 +3533,7 @@ static int cmd_graphics_mode( ClientData client_data, Tcl_Interp *interp,
 
 #ifdef HAVE_LIBNETCDF
 static int cmd_enable_irregular_graphics( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
   int index, what,  mode, result;
 
@@ -3570,7 +3570,7 @@ static int cmd_enable_irregular_graphics( ClientData client_data, Tcl_Interp *in
 #endif /* HAVE_LIBNETCDF */
 
 static int cmd_enable_graphics( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int index, what, mode, n, result, varflag;
 
@@ -3651,7 +3651,7 @@ static int cmd_enable_graphics( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_volume( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int volowner, vol, result;
    if (!arg_check( interp, "vis5d_get_volume", argc, 1, 1 )) {
@@ -3664,7 +3664,7 @@ static int cmd_get_volume( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_volume_and_owner( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int volowner, vol, result;
    if (!arg_check( interp, "vis5d_get_volume_and_owner", argc, 1, 1 )) {
@@ -3677,7 +3677,7 @@ static int cmd_get_volume_and_owner( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_volume( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int varowner, result, index, var;
    if (!arg_check( interp, "vis5d_set_volume", argc,2, 2 )) {
@@ -3691,7 +3691,7 @@ static int cmd_set_volume( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_volume_and_owner( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int varowner, result, index, var;
    if (!arg_check( interp, "vis5d_set_volume_and_owner", argc, 3, 3 )) {
@@ -3716,7 +3716,7 @@ static int cmd_set_volume_and_owner( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_color( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int what, result;
    float r, g, b, a;
@@ -3838,7 +3838,7 @@ static int cmd_set_color( ClientData client_data, Tcl_Interp *interp,
 
 static int cmd_get_color( ClientData client_data,
                                       Tcl_Interp *interp,
-                                      int argc, char *argv[] )
+                                      int argc, const char *argv[] )
 {
    int result;
    float r, g, b, a;
@@ -3932,7 +3932,7 @@ static int cmd_get_color( ClientData client_data,
 
 static int cmd_load_color_table( ClientData client_data,
                                       Tcl_Interp *interp,
-                                      int argc, char *argv[] )
+                                      int argc, const char *argv[] )
 {
    int index, graphic;
    int var,varowner, tablesize;
@@ -3968,7 +3968,7 @@ static int cmd_load_color_table( ClientData client_data,
 
 static int cmd_set_color_table_entry( ClientData client_data,
                                       Tcl_Interp *interp,
-                                      int argc, char *argv[] )
+                                      int argc, const char *argv[] )
 {
    int what, varowner, var, result, entry;
    int r, g, b, a;
@@ -4032,7 +4032,7 @@ static int cmd_set_color_table_entry( ClientData client_data,
 
 static int cmd_set_color_table_params( ClientData client_data,
                                        Tcl_Interp *interp,
-                                       int argc, char *argv[] )
+                                       int argc, const char *argv[] )
 {
    int index, varowner, var, what;
    float p[4];
@@ -4089,7 +4089,7 @@ static int cmd_set_color_table_params( ClientData client_data,
    
 
 static int cmd_alpha_mode( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_alpha_mode", argc, 2, 2 )) {
@@ -4101,7 +4101,7 @@ static int cmd_alpha_mode( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_font( ClientData client_data, Tcl_Interp *interp,
-                     int argc, char *argv[] )
+                     int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_font", argc, 2,3 )) {
@@ -4114,7 +4114,7 @@ static int cmd_font( ClientData client_data, Tcl_Interp *interp,
 
 /* WLH 8 Oct 98 */
 static int cmd_get_font( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int result, size;
    char fontname[200];
@@ -4133,7 +4133,7 @@ static int cmd_get_font( ClientData client_data, Tcl_Interp *interp,
 
 /* WLH 8 Oct 98 */
 static int cmd_get_font_height( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result;
    int height;
@@ -4158,7 +4158,7 @@ static int cmd_get_font_height( ClientData client_data, Tcl_Interp *interp,
 
 /* MJK 2.22.99 */
 static int cmd_resize_contour_font( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_resize_contour_font", argc, 3, 3)){
@@ -4171,7 +4171,7 @@ static int cmd_resize_contour_font( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_linewidth( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_linewidth", argc, 2, 2 )) {
@@ -4187,7 +4187,7 @@ static int cmd_linewidth( ClientData client_data, Tcl_Interp *interp,
 /*** 3-D View Functions ***/
 
 static int cmd_set_matrix( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    int i, j;
@@ -4204,7 +4204,7 @@ static int cmd_set_matrix( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_matrix( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    int i, j;
@@ -4227,7 +4227,7 @@ static int cmd_get_matrix( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_ortho_view( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result, view;
 
@@ -4261,7 +4261,7 @@ static int cmd_set_ortho_view( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_view( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int n, r;
    int ctx;
@@ -4286,7 +4286,7 @@ static int cmd_set_view( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_view( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int result, n;
    int index;
@@ -4303,7 +4303,7 @@ static int cmd_get_view( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_view_scales( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int result;
    float scalex, scaley, scalez;
@@ -4317,7 +4317,7 @@ static int cmd_get_view_scales( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_camera( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int n, r;
    int ctx, perspec;
@@ -4336,7 +4336,7 @@ static int cmd_set_camera( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_camera( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int n, r;
    int ctx, perspec;
@@ -4356,7 +4356,7 @@ static int cmd_get_camera( ClientData client_data, Tcl_Interp *interp,
 /*** Coordinate conversion ***/
 
 static int cmd_xyz_to_grid( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float xyz[3], row, col, lev;
@@ -4380,7 +4380,7 @@ static int cmd_xyz_to_grid( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_xyzPRIME_to_gridPRIME( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float xyz[3], row, col, lev;
@@ -4405,7 +4405,7 @@ static int cmd_xyzPRIME_to_gridPRIME( ClientData client_data, Tcl_Interp *interp
 
 
 static int cmd_grid_to_xyz( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float x, y, z, grid[3];
@@ -4429,7 +4429,7 @@ static int cmd_grid_to_xyz( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_gridPRIME_to_xyzPRIME( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float x, y, z, grid[3];
@@ -4455,7 +4455,7 @@ static int cmd_gridPRIME_to_xyzPRIME( ClientData client_data, Tcl_Interp *interp
 
 
 static int cmd_xyz_to_geo( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float xyz[3], lat, lon, hgt;
@@ -4478,7 +4478,7 @@ static int cmd_xyz_to_geo( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_xyzPRIME_to_geo( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float xyz[3], lat, lon, hgt;
@@ -4502,7 +4502,7 @@ static int cmd_xyzPRIME_to_geo( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_grid_to_geo( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float lat, lon, hgt, rcl[3];
@@ -4527,7 +4527,7 @@ static int cmd_grid_to_geo( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_gridPRIME_to_geo( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float lat, lon, hgt, rcl[3];
@@ -4554,7 +4554,7 @@ static int cmd_gridPRIME_to_geo( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_rowcol_to_latlon( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int n, index, time, var;
    float lat, lon, rc[2];
@@ -4579,7 +4579,7 @@ static int cmd_rowcol_to_latlon( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_rowcolPRIME_to_latlon( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int n, index, time, var;
    float lat, lon, rc[2];
@@ -4605,7 +4605,7 @@ static int cmd_rowcolPRIME_to_latlon( ClientData client_data, Tcl_Interp *interp
 
 
 static int cmd_latlon_to_rowcol( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int n, index, time, var;
    float row, col, geo[2];
@@ -4630,7 +4630,7 @@ static int cmd_latlon_to_rowcol( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_latlon_to_rowcolPRIME( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int n, index, time, var;
    float row, col, geo[2];
@@ -4656,7 +4656,7 @@ static int cmd_latlon_to_rowcolPRIME( ClientData client_data, Tcl_Interp *interp
 
 
 static int cmd_geo_to_grid( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float row, col, lev, geo[3];
@@ -4680,7 +4680,7 @@ static int cmd_geo_to_grid( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_geo_to_gridPRIME( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float row, col, lev, geo[3];
@@ -4706,7 +4706,7 @@ static int cmd_geo_to_gridPRIME( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_geo_to_xyz( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float x, y, z, geo[3];
@@ -4730,7 +4730,7 @@ static int cmd_geo_to_xyz( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_geo_to_xyzPRIME( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, time, var;
    float x, y, z, geo[3];
@@ -4753,7 +4753,7 @@ static int cmd_geo_to_xyzPRIME( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_hclip( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_hclip", argc, 3, 3)){
@@ -4764,7 +4764,7 @@ static int cmd_set_hclip( ClientData client_data, Tcl_Interp *interp,
 }
   
 static int cmd_set_vclip( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_vclip", argc, 6,6)){
@@ -4776,7 +4776,7 @@ static int cmd_set_vclip( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_hclip( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    float lev;
@@ -4789,7 +4789,7 @@ static int cmd_get_hclip( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_vclip( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    float r1, r2, c1, c2;
@@ -4804,7 +4804,7 @@ static int cmd_get_vclip( ClientData client_data, Tcl_Interp *interp,
 /* do we really need these two funcs in here?? */
 
 static int cmd_set_clip_mode(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_clip_mode", argc, 3, 3)){
@@ -4815,7 +4815,7 @@ static int cmd_set_clip_mode(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_clip_mode(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    int mode;
@@ -4828,7 +4828,7 @@ static int cmd_get_clip_mode(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_num_of_ctxs_in_display(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int yo, result;
    int number, numarray[1000];
@@ -4847,7 +4847,7 @@ static int cmd_get_num_of_ctxs_in_display(ClientData client_data, Tcl_Interp *in
 }
 
 static int cmd_get_num_of_itxs_in_display(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int yo, result;
    int number, numarray[1000];
@@ -4866,7 +4866,7 @@ static int cmd_get_num_of_itxs_in_display(ClientData client_data, Tcl_Interp *in
 }
 
 static int cmd_get_num_of_dtxs_in_group(ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int yo, result;
    int number, numarray[1000];
@@ -4888,7 +4888,7 @@ static int cmd_get_num_of_dtxs_in_group(ClientData client_data, Tcl_Interp *inte
 
 /**** text plots ****/
 static int cmd_set_text_plot(ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_set_text_plot", argc, 6, 6)){
@@ -4900,7 +4900,7 @@ static int cmd_set_text_plot(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_get_text_plot(ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int n, var;
    float spacing, fontx, fonty, fontspace;
@@ -4915,7 +4915,7 @@ static int cmd_get_text_plot(ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_make_text_plot( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int n;   
    if (!arg_check( interp, "vis5d_make_text_plot", argc, 3, 3)){
@@ -4926,7 +4926,7 @@ static int cmd_make_text_plot( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_textplot_color_status(ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int status, n;
    if (!arg_check( interp, "vis5d_set_textplot_color_status", argc, 3, 3)){
@@ -4947,7 +4947,7 @@ static int cmd_set_textplot_color_status(ClientData client_data, Tcl_Interp *int
 }
 
 static int cmd_get_textplot_color_status(ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int status, n;
    if (!arg_check( interp, "vis5d_get_textplot_color_status", argc, 2, 2)){
@@ -4969,7 +4969,7 @@ static int cmd_get_textplot_color_status(ClientData client_data, Tcl_Interp *int
 /*** Isosurface, Slice, and Trajectory Functions ***/
 
 static int cmd_set_isosurface( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_set_isosurface", argc, 3, 3 )) {
@@ -4983,7 +4983,7 @@ static int cmd_set_isosurface( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_isosurface( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int n, index, var;
    float isolevel;
@@ -5000,7 +5000,7 @@ static int cmd_get_isosurface( ClientData client_data, Tcl_Interp *interp,
       
 static int cmd_set_isosurface_color_var( ClientData client_data,
                                          Tcl_Interp *interp,
-                                         int argc, char *argv[] )
+                                         int argc, const char *argv[] )
 {
    int n, index, var, colorvarowner, colorvar;
    if (!arg_check( interp, "vis5d_set_isosurface_color_var", argc, 3,3 )) {
@@ -5016,7 +5016,7 @@ static int cmd_set_isosurface_color_var( ClientData client_data,
 
 static int cmd_set_isosurface_color_var_and_owner( ClientData client_data,
                                          Tcl_Interp *interp,
-                                         int argc, char *argv[] )
+                                         int argc, const char *argv[] )
 {
    int n, index, var, colorvarowner, colorvar;
    if (!arg_check( interp, "vis5d_set_isosurface_color_var_and_owner", argc, 4,4 )) {
@@ -5032,7 +5032,7 @@ static int cmd_set_isosurface_color_var_and_owner( ClientData client_data,
 
 
 static int cmd_make_isosurface( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_make_isosurface", argc, 4, 4 )) {
@@ -5064,7 +5064,7 @@ static int cmd_make_isosurface( ClientData client_data, Tcl_Interp *interp,
 
       
 static int cmd_set_hslice( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int n, index, var;
    float interval, low, high, level, min, max;
@@ -5093,7 +5093,7 @@ static int cmd_set_hslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_hslice( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int index, var, result;
    float interval, low, high, level;
@@ -5113,7 +5113,7 @@ static int cmd_get_hslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_hslice( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_make_hslice", argc, 4, 4 )) {
@@ -5142,7 +5142,7 @@ static int cmd_make_hslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_vslice( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int n, index, var;
    float interval, low, high, min, max;
@@ -5172,7 +5172,7 @@ static int cmd_set_vslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_vslice( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int index, var, result;
    float interval, low, high, r0, c0, r1, c1;
@@ -5194,7 +5194,7 @@ static int cmd_get_vslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_vslice( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_make_vslice", argc, 4, 4 )) {
@@ -5222,7 +5222,7 @@ static int cmd_make_vslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_chslice( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_make_chslice", argc, 4, 4 )) {
@@ -5250,7 +5250,7 @@ static int cmd_make_chslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_chslice( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_set_chslice", argc, 3, 3 )) {
@@ -5264,7 +5264,7 @@ static int cmd_set_chslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_chslice( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int index, var, result;
    float interval, low, high, level;
@@ -5284,7 +5284,7 @@ static int cmd_get_chslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_cvslice( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_make_cvslice", argc, 4, 4 )) {
@@ -5312,7 +5312,7 @@ static int cmd_make_cvslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_cvslice( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int n, index, var;
    if (!arg_check( interp, "vis5d_set_cvslice", argc, 6, 6 )) {
@@ -5328,7 +5328,7 @@ static int cmd_set_cvslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_cvslice( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int index, var, result;
    float r0, c0, r1, c1;
@@ -5349,7 +5349,7 @@ static int cmd_get_cvslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_hwindslice( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int n, index;
    if (!arg_check( interp, "vis5d_make_hwindslice", argc, 4, 4 )) {
@@ -5377,7 +5377,7 @@ static int cmd_make_hwindslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_hwindslice( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int n, index;
    if (!arg_check( interp, "vis5d_set_hwindslice", argc, 5, 5 )) {
@@ -5392,7 +5392,7 @@ static int cmd_set_hwindslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_hwindslice( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, var, result;
    float density, scale, level;
@@ -5412,7 +5412,7 @@ static int cmd_get_hwindslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_vwindslice( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_make_vwindslice", argc, 4, 4 )) {
@@ -5440,7 +5440,7 @@ static int cmd_make_vwindslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_vwindslice( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_set_vwindslice", argc, 8, 8 )) {
@@ -5455,7 +5455,7 @@ static int cmd_set_vwindslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_vwindslice( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, var, result;
    float density, scale, r0, c0, r1, c1;
@@ -5478,7 +5478,7 @@ static int cmd_get_vwindslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_hstreamslice( ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] )
+                                  int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_make_hstreamslice", argc, 4, 4 )) {
@@ -5506,7 +5506,7 @@ static int cmd_make_hstreamslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_hstreamslice( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_set_hstreamslice", argc, 4, 4 )) {
@@ -5519,7 +5519,7 @@ static int cmd_set_hstreamslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_hstreamslice( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int index, var, result;
    float density, level;
@@ -5540,7 +5540,7 @@ static int cmd_get_hstreamslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_vstreamslice( ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] )
+                                  int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_make_vstreamslice", argc, 4, 4 )) {
@@ -5568,7 +5568,7 @@ static int cmd_make_vstreamslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_vstreamslice( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_set_vstreamslice", argc, 7, 7 )) {
@@ -5584,7 +5584,7 @@ static int cmd_set_vstreamslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_vstreamslice( ClientData client_data, Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int index, var, result;
    float density, r0, c0, r1, c1;
@@ -5604,7 +5604,7 @@ static int cmd_get_vstreamslice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_print_traj( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int i, result, numtimes;
    char val[200];
@@ -5627,7 +5627,7 @@ static int cmd_print_traj( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_make_traj( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_make_traj", argc, 6, 6 )) {
@@ -5643,7 +5643,7 @@ static int cmd_make_traj( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_set_traj( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_traj", argc, 4, 4 )) {
@@ -5656,7 +5656,7 @@ static int cmd_set_traj( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_traj( ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] )
+                         int argc, const char *argv[] )
 {
    int index, ribbon, result;
    float step, length;
@@ -5676,7 +5676,7 @@ static int cmd_get_traj( ClientData client_data, Tcl_Interp *interp,
 
 static int cmd_set_trajectory_color_var( ClientData client_data,
                                          Tcl_Interp *interp,
-                                         int argc, char *argv[] )
+                                         int argc, const char *argv[] )
 {
    int result, index, varowner, var;
    if (!arg_check( interp, "vis5d_set_trajectory_color_var", argc, 3,3 )) {
@@ -5691,7 +5691,7 @@ static int cmd_set_trajectory_color_var( ClientData client_data,
 
 static int cmd_set_trajectory_color_var_and_owner( ClientData client_data,
                                          Tcl_Interp *interp,
-                                         int argc, char *argv[] )
+                                         int argc, const char *argv[] )
 {
    int result, index, varowner, var;
    if (!arg_check( interp, "vis5d_set_trajectory_color_var_and_owner", argc, 4, 4 )) {
@@ -5706,7 +5706,7 @@ static int cmd_set_trajectory_color_var_and_owner( ClientData client_data,
 
 
 static int cmd_delete_last_traj( ClientData client_data, Tcl_Interp *interp,
-                                 int argc, char *argv[] )
+                                 int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_delete_last_traj", argc, 1, 1 )) {
@@ -5718,7 +5718,7 @@ static int cmd_delete_last_traj( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_delete_traj_set( ClientData client_data, Tcl_Interp *interp,
-                                int argc, char *argv[] )
+                                int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_delete_traj_set", argc, 2, 2 )) {
@@ -5735,7 +5735,7 @@ static int cmd_delete_traj_set( ClientData client_data, Tcl_Interp *interp,
 
 /* vis5d_make_label context x y text */
 static int cmd_make_label( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_make_label", argc, 4, 4 )) {
@@ -5749,7 +5749,7 @@ static int cmd_make_label( ClientData client_data, Tcl_Interp *interp,
 
 /* vis5d_delete_label context x y */
 static int cmd_delete_label( ClientData client_data, Tcl_Interp *interp,
-                             int argc, char *argv[] )
+                             int argc, const char *argv[] )
 {
    int result, x, y, label_id;
    if (!arg_check( interp, "vis5d_delete_label", argc, 3, 3 )) {
@@ -5772,7 +5772,7 @@ static int cmd_delete_label( ClientData client_data, Tcl_Interp *interp,
 
 static int cmd_make_timestep_graphics( ClientData client_data,
                                        Tcl_Interp *interp,
-                                       int argc, char *argv[] )
+                                       int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_make_timestep_graphics", argc, 2, 2 )) {
@@ -5786,7 +5786,7 @@ static int cmd_make_timestep_graphics( ClientData client_data,
 
 static int cmd_free_graphics( ClientData client_data,
                                Tcl_Interp *interp,
-                               int argc, char *argv[] )
+                               int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_free_graphics", argc, 1, 1 )) {
@@ -5804,7 +5804,7 @@ static int cmd_free_graphics( ClientData client_data,
 /*** 3-D Cursor Functions ***/
 
 static int cmd_set_cursor( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_cursor", argc, 4, 4 )) {
@@ -5817,7 +5817,7 @@ static int cmd_set_cursor( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_cursor( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    float x, y, z;
    int result;
@@ -5830,7 +5830,7 @@ static int cmd_get_cursor( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_set_logo_size( ClientData client_data, Tcl_Interp *interp,
-                           int argc, char *argv[] )
+                           int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_set_logo_size", argc, 2, 2)){
@@ -5844,7 +5844,7 @@ static int cmd_set_logo_size( ClientData client_data, Tcl_Interp *interp,
 /*** 3-D viewing window functions ***/
 
 static int cmd_get_image_formats( ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] )
+                                  int argc, const char *argv[] )
 {
    int formats;
    char result[1000];
@@ -5913,11 +5913,11 @@ static int string_to_saveformat(const char *s)
 }
 
 static int cmd_save_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int format;
    int result;
-   char *name; 
+   const char *name; 
    if (!arg_check( interp, "vis5d_save_window", argc, 2, 3  )) {
       return TCL_ERROR;
    }
@@ -5941,13 +5941,13 @@ static int cmd_save_window( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_save_snd_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    if (!arg_check( interp, "vis5d_save_snd_window", argc, 3,3  )) {
       return TCL_ERROR;
    }
    else {
-      char *name = argv[2];
+      const char *name = argv[2];
       int format;
       int result;
       format = string_to_saveformat(argv[3]);
@@ -5962,7 +5962,7 @@ static int cmd_save_snd_window( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_resize_BIG_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_resize_BIG_window", argc, 2, 2)){
@@ -5973,7 +5973,7 @@ static int cmd_resize_BIG_window( ClientData client_data, Tcl_Interp *interp,
 }
  
 static int cmd_resize_3d_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_resize_3d_window", argc, 3, 3)){
@@ -5985,7 +5985,7 @@ static int cmd_resize_3d_window( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_moveresize_BIG_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_moveresize_BIG_window", argc, 4, 4)){
@@ -5997,7 +5997,7 @@ static int cmd_moveresize_BIG_window( ClientData client_data, Tcl_Interp *interp
 }
 
 static int cmd_moveresize_3d_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_moveresize_3d_window", argc, 5, 5)){
@@ -6012,7 +6012,7 @@ static int cmd_moveresize_3d_window( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_print_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_print_snd_window", argc, 0,1 )) {
@@ -6023,7 +6023,7 @@ static int cmd_print_window( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_print_snd_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int result;
    if (!arg_check( interp, "vis5d_print_snd_window", argc, 1, 1 )) {
@@ -6038,7 +6038,7 @@ static int cmd_print_snd_window( ClientData client_data, Tcl_Interp *interp,
 /*** Save and Restore Functions ***/
 
 static int cmd_save( ClientData client_data, Tcl_Interp *interp,
-                     int argc, char *argv[] )
+                     int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_save", argc, 2, 2 )) {
@@ -6050,7 +6050,7 @@ static int cmd_save( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_restore( ClientData client_data, Tcl_Interp *interp,
-                        int argc, char *argv[] )
+                        int argc, const char *argv[] )
 {
    int n;
    if (!arg_check( interp, "vis5d_restore", argc, 2, 2 )) {
@@ -6063,7 +6063,7 @@ static int cmd_restore( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_sleep( ClientData client_data, Tcl_Interp *interp,
-                      int argc, char *argv[] )
+                      int argc, const char *argv[] )
 {
    struct timeval tp;
    long time0, time;
@@ -6094,7 +6094,7 @@ static int cmd_sleep( ClientData client_data, Tcl_Interp *interp,
 /* WLH 30 Sept 98 */
 /* return $dtx and $grp based on a location in the BIG 3-D window */
 static int cmd_locate_dtx( ClientData client_data, Tcl_Interp *interp,
-                      int argc, char *argv[] )
+                      int argc, const char *argv[] )
 {
   int x, y;
   int result;
@@ -6132,7 +6132,7 @@ static int cmd_locate_dtx( ClientData client_data, Tcl_Interp *interp,
 /* WLH 30 Sept 98 */
 /* return $ctx, $dtx and $grp based on ContextName */
 static int cmd_name_ctx(ClientData client_data, Tcl_Interp *interp,
-                      int argc, char *argv[] )
+                      int argc, const char *argv[] )
 {
   int result;
   int context_index[1], display_index[1], group_index[1];
@@ -6172,7 +6172,7 @@ static int cmd_name_ctx(ClientData client_data, Tcl_Interp *interp,
 /* WLH 1 Oct 98 */
 /* iconify display given by arg, or current if arg is -1 */
 static int cmd_iconify(ClientData client_data, Tcl_Interp *interp,
-                       int argc, char *argv[] ) {
+                       int argc, const char *argv[] ) {
   int display_index, Kurrant, result;
 
   if (!arg_check( interp, "vis5d_iconify", argc, 1, 1 )) {
@@ -6192,7 +6192,7 @@ static int cmd_iconify(ClientData client_data, Tcl_Interp *interp,
 /* WLH 1 Oct 98 */
 /* deiconify display given by arg, or current if arg is -1 */
 static int cmd_deiconify(ClientData client_data, Tcl_Interp *interp,
-                         int argc, char *argv[] ) {
+                         int argc, const char *argv[] ) {
   int display_index, Kurrant, result;
 
   if (!arg_check( interp, "vis5d_deiconify", argc, 1, 1 )) {
@@ -6212,7 +6212,7 @@ static int cmd_deiconify(ClientData client_data, Tcl_Interp *interp,
 /* WLH 7 Oct 98 */
 /* set size of matrix of 3-D displays */
 static int cmd_set_display_matrix(ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] ) {
+                                  int argc, const char *argv[] ) {
   int rows, columns, result;
 
   /* WLH 11 Nov 98 */
@@ -6243,7 +6243,7 @@ static int cmd_set_display_matrix(ClientData client_data, Tcl_Interp *interp,
 /* WLH 7 Oct 98 */
 /* return size of matrix of 3-D displays */
 static int cmd_get_display_matrix(ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] ) {
+                                  int argc, const char *argv[] ) {
   int rows, columns, result;
 
   if (!arg_check( interp, "vis5d_get_display_matrix", argc, 0, 0 )) {
@@ -6256,7 +6256,7 @@ static int cmd_get_display_matrix(ClientData client_data, Tcl_Interp *interp,
 
 /* WLH 8 Oct 98 */
 static int cmd_set_name_value(ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result, nlen, vlen;
    NameValue *nv;
@@ -6287,7 +6287,7 @@ static int cmd_set_name_value(ClientData client_data, Tcl_Interp *interp,
 
 /* WLH 8 Oct 98 */
 static int cmd_get_name_value(ClientData client_data, Tcl_Interp *interp,
-                              int argc, char *argv[] )
+                              int argc, const char *argv[] )
 {
    int result, nlen;
    NameValue *nv;
@@ -6310,7 +6310,7 @@ static int cmd_get_name_value(ClientData client_data, Tcl_Interp *interp,
 
 /* MJK 12.01.98 */
 static int cmd_link_slices( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int result;
    int index1, index2, varflag, what1, which1, what2, which2;
@@ -6414,7 +6414,7 @@ static int cmd_link_slices( ClientData client_data, Tcl_Interp *interp,
 
 /* MJK 12.01.98 */
 static int cmd_unlink_slice( ClientData client_data, Tcl_Interp *interp,
-                          int argc, char *argv[] )
+                          int argc, const char *argv[] )
 {
    int result;
    int index, varflag, what, which;
@@ -6473,7 +6473,7 @@ static int cmd_unlink_slice( ClientData client_data, Tcl_Interp *interp,
 
 
 static int cmd_get_scene_formats( ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] )
+                                  int argc, const char *argv[] )
 {
    int formats;
    char result[1000];
@@ -6494,11 +6494,11 @@ static int cmd_get_scene_formats( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_save_scene( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int index, format;
    int result;
-   char *name; 
+   const char *name; 
 
    if (!arg_check( interp, "vis5d_save_scene", argc, 3, 3  )) {
       return TCL_ERROR;
@@ -6523,7 +6523,7 @@ static int cmd_save_scene( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_stereo_enabled( ClientData client_data, Tcl_Interp *interp,
-                                  int argc, char *argv[] )
+                                  int argc, const char *argv[] )
 {
    int stereo_status;
    int n;
@@ -6537,7 +6537,7 @@ static int cmd_stereo_enabled( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_stereo_get( ClientData client_data, Tcl_Interp *interp,
-			  int argc, char *argv[])
+			  int argc, const char *argv[])
 {
    int stereo_status;
    int n;
@@ -6552,7 +6552,7 @@ static int cmd_stereo_get( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_stereo_set( ClientData client_data, Tcl_Interp *interp,
-			  int argc, char *argv[])
+			  int argc, const char *argv[])
 {
    int stereo_status;
    int n;
@@ -6566,7 +6566,7 @@ static int cmd_stereo_set( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_stereo_on( ClientData client_data, Tcl_Interp *interp,
-			  int argc, char *argv[])
+			  int argc, const char *argv[])
 {
    int stereo_status;
    int n;
@@ -6580,7 +6580,7 @@ static int cmd_stereo_on( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_stereo_off( ClientData client_data, Tcl_Interp *interp,
-			  int argc, char *argv[])
+			  int argc, const char *argv[])
 {
    int stereo_status;
    int n;
@@ -6594,11 +6594,11 @@ static int cmd_stereo_off( ClientData client_data, Tcl_Interp *interp,
 }
 
 static int cmd_save_right_window( ClientData client_data, Tcl_Interp *interp,
-                            int argc, char *argv[] )
+                            int argc, const char *argv[] )
 {
    int format;
    int result;
-   char *name; 
+   const char *name; 
    if (!arg_check( interp, "vis5d_save_right_window", argc, 2, 3  )) {
       return TCL_ERROR;
    }
@@ -7119,7 +7119,7 @@ int interpret( int index )
    }
 
    printf("Vis5D interpreter: type exit when finished.\n");
-#ifndef HAVE_LIBTCL
+#if !defined(HAVE_LIBTCL) || !defined(HAVE_TCL_H)
    printf("Note: using built-in mini-interpreter, not real Tcl.\n");
 #endif
    redo_the_gui = 0;

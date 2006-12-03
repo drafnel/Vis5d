@@ -6,7 +6,6 @@
 bin_PROGRAMS = vis5d v5dimport
 noinst_LIBRARIES = libvis5dgui.a
 
-
 pkgdata_DATA = EARTH.TOPO OUTLSUPW OUTLUSAM
 pkginclude_HEADERS = api.h api-config.h v5d.h binio.h v5df.h
 lib_LTLIBRARIES = libvis5d.la libv5d.la
@@ -88,4 +87,4 @@ endif
 
 # Files which aren't involved in the compilation, but we need to make sure
 # they are included in the distribution for completeness:
-EXTRA_DIST = g.pex.c extmain.c EARTH.TOPO OUTLSUPW OUTLUSAM
+EXTRA_DIST = g.pex.c extmain.c EARTH.TOPO OUTLSUPW OUTLUSAM tclheader.h.in

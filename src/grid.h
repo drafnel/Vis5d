@@ -40,11 +40,11 @@ extern int McFile[MAXTIMES][MAXVARS];
 extern int McGrid[MAXTIMES][MAXVARS];
 
 
-extern int initially_open_gridfile( char filename[], v5dstruct *v );
+extern int initially_open_gridfile( const char filename[], v5dstruct *v );
 
 extern void free_grid_cache( Context ctx );
 
-extern int open_gridfile( Context ctx, char filename[] );
+extern int open_gridfile( Context ctx, const char filename[] );
 
 extern int init_grid_cache( Context ctx, int maxbytes, float *ratio );
 
@@ -65,30 +65,30 @@ extern void release_grid2( Context ctx, int time, int var, int nl, float *data )
 extern float get_grid_value( Context ctx, int time, int var,
                              int row, int col, int lev );
 
-extern int query_gridfile( char filename[], v5dstruct *v );
+extern int query_gridfile( const char filename[], v5dstruct *v );
 
 extern int get_empty_cache_pos( Context ctx );
 
 extern float interpolate_grid_value( Context ctx, int time, int var,
                                      float row, float col, float lev );
 
-extern int allocate_clone_variable( Context ctx, char name[],
+extern int allocate_clone_variable( Context ctx, const char name[],
                                     int var_to_clone );
 
 extern void min_max_init( Context ctx, int newvar );
 
 extern int allocate_extfunc_variable( Context ctx, char name[] );
 
-extern int allocate_computed_variable( Context ctx, char *name );
+extern int allocate_computed_variable( Context ctx, const char *name );
 
-extern int allocate_new_variable( Context ctx, char *name, int nl, int lowlev );
+extern int allocate_new_variable( Context ctx, const char *name, int nl, int lowlev );
 
 extern int deallocate_variable( Context ctx, int var );
 
 extern int install_new_grid( Context ctx, int time, int var,
                              float *griddata, int nl, int lowlev);
 
-extern int write_gridfile( Context ctx, char filename[] );
+extern int write_gridfile( Context ctx, const char filename[] );
 
 extern int set_ctx_from_internalv5d(Context ctx);
 

@@ -851,7 +851,7 @@ static int save_labels( Context ctx, FILE *f, int tag )
  *          VIS5D_BAD_VALUE - if unable to open output file
  *          VIS5D_FAIL - if error while writing file.
  */
-int save( Context ctx, char *savefile, int save_gfx, int save_traj )
+int save( Context ctx, const char *savefile, int save_gfx, int save_traj )
 {
    FILE *f;
    int it, iv, num;
@@ -1559,7 +1559,7 @@ static void restore_label( Context ctx, FILE *f )
  *          VIS5D_BAD_VALUE if unable to open file
  *          VIS5D_FAIL if error while reading file.
  */
-int restore( Context ctx, char *savefile )
+int restore( Context ctx, const char *savefile )
 {
    FILE *f;
    int tag, blocklength;

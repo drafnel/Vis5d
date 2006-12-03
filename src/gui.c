@@ -12194,7 +12194,7 @@ int vis5d_unmap_sndwindow( int index )
    return 0;
 }
 
-int vis5d_save_snd_window( int index, char *filename, int format )
+int vis5d_save_snd_window( int index, const char *filename, int format )
 {
    int back;
 

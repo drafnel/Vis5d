@@ -2,7 +2,7 @@
 
 /* Graphics functions for PEX */
 
-/* [ SGJ: What is this file for? It seems to be superceded by
+/* [ SGJ: What is this file for? It seems to be superseded by
    graphics.pex.c, and it was never used in the original Makefile ] */
 
 /*

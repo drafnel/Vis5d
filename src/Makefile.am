@@ -40,7 +40,7 @@ HEADER_SRC = analysis.h analyze_i.h anim.h box.h cb.h chrono.h compute.h contour
 	graphics.h graphics.vrml.h graphics.scenes.h sgidump.h pngdump.h decimate.h
 
 libv5d_la_SOURCES = v5d.c binio.c v5d.h binio.h v5df.h
-libv5d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+libv5d_la_LDFLAGS = -no-undefined -version-info @SHARED_VERSION_INFO@
 
 libvis5d_la_SOURCES = $(API_SRC) $(IMPORT_SRC) $(AUX_SRC) api.h
 

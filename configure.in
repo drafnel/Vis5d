@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.48 $)
+AC_REVISION($Revision: 1.49 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -83,7 +83,13 @@ if test "$enable_fortran" = "yes"; then
 	fi
 fi
 
-ACX_PROG_CC_MAXOPT
+# Try to determine "good" native compiler flags if none specified via CFLAGS.
+# We don't try too hard since it probably doesn't matter too much.  For
+# fancier tests for compiler flags, see the AX_CC_MAXOPT macro in the
+# autoconf macro repository.
+if test "$ac_test_CFLAGS" != "set"; then
+   AX_CHECK_COMPILER_FLAGS(-O3, [CFLAGS="-O3"])
+fi
 
 ##########################################################################
 # more optional arguments to the configure script:
@@ -410,7 +416,7 @@ AC_CHECK_HEADERS(X11/Xm/MwmUtil.h sys/types.h sys/prctl.h sys/sysmp.h sysmp.h sy
 ##########################################################################
 
 # Check for POSIX threads library.
-# (taken from FFTW configure.in, www.fftw.org)
+# (based on FFTW configure.in, www.fftw.org)
 # Eventually, we should also check for the other threads models that
 # Vis5d supports.
 
@@ -418,20 +424,19 @@ THREADLIBS=""
 
 if test "$enable_threads" = "yes"; then
 
-# First, check for SGI sproc fork variant:
-# (should we prefer POSIX threads to this?)
-if test -z "$THREADLIBS"; then
-	AC_CHECK_FUNC(sproc, [THREADLIBS="  "
-                              AC_DEFINE(HAVE_SGI_SPROC,1,[Have SGI sproc?])])
-fi
-
 # Check for POSIX threads:
-sinclude(acx_pthread.m4)
 if test -z "$THREADLIBS"; then
 	ACX_PTHREAD([THREADLIBS=" $PTHREAD_LIBS"
         	     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
                      CC="$PTHREAD_CC"
                      AC_DEFINE(HAVE_PTHREADS,1,[Have POSIX threads?])])
+fi
+
+# First, check for SGI sproc fork variant:
+# (we prefer POSIX threads to this, right?)
+if test -z "$THREADLIBS"; then
+	AC_CHECK_FUNC(sproc, [THREADLIBS="  "
+                              AC_DEFINE(HAVE_SGI_SPROC,1,[Have SGI sproc?])])
 fi
 
 # Solaris threads:

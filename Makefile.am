@@ -4,7 +4,9 @@
 SUBDIRS = lui5 src util doc
 
 EXTRA_DIST = PORTING COPYRIGHT hole.v5d contrib convert scripts \
-             userfuncs pixmaps vis5d+.pc.in # gtk po intl
+             userfuncs pixmaps vis5d+.pc.in m4 # gtk po intl
+
+ACLOCAL_AMFLAGS=-I ./m4
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = vis5d+.pc

@@ -1,14 +1,7 @@
-AC_INIT
-AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.51 $)
+AC_INIT(vis5d+, 1.3.2, vis5d-list@ssec.wisc.edu)
+AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR([src/v5d.c])
-#
-# Odd number indicates development version,
-# even number stable version.  The stable version
-# should be on a cvs branch labeled vis5d-x-x 
-# (for example vis5d-1-2) 
-#
-AM_INIT_AUTOMAKE(vis5d+, 1.3.1)
+AM_INIT_AUTOMAKE(1.6)
 
 AM_CONFIG_HEADER(config.h src/api-config.h)
 AM_MAINTAINER_MODE
@@ -462,7 +455,7 @@ AC_SUBST(THREADLIBS)
 ##########################################################################
 
 dnl Set PACKAGE_DATA_DIR in config.h.
-if test "x${datadir}" = 'x${prefix}/share' -o "x${datadir}" = '${datarootdir}'; then
+if test "x${datadir}" = 'x${prefix}/share' -o "x${datadir}" = 'x${datarootdir}'; then
   if test "x${prefix}" = "xNONE"; then
     AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${ac_default_prefix}/share/${PACKAGE}", [Location of package data files])
   else

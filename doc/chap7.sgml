@@ -35,8 +35,8 @@ Optionally, start Vis5D on the output file.
 </para>
 <para>
 Currently, <command>v5dimport</command> can read the following file formats:
-<informaltable frame=none>
-<tgroup cols=1>
+<informaltable frame="none">
+<tgroup cols="1">
 <tbody>
 <row>
      <entry>McIDAS GR3D and GRID files</entry>
@@ -110,8 +110,8 @@ v5dimport [-path pathname] [files]
 </para>
 <para>
 The columns in this list are:
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
      <entry>Grid </entry>
@@ -300,8 +300,8 @@ v5dimport -t &lt; script
 <para>
 After you've invoked <command>v5dimport</command> with the -t option you'll see a <prompt>&gt;&gt;</prompt> prompt at
 which you can issue any of these commands:
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
      <entry>exit</entry>

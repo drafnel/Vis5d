@@ -81,7 +81,7 @@ outline how to make a v5d file.  They are located in the convert/
 subdirectory.  You can choose which one to use as a template for your
 data converter:
 <informaltable>
-<tgroup cols=2>
+<tgroup cols="2">
 <tbody>
 <row>
 <entry><filename>foo_to_v5d.f</filename></entry>
@@ -258,7 +258,7 @@ Number of columns in all 3-D grids (at least 2)
 <varlistentry>
 <term><varname>varname</varname></term>
 <listitem><para>  
-                  <simplelist type=vert columns=1>
+                  <simplelist type="vert" columns="1">
                   <member>Array of variable names:</member>
                   <member>varname(1) = name of first variable</member>
                   <member>varname(2) = name of second variable</member>
@@ -270,7 +270,7 @@ Number of columns in all 3-D grids (at least 2)
 <varlistentry>
 <term><varname>timestamp</varname></term>
 <listitem><para>  
-                  <simplelist type=vert columns=1>
+                  <simplelist type="vert" columns="1">
                   <member>Array of time labels for the timesteps in
 		  HHMMSS format:</member>
                   <member>timestamp(1) = time of first timestep</member> 
@@ -283,7 +283,7 @@ Number of columns in all 3-D grids (at least 2)
 <varlistentry>
 <term><varname>datestamp</varname></term>
 <listitem><para> 
-                  <simplelist type=vert columns=1>
+                  <simplelist type="vert" columns="1">
                   <member>Array of date labels for the timesteps in
 		  YYDDD format</member>
                   <member>datestamp(1) = date of first timestep</member>
@@ -340,7 +340,7 @@ Number of columns in all 3-D grids (at least 2)
 <varlistentry>
 <term><varname>nl</varname></term>          
 <listitem><para>
-         <simplelist type=vert columns=1>
+         <simplelist type="vert" columns="1">
 	 <member>Number of levels in the 3-D grids per variable:</member>
          <member>nl(1) = number of levels for first variable</member>
          <member>nl(2) = number of levels for second variable</member>
@@ -358,7 +358,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
 <varlistentry>
 <term><varname>projection </varname></term>
 <listitem><para> 
-                  <simplelist type=vert columns=1>
+                  <simplelist type="vert" columns="1">
                   <member>Indicates type of map projection:</member>
                   <member>0 = linear, rectangular, generic units</member>
                   <member>1 = linear, rectangular, cylindrical-equidistant
@@ -377,7 +377,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
     <varlistentry>
     <term>if projection=0 then</term>
        <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
        <member>proj_args(1) = North boundary of 3-D box</member>
        <member>proj_args(2) = West boundary of 3-D box</member>
        <member>proj_args(3) = Increment between rows</member>
@@ -388,7 +388,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
     <varlistentry>
     <term>else if projection=1 then</term>
        <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
        <member>proj_args(1) = North Latitude bound of 3-D box</member> 
        <member>proj_args(2) = West Longitude bound of 3-D box</member> 
        <member>proj_args(3) = Increment between rows in degrees</member> 
@@ -399,7 +399,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
     <varlistentry>
     <term>else if projection=2 then</term>
        <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
        <member>proj_args(1) = Standard Latitude 1</member>
        <member>proj_args(2) = Standard Latitude 2</member>
        <member>proj_args(3) = Row of North/South pole</member>
@@ -412,7 +412,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
     <varlistentry>
     <term>else if projection=3 then</term>
        <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
        <member>proj_args(1) = Latitude of center (degrees)</member>
        <member>proj_args(2) = Longitude of center (degrees)</member>
        <member>proj_args(3) = Row of center of projection</member>
@@ -424,7 +424,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
     <varlistentry>
     <term>else if projection=4 then</term>
        <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
        <member>proj_args(1) = North boundary on rotated sphere</member>
        <member>proj_args(2) = West boundary on rotated sphere</member>
        <member>proj_args(3) = Increment between rows</member>
@@ -448,7 +448,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
 <varlistentry>
 <term><varname>vertical</varname></term>
 <listitem><para>
-          <simplelist type=vert columns=1> 
+          <simplelist type="vert" columns="1"> 
           <member>Indicates type of vertical coordinate system:</member> 
           <member>0 = equally spaced levels in generic units</member> 
           <member>1 = equally spaced levels in km</member> 
@@ -468,7 +468,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
      <varlistentry>
      <term>if vertical=0 then</term>
      <listitem><para>
-       <simplelist type=vert columns=1>     
+       <simplelist type="vert" columns="1">     
 	<member>vert_args(1) = height of bottom level</member>
         <member>vert_args(2) = spacing between levels</member>
        </simplelist>
@@ -477,7 +477,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
      <varlistentry>
      <term>else if vertical=1 then</term>
      <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
         <member>vert_args(1) = height of bottom level in km</member>
         <member>vert_args(2) = spacing between levels in km</member>
        </simplelist>
@@ -486,7 +486,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
      <varlistentry>
      <term>else if vertical=2 then</term>
      <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
         <member>
         vert_args(1) = height (km) of grid level 1 (bottom)</member>
         <member>vert_args(2) = height (km) of grid level 2</member>
@@ -499,7 +499,7 @@ Compression mode (1, 2 or 4 bytes per grid point)
      <varlistentry>
      <term>else if vertical=3 then</term>
      <listitem><para>
-       <simplelist type=vert columns=1>
+       <simplelist type="vert" columns="1">
         <member>
         vert_args(1) = pressure (mb) of grid level 1 (bottom)</member>
         <member>vert_args(2) = pressure (mb) of grid level 2</member>
@@ -545,9 +545,9 @@ C-callable function:
 </programlisting>
 </para>
 <para>
-<table frame=none>
+<table frame="none">
 <title>Arguments descriptions:</title>
-<tgroup cols=2>
+<tgroup cols="2">
 <tbody>
 <row> 
 		<entry> time </entry>
@@ -623,8 +623,8 @@ each variable if one were using the
 <filename>foo_to_v5d.f</filename> program:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <thead>
 <row>
 <entry> Assignment </entry><entry> Comments </entry>
@@ -682,19 +682,19 @@ each variable if one were using the
 		  (February 5) </entry>
 </row>
 <row>
-     <entry> datestamp(2) = 94036 </entry><entry align=center>
+     <entry> datestamp(2) = 94036 </entry><entry align="center">
 		  " </entry>
 </row>
 <row>
-     <entry> datestamp(3) = 94036 </entry><entry align=center>     "
+     <entry> datestamp(3) = 94036 </entry><entry align="center">     "
 		</entry>
 </row>
 <row>
-     <entry> datestamp(4) = 94036 </entry><entry align=center>
+     <entry> datestamp(4) = 94036 </entry><entry align="center">
 		  " </entry>
 </row>
 <row>
-     <entry> datestamp(5) = 94036 </entry><entry align=center>
+     <entry> datestamp(5) = 94036 </entry><entry align="center">
 		  " </entry>
 </row>
 <row>
@@ -783,8 +783,8 @@ a summary showing how the lowlev array is the solution to this
 situation:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=4>
+<informaltable frame="none">
+<tgroup cols="4">
 <thead>
 <row>
 		<entry> varnum </entry>
@@ -950,8 +950,8 @@ coordinates increase upward and east/west coordinates increase to the
 left. The projection is defined by four parameters:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
      <entry>NorthBound: </entry><entry> Northern boundary of 3-D
@@ -1005,8 +1005,8 @@ used in previous versions of Vis5D. Latitude increases to the North
 projection is defined by four parameters:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> NorthBound: </entry>
@@ -1060,8 +1060,8 @@ projection is defined by four parameters:
 <para>This is a conic projection defined by the following six parameters.
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> Lat1, Lat2: </entry>
@@ -1139,8 +1139,8 @@ will be incorrect.
 An aximuthal stereographic projection defined by five parameters:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> CentLat, CentLon: </entry>
@@ -1190,8 +1190,8 @@ rotated sphere and east/west coordinates increase leftward on the
 rotated sphere. The projection is defined by seven parameters:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> NorthBound: </entry>
@@ -1277,8 +1277,8 @@ Vis5D 5.2 supports the following vertical coordinate systems:
 	This is a linear vertical coordinate system in which levels in
 the 3-D grid are equally spaced.  No specific units are implied.  The
 coordinate system is defined by two parameters:
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> BottomBound: </entry> 
@@ -1318,8 +1318,8 @@ versions of Vis5D.  Grid levels are equally spaced.  The coordinate
 system is defined by two parameters:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> BottomBound: </entry>
@@ -1361,8 +1361,8 @@ an array of N height parameters where N is the number of levels in the
 variable, N is the maximum number of grid levels.
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 	      <entry> Height(1): </entry>
@@ -1391,8 +1391,8 @@ variable, N is the maximum number of grid levels.
 	Example:  Suppose your 3-D grids have 10 levels and you want
 the grid levels to be more closely spaced near the bottom than near
 the top.  Then: 
-<informaltable frame=none>
-<tgroup cols=1>
+<informaltable frame="none">
+<tgroup cols="1">
 <tbody>
 <row>
 		    <entry> Height(1) = 0.0 </entry>
@@ -1461,8 +1461,8 @@ the 3-D grids.  If the number of grid levels is different for each
 variable, N is the maximum number of grid levels.
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> Pressure(1): </entry>

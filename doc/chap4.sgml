@@ -40,8 +40,8 @@ stepping forward through time.  For example, the grid sequence from a
 weather model could be:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=4 align=center>
+<informaltable frame="none">
+<tgroup cols="4" align="center">
 <thead>
 <row>
 <entry> GRID NUMBER </entry>
@@ -309,8 +309,8 @@ structures. The call to IGMK3D at line 90 creates a 3D grid file. Its
 parameters are:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> 1 </entry> 
@@ -334,8 +334,8 @@ once for each combination of time step and physical variable to put 3D
 grids into the file. Its parameters are:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> 1 </entry>
@@ -462,8 +462,8 @@ command parameters.  They get command parameters based on their sequential
 position in the command line.  They all have similar function parameters:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> INTEGER*4 - sequence number of command parameter</entry>
@@ -499,8 +499,8 @@ IKWP returns an INTEGER*4, CKWP returns a CHARACTER*12
 and DKWP returns a REAL*8.  They all have similar function parameters:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> CHARACTER*12 - keyword string in command line</entry>
@@ -536,8 +536,8 @@ returns the number of sequential parameters after
 a keyword.  Its function parameter is:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry> CHARACTER*12 - keyword string in command line.</entry>
@@ -590,8 +590,8 @@ visualized using the vis5d program.  Currently, you are limited to a maximum of
 there is a trivial spatial dimension:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=1>
+<informaltable frame="none">
+<tgroup cols="1">
 <tbody>
 <row>
 		<entry>NLATS < 2</entry>
@@ -652,8 +652,8 @@ to set the grid dimensions for the destination grid as different from the
 dimensions for the source grid.  Invoke gg3d with the keywords:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=1>
+<informaltable frame="none">
+<tgroup cols="1">
 <tbody>
 <row>
      <entry><parameter>-lat XLATS XLATN</parameter></entry>

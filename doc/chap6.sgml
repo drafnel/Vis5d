@@ -492,12 +492,12 @@ current time step.  The control panel contains several groups of buttons.
      Starting at the top, the first button group contains the following buttons:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
-<colspec colwidth=1.25in>
-<colspec colwidth=1.25in>
-<colspec colwidth=1.25in>
-<colspec colwidth=1.25in>
+<informaltable frame="none">
+<tgroup cols="2">
+<colspec colwidth="1.25in"/>
+<colspec colwidth="1.25in"/>
+<colspec colwidth="1.25in"/>
+<colspec colwidth="1.25in"/>
 <tbody>
 <row>
 <entry> [ANIMATE] </entry>
@@ -557,8 +557,8 @@ option, or because the feature is not available on your hardware.
 how the mouse is used in the 3-D window:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry>Normal </entry>
@@ -685,8 +685,8 @@ See <link linkend="ch06sec19">section 6.19</link> for more information.
 functions of vis5d.  Some will be discussed in more detail later.
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry>ANIMATE </entry>
@@ -1090,8 +1090,8 @@ change the transparency.
 There are a number of other keyboard controls for the color table window:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		  <entry><keycap>r</keycap></entry>
@@ -1570,8 +1570,8 @@ then the grid will be a constant value, the number of second since the first
 time step.  For example in order to create a time derivative of U of the type:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=1 align=center>
+<informaltable frame="none">
+<tgroup cols="1" align="center">
 <tbody>
 <row>
 		  <entry> U(t+1) - U(t-1) </entry>
@@ -1630,7 +1630,7 @@ T.1", if the time steps were such:
 <para>
 <table>
 <title>Data Context 0</title>
-<tgroup cols=3 align=center>
+<tgroup cols="3" align="center">
 <thead>
 <row>
 		  <entry> </entry>
@@ -1676,7 +1676,7 @@ T.1", if the time steps were such:
 <para>
 <table>
 <title>Data Context 1</title>
-<tgroup cols=3 align=center>
+<tgroup cols="3" align="center">
 <thead>
 <row>
 		  <entry></entry>
@@ -1713,8 +1713,8 @@ T.1", if the time steps were such:
 The resulting variable "DIFFT.0" would contain the data:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		  <entry>Time 0 </entry>
@@ -1876,8 +1876,8 @@ not you have the 'convert' program installed.  The formats supported by Vis5D
 are:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <tbody>
 <row>
 		<entry>XWD </entry>
@@ -2065,8 +2065,8 @@ scripts.
 inside the 3-D viewing window:
 </para>
 <para>
-<informaltable frame=none>
-<tgroup cols=2>
+<informaltable frame="none">
+<tgroup cols="2">
 <thead>
 <row>
 		<entry>	Key   </entry>

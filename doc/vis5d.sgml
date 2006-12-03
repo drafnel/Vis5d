@@ -1,4 +1,4 @@
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"[
 <!ENTITY chap1 SYSTEM "chap1.sgml">
 <!ENTITY chap2 SYSTEM "chap2.sgml">
 <!ENTITY chap3 SYSTEM "chap3.sgml">

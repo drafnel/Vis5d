@@ -1,6 +1,6 @@
 AC_INIT
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.50 $)
+AC_REVISION($Revision: 1.51 $)
 AC_CONFIG_SRCDIR([src/v5d.c])
 #
 # Odd number indicates development version,
@@ -477,7 +477,7 @@ packagesrcdir=`cd $srcdir && pwd`
 AC_DEFINE_UNQUOTED(PACKAGE_SOURCE_DIR, "${packagesrcdir}",[where the source was built])
 
 ##########################################################################
-# experimental GTK stuff (commented out)
+# experimental GTK stuff
 
 AC_ARG_ENABLE(gtk, [  --enable-gtk            compile gtk user interface (NEW)], enable_gtk=$enableval, enable_gtk=no)
 
@@ -490,6 +490,7 @@ if test "x$enable_gtk" = xyes; then
 fi
 AM_CONDITIONAL(ENABLE_GTK, test "x$enable_gtk" = xyes)
 
+# FIXME: get gettext support working again
 dnl ALL_LINGUAS="pt_BR es"
 #
 # we need libintl.h to use NLS

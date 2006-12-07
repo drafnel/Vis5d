@@ -1,5 +1,62 @@
 Summary of changes for each release of Vis5d+:
 
+[Changes since Vis5d+ 1.2.1]
+
+ * Fix linking to full Tcl library, using tclsh program to detect
+   version number for linking and include directory.
+
+ * Fixed bug that had stopped reverse-color (black on white) mode from
+   working in version 1.2.
+
+ * Updated autoconf macros.  Removed crufty old code to try to pick
+   good compiler flags; now just defaults to -O3.  (To override,
+   use ./configure CFLAGS="...")
+
+ * Fix so that documentation conforms to DocBook XML standard, which
+   is required to build the documentation again with the latest Jade
+   tools.
+
+ * Added nonequally-spaced projection support from Zhang Lin-bo
+   to API (nonequal latitude grid); c.f. PROJ_GENERIC_NONEQUAL.
+
+ * New vis5d_time2ctime API function to convert vis5d date/time stamp
+   into POSIX ctime (seconds since 1970).
+
+ * New vis5d_matrix_mult API function to multiply the model matrix
+   associated with the display by a given 4x4 matrix (affine transformation).
+
+ * Optional support (compile with -DUSE_SYSTEM_FONTS) for more flexible
+   font support (e.g. you can individually set fonts for various objects
+   in the graphics window).
+
+ * Optional support (compile with -DSLOW_VOLUME_RENDER) to disable
+   volume rendering while the mouse button is pressed (e.g. during
+   rotation of the display).
+
+ * Added -version command-line option.
+
+Vis5d+ 1.2.1
+
+ * Bug fix in allocation of computed variables.
+
+Vis5d+ 1.2
+
+ * The NCAR modifications to vis5d 5.2 have been added:
+    -- Support for stereo display mode 
+	(requires hardware support and proper configuration)
+    -- Support for scene output to VRML format.
+    -- Improved screen image dumping (direct support for PNG, and
+       indirect support for other formats via ImageMagick)
+    -- Improved Isosurface rendering using decimated meshes
+	(requires an external library, Mixkit, to be installed)
+
+ * Many structures and arrays have been changed from statically to
+   dynamically allocated.
+
+ * The beginnings of a new GTK+ based user interface have been added. 
+   You must have GTK+ 1.2.9 or newer and configure with --enable-gtk to
+   use this interface.
+
 Vis5d+ 1.1
 
   * The API (i.e. the libvis5d library) is now properly independent of the GUI.

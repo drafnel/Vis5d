@@ -5,7 +5,7 @@
 
 INCLUDES = -I$(top_srcdir)/gtk/gradients \
 	-I$(top_srcdir)/intl \
-	@GTK_CFLAGS@
+	@GTK_CFLAGS@ @GTKGL_CFLAGS@
 
 SUBDIRS=gradients
 

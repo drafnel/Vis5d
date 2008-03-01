@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/gtk/gradients -I$(top_srcdir)/gtk \
            -I$(top_srcdir) -I$(top_srcdir)/intl \
-	        @GTK_CFLAGS@
+	        @GTK_CFLAGS@ @GTKGL_CFLAGS@
 
 if ENABLE_GTK
 lib_LTLIBRARIES = libgradients.la

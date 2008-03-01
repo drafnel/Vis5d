@@ -10826,7 +10826,7 @@ int vis5d_alloc_irregular_data_context( void )
 }
 
 
-int vis5d_load_irregular_v5dfile( int dindex, int mbs, const char *filename, const char *cxtname ){
+int vis5d_load_irregular_v5dfile( int dindex, int mbs, const char *filename, const char *ctxname ){
 #ifdef HAVE_LIBNETCDF
    Irregular_Context itx;
    int i, index;

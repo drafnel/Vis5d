@@ -181,6 +181,7 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget), FALSE);
       break;
 	 default:
+      break;
 	 }
 	 break;
   case TEXTPLOT:
@@ -202,6 +203,7 @@ void graph_label_button_press(v5d_info *info, gint label_id, gint button)
 		label=NULL;
       break;
 	 default:
+      break;
 	 }
 	 break;
 	 

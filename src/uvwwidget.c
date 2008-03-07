@@ -120,17 +120,10 @@ char *return_ctx_var( char *name)
 char *return_var_and_index( char *vname, int index )
 {
    int yo;
-/* WLH 14 Oct 98 - function cannot return a string from the stack
-   char whole[20];
-*/
-   /* WLH 14 Oct 98 */
-   char *whole;
+   static char whole[20];
 
    char num[20];
    
-   /* WLH 14 Oct 98 */
-   whole = malloc(20);
-
    if (index <0 || vname[0] == 0){
       whole[0] = 0;
       return whole;

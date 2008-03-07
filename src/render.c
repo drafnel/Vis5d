@@ -224,17 +224,9 @@ int flip_vslice_end_for_end (Context ctx, int time, int var)
 char *return_var_plus_index( char *varname, int index )
 {
    int yo;
-/* WLH 20 Oct 98
-   char whole[40];
-*/
-   /* WLH 20 Oct 98 */
-   char* whole;
-
+   static char whole[40];
    char num[40];
 
-
-   /* WLH 20 Oct 98 */
-   whole = (char *) malloc(40);
 
    if (index <0 || varname[0] == 0){
       whole[0] = 0;

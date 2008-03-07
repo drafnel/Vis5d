@@ -2125,10 +2125,10 @@ static void calc_hslice( Context ctx, int time, int var,
 
    vr1 = (float *) malloc(sizeof(float)*max_cont_verts);
    vc1 = (float *) malloc(sizeof(float)*max_cont_verts);
-   vr2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vc2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vr3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vc3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vr2 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vc2 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vr3 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vc3 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
    vl  = (float *) malloc(sizeof(float)*max_cont_verts);
 
    if (!vr1 || !vc1 || !vr2 || !vc2 || !vr3 || !vc3 || !vl){
@@ -2171,7 +2171,7 @@ static void calc_hslice( Context ctx, int time, int var,
 
 	if(labels)
 	  free(labels);
-	labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+	labels = (char *) malloc(10*sizeof(char)*(max_cont_verts/2));
 #endif
 
    contour_ok =
@@ -2402,12 +2402,12 @@ static void calc_vslice( Context ctx, int time, int var,
    vr1 = (float *) malloc(sizeof(float)*max_cont_verts);
    vc1 = (float *) malloc(sizeof(float)*max_cont_verts);
    vl1 = (float *) malloc(sizeof(float)*max_cont_verts);
-   vr2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vc2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vl2 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vr3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vc3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
-   vl3 = (float *) malloc(sizeof(float)*max_cont_verts/2);
+   vr2 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vc2 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vl2 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vr3 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vc3 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
+   vl3 = (float *) malloc(sizeof(float)*(max_cont_verts/2));
    if (!vr1 || !vc1 || !vl1 || !vr2 || !vc2 || !vl2 || !vr3 || !vc3 || !vl3){
       printf(" You do not have enough memory to create vslices.\n");
       if (vr1){
@@ -2452,7 +2452,7 @@ static void calc_vslice( Context ctx, int time, int var,
 	labels = vslice->labels ;
 	if(labels)
 	  free(labels);
-	labels = (char *) malloc(10*sizeof(char)*max_cont_verts/2);
+	labels = (char *) malloc(10*sizeof(char)*(max_cont_verts/2));
 #endif
 
    contour_ok =	contour( ctx, slice, rows, cols, interval, low, high, base,

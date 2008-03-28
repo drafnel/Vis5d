@@ -1,4 +1,4 @@
-AC_INIT(vis5d+, 1.3.2, vis5d-list@ssec.wisc.edu)
+AC_INIT([vis5d+], [1.3.2], [vis5d-list@ssec.wisc.edu], [vis5d+])
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR([src/v5d.c])
 AM_INIT_AUTOMAKE(1.6)
